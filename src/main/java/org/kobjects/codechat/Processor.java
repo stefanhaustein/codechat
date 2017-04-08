@@ -56,6 +56,11 @@ public class Processor extends ExpressionParser.Processor<Node> {
         return elements.get(0);
     }
 
+    @Override
+    public Node emoji(ExpressionParser.Tokenizer tokenizer, String value) {
+        return new Literal(new Emoji(value));
+    }
+
     /**
      * Delegates function calls to Math via reflection.
      */

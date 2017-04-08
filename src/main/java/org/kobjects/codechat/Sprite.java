@@ -2,9 +2,11 @@ package org.kobjects.codechat;
 
 import android.widget.TextView;
 
-public class Sprite {
+public class Sprite implements Ticking {
 
     TextView view;
+    double dx;
+    double dy;
 
     public Sprite(Environment environment) {
         view = new TextView(environment.rootView.getContext());
@@ -30,11 +32,26 @@ public class Sprite {
     }
 
     public double getY() {
-        return view.getX();
+        return view.getY();
+    }
+
+    public double getDx() {
+        return dx;
+    }
+    public double getDy() {
+        return dy;
     }
 
     public void setX(double x) {
         view.setX((float) x);
+    }
+
+    public void setDx(double dx) {
+        this.dx = dx;
+    }
+
+    public void setDy(double dy) {
+        this.dy = dy;
     }
 
     public void setY(double y) {
@@ -45,4 +62,19 @@ public class Sprite {
         view.setTextSize((float) s);
     }
 
+    public void setFace(Emoji emoji) {
+        view.setText(emoji.toString());
+    }
+
+    public Emoji getFace() {
+        return new Emoji(view.getText().toString());
+    }
+
+    @Override
+    public void tick() {
+        if (dx != 0 || dy != 0) {
+            setX(getX() + dx);
+            setY(getY() + dy);
+        }
+    }
 }

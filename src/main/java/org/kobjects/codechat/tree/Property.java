@@ -36,6 +36,6 @@ public class Property extends Node {
     }
 
     public String toString() {
-        return "." + name;
+        return children[0] + "." + name;
     }
 }
