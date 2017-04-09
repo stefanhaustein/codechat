@@ -26,9 +26,10 @@ public class Processor extends ExpressionParser.Processor<Node> {
     @Override
     public Node implicitOperator(ExpressionParser.Tokenizer tokenizer, boolean strong, Node left, Node right) {
         if (left instanceof Implicit) {
+            Implicit li = (Implicit) left;
             List<Node> children = new ArrayList<>();
-            for (int i = 0; i < left.children.length; i++) {
-                children.add(left.children[i]);
+            for (int i = 0; i < li.children.length; i++) {
+                children.add(li.children[i]);
             }
             children.add(right);
             return new Implicit(children);
@@ -38,7 +39,7 @@ public class Processor extends ExpressionParser.Processor<Node> {
 
     @Override
     public Node prefixOperator(ExpressionParser.Tokenizer tokenizer, String name, Node argument) {
-        return new InfixOperator(name, argument);
+        return new InfixOperator(name, argument, null);
     }
 
     @Override

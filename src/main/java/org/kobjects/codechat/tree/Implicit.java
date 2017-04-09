@@ -5,13 +5,13 @@ import java.util.List;
 import org.kobjects.codechat.Environment;
 
 public class Implicit extends Node {
-
+    public Node[] children;
     public Implicit(Node... children) {
-        super(children);
+        this.children = children;
     }
 
     public Implicit(List<Node> children) {
-        super(children);
+        this(children.toArray(new Node[children.size()]));
     }
 
     @Override

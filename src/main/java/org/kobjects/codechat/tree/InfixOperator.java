@@ -5,26 +5,29 @@ import org.kobjects.codechat.Environment;
 public class InfixOperator extends Node {
 
     final String name;
-    public InfixOperator(String name, Node... children) {
-        super(children);
+    Node left;
+    Node right;
+    public InfixOperator(String name, Node left, Node right) {
         this.name = name;
+        this.left = left;
+        this.right = right;
     }
 
     @Override
     public Object eval(Environment environment) {
-        if (children.length == 1) {
-            Object p0 = children[0].eval(environment);
+        if (right == null) {
+            Object p0 = left.eval(environment);
             if (p0 instanceof Number) {
                 return evalNumber(((Number) p0).doubleValue());
             }
             throw new RuntimeException("Can't apply " + name + " to " + p0.getClass().getSimpleName());
         } else if (name.equals("=")) {
-            Object value = children[1].eval(environment);
-            children[0].assign(environment, value);
+            Object value = right.eval(environment);
+            left.assign(environment, value);
             return value;
         } else {
-            Object p0 = children[0].eval(environment);
-            Object p1 = children[1].eval(environment);
+            Object p0 = left.eval(environment);
+            Object p1 = right.eval(environment);
             if (p0.getClass() != p1.getClass()) {
                 throw new RuntimeException("Parameters must be of the same type for " + name);
             }
@@ -66,10 +69,10 @@ public class InfixOperator extends Node {
     }
 
     public String toString() {
-        if (children.length == 1) {
-            return "(" + name + "(" + children[0] + "))";
+        if (right == null) {
+            return "(" + name + "(" + left + "))";
         }
-        return "((" + children[0] + ") " + name + " (" + children[1] + "))";
+        return "((" + left + ") " + name + " (" + right + "))";
     }
 
 }

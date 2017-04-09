@@ -5,9 +5,10 @@ import org.kobjects.codechat.Environment;
 
 public class FunctionCall extends Node {
     private final String name;
+    private Node[] children;
     public FunctionCall(String identifier, List<Node> arguments) {
-        super(arguments);
         this.name = identifier;
+        children = arguments.toArray(new Node[arguments.size()]);
     }
 
     public String toString() {
