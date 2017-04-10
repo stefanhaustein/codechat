@@ -7,6 +7,9 @@ public class Sprite implements Ticking {
     TextView view;
     double dx;
     double dy;
+    double size;
+    double x;
+    double y;
 
     public Sprite(Environment environment) {
         this.environment = environment;
@@ -15,9 +18,9 @@ public class Sprite implements Ticking {
 
         view.setTextColor(0x0ff000000);
 
+        setSize(50);
         setX(500);
         setY(500);
-        setSize(50);
 
         environment.rootView.addView(view);
     }
@@ -28,11 +31,11 @@ public class Sprite implements Ticking {
     }
 
     public double getX() {
-        return (view.getX() + view.getMeasuredWidth() / 2) / environment.scale;
+        return x;
     }
 
     public double getY() {
-        return (view.getY() + view.getMeasuredHeight() / 2) / environment.scale;
+        return y;
     }
 
     public double getDx() {
@@ -43,11 +46,13 @@ public class Sprite implements Ticking {
     }
 
     public void setX(double x) {
-        view.setX((float) (environment.scale * x - view.getMeasuredWidth() / 2));
+        this.x = x;
+        view.setX((float) (environment.scale * (x - size / 2)));
     }
 
     public void setY(double y) {
-        view.setY((float) (environment.scale * y - view.getMeasuredHeight() / 2));
+        this.y = y;
+        view.setY((float) (environment.scale * (y - size / 2)));
     }
 
     public void setDx(double dx) {
@@ -59,7 +64,10 @@ public class Sprite implements Ticking {
     }
 
     public void setSize(double s) {
+        size = s;
         view.setTextSize((float) (s * environment.scale));
+        setX(x);
+        setY(y);
     }
 
     public void setFace(Emoji emoji) {
@@ -76,5 +84,10 @@ public class Sprite implements Ticking {
             setX(getX() + dx);
             setY(getY() + dy);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "sprite x:" + getX() + " y:" + getY() + " dx:" + dx + " dy:" + dy + " viewX:" + view.getX() + " viewY:" + view.getY();
     }
 }

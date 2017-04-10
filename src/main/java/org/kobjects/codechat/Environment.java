@@ -45,6 +45,6 @@ public class Environment implements Runnable {
         for (Ticking t : ticking) {
             t.tick(force);
         }
-        handler.postDelayed(this, 100);
+        handler.postDelayed(this, 30);
     }
 }
