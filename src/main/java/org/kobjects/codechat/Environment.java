@@ -7,6 +7,7 @@ import java.util.*;
 
 public class Environment implements Runnable {
 
+    double scale;
     FrameLayout rootView;
     public Map<String, Object> variables = new TreeMap<>();
     List<Ticking> ticking = new ArrayList<>();
@@ -37,8 +38,12 @@ public class Environment implements Runnable {
 
     @Override
     public void run() {
+        float min = Math.min(rootView.getMeasuredWidth(), rootView.getMeasuredHeight());
+        float newScale = min / 1000;
+        boolean force = newScale != scale;
+        scale = newScale;
         for (Ticking t : ticking) {
-            t.tick();
+            t.tick(force);
         }
         handler.postDelayed(this, 100);
     }

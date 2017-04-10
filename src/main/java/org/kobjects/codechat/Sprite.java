@@ -3,36 +3,36 @@ package org.kobjects.codechat;
 import android.widget.TextView;
 
 public class Sprite implements Ticking {
-
+    Environment environment;
     TextView view;
     double dx;
     double dy;
 
     public Sprite(Environment environment) {
+        this.environment = environment;
         view = new TextView(environment.rootView.getContext());
         view.setText(new String(Character.toChars(0x1F603)));
 
         view.setTextColor(0x0ff000000);
 
-        view.setX(environment.rootView.getMeasuredWidth() / 2);
-        view.setY(environment.rootView.getMeasuredHeight() / 3);
+        setX(500);
+        setY(500);
+        setSize(50);
 
         environment.rootView.addView(view);
     }
 
-
-
     public void move(double x, double y) {
-        view.setX((float) x);
-        view.setY((float) y);
+        setX(x);
+        setY(y);
     }
 
     public double getX() {
-        return view.getX();
+        return (view.getX() + view.getMeasuredWidth() / 2) / environment.scale;
     }
 
     public double getY() {
-        return view.getY();
+        return (view.getY() + view.getMeasuredHeight() / 2) / environment.scale;
     }
 
     public double getDx() {
@@ -43,7 +43,11 @@ public class Sprite implements Ticking {
     }
 
     public void setX(double x) {
-        view.setX((float) x);
+        view.setX((float) (environment.scale * x - view.getMeasuredWidth() / 2));
+    }
+
+    public void setY(double y) {
+        view.setY((float) (environment.scale * y - view.getMeasuredHeight() / 2));
     }
 
     public void setDx(double dx) {
@@ -54,12 +58,8 @@ public class Sprite implements Ticking {
         this.dy = dy;
     }
 
-    public void setY(double y) {
-        view.setY((float) y);
-    }
-
     public void setSize(double s) {
-        view.setTextSize((float) s);
+        view.setTextSize((float) (s * environment.scale));
     }
 
     public void setFace(Emoji emoji) {
@@ -71,8 +71,8 @@ public class Sprite implements Ticking {
     }
 
     @Override
-    public void tick() {
-        if (dx != 0 || dy != 0) {
+    public void tick(boolean force) {
+        if (force || dx != 0 || dy != 0) {
             setX(getX() + dx);
             setY(getY() + dy);
         }
