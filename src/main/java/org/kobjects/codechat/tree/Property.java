@@ -2,6 +2,7 @@ package org.kobjects.codechat.tree;
 
 import java.lang.reflect.Method;
 import org.kobjects.codechat.Environment;
+import org.kobjects.codechat.Processor;
 
 public class Property extends Node {
     String name;
@@ -36,7 +37,16 @@ public class Property extends Node {
         }
     }
 
-    public String toString() {
-        return base + "." + name;
+    public void toString(StringBuilder sb, int parentPrecedence) {
+        boolean braces = parentPrecedence > Processor.PRECEDENCE_PATH;
+        if (braces) {
+            sb.append('(');
+        }
+        base.toString(sb, Processor.PRECEDENCE_PATH);
+        sb.append('.');
+        sb.append(name);
+        if (braces) {
+            sb.append(')');
+        }
     }
 }

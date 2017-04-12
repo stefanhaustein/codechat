@@ -1,6 +1,7 @@
 package org.kobjects.codechat.tree;
 
 import org.kobjects.codechat.Environment;
+import org.kobjects.codechat.Processor;
 
 public class InfixOperator extends Node {
 
@@ -68,11 +69,43 @@ public class InfixOperator extends Node {
         }
     }
 
-    public String toString() {
-        if (right == null) {
-            return "(" + name + "(" + left + "))";
+    private int getPrecedence() {
+        switch (name) {
+            case "^":
+                return Processor.PRECEDENCE_POWER;
+            case "*":
+            case "/":
+                return Processor.PRECEDENCE_MULTIPLICATIVE;
+            case "+":
+            case "-":
+                return right == null ? Processor.PRECEDENCE_SIGN : Processor.PRECEDENCE_ADDITIVE;
+            case "=":
+                return Processor.PRECEDENCE_RELATIONAL;
+            default:
+                throw new RuntimeException("getPrecedence undefined for " + name);
+
         }
-        return "((" + left + ") " + name + " (" + right + "))";
     }
 
+    @Override
+    public void toString(StringBuilder sb, int parentPrecedence) {
+        int precedence = getPrecedence();
+        boolean braces = parentPrecedence > precedence;
+        if (braces) {
+            sb.append('(');
+        }
+        if (right == null) {
+            sb.append(name);
+            left.toString(sb, precedence);
+        } else {
+            left.toString(sb, precedence);
+            sb.append(' ');
+            sb.append(name);
+            sb.append(' ');
+            right.toString(sb, precedence);
+        }
+        if (braces) {
+            sb.append(')');
+        }
+    }
 }

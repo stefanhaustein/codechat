@@ -21,7 +21,7 @@ public class Identifier extends Node {
         environment.variables.put(name, value);
     }
 
-    public String toString() {
-        return name;
+    public void toString(StringBuilder sb, int parentPrecedence) {
+        sb.append(name);
     }
 }

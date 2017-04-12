@@ -3,6 +3,7 @@ package org.kobjects.codechat.tree;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.kobjects.codechat.Environment;
+import org.kobjects.codechat.Processor;
 
 public class Implicit extends Node {
     public Node[] children;
@@ -47,14 +48,19 @@ public class Implicit extends Node {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
+    public void toString(StringBuilder sb, int parentPrecedence) {
+        boolean braces = parentPrecedence > Processor.PRECEDENCE_IMPLICIT;
+        if (braces) {
+            sb.append('(');
+        }
         sb.append(children[0]);
         for (int i = 1; i < children.length; i++) {
             sb.append(' ');
             sb.append(children[i]);
         }
-        return sb.toString();
+        if (braces) {
+            sb.append(')');
+        }
     }
 
 }

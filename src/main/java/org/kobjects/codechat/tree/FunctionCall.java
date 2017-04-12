@@ -11,18 +11,16 @@ public class FunctionCall extends Node {
         children = arguments.toArray(new Node[arguments.size()]);
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder(name);
+    public void toString(StringBuilder sb, int parentPrecedence) {
         sb.append("(");
         if (children.length > 0) {
             sb.append(children[0]);
             for (int i = 1; i < children.length; i++) {
                 sb.append(", ");
-                sb.append(children[i]);
+                children[i].toString(sb, 0);
             }
         }
         sb.append(")");
-        return sb.toString();
     }
 
     @Override
