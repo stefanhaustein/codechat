@@ -1,10 +1,17 @@
 package org.kobjects.codechat;
 
+import android.app.ActionBar;
+import android.graphics.drawable.Drawable;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Sprite implements Ticking {
     Environment environment;
-    TextView view;
+    ImageView view;
     double dx;
     double dy;
     double size;
@@ -13,16 +20,16 @@ public class Sprite implements Ticking {
 
     public Sprite(Environment environment) {
         this.environment = environment;
-        view = new TextView(environment.rootView.getContext());
-        view.setText(new String(Character.toChars(0x1F603)));
+        view = new ImageView(environment.rootView.getContext());
+        view.setAdjustViewBounds(true);
+        view.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        environment.rootView.addView(view);
 
-        view.setTextColor(0x0ff000000);
-
-        setSize(50);
+        setFace(new Emoji(0x1f603));
+        setSize(100);
         setX(500);
         setY(500);
 
-        environment.rootView.addView(view);
     }
 
     public void move(double x, double y) {
@@ -65,19 +72,31 @@ public class Sprite implements Ticking {
 
     public void setSize(double s) {
         size = s;
-        view.setTextSize((float) (s * environment.scale));
+
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        params.width = params.height = Math.round((float) (environment.scale * size));
         setX(x);
         setY(y);
     }
 
     public void setFace(Emoji emoji) {
-        view.setText(emoji.toString());
+        try
+        {
+            InputStream is = view.getContext().getAssets().open("emoji/png_128/" + Integer.toHexString(emoji.codepoint) + ".png");
+            // load image as Drawable
+            Drawable d = Drawable.createFromStream(is, null);
+            // set image to ImageView
+            view.setImageDrawable(d);
+            is.close();
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-
+/*
     public Emoji getFace() {
         return new Emoji(view.getText().toString());
     }
-
+*/
     @Override
     public void tick(boolean force) {
         if (force || dx != 0 || dy != 0) {
