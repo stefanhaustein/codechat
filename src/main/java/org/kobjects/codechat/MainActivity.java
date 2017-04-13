@@ -10,8 +10,11 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import org.kobjects.codechat.tree.Node;
+import org.kobjects.codechat.expr.Node;
 import org.kobjects.expressionparser.ExpressionParser;
+
+import java.io.StringReader;
+import java.util.Scanner;
 
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_SEND;
@@ -75,9 +78,30 @@ public class MainActivity extends Activity {
     void processInput(String line) {
         try {
             ExpressionParser<Node> parser = Processor.createParser();
-            Node node = parser.parse(line);
-            print(node.toString());
-            print(String.valueOf(node.eval(environment)));
+            ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
+                    new Scanner(new StringReader(line)),
+                    parser.getSymbols(), ":");
+
+            tokenizer.nextToken();
+            print(""+tokenizer.currentType);
+            if (tokenizer.tryConsume("on")) {
+                final Node condition = parser.parse(tokenizer);
+                tokenizer.consume(":");
+                final Node exec = parser.parse(tokenizer);
+                print ("on " + condition + ": " + exec);
+                environment.ticking.add(new Ticking() {
+                    @Override
+                    public void tick(boolean force) {
+                        if (Boolean.TRUE.equals(exec.eval(environment))) {
+                            exec.eval(environment);
+                        }
+                    }
+                });
+            } else {
+                Node node = parser.parse(line);
+                print(node.toString());
+                print(String.valueOf(node.eval(environment)));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             print(e.getMessage());

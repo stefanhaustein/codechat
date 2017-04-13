@@ -1,4 +1,4 @@
-package org.kobjects.codechat.tree;
+package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.Environment;
 import org.kobjects.codechat.Processor;
@@ -42,12 +42,17 @@ public class InfixOperator extends Node {
         }
     }
 
-    private double evalNumber(double p1, double p2) {
+    private Object evalNumber(double p1, double p2) {
         switch (name) {
             case "+": return p1 + p2;
             case "-": return p1 - p2;
             case "*": return p1 * p2;
             case "/": return p1 / p2;
+            case ">": return p1 > p2;
+            case ">=": return p1 >= p2;
+            case "==": return p1 == p2;
+            case "<": return p1 < p2;
+            case "<=": return p1 <= p2;
             default:
                 throw new RuntimeException("Can't apply "+ name + " to numbers.");
         }
@@ -79,8 +84,13 @@ public class InfixOperator extends Node {
             case "+":
             case "-":
                 return right == null ? Processor.PRECEDENCE_SIGN : Processor.PRECEDENCE_ADDITIVE;
-            case "=":
+            case "<":
+            case "<=":
+            case ">":
+            case ">=":
                 return Processor.PRECEDENCE_RELATIONAL;
+            case "=":
+                return Processor.PRECEDENCE_EQUALITY;
             default:
                 throw new RuntimeException("getPrecedence undefined for " + name);
 

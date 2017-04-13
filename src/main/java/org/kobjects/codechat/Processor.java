@@ -2,24 +2,25 @@ package org.kobjects.codechat;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.kobjects.codechat.tree.FunctionCall;
-import org.kobjects.codechat.tree.Identifier;
-import org.kobjects.codechat.tree.Implicit;
-import org.kobjects.codechat.tree.InfixOperator;
-import org.kobjects.codechat.tree.Literal;
-import org.kobjects.codechat.tree.Node;
-import org.kobjects.codechat.tree.Property;
+import org.kobjects.codechat.expr.FunctionCall;
+import org.kobjects.codechat.expr.Identifier;
+import org.kobjects.codechat.expr.Implicit;
+import org.kobjects.codechat.expr.InfixOperator;
+import org.kobjects.codechat.expr.Literal;
+import org.kobjects.codechat.expr.Node;
+import org.kobjects.codechat.expr.Property;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Processor extends ExpressionParser.Processor<Node> {
 
-    public static final int PRECEDENCE_PATH = 6;
-    public static final int PRECEDENCE_POWER = 5;
-    public static final int PRECEDENCE_SIGN = 4;
-    public static final int PRECEDENCE_MULTIPLICATIVE = 3;
-    public static final int PRECEDENCE_ADDITIVE = 2;
-    public static final int PRECEDENCE_IMPLICIT = 1;
-    public static final int PRECEDENCE_RELATIONAL = 0;
+    public static final int PRECEDENCE_PATH = 7;
+    public static final int PRECEDENCE_POWER = 6;
+    public static final int PRECEDENCE_SIGN = 5;
+    public static final int PRECEDENCE_MULTIPLICATIVE = 4;
+    public static final int PRECEDENCE_ADDITIVE = 3;
+    public static final int PRECEDENCE_IMPLICIT = 2;
+    public static final int PRECEDENCE_RELATIONAL = 1;
+    public static final int PRECEDENCE_EQUALITY = 0;
 
     @Override
     public Node infixOperator(ExpressionParser.Tokenizer tokenizer, String name, Node left, Node right) {
@@ -93,7 +94,8 @@ public class Processor extends ExpressionParser.Processor<Node> {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ADDITIVE, "+", "-");
         parser.setImplicitOperatorPrecedence(false, PRECEDENCE_IMPLICIT);
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_RELATIONAL, "=");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_RELATIONAL, "<", "<=", ">", ">=");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_EQUALITY, "=");
         return parser;
     }
 
