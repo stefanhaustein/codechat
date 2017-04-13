@@ -9,8 +9,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Sprite implements Ticking {
-    Environment environment;
+public class Sprite extends Instance implements Ticking {
     ImageView view;
     double dx;
     double dy;
@@ -18,8 +17,8 @@ public class Sprite implements Ticking {
     double x;
     double y;
 
-    public Sprite(Environment environment) {
-        this.environment = environment;
+    public Sprite(Environment environment, int id) {
+        super(environment, id);
         view = new ImageView(environment.rootView.getContext());
         view.setAdjustViewBounds(true);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -29,7 +28,6 @@ public class Sprite implements Ticking {
         setSize(100);
         setX(500);
         setY(500);
-
     }
 
     public void move(double x, double y) {
@@ -59,7 +57,7 @@ public class Sprite implements Ticking {
 
     public void setY(double y) {
         this.y = y;
-        view.setY((float) (environment.scale * (y - size / 2)));
+        view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y + size / 2)));
     }
 
     public void setDx(double dx) {
@@ -105,8 +103,4 @@ public class Sprite implements Ticking {
         }
     }
 
-    @Override
-    public String toString() {
-        return "sprite x:" + getX() + " y:" + getY() + " dx:" + dx + " dy:" + dy + " viewX:" + view.getX() + " viewY:" + view.getY();
-    }
 }
