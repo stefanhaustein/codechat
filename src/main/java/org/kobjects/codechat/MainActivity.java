@@ -30,11 +30,9 @@ import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_SEND;
 
 public class MainActivity extends Activity {
-
-    ArrayAdapter<String> list;
     EditText input;
     FrameLayout mainLayout;
-    ListView listView;
+    ChatView listView;
     Environment environment;
 
     protected void onCreate(Bundle whatever) {
@@ -47,48 +45,7 @@ public class MainActivity extends Activity {
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.addView(linearLayout);
 
-        listView = new ListView(this);
-        list = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1) {
-            public View getView(int position, View convertView, ViewGroup parent) {
-                TextView result;
-                if (convertView instanceof TextView) {
-                    result = (TextView) convertView;
-                } else {
-                    result = new TextView(parent.getContext());
-//                    result.setTextColor(Color.BLACK);
-  //                  result.setTextSize(20);
-
-                result.setBackground(new Drawable() {
-                    Paint paint = new Paint();
-                    @Override
-                    public void draw(Canvas canvas) {
-                        paint.setColor(0xff88ff88);
-                        paint.setStyle(Paint.Style.FILL);
-                            canvas.drawRoundRect(new RectF(getBounds()), 20, 20, paint);
-                    }
-
-                    @Override
-                    public void setAlpha(int i) {
-
-                    }
-
-                    @Override
-                    public void setColorFilter(ColorFilter colorFilter) {
-
-                    }
-
-                    @Override
-                    public int getOpacity() {
-                        return TRANSLUCENT;
-                    }
-                });
-                }
-                result.setPadding(20, 20, 20, 20);
-                result.setText(getItem(position));
-                return result;
-            }
-        };
-        listView.setAdapter(list);
+        listView = new ChatView(this);
         linearLayout.addView(listView);
         ((LinearLayout.LayoutParams) listView.getLayoutParams()).weight = 1;
 
@@ -107,7 +64,7 @@ public class MainActivity extends Activity {
                     return false;
                 }
                 String line = v.getText().toString();
-                print(line);
+                // print(line);
                 processInput(line);
                 v.setText("");
                 return true;
@@ -119,9 +76,14 @@ public class MainActivity extends Activity {
         setContentView(mainLayout);
     }
 
-    void print(String s) {
-        list.add(s);
-        listView.smoothScrollToPosition(list.getCount());
+    void printRight(String s) {
+        listView.addRight(s);
+        listView.smoothScrollToPosition(listView.getCount());
+    }
+
+    void printLeft(String s) {
+        listView.addLeft(s);
+        listView.smoothScrollToPosition(listView.getCount());
     }
 
     void processInput(String line) {
@@ -132,12 +94,11 @@ public class MainActivity extends Activity {
                     parser.getSymbols(), ":");
 
             tokenizer.nextToken();
-            print(""+tokenizer.currentType);
             if (tokenizer.tryConsume("on")) {
                 final Node condition = parser.parse(tokenizer);
                 tokenizer.consume(":");
                 final Node exec = parser.parse(tokenizer);
-                print ("on " + condition + ": " + exec);
+                printRight ("on " + condition + ": " + exec);
                 environment.ticking.add(new Ticking() {
                     @Override
                     public void tick(boolean force) {
@@ -149,15 +110,17 @@ public class MainActivity extends Activity {
             } else if (tokenizer.tryConsume("dump")) {
                 StringWriter sw = new StringWriter();
                 environment.dump(sw);
-                print(sw.toString());
+                printRight("dump");
+                printLeft(sw.toString());
             } else {
                 Node node = parser.parse(line);
-                print(node.toString());
-                print(String.valueOf(node.eval(environment)));
+                printRight(node.toString());
+                printLeft(String.valueOf(node.eval(environment)));
             }
         } catch (Exception e) {
+            printRight(line);
             e.printStackTrace();
-            print(e.getMessage());
+            printLeft(e.getMessage());
         }
     }
 }
