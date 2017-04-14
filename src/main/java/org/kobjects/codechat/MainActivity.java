@@ -87,6 +87,7 @@ public class MainActivity extends Activity {
     }
 
     void processInput(String line) {
+        boolean printed = false;
         try {
             ExpressionParser<Node> parser = Processor.createParser();
             ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
@@ -99,6 +100,7 @@ public class MainActivity extends Activity {
                 tokenizer.consume(":");
                 final Node exec = parser.parse(tokenizer);
                 printRight ("on " + condition + ": " + exec);
+                printed = true;
                 environment.ticking.add(new Ticking() {
                     @Override
                     public void tick(boolean force) {
@@ -111,14 +113,18 @@ public class MainActivity extends Activity {
                 StringWriter sw = new StringWriter();
                 environment.dump(sw);
                 printRight("dump");
+                printed = true;
                 printLeft(sw.toString());
             } else {
                 Node node = parser.parse(line);
                 printRight(node.toString());
-                printLeft(String.valueOf(node.eval(environment)));
+                printed = true;
+                printLeft(environment.toLiteral(node.eval(environment)));
             }
         } catch (Exception e) {
-            printRight(line);
+            if (!printed) {
+                printRight(line);
+            }
             e.printStackTrace();
             printLeft(e.getMessage());
         }

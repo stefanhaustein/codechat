@@ -59,6 +59,12 @@ public class Processor extends ExpressionParser.Processor<Node> {
 
     @Override
     public Node identifier(ExpressionParser.Tokenizer tokenizer, String name) {
+        if (name.equals("true")) {
+            return new Literal(Boolean.TRUE);
+        }
+        if (name.equals("false")) {
+            return new Literal(Boolean.FALSE);
+        }
         return new Identifier(name);
     }
 

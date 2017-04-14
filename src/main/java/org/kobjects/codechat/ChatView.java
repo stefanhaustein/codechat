@@ -4,13 +4,16 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.view.Gravity;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import java.util.ArrayList;
@@ -27,6 +30,7 @@ public class ChatView extends ListView {
         super(context);
         setDivider(null);
         setAdapter(chatAdapter);
+        setBackgroundColor(0xffeeeedd);
     }
 
     public void addRight(String s) {
@@ -60,19 +64,30 @@ public class ChatView extends ListView {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            TextView result;
-            if (view instanceof TextView) {
-                result = (TextView) view;
+            LinearLayout result;
+            TextView textView;
+            if (view instanceof LinearLayout) {
+                result = (LinearLayout) view;
+                textView = (TextView) result.getChildAt(0);
             } else {
-                result = new TextView(viewGroup.getContext());
-                // result.setTextColor(Color.BLACK);
-                // result.setTextSize(20);
-
+                textView = new TextView(viewGroup.getContext());
                 boolean r = right.get(i);
-                result.setBackground(new BubbleDrawable(r));
-                result.setPadding(20 + (r ? 40 : 0), 20, 20 + (r ? 0 : 40), 20);
+                textView.setBackground(new BubbleDrawable(16, 24, r));
+                textView.setPadding(r ? 20 : 36, 6, r ? 36 : 20, 10);
+                textView.setTextColor(0x0ff000000);
+                textView.setGravity(r ? Gravity.RIGHT : Gravity.LEFT);
+                result = new LinearLayout(viewGroup.getContext());
+                result.setOrientation(LinearLayout.VERTICAL);
+                result.addView(textView);
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textView.getLayoutParams();
+                params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                params.gravity = r ? Gravity.RIGHT : Gravity.LEFT;
+                params.topMargin = 10;
+                params.bottomMargin = 10;
+                params.leftMargin = r ? 160 : 48;
+                params.rightMargin = r ? 48 : 160;
             }
-            result.setText(String.valueOf(getItem(i)));
+            textView.setText(String.valueOf(getItem(i)));
             return result;
         }
 
@@ -89,24 +104,66 @@ public class ChatView extends ListView {
     static class BubbleDrawable extends Drawable {
 
         boolean right;
-        BubbleDrawable(boolean right) {
+        float cornerBox;
+        float arrowSize;
+        BubbleDrawable(float arrowSize, float cornerBox, boolean right) {
+            this.arrowSize = arrowSize;
+            this.cornerBox = cornerBox;
             this.right = right;
         }
 
         Paint paint = new Paint();
 
         @Override
+        public void setBounds(Rect bounds) {
+            super.setBounds(bounds);
+        }
+
+        @Override
         public void draw(Canvas canvas) {
             paint.setStyle(Paint.Style.FILL);
             RectF bounds = new RectF(getBounds());
             if (right) {
-                paint.setColor(0xff88ff88);
-                bounds.left += 40;
+                paint.setColor(0xffccddff);
             } else {
-                bounds.right -= 40;
-                paint.setColor(0xff888888);
+                paint.setColor(0xffffffff);
             }
-            canvas.drawRoundRect(bounds, 20, 20 , paint);
+          //  canvas.drawRoundRect(bounds, 16, 16 , paint);
+
+            Path path = new Path();
+            RectF arcBox = new RectF();
+
+            if (right) {
+                path.moveTo(bounds.right, bounds.top);
+                arcBox.set(bounds.left, bounds.top, bounds.left + cornerBox, bounds.top + cornerBox);
+                path.arcTo(arcBox, 270, -90, false);
+                arcBox.set(bounds.left, bounds.bottom - cornerBox, bounds.left + cornerBox, bounds.bottom);
+                path.arcTo(arcBox, 180, -90, false);
+                arcBox.set(bounds.right - cornerBox - arrowSize, bounds.bottom - cornerBox, bounds.right - arrowSize, bounds.bottom);
+                path.arcTo(arcBox, 90, -90, false);
+                path.lineTo(bounds.right - arrowSize, bounds.top + arrowSize);
+            } else {
+                path.moveTo(bounds.left, bounds.top);
+                arcBox.set(bounds.right - cornerBox, bounds.top, bounds.right, bounds.top + cornerBox);
+                path.arcTo(arcBox, 270, 90, false);
+                arcBox.set(bounds.right - cornerBox, bounds.bottom - cornerBox, bounds.right, bounds.bottom);
+                path.arcTo(arcBox, 0, 90, false);
+                arcBox.set(bounds.left + arrowSize, bounds.bottom - cornerBox, bounds.left + cornerBox + arrowSize, bounds.bottom);
+                path.arcTo(arcBox, 90, 90, false);
+                path.lineTo(bounds.left + arrowSize, bounds.top + arrowSize);
+            }
+            path.close();
+
+        /*    Path path = new Path();
+            path.moveTo(bounds.right, bounds.top + 20);
+            path.lineTo(bounds.right + 20, bounds.top);
+            path.lineTo(bounds.right - 20, bounds.top);*/
+            canvas.drawPath(path, paint);
+
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setColor(0xffcccccc);
+         //   canvas.drawRoundRect(bounds, 16, 16 , paint);
+            canvas.drawPath(path, paint);
         }
 
         @Override

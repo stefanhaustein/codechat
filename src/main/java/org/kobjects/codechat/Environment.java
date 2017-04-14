@@ -9,6 +9,33 @@ import java.util.*;
 
 public class Environment implements Runnable {
 
+    static String quote(String s) {
+        StringBuilder sb = new StringBuilder(s.length() + 2);
+        sb.append('"');
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                default:
+                    if (c < ' ') {
+                        sb.append("\\u00");
+                        sb.append(Character.digit(c / 16, 16));
+                        sb.append(Character.digit(c % 16, 16));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        sb.append('"');
+        return sb.toString();
+    }
+
+
     double scale;
     FrameLayout rootView;
     public Map<String, Object> variables = new TreeMap<>();
@@ -74,6 +101,19 @@ public class Environment implements Runnable {
 
     }
 
+
+    public String toLiteral(Object o) {
+        if (o instanceof Number) {
+            Number n = (Number) o;
+            if (n.longValue() == n.doubleValue()) {
+                return String.valueOf(n.longValue());
+            }
+        }
+        if (o instanceof String) {
+            return quote((String) o);
+        }
+        return String.valueOf(o);
+    }
 
 
 }
