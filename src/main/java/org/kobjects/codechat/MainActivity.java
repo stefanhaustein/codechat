@@ -20,6 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import java.io.StringWriter;
 import org.kobjects.codechat.expr.Node;
+import org.kobjects.codechat.statement.On;
 import org.kobjects.expressionparser.ExpressionParser;
 
 import java.io.StringReader;
@@ -39,7 +40,6 @@ public class MainActivity extends Activity {
         super.onCreate(whatever);
         mainLayout = new FrameLayout(this);
         environment = new Environment(mainLayout);
-        environment.variables.put("sprite", Sprite.class);
 
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -89,43 +89,16 @@ public class MainActivity extends Activity {
     void processInput(String line) {
         boolean printed = false;
         try {
-            ExpressionParser<Node> parser = Processor.createParser();
-            ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
-                    new Scanner(new StringReader(line)),
-                    parser.getSymbols(), ":");
+            Evaluable evaluable = environment.parse(line);
+            printRight(evaluable.toString());
+            printed = true;
 
-            tokenizer.nextToken();
-            if (tokenizer.tryConsume("on")) {
-                final Node condition = parser.parse(tokenizer);
-                tokenizer.consume(":");
-                final Node exec = parser.parse(tokenizer);
-                printRight ("on " + condition + ": " + exec);
-                printed = true;
-                environment.ticking.add(new Ticking() {
-                    @Override
-                    public void tick(boolean force) {
-                        if (Boolean.TRUE.equals(condition.eval(environment))) {
-                            exec.eval(environment);
-                        }
-                    }
-                });
-            } else if (tokenizer.tryConsume("dump")) {
-                StringWriter sw = new StringWriter();
-                environment.dump(sw);
-                printRight("dump");
-                printed = true;
-                printLeft(sw.toString());
-            } else {
-                Node node = parser.parse(line);
-                printRight(node.toString());
-                printed = true;
-                printLeft(environment.toLiteral(node.eval(environment)));
-            }
+            Object result = evaluable.eval(environment);
+            printLeft(result == null ? "ok" : String.valueOf(result));
         } catch (Exception e) {
             if (!printed) {
                 printRight(line);
             }
-            e.printStackTrace();
             printLeft(e.getMessage());
         }
     }

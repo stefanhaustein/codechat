@@ -6,6 +6,7 @@ import org.kobjects.codechat.expr.FunctionCall;
 import org.kobjects.codechat.expr.Identifier;
 import org.kobjects.codechat.expr.Implicit;
 import org.kobjects.codechat.expr.InfixOperator;
+import org.kobjects.codechat.expr.InstanceRef;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.Node;
 import org.kobjects.codechat.expr.Property;
@@ -13,6 +14,7 @@ import org.kobjects.expressionparser.ExpressionParser;
 
 public class Processor extends ExpressionParser.Processor<Node> {
 
+    public static final int PRECEDENCE_HASH = 8;
     public static final int PRECEDENCE_PATH = 7;
     public static final int PRECEDENCE_POWER = 6;
     public static final int PRECEDENCE_SIGN = 5;
@@ -24,24 +26,23 @@ public class Processor extends ExpressionParser.Processor<Node> {
 
     @Override
     public Node infixOperator(ExpressionParser.Tokenizer tokenizer, String name, Node left, Node right) {
-        if (".".equals(name)) {
-            if (!(right instanceof Identifier)) {
-                throw new RuntimeException("Property name required.");
-            }
-            return new Property(left, ((Identifier) right).name);
+        switch (name) {
+            case ".":
+                return new Property(left, right);
+            case "#":
+                return new InstanceRef(left, right);
+            default:
+                return new InfixOperator(name, left, right);
         }
-        return new InfixOperator(name, left, right);
     }
 
     @Override
     public Node implicitOperator(ExpressionParser.Tokenizer tokenizer, boolean strong, Node left, Node right) {
         if (left instanceof Implicit) {
             Implicit li = (Implicit) left;
-            List<Node> children = new ArrayList<>();
-            for (int i = 0; i < li.children.length; i++) {
-                children.add(li.children[i]);
-            }
-            children.add(right);
+            Node[] children = new Node[li.children.length + 1];
+            System.arraycopy(li.children, 0, children, 0, li.children.length);
+            children[li.children.length] = right;
             return new Implicit(children);
         }
         return new Implicit(left, right);
@@ -74,6 +75,11 @@ public class Processor extends ExpressionParser.Processor<Node> {
     }
 
     @Override
+    public Node stringLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
+        return new Literal(ExpressionParser.unquote(value));
+    }
+
+    @Override
     public Node emoji(ExpressionParser.Tokenizer tokenizer, String value) {
         return new Literal(new Emoji(value));
     }
@@ -93,6 +99,7 @@ public class Processor extends ExpressionParser.Processor<Node> {
         ExpressionParser<Node> parser = new ExpressionParser<>(new Processor());
         parser.addCallBrackets("(", ",", ")");
         parser.addGroupBrackets("(", null, ")");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_HASH, "#");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
         parser.addOperators(ExpressionParser.OperatorType.INFIX_RTL, PRECEDENCE_SIGN, "^");
         parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-");

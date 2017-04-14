@@ -30,6 +30,8 @@ public class Literal extends Node {
             if (brackets) {
                 sb.append(')');
             }
+        } else if (value instanceof String) {
+            sb.append(Environment.quote((String) value));
         } else {
             sb.append(value);
         }

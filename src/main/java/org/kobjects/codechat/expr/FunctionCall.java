@@ -12,6 +12,7 @@ public class FunctionCall extends Node {
     }
 
     public void toString(StringBuilder sb, int parentPrecedence) {
+        sb.append(name);
         sb.append("(");
         if (children.length > 0) {
             sb.append(children[0]);

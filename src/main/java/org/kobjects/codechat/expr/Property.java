@@ -8,9 +8,12 @@ public class Property extends Node {
     String name;
     Node base;
 
-    public Property(Node node, String name) {
-        this.base = node;
-        this.name = name;
+    public Property(Node left, Node right) {
+        if (!(right instanceof Identifier)) {
+            throw new IllegalArgumentException("Right node must be identifier");
+        }
+        this.base = left;
+        this.name = ((Identifier) right).name;
     }
 
     @Override

@@ -1,10 +1,10 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.Environment;
+import org.kobjects.codechat.Evaluable;
 
-public abstract class Node {
+public abstract class Node implements Evaluable {
 
-    public abstract Object eval(Environment environment);
 
     public void assign(Environment environment, Object value) {
         throw new RuntimeException("Assignment not supported for " + this);
