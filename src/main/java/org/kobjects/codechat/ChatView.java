@@ -124,7 +124,7 @@ public class ChatView extends ListView {
             paint.setStyle(Paint.Style.FILL);
             RectF bounds = new RectF(getBounds());
             if (right) {
-                paint.setColor(0xffccddff);
+                paint.setColor(0xffC5CAE9);
             } else {
                 paint.setColor(0xffffffff);
             }

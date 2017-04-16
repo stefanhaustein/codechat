@@ -49,15 +49,17 @@ public class Environment implements Runnable {
     }
 
 
+    public Builtins builtins = new Builtins(this);
     double scale;
     FrameLayout rootView;
     public Map<String, Object> variables = new TreeMap<>();
-    public List<Ticking> ticking = new ArrayList<>();
+    public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
     Handler handler = new Handler();
     int lastId;
     Map<Integer,Instance> everything = new TreeMap<>();
     File rootDir;
     boolean loading;
+    boolean paused;
 
     public Environment(FrameLayout rootView) {
         this.rootView = rootView;
@@ -66,7 +68,7 @@ public class Environment implements Runnable {
         handler.postDelayed(this, 100);
     }
 
-    public Object instantiate(Class type) {
+    public Instance instantiate(Class type) {
         try {
             int instanceId = ++lastId;
             Instance instance = (Instance) type.getConstructor(Environment.class, Integer.TYPE).newInstance(this, instanceId);
@@ -91,11 +93,13 @@ public class Environment implements Runnable {
         float newScale = rootView.getWidth() / 1000f;
         boolean force = newScale != scale;
         scale = newScale;
-        for (Ticking t : ticking) {
-            try {
-                t.tick(force);
-            } catch (Exception e) {
-                System.err.println(e.toString());
+        if (!paused || force) {
+            for (Ticking t : ticking) {
+                try {
+                    t.tick(force);
+                } catch (Exception e) {
+                    System.err.println(e.toString());
+                }
             }
         }
         handler.postDelayed(this, 17);
@@ -142,31 +146,36 @@ public class Environment implements Runnable {
         ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
             new Scanner(new StringReader(line)),
             parser.getSymbols(), ":");
+        tokenizer.identifierPattern = Processor.IDENTIFIER_PATTERN;
 
         tokenizer.nextToken();
-        if (tokenizer.tryConsume("on")) {
+        if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
+            String name = tokenizer.consumeIdentifier();
             final Node condition = parser.parse(tokenizer);
             tokenizer.consume(":");
             final Node exec = parser.parse(tokenizer);
-            return new On(this, condition, exec);
-        }
-        if (tokenizer.tryConsume("dump")) {
-            return new Evaluable() {
-                @Override
-                public Object eval(Environment environment) {
-                    StringWriter sw = new StringWriter();
-                    try {
-                        environment.dump(sw);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return sw.toString();
-                }
 
-                public String toString() {
-                    return "dump";
+            int cut = name.indexOf('#');
+            int instanceId;
+            if (cut == -1) {
+                instanceId = ++lastId;
+            } else {
+                instanceId = Integer.parseInt(name.substring(cut + 1));
+                Object o = everything.get(instanceId);
+                if (o instanceof On) {
+                    On on = (On) o;
+                    on.exec = exec;
+                    on.condition = condition;
+                    return on;
+                } else if (o != null) {
+                    throw new RuntimeException("Object type mismatch with " + o);
                 }
-            };
+            }
+            On result = new On(this, instanceId, condition, exec);
+            lastId = Math.max(lastId, instanceId);
+            everything.put(instanceId, result);
+            return result;
+
         }
         return parser.parse(line);
     }
@@ -180,8 +189,11 @@ public class Environment implements Runnable {
             }
             Class<?> c = (Class<?>) variables.get(type);
             result = instantiate(c);
-        } else if (!result.getClass().getSimpleName().equalsIgnoreCase(type)) {
-            throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + result.getClass().getSimpleName().toLowerCase());
+        } else {
+            if (!result.getClass().getSimpleName().equalsIgnoreCase(type)) {
+                throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + result.getClass().getSimpleName().toLowerCase());
+            }
+            lastId = Math.max(lastId, id);
         }
         return result;
     }
@@ -238,5 +250,13 @@ public class Environment implements Runnable {
         } finally {
             loading = false;
         }
+    }
+
+    public void pause() {
+        paused = true;
+    }
+
+    public void unpause() {
+        paused = false;
     }
 }

@@ -2,15 +2,17 @@ package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.Environment;
 import org.kobjects.codechat.Evaluable;
+import org.kobjects.codechat.Instance;
 import org.kobjects.codechat.Ticking;
 import org.kobjects.codechat.expr.Node;
 
-public class On implements Ticking, Evaluable {
+public class On extends Instance implements Ticking, Evaluable {
     Environment environment;
-    Node condition;
-    Node exec;
+    public Node condition;
+    public Node exec;
 
-    public On(Environment environment, Node condition, Node exec) {
+    public On(Environment environment, int id, Node condition, Node exec) {
+        super(environment, id);
         this.environment = environment;
         this.condition = condition;
         this.exec = exec;
@@ -24,7 +26,7 @@ public class On implements Ticking, Evaluable {
     }
 
     public String toString() {
-        return "on " + condition + ": " + exec;
+        return "on#" + id + ' ' + condition + ": " + exec;
     }
 
     @Override

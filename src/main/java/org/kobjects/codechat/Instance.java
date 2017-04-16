@@ -5,9 +5,9 @@ import java.io.Writer;
 import java.lang.reflect.Method;
 
 public class Instance {
-    int id;
-    Environment environment;
-    Instance(Environment environment, int id) {
+    protected int id;
+    protected Environment environment;
+    protected Instance(Environment environment, int id) {
         this.environment = environment;
         this.id = id;
     }

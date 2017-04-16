@@ -1,40 +1,27 @@
 package org.kobjects.codechat;
 
 import android.app.Activity;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import java.io.StringWriter;
-import org.kobjects.codechat.expr.Node;
-import org.kobjects.codechat.statement.On;
-import org.kobjects.expressionparser.ExpressionParser;
 
-import java.io.StringReader;
-import java.util.Scanner;
-
-import static android.graphics.PixelFormat.TRANSLUCENT;
-import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
-import static android.view.inputmethod.EditorInfo.IME_ACTION_SEND;
-
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     EditText input;
     FrameLayout mainLayout;
     ChatView listView;
     Environment environment;
+    Toolbar toolbar;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -45,15 +32,23 @@ public class MainActivity extends Activity {
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.addView(linearLayout);
 
+        toolbar = new Toolbar(this);
+        toolbar.setTitle("CodeChat");
+        toolbar.setBackgroundColor(0xff3f51b5);
+        toolbar.setTitleTextColor(0x0ffffffff);
+
+        linearLayout.addView(toolbar);
+//        toolbar.getLayoutParams().height = 100;
+        setSupportActionBar(toolbar);
+
         listView = new ChatView(this);
         linearLayout.addView(listView);
         ((LinearLayout.LayoutParams) listView.getLayoutParams()).weight = 1;
 
-        input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        input.setImeOptions(IME_ACTION_SEND);
-        input.setImeActionLabel("Send", IME_ACTION_DONE);
+        LinearLayout inputLayout = new LinearLayout(this);
 
+        input = new AppCompatEditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE);
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -70,8 +65,32 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+        inputLayout.addView(input);
+        ((LinearLayout.LayoutParams) input.getLayoutParams()).weight = 1;
 
-        linearLayout.addView(input);
+        ImageButton enterButton = new ImageButton(this);
+        enterButton.setImageResource(R.drawable.ic_subdirectory_arrow_left_black_24dp);
+      //  enterButton.setImageDrawable(new Emoji(0x2705).getDrawable(this));
+        //enterButton.setText("\u23ce");
+        inputLayout.addView(enterButton);
+        enterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String line = input.getText().toString();
+                processInput(line);
+                input.setText("");
+            }
+        });
+        enterButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
+
+        linearLayout.addView(inputLayout);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                input.setText(String.valueOf(listView.getAdapter().getItem(position)));
+            }
+        });
 
         setContentView(mainLayout);
     }

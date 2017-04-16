@@ -16,6 +16,8 @@ public class Sprite extends Instance implements Ticking {
     double size;
     double x;
     double y;
+    double rotation;
+    private Emoji face;
 
     public Sprite(Environment environment, int id) {
         super(environment, id);
@@ -35,20 +37,12 @@ public class Sprite extends Instance implements Ticking {
         setY(y);
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public double getDx() {
-        return dx;
-    }
-    public double getDy() {
-        return dy;
-    }
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public double getDx() { return dx; }
+    public double getDy() { return dy; }
+    public double getSize() { return size; }
+    public Emoji getFace() { return face; }
 
     public void setX(double x) {
         this.x = x;
@@ -68,6 +62,15 @@ public class Sprite extends Instance implements Ticking {
         this.dy = dy;
     }
 
+    public void setRotation(double r) {
+        this.rotation = r;
+        view.setRotation((float) r);
+    }
+
+    public double getRotation() {
+        return rotation;
+    }
+
     public void setSize(double s) {
         size = s;
 
@@ -78,17 +81,7 @@ public class Sprite extends Instance implements Ticking {
     }
 
     public void setFace(Emoji emoji) {
-        try
-        {
-            InputStream is = view.getContext().getAssets().open("emoji/png_128/" + Integer.toHexString(emoji.codepoint) + ".png");
-            // load image as Drawable
-            Drawable d = Drawable.createFromStream(is, null);
-            // set image to ImageView
-            view.setImageDrawable(d);
-            is.close();
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
+        view.setImageDrawable(emoji.getDrawable(view.getContext()));
     }
 /*
     public Emoji getFace() {
@@ -102,5 +95,6 @@ public class Sprite extends Instance implements Ticking {
             setY(getY() + dy);
         }
     }
+
 
 }

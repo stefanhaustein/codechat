@@ -7,15 +7,10 @@ public class InstanceRef extends Node {
     int id;
     String type;
 
-    public InstanceRef(Node left, Node right) {
-        if (!(left instanceof Identifier)) {
-            throw new RuntimeException("Left argument must be identifier.");
-        }
-        if (!(right instanceof Literal) || !(((Literal) right).value instanceof Number)) {
-            throw new IllegalArgumentException("Right argument must be number");
-        }
-        type = ((Identifier) left).name;
-        id = ((Number) ((Literal) right).value).intValue();
+    public InstanceRef(String name) {
+        int cut = name.indexOf('#');
+        id = Integer.parseInt(name.substring(cut + 1));
+;       type = name.substring(0, cut);
     }
 
     @Override
