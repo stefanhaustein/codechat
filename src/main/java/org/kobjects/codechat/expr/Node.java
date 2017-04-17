@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.Environment;
-import org.kobjects.codechat.Evaluable;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Evaluable;
 
 public abstract class Node implements Evaluable {
 

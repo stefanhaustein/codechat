@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.Environment;
-import org.kobjects.codechat.Processor;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Parser;
 
 public class InfixOperator extends Node {
 
@@ -77,20 +77,20 @@ public class InfixOperator extends Node {
     private int getPrecedence() {
         switch (name) {
             case "^":
-                return Processor.PRECEDENCE_POWER;
+                return Parser.PRECEDENCE_POWER;
             case "*":
             case "/":
-                return Processor.PRECEDENCE_MULTIPLICATIVE;
+                return Parser.PRECEDENCE_MULTIPLICATIVE;
             case "+":
             case "-":
-                return right == null ? Processor.PRECEDENCE_SIGN : Processor.PRECEDENCE_ADDITIVE;
+                return right == null ? Parser.PRECEDENCE_SIGN : Parser.PRECEDENCE_ADDITIVE;
             case "<":
             case "<=":
             case ">":
             case ">=":
-                return Processor.PRECEDENCE_RELATIONAL;
+                return Parser.PRECEDENCE_RELATIONAL;
             case "=":
-                return Processor.PRECEDENCE_EQUALITY;
+                return Parser.PRECEDENCE_EQUALITY;
             default:
                 throw new RuntimeException("getPrecedence undefined for " + name);
 

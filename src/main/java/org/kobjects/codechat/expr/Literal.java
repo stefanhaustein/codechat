@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.Environment;
-import org.kobjects.codechat.Processor;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Parser;
 
 public class Literal extends Node {
     final Object value;
@@ -18,7 +18,7 @@ public class Literal extends Node {
     public void toString(StringBuilder sb, int parentPrecedence) {
         if (value instanceof Number) {
             Number n = (Number) value;
-            boolean brackets = n.doubleValue() < 0 && parentPrecedence > Processor.PRECEDENCE_SIGN;
+            boolean brackets = n.doubleValue() < 0 && parentPrecedence > Parser.PRECEDENCE_SIGN;
             if (brackets) {
                 sb.append('(');
             }

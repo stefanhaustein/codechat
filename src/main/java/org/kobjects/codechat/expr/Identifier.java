@@ -2,8 +2,8 @@ package org.kobjects.codechat.expr;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.kobjects.codechat.Builtins;
-import org.kobjects.codechat.Environment;
+import org.kobjects.codechat.api.Builtins;
+import org.kobjects.codechat.lang.Environment;
 
 public class Identifier extends Node {
     public final String name;

@@ -1,12 +1,14 @@
-package org.kobjects.codechat;
+package org.kobjects.codechat.api;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Instance;
 
 public class Builtins {
     Environment environment;
 
-    Builtins(Environment environment) {
+    public Builtins(Environment environment) {
         this.environment = environment;
     }
 
@@ -33,10 +35,14 @@ public class Builtins {
     }
 
     public void pause() {
-        environment.pause();
+        environment.pause(true);
+    }
+
+    public void gc() {
+        Runtime.getRuntime().gc();
     }
 
     public void unpause() {
-        environment.unpause();
+        environment.pause(false);
     }
 }

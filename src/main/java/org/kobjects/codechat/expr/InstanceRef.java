@@ -1,7 +1,6 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.Environment;
-import org.kobjects.codechat.Instance;
+import org.kobjects.codechat.lang.Environment;
 
 public class InstanceRef extends Node {
     int id;

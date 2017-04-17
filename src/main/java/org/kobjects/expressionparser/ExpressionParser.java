@@ -446,7 +446,7 @@ public class ExpressionParser<T> {
         "\\G\\s*(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?");
 
     public static final Pattern DEFAULT_IDENTIFIER_PATTERN = Pattern.compile(
-        "\\G\\s*[\\p{Alpha}_$][\\p{Alpha}_$\\d]*(#\\d+)?");
+        "\\G\\s*[\\p{Alpha}_$][\\p{Alpha}_$\\d]*");
 
     public static final Pattern DEFAULT_STRING_PATTERN = Pattern.compile(
         // "([^"\\]*(\\.[^"\\]*)*)"|\'([^\'\\]*(\\.[^\'\\]*)*)\'

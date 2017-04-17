@@ -1,4 +1,4 @@
-package org.kobjects.codechat;
+package org.kobjects.codechat.lang;
 
 import java.io.IOException;
 import java.io.Writer;

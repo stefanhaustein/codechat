@@ -1,8 +1,8 @@
 package org.kobjects.codechat.expr;
 
 import java.lang.reflect.Method;
-import org.kobjects.codechat.Environment;
-import org.kobjects.codechat.Processor;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Parser;
 
 public class Property extends Node {
     String name;
@@ -41,11 +41,11 @@ public class Property extends Node {
     }
 
     public void toString(StringBuilder sb, int parentPrecedence) {
-        boolean braces = parentPrecedence > Processor.PRECEDENCE_PATH;
+        boolean braces = parentPrecedence > Parser.PRECEDENCE_PATH;
         if (braces) {
             sb.append('(');
         }
-        base.toString(sb, Processor.PRECEDENCE_PATH);
+        base.toString(sb, Parser.PRECEDENCE_PATH);
         sb.append('.');
         sb.append(name);
         if (braces) {

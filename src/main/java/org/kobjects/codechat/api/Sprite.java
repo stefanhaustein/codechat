@@ -1,13 +1,11 @@
-package org.kobjects.codechat;
+package org.kobjects.codechat.api;
 
-import android.app.ActionBar;
-import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Instance;
 
 public class Sprite extends Instance implements Ticking {
     ImageView view;
@@ -94,6 +92,14 @@ public class Sprite extends Instance implements Ticking {
             setX(getX() + dx);
             setY(getY() + dy);
         }
+    }
+
+    public void delete() {
+        ViewParent parent = view.getParent();
+        if (parent instanceof ViewGroup) {
+            ((ViewGroup) parent).removeView(view);
+        }
+        environment.ticking.remove(this);
     }
 
 

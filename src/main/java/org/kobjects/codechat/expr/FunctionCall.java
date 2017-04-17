@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import java.util.List;
-import org.kobjects.codechat.Environment;
+import org.kobjects.codechat.lang.Environment;
 
 public class FunctionCall extends Node {
     private final String name;

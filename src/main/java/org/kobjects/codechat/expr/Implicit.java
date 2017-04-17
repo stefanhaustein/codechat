@@ -1,11 +1,11 @@
 package org.kobjects.codechat.expr;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
-import org.kobjects.codechat.Builtins;
-import org.kobjects.codechat.Environment;
-import org.kobjects.codechat.Instance;
-import org.kobjects.codechat.Processor;
+import org.kobjects.codechat.api.Builtins;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.Parser;
 
 public class Implicit extends Node {
     public Node[] children;
@@ -20,8 +20,13 @@ public class Implicit extends Node {
             throw new RuntimeException("verb expected as first parameter");
         }
         String name = ((Identifier) children[0]).name;
-
         Object o = children[1].eval(environment);
+
+        // BAD HACK!!!
+        if ("delete".equals(name) && children[1] instanceof Identifier) {
+            environment.variables.remove(((Identifier) children[1]).name);
+        }
+
         if (o instanceof Instance) {
             Object[] param = new Object[children.length - 2];
             Class[] pc = new Class[param.length];
@@ -48,7 +53,11 @@ public class Implicit extends Node {
             try {
                 Method method = Builtins.class.getMethod(name, pc);
                 return method.invoke(environment.builtins, param);
-            } catch (Exception e) {
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }  catch (InvocationTargetException e) {
+                throw new RuntimeException(e.getCause());
+            } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -56,7 +65,7 @@ public class Implicit extends Node {
 
     @Override
     public void toString(StringBuilder sb, int parentPrecedence) {
-        boolean braces = parentPrecedence > Processor.PRECEDENCE_IMPLICIT;
+        boolean braces = parentPrecedence > Parser.PRECEDENCE_IMPLICIT;
         if (braces) {
             sb.append('(');
         }

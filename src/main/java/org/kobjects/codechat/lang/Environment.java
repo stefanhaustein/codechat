@@ -1,4 +1,4 @@
-package org.kobjects.codechat;
+package org.kobjects.codechat.lang;
 
 import android.os.Handler;
 import android.view.View;
@@ -12,11 +12,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import org.kobjects.codechat.api.Builtins;
+import org.kobjects.codechat.api.Sprite;
+import org.kobjects.codechat.api.Ticking;
 import org.kobjects.codechat.expr.Node;
+import org.kobjects.codechat.statement.Block;
+import org.kobjects.codechat.statement.Delete;
 import org.kobjects.codechat.statement.On;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -50,18 +55,21 @@ public class Environment implements Runnable {
 
 
     public Builtins builtins = new Builtins(this);
-    double scale;
-    FrameLayout rootView;
+    public double scale;
+    public FrameLayout rootView;
     public Map<String, Object> variables = new TreeMap<>();
     public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
+    public boolean paused;
     Handler handler = new Handler();
     int lastId;
-    Map<Integer,Instance> everything = new TreeMap<>();
+    Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
     File rootDir;
     boolean loading;
-    boolean paused;
+    EnvironmentListener environmentListener;
+    Parser parser = new Parser(this);
 
-    public Environment(FrameLayout rootView) {
+    public Environment(EnvironmentListener environmentListener, FrameLayout rootView) {
+        this.environmentListener = environmentListener;
         this.rootView = rootView;
         this.rootDir = rootView.getContext().getFilesDir();
         clear();
@@ -72,7 +80,7 @@ public class Environment implements Runnable {
         try {
             int instanceId = ++lastId;
             Instance instance = (Instance) type.getConstructor(Environment.class, Integer.TYPE).newInstance(this, instanceId);
-            everything.put(instanceId, instance);
+            everything.put(instanceId, new WeakReference<Instance>(instance));
             if (instance instanceof Ticking) {
                 ticking.add((Ticking) instance);
             }
@@ -84,7 +92,7 @@ public class Environment implements Runnable {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getCause());
         }
     }
 
@@ -107,8 +115,11 @@ public class Environment implements Runnable {
 
 
     public void dump(Writer writer) throws IOException {
-        for (Instance instance : everything.values()) {
-           instance.dump(writer);
+        for (WeakReference<Instance> reference : everything.values()) {
+            Instance instance = reference.get();
+            if (instance != null) {
+                instance.dump(writer);
+            }
         }
         for (Map.Entry<String,Object> var : variables.entrySet()) {
             if (var.getValue() instanceof Class<?>) {
@@ -141,48 +152,14 @@ public class Environment implements Runnable {
         return String.valueOf(o);
     }
 
-    Evaluable parse(String line) {
-        ExpressionParser<Node> parser = Processor.createParser();
-        ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
-            new Scanner(new StringReader(line)),
-            parser.getSymbols(), ":");
-        tokenizer.identifierPattern = Processor.IDENTIFIER_PATTERN;
-
-        tokenizer.nextToken();
-        if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
-            String name = tokenizer.consumeIdentifier();
-            final Node condition = parser.parse(tokenizer);
-            tokenizer.consume(":");
-            final Node exec = parser.parse(tokenizer);
-
-            int cut = name.indexOf('#');
-            int instanceId;
-            if (cut == -1) {
-                instanceId = ++lastId;
-            } else {
-                instanceId = Integer.parseInt(name.substring(cut + 1));
-                Object o = everything.get(instanceId);
-                if (o instanceof On) {
-                    On on = (On) o;
-                    on.exec = exec;
-                    on.condition = condition;
-                    return on;
-                } else if (o != null) {
-                    throw new RuntimeException("Object type mismatch with " + o);
-                }
-            }
-            On result = new On(this, instanceId, condition, exec);
-            lastId = Math.max(lastId, instanceId);
-            everything.put(instanceId, result);
-            return result;
-
-        }
+    public Evaluable parse(String line) {
         return parser.parse(line);
     }
 
 
     public Object getInstance(String type, int id) {
-        Object result = everything.get(id);
+        WeakReference reference = everything.get(id);
+        Object result = reference != null ? reference.get() : null;
         if (result == null) {
             if (!loading) {
                 throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
@@ -245,6 +222,7 @@ public class Environment implements Runnable {
                     e.printStackTrace();
                 }
             }
+            environmentListener.setTitle(name);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -252,11 +230,16 @@ public class Environment implements Runnable {
         }
     }
 
-    public void pause() {
-        paused = true;
+    public void pause(boolean paused) {
+        if (paused != this.paused) {
+            this.paused = paused;
+            environmentListener.paused(paused);
+        }
     }
 
-    public void unpause() {
-        paused = false;
+
+    public interface EnvironmentListener {
+        void paused(boolean paused);
+        void setTitle(String name);
     }
 }

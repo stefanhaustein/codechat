@@ -1,4 +1,4 @@
-package org.kobjects.codechat;
+package org.kobjects.codechat.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -25,12 +25,30 @@ public class ChatView extends ListView {
     ArrayList<String> text = new ArrayList<>();
     BitSet right = new BitSet();
     ChatAdapter chatAdapter = new ChatAdapter();
+    private final int topPadding;
+    private final int bottomPadding;
+    private final int arrowSize;
+    private final int cornerBox;
+    private final int sidePadding;
+    private final int verticalMargin;
+    private final int narrowHorizontalMarign;
+    private final int wideHorizontalMarign;
 
     public ChatView(Context context) {
         super(context);
         setDivider(null);
         setAdapter(chatAdapter);
         setBackgroundColor(0xffeeeedd);
+        float dpToPx = context.getResources().getDisplayMetrics().density;
+
+        arrowSize = Math.round(6 * dpToPx);
+        cornerBox = Math.round(10 * dpToPx);
+        sidePadding = Math.round(5 * dpToPx);
+        topPadding = Math.round(2 * dpToPx);
+        bottomPadding = Math.round(3 * dpToPx);
+        verticalMargin = Math.round(2 * dpToPx);
+        narrowHorizontalMarign = Math.round(4 * dpToPx);
+        wideHorizontalMarign = Math.round(32 * dpToPx);
     }
 
     public void addRight(String s) {
@@ -72,8 +90,8 @@ public class ChatView extends ListView {
             } else {
                 textView = new TextView(viewGroup.getContext());
                 boolean r = right.get(i);
-                textView.setBackground(new BubbleDrawable(16, 24, r));
-                textView.setPadding(r ? 20 : 36, 6, r ? 36 : 20, 10);
+                textView.setBackground(new BubbleDrawable(arrowSize, cornerBox, r));
+                textView.setPadding(r ? sidePadding : sidePadding + arrowSize, topPadding, r ? sidePadding + arrowSize : sidePadding, bottomPadding);
                 textView.setTextColor(0x0ff000000);
                 textView.setGravity(r ? Gravity.RIGHT : Gravity.LEFT);
                 result = new LinearLayout(viewGroup.getContext());
@@ -82,10 +100,10 @@ public class ChatView extends ListView {
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textView.getLayoutParams();
                 params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
                 params.gravity = r ? Gravity.RIGHT : Gravity.LEFT;
-                params.topMargin = 10;
-                params.bottomMargin = 10;
-                params.leftMargin = r ? 160 : 48;
-                params.rightMargin = r ? 48 : 160;
+                params.topMargin = verticalMargin;
+                params.bottomMargin = verticalMargin;
+                params.leftMargin = r ? wideHorizontalMarign : narrowHorizontalMarign;
+                params.rightMargin = r ? narrowHorizontalMarign : wideHorizontalMarign;
             }
             textView.setText(String.valueOf(getItem(i)));
             return result;

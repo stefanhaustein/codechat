@@ -1,32 +1,38 @@
 package org.kobjects.codechat;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Evaluable;
+import org.kobjects.codechat.ui.ChatView;
 
-public class MainActivity extends AppCompatActivity {
+import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
+
+public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener {
     EditText input;
     FrameLayout mainLayout;
     ChatView listView;
     Environment environment;
     Toolbar toolbar;
+    MenuItem pauseItem;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
         mainLayout = new FrameLayout(this);
-        environment = new Environment(mainLayout);
+        environment = new Environment(this, mainLayout);
 
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -36,10 +42,12 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle("CodeChat");
         toolbar.setBackgroundColor(0xff3f51b5);
         toolbar.setTitleTextColor(0x0ffffffff);
-
         linearLayout.addView(toolbar);
 //        toolbar.getLayoutParams().height = 100;
         setSupportActionBar(toolbar);
+
+//        option
+
 
         listView = new ChatView(this);
         linearLayout.addView(listView);
@@ -48,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout inputLayout = new LinearLayout(this);
 
         input = new AppCompatEditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE);//|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -95,6 +103,24 @@ public class MainActivity extends AppCompatActivity {
         setContentView(mainLayout);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        pauseItem = menu.add("pause");
+        pauseItem.setIcon(R.drawable.ic_pause_white_24dp).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item == pauseItem) {
+            environment.pause(!environment.paused);
+        } else {
+            processInput(item.getTitle().toString());
+        }
+        return true;
+    }
+
     void printRight(String s) {
         listView.addRight(s);
         listView.smoothScrollToPosition(listView.getCount());
@@ -120,5 +146,16 @@ public class MainActivity extends AppCompatActivity {
             }
             printLeft(e.getMessage());
         }
+    }
+
+    @Override
+    public void paused(boolean paused) {
+        pauseItem.setIcon(paused ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
+        pauseItem.setTitle(paused ? "continue" : "pause");
+    }
+
+    @Override
+    public void setTitle(String name) {
+        toolbar.setTitle(name);
     }
 }
