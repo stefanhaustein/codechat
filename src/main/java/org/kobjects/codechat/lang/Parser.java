@@ -1,5 +1,6 @@
 package org.kobjects.codechat.lang;
 
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -17,7 +18,8 @@ import org.kobjects.codechat.expr.Node;
 import org.kobjects.codechat.expr.Property;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.Delete;
-import org.kobjects.codechat.statement.On;
+import org.kobjects.codechat.statement.IfStatement;
+import org.kobjects.codechat.statement.OnStatement;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Parser {
@@ -52,44 +54,60 @@ public class Parser {
         return new Block(statements.toArray(new Evaluable[statements.size()]));
     }
 
+    OnStatement parseOn(ExpressionParser.Tokenizer tokenizer, String name) {
+        final Node condition = expressionParser.parse(tokenizer);
+
+        boolean needsClose;
+        if (tokenizer.currentValue.equals(":")) {
+            tokenizer.consume(":");
+            needsClose = false;
+        } else {
+            tokenizer.consume("{");
+            needsClose = true;
+        }
+
+        final Block exec = parseBlock(tokenizer, needsClose ? "}" : "");
+
+        int cut = name.indexOf('#');
+        int instanceId;
+        if (cut == -1) {
+            instanceId = ++environment.lastId;
+        } else {
+            instanceId = Integer.parseInt(name.substring(cut + 1));
+            WeakReference<Instance> reference = environment.everything.get(instanceId);
+            Object o = reference == null ? null : reference.get();
+            if (o instanceof OnStatement) {
+                OnStatement on = (OnStatement) o;
+                on.body = exec;
+                on.condition = condition;
+                return on;
+            } else if (o != null) {
+                throw new RuntimeException("Object type mismatch with " + o);
+            }
+        }
+        OnStatement result = new OnStatement(environment, instanceId, condition, exec);
+        environment.lastId = Math.max(environment.lastId, instanceId);
+        environment.everything.put(instanceId, new WeakReference<Instance>(result));
+        return result;
+    }
+
+    IfStatement parseIf(ExpressionParser.Tokenizer tokenizer) {
+        final Node condition = expressionParser.parse(tokenizer);
+        tokenizer.consume("{");
+        final Block body = parseBlock(tokenizer, "}");
+        return new IfStatement(condition, body);
+    }
+
+
     Evaluable parseStatement(ExpressionParser.Tokenizer tokenizer) {
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
-            final Node condition = expressionParser.parse(tokenizer);
-
-            boolean needsClose;
-            if (tokenizer.currentValue.equals(":")) {
-                tokenizer.consume(":");
-                needsClose = false;
-            } else {
-                tokenizer.consume("{");
-                needsClose = true;
-            }
-
-            final Block exec = parseBlock(tokenizer, needsClose ? "}" : "");
-
-            int cut = name.indexOf('#');
-            int instanceId;
-            if (cut == -1) {
-                instanceId = ++environment.lastId;
-            } else {
-                instanceId = Integer.parseInt(name.substring(cut + 1));
-                Object o = environment.everything.get(instanceId);
-                if (o instanceof On) {
-                    On on = (On) o;
-                    on.body = exec;
-                    on.condition = condition;
-                    return on;
-                } else if (o != null) {
-                    throw new RuntimeException("Object type mismatch with " + o);
-                }
-            }
-            On result = new On(environment, instanceId, condition, exec);
-            environment.lastId = Math.max(environment.lastId, instanceId);
-            environment.everything.put(instanceId, new WeakReference<Instance>(result));
-            return result;
-
+            return parseOn(tokenizer, name);
         }
+        if (tokenizer.tryConsume("if")) {
+            return parseIf(tokenizer);
+        }
+
         if (tokenizer.tryConsume("delete")) {
             return new Delete(expressionParser.parse(tokenizer));
         }
@@ -98,14 +116,23 @@ public class Parser {
     }
 
     public Evaluable parse(String line) {
-        ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
-                new Scanner(new StringReader(line)),
-                expressionParser.getSymbols(), ":", "{", "}");
-        tokenizer.identifierPattern = Parser.Processor.IDENTIFIER_PATTERN;
-
+        ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
         return parseStatement(tokenizer);
     }
+
+    public ExpressionParser.Tokenizer createTokenizer(String s) {
+        return createTokenizer(new StringReader(s));
+    }
+
+    public ExpressionParser.Tokenizer createTokenizer(Reader reader) {
+        ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
+                new Scanner(reader),
+                expressionParser.getSymbols(), ":", "{", "}");
+        tokenizer.identifierPattern = Parser.Processor.IDENTIFIER_PATTERN;
+        return tokenizer;
+    }
+
 
 
     public static class Processor extends ExpressionParser.Processor<Node> {

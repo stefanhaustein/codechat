@@ -22,17 +22,12 @@ public class Block extends AbstractStatement {
     @Override
     public void toString(StringBuilder sb, int indent) {
         for (Evaluable e: statements) {
-            if (e instanceof Block) {
-                sb.append(e.toString());
-                //                ((Block) e).toString(sb, indent);
+            if (e instanceof Statement) {
+                ((Statement) e).toString(sb, indent);
             } else {
+                indent(sb, indent);
                 sb.append(e.toString());
-                sb.append("; ");
-                /*   for (int i = 0; i < indent; i++) {
-                    sb.append(' ');
-                }
-                sb.append(e.toString());
-                sb.append('\n'); */
+                sb.append(";\n");
             }
         }
     }

@@ -5,16 +5,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Evaluable;
 import org.kobjects.codechat.ui.ChatView;
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     Environment environment;
     Toolbar toolbar;
     MenuItem pauseItem;
+    String pending = "";
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
         input = new AppCompatEditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE);//|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -121,29 +126,61 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         return true;
     }
 
-    void printRight(String s) {
-        listView.addRight(s);
-        listView.smoothScrollToPosition(listView.getCount());
+    void printRight(String s, boolean update) {
+        if (s.endsWith("\n")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        if (update) {
+            listView.setValue(listView.getCount() - 1, s);
+        } else {
+            listView.addRight(s);
+            listView.setSelection(listView.getCount() - 1);
+        }
+        listView.post(new Runnable() {
+            @Override
+            public void run() {
+                listView.smoothScrollToPosition(listView.getCount());
+            }
+        });
     }
 
     void printLeft(String s) {
         listView.addLeft(s);
-        listView.smoothScrollToPosition(listView.getCount());
+        listView.setSelection(listView.getCount() - 1);
+        listView.post(new Runnable() {
+            @Override
+            public void run() {
+                listView.smoothScrollToPosition(listView.getCount());
+            }
+        });
     }
 
     void processInput(String line) {
         boolean printed = false;
-        try {
-            Evaluable evaluable = environment.parse(line);
-            printRight(evaluable.toString());
-            printed = true;
+        boolean update = !pending.isEmpty();
+        pending += line + "\n";
 
-            Object result = evaluable.eval(environment);
-            printLeft(result == null ? "ok" : String.valueOf(result));
+
+        int balance = environment.getBalance(pending);
+        try {
+            if (balance < 0) {
+                throw new RuntimeException("Unmatched closing '}'");
+            } else if (balance > 0) {
+                printRight(pending + "(append " + (balance == 1 ? "" : (String.valueOf(balance) + ' ')) + "'}' to complete input)", update);
+            } else {
+                Evaluable evaluable = environment.parse(pending);
+                printRight(evaluable.toString(), update);
+                printed = true;
+
+                Object result = evaluable.eval(environment);
+                printLeft(result == null ? "ok" : String.valueOf(result));
+                pending = "";
+            }
         } catch (Exception e) {
             if (!printed) {
-                printRight(line);
+                printRight(pending, update);
             }
+            pending = "";
             printLeft(e.getMessage());
         }
     }

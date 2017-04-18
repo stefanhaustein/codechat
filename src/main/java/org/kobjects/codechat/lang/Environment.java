@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
@@ -19,10 +18,6 @@ import java.util.*;
 import org.kobjects.codechat.api.Builtins;
 import org.kobjects.codechat.api.Sprite;
 import org.kobjects.codechat.api.Ticking;
-import org.kobjects.codechat.expr.Node;
-import org.kobjects.codechat.statement.Block;
-import org.kobjects.codechat.statement.Delete;
-import org.kobjects.codechat.statement.On;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment implements Runnable {
@@ -132,8 +127,11 @@ public class Environment implements Runnable {
         }
         for (Ticking t : ticking) {
             if (!(t instanceof Sprite)) {
-                writer.write(t.toString());
-                writer.write("\n");
+                String s = t.toString();
+                writer.write(s);
+                if (!s.endsWith("\n")) {
+                    writer.write("\n");
+                }
             }
         }
     }
@@ -151,6 +149,25 @@ public class Environment implements Runnable {
         }
         return String.valueOf(o);
     }
+
+    public int getBalance(String line) {
+        ExpressionParser.Tokenizer tokenizer = parser.createTokenizer(line);
+        int balance = 0;
+        while (true) {
+            tokenizer.nextToken();
+            switch (tokenizer.currentValue) {
+                case "":
+                    return balance;
+                case "{":
+                    balance++;
+                    break;
+                case "}":
+                    balance--;
+                    break;
+            }
+        }
+    }
+
 
     public Evaluable parse(String line) {
         return parser.parse(line);
@@ -208,21 +225,45 @@ public class Environment implements Runnable {
             }
             clear();
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
+
+            StringBuilder pending = new StringBuilder();
+            int balance = 0;
+            int lineNumber = 0;
+
             while (true) {
                 String line = reader.readLine();
+                lineNumber++;
                 if (line == null) {
                     break;
                 }
-                try {
-                    Evaluable e = parse(line);
-                    if (e != null) {
-                        e.eval(this);
+
+                pending.append(line).append('\n');
+                balance += getBalance(line);
+
+                if (balance < 0) {
+                    throw new RuntimeException("Too many } in line " + lineNumber);
+                }
+
+                if (balance == 0) {
+                    line = pending.toString();
+                    pending.setLength(0);
+
+                    try {
+                        Evaluable e = parse(line);
+                        if (e != null) {
+                            e.eval(this);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
             environmentListener.setTitle(name);
+
+            if (balance != 0) {
+                throw new RuntimeException("Unbalanced input!");
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

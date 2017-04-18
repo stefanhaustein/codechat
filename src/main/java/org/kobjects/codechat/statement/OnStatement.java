@@ -5,12 +5,12 @@ import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.api.Ticking;
 import org.kobjects.codechat.expr.Node;
 
-public class On extends Instance implements Statement, Ticking {
+public class OnStatement extends Instance implements Statement, Ticking {
     Environment environment;
     public Node condition;
     public Block body;
 
-    public On(Environment environment, int id, Node condition, Block body) {
+    public OnStatement(Environment environment, int id, Node condition, Block body) {
         super(environment, id);
         this.environment = environment;
         this.condition = condition;
@@ -38,6 +38,10 @@ public class On extends Instance implements Statement, Ticking {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append("on#").append(id).append(' ').append(condition).append(" { ").append(body).append("}");
+        AbstractStatement.indent(sb, indent);
+        sb.append("on#").append(id).append(' ').append(condition).append(" {\n");
+        body.toString(sb, indent + 1);
+        AbstractStatement.indent(sb, indent);
+        sb.append("}\n");
     }
 }

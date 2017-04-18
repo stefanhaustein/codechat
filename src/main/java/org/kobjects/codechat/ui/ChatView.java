@@ -62,6 +62,11 @@ public class ChatView extends ListView {
         chatAdapter.notifyDataSetChanged();
     }
 
+    public void setValue(int i, String s) {
+        text.set(i, s);
+        chatAdapter.notifyDataSetChanged();
+    }
+
 
     class ChatAdapter extends BaseAdapter {
 
@@ -93,7 +98,8 @@ public class ChatView extends ListView {
                 textView.setBackground(new BubbleDrawable(arrowSize, cornerBox, r));
                 textView.setPadding(r ? sidePadding : sidePadding + arrowSize, topPadding, r ? sidePadding + arrowSize : sidePadding, bottomPadding);
                 textView.setTextColor(0x0ff000000);
-                textView.setGravity(r ? Gravity.RIGHT : Gravity.LEFT);
+              //  textView.setGravity(r ? Gravity.RIGHT : Gravity.LEFT);
+                textView.setTextIsSelectable(true);
                 result = new LinearLayout(viewGroup.getContext());
                 result.setOrientation(LinearLayout.VERTICAL);
                 result.addView(textView);
