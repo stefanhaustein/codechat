@@ -23,14 +23,12 @@ public class ConstructorInvocation extends Resolved {
     }
 
     @Override
-    public void toString(StringBuilder sb, int parentPrecedence) {
-        boolean braces = parentPrecedence > Parser.PRECEDENCE_IMPLICIT;
-        if (braces) {
-            sb.append('(');
-        }
+    public int getPrecedence() {
+        return Parser.PRECEDENCE_IMPLICIT;
+    }
+
+    @Override
+    public void toString(StringBuilder sb) {
         sb.append("create ").append(type.toString());
-        if (braces) {
-            sb.append(')');
-        }
     }
 }

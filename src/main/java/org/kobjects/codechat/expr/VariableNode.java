@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.Context;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Type;
 import org.kobjects.codechat.lang.Variable;
 
@@ -29,7 +29,12 @@ public class VariableNode extends Resolved {
     }
 
     @Override
-    public void toString(StringBuilder sb, int parentPrecedence) {
+    public int getPrecedence() {
+        return Parser.PRECEDENCE_PATH;
+    }
+
+    @Override
+    public void toString(StringBuilder sb) {
         sb.append(variable.getName());
     }
 }

@@ -3,7 +3,6 @@ package org.kobjects.codechat.expr;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.kobjects.codechat.lang.Context;
-import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Type;
 
 public class BuiltinInvocation extends Resolved {
@@ -47,31 +46,13 @@ public class BuiltinInvocation extends Resolved {
     }
 
     @Override
-    public void toString(StringBuilder sb, int parentPrecedence) {
-        if (parens) {
-            sb.append(method.getName());
-            sb.append('(');
-            if (children.length > 0) {
-                children[0].toString(sb, 0);
-                for (int i = 1; i < children.length; i++) {
-                    sb.append(", ");
-                    children[0].toString(sb, 0);
-                }
-            }
-            sb.append(')');
-        } else {
-            boolean outerParens = parentPrecedence > Parser.PRECEDENCE_IMPLICIT;
-            if (outerParens) {
-                sb.append('(');
-            }
-            sb.append(method.getName());
-            for (int i = 0; i < children.length; i++) {
-                sb.append(' ');
-                children[i].toString(sb, 0);
-            }
-            if (outerParens) {
-                sb.append(')');
-            }
-        }
+    public int getPrecedence() {
+        return UnresolvedInvocation.getPrecedence(parens);
+    }
+
+    @Override
+    public void toString(StringBuilder sb) {
+        UnresolvedInvocation.toString(sb, method.getName(), parens, children);
+
     }
 }

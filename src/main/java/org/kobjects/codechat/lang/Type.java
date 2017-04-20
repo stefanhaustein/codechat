@@ -8,7 +8,7 @@ public class Type {
     private final Class javaClass;
 
     public static Type forJavaClass(Class<?> javaClass) {
-        if (javaClass == Double.class) {
+        if (javaClass == Double.class || javaClass == Double.TYPE) {
             return NUMBER;
         }
         return new Type(javaClass);
@@ -37,5 +37,14 @@ public class Type {
             return "number";
         }
         return javaClass.getSimpleName().toLowerCase();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Type)) {
+            return false;
+        }
+        Type t2 = (Type) other;
+        return javaClass.equals(t2.getJavaClass());
     }
 }

@@ -24,20 +24,19 @@ public class Literal extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int parentPrecedence) {
+    public int getPrecedence() {
+        return value instanceof Number && ((Number) value).doubleValue() < 0 ? Parser.PRECEDENCE_SIGN : Parser.PRECEDENCE_PATH;
+    }
+
+
+    @Override
+    public void toString(StringBuilder sb) {
         if (value instanceof Number) {
             Number n = (Number) value;
-            boolean brackets = n.doubleValue() < 0 && parentPrecedence > Parser.PRECEDENCE_SIGN;
-            if (brackets) {
-                sb.append('(');
-            }
             if (n.longValue() == n.doubleValue()) {
                 sb.append(n.longValue());
             } else {
                 sb.append(n.doubleValue());
-            }
-            if (brackets) {
-                sb.append(')');
             }
         } else if (value instanceof String) {
             sb.append(Environment.quote((String) value));

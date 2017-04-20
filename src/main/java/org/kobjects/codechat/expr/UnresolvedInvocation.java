@@ -8,22 +8,48 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class Implicit extends Unresolved {
-    public Expression[] children;
-    public Implicit(Expression... children) {
-        this.children = children;
+public class UnresolvedInvocation extends Unresolved {
+
+    static int getPrecedence(boolean parens) {
+        return  parens ? Parser.PRECEDENCE_PATH : Parser.PRECEDENCE_IMPLICIT;
+    }
+
+    static void toString(StringBuilder sb, String name, boolean parens, Expression[] children) {
+        if (parens) {
+            sb.append(name);
+            sb.append('(');
+            if (children.length > 0) {
+                children[0].toString(sb, 0);
+                for (int i = 1; i < children.length; i++) {
+                    sb.append(", ");
+                    children[0].toString(sb, 0);
+                }
+            }
+            sb.append(')');
+        } else {
+            sb.append(name);
+            for (int i = 0; i < children.length; i++) {
+                sb.append(' ');
+                children[i].toString(sb, Parser.PRECEDENCE_PATH);
+            }
+        }
     }
 
 
+    public String name;
+    public Expression[] children;
+    public boolean parens;
+
+    public UnresolvedInvocation(String name, boolean parens, Expression... children) {
+        this.name = name;
+        this.parens = parens;
+        this.children = children;
+    }
+
     @Override
     public Expression resolve(Scope scope) {
-        if (!(children[0] instanceof Identifier)) {
-            throw new RuntimeException("verb expected as first parameter");
-        }
-        String name = ((Identifier) children[0]).name;
-
         if ("create".equals(name) && children[1] instanceof Identifier) {
-            String argName = ((Identifier) children[1]).name;
+            String argName = ((Identifier) children[0]).name;
 
             Type type = scope.environment.resolveType(argName);
             if (type != null && Instance.class.isAssignableFrom(type.getJavaClass())) {
@@ -31,9 +57,9 @@ public class Implicit extends Unresolved {
             }
         }
 
-        Expression[] resolved = new Expression[children.length - 1];
+        Expression[] resolved = new Expression[children.length];
         for (int i = 0; i < resolved.length; i++) {
-            resolved[i] = children[i + 1].resolve(scope);
+            resolved[i] = children[i].resolve(scope);
         }
 
         if (Instance.class.isAssignableFrom(resolved[0].getType().getJavaClass())) {
@@ -43,7 +69,7 @@ public class Implicit extends Unresolved {
             }
             try {
                 Method method = resolved[0].getType().getJavaClass().getMethod(name, paramTypes);
-                return new MethodInvocation(method, resolved);
+                return new MethodInvocation(method, parens, resolved);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(paramTypes) + " not found in class " + resolved[0].getType());
             }
@@ -62,18 +88,12 @@ public class Implicit extends Unresolved {
     }
 
     @Override
-    public void toString(StringBuilder sb, int parentPrecedence) {
-        boolean braces = parentPrecedence > Parser.PRECEDENCE_IMPLICIT;
-        if (braces) {
-            sb.append('(');
-        }
-        sb.append(children[0]);
-        for (int i = 1; i < children.length; i++) {
-            sb.append(' ');
-            sb.append(children[i]);
-        }
-        if (braces) {
-            sb.append(')');
-        }
+    public int getPrecedence() {
+        return getPrecedence(parens);
+    }
+
+    @Override
+    public void toString(StringBuilder sb) {
+        toString(sb, name, parens, children);
     }
 }

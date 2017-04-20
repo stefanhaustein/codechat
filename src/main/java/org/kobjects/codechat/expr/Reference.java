@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.Context;
-import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
@@ -36,7 +36,12 @@ public class Reference extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int parentPrecedence) {
+    public int getPrecedence() {
+        return Parser.PRECEDENCE_PATH;
+    }
+
+    @Override
+    public void toString(StringBuilder sb) {
         sb.append(type).append('#').append(id);
     }
 }

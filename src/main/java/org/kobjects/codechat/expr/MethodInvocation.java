@@ -3,17 +3,19 @@ package org.kobjects.codechat.expr;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class MethodInvocation extends Expression {
+public class MethodInvocation extends Resolved {
     static final Object[] EMPTY_ARRAY = new Object[0];
 
+    boolean parens;
     Method method;
     Type type;
     Expression[] children;
 
-    MethodInvocation(Method method, Expression[] children) {
+    MethodInvocation(Method method, boolean parens, Expression[] children) {
         this.method = method;
         this.type = Type.forJavaClass(method.getReturnType());
         this.children = children;
@@ -41,17 +43,17 @@ public class MethodInvocation extends Expression {
     }
 
     @Override
-    public Expression resolve(Scope scope) {
-        throw new RuntimeException("Already resolved");
-    }
-
-    @Override
     public Type getType() {
         return type;
     }
 
     @Override
-    public void toString(StringBuilder sb, int parentPrecedence) {
+    public int getPrecedence() {
+        return parens ? Parser.PRECEDENCE_PATH : Parser.PRECEDENCE_IMPLICIT;
+    }
 
+    @Override
+    public void toString(StringBuilder sb) {
+        UnresolvedInvocation.toString(sb, method.getName(), parens, children);
     }
 }

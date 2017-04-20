@@ -11,7 +11,7 @@ public abstract class Expression implements Evaluable {
         throw new RuntimeException("Assignment not supported for " + this);
     }
 
-    public String toString() {
+    public final String toString() {
         StringBuilder sb = new StringBuilder();
         toString(sb, 0);
         return sb.toString();
@@ -21,5 +21,17 @@ public abstract class Expression implements Evaluable {
 
     public abstract Type getType();
 
-    public abstract void toString(StringBuilder sb, int parentPrecedence);
+    public abstract int getPrecedence();
+
+    public abstract void toString(StringBuilder sb);
+
+    public final void toString(StringBuilder sb, int parentPrecedence) {
+        if (parentPrecedence > getPrecedence()) {
+            sb.append('(');
+            toString(sb);
+            sb.append(')');
+        } else {
+            toString(sb);
+        }
+    }
 }

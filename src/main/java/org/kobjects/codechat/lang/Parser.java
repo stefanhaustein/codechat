@@ -9,9 +9,10 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.api.Emoji;
 import org.kobjects.codechat.expr.Assignment;
-import org.kobjects.codechat.expr.FunctionCall;
 import org.kobjects.codechat.expr.Identifier;
-import org.kobjects.codechat.expr.Implicit;
+import org.kobjects.codechat.expr.Relational;
+import org.kobjects.codechat.expr.UnaryOperator;
+import org.kobjects.codechat.expr.UnresolvedInvocation;
 import org.kobjects.codechat.expr.InfixOperator;
 import org.kobjects.codechat.expr.Reference;
 import org.kobjects.codechat.expr.Literal;
@@ -121,9 +122,9 @@ public class Parser {
     Expression parseExpression(ExpressionParser.Tokenizer tokenizer, Scope scope) {
         Expression unresolved = expressionParser.parse(tokenizer);
 
-        if (scope == environment.rootScope && unresolved instanceof InfixOperator) {
-            InfixOperator op = (InfixOperator) unresolved;
-            if (op.name.equals("=") && op.left instanceof Identifier) {
+        if (scope == environment.rootScope && unresolved instanceof Assignment) {
+            Assignment op = (Assignment) unresolved;
+            if (op.left instanceof Identifier) {
                 Expression right = op.right.resolve(scope);
 
                 scope.ensureVariable(((Identifier) op.left).name, right.getType());
@@ -162,26 +163,41 @@ public class Parser {
                 case ".":
                 case "'s":
                     return new Property(left, right);
+                case "=":
+                    return new Assignment(left, right);
+                case "<":
+                case "<=":
+                case ">":
+                case ">=":
+                case "==":
+                case "!=":
+                case "\u2260":
+                case "\u2264":
+                case "\u2265":
+                    return new Relational(name, left, right);
                 default:
-                    return new InfixOperator(name, left, right);
+                    return new InfixOperator(name.charAt(0), left, right);
             }
         }
 
         @Override
         public Expression implicitOperator(ExpressionParser.Tokenizer tokenizer, boolean strong, Expression left, Expression right) {
-            if (left instanceof Implicit) {
-                Implicit li = (Implicit) left;
+            if (left instanceof UnresolvedInvocation && !((UnresolvedInvocation) left).parens) {
+                UnresolvedInvocation li = (UnresolvedInvocation) left;
                 Expression[] children = new Expression[li.children.length + 1];
                 System.arraycopy(li.children, 0, children, 0, li.children.length);
                 children[li.children.length] = right;
-                return new Implicit(children);
+                return new UnresolvedInvocation(li.name, false, children);
             }
-            return new Implicit(left, right);
+            if (left instanceof Identifier) {
+                return new UnresolvedInvocation(((Identifier) left).name, false, right);
+            }
+            throw new RuntimeException("Method invocations must start with name");
         }
 
         @Override
         public Expression prefixOperator(ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
-            return new InfixOperator(name, argument, null);
+            return new UnaryOperator(name.charAt(0), argument);
         }
 
         @Override
@@ -218,12 +234,9 @@ public class Parser {
             return new Literal(new Emoji(value));
         }
 
-        /**
-         * Delegates function calls to Math via reflection.
-         */
         @Override
         public Expression call(ExpressionParser.Tokenizer tokenizer, String identifier, String bracket, List<Expression> arguments) {
-            return new FunctionCall(identifier, arguments);
+            return new UnresolvedInvocation(identifier, true, arguments.toArray(new Expression[arguments.size()]));
         }
     }
 
@@ -244,8 +257,8 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ADDITIVE, "+", "-");
         parser.setImplicitOperatorPrecedence(false, PRECEDENCE_IMPLICIT);
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_RELATIONAL, "<", "<=", ">", ">=");
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_EQUALITY, "=");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_RELATIONAL, "<", "<=", ">", ">=", "\u2264", "\u2265");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_EQUALITY, "=", "==", "!=", "\u2260");
         return parser;
     }
 

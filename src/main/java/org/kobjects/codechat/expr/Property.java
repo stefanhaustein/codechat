@@ -58,16 +58,14 @@ public class Property extends Expression {
         }
     }
 
-    public void toString(StringBuilder sb, int parentPrecedence) {
-        boolean braces = parentPrecedence > Parser.PRECEDENCE_PATH;
-        if (braces) {
-            sb.append('(');
-        }
+    @Override
+    public int getPrecedence() {
+        return Parser.PRECEDENCE_PATH;
+    }
+
+    public void toString(StringBuilder sb) {
         base.toString(sb, Parser.PRECEDENCE_PATH);
         sb.append('.');
         sb.append(name);
-        if (braces) {
-            sb.append(')');
-        }
     }
 }

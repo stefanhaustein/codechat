@@ -2,6 +2,7 @@ package org.kobjects.codechat.expr;
 
 import java.lang.reflect.Method;
 import org.kobjects.codechat.api.Builtins;
+import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Variable;
 
@@ -26,7 +27,12 @@ public class Identifier extends Unresolved {
         }
     }
 
-    public void toString(StringBuilder sb, int parentPrecedence) {
+    @Override
+    public int getPrecedence() {
+        return Parser.PRECEDENCE_PATH;
+    }
+
+    public void toString(StringBuilder sb) {
         sb.append(name);
     }
 }

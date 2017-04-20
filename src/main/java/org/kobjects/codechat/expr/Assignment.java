@@ -2,11 +2,12 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class Assignment extends Resolved {
-    Expression left;
-    Expression right;
+public class Assignment extends Expression {
+    public Expression left;
+    public Expression right;
 
     public Assignment(Expression left, Expression right) {
         this.left = left;
@@ -21,21 +22,26 @@ public class Assignment extends Resolved {
     }
 
     @Override
+    public Expression resolve(Scope scope) {
+        left = left.resolve(scope);
+        right = right.resolve(scope);
+        return this;
+    }
+
+    @Override
     public Type getType() {
         return right.getType();
     }
 
     @Override
-    public void toString(StringBuilder sb, int parentPrecedence) {
-        boolean parens = parentPrecedence > Parser.PRECEDENCE_EQUALITY;
-        if (parens) {
-            sb.append('(');
-        }
+    public int getPrecedence() {
+        return Parser.PRECEDENCE_EQUALITY;
+    }
+
+    @Override
+    public void toString(StringBuilder sb) {
         left.toString(sb, Parser.PRECEDENCE_EQUALITY);
         sb.append(" = ");
         right.toString(sb, Parser.PRECEDENCE_EQUALITY);
-        if (parens) {
-            sb.append(')');
-        }
     }
 }
