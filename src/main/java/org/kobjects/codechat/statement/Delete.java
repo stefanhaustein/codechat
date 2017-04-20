@@ -2,20 +2,21 @@ package org.kobjects.codechat.statement;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.expr.Identifier;
-import org.kobjects.codechat.expr.Node;
+import org.kobjects.codechat.expr.Expression;
 
 public class Delete extends AbstractStatement {
-    Node expr;
+    Expression expr;
 
-    public Delete(Node expr) {
+    public Delete(Expression expr) {
         this.expr = expr;
     }
 
     @Override
-    public Object eval(Environment environment) {
-        Object o = expr.eval(environment);
+    public Object eval(Context context) {
+        Object o = expr.eval(context);
         try {
             Method delete = o.getClass().getMethod("delete");
             try {
@@ -29,9 +30,13 @@ public class Delete extends AbstractStatement {
             // ok
         }
 
+        System.err.println("Variable deletion missing here!");
+
+/*
         if (expr instanceof Identifier) {
             environment.variables.remove(((Identifier) expr).name);
         }
+        */
         return null;
     }
 

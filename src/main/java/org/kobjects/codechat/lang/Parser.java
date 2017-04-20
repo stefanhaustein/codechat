@@ -8,13 +8,14 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.api.Emoji;
+import org.kobjects.codechat.expr.Assignment;
 import org.kobjects.codechat.expr.FunctionCall;
 import org.kobjects.codechat.expr.Identifier;
 import org.kobjects.codechat.expr.Implicit;
 import org.kobjects.codechat.expr.InfixOperator;
-import org.kobjects.codechat.expr.InstanceRef;
+import org.kobjects.codechat.expr.Reference;
 import org.kobjects.codechat.expr.Literal;
-import org.kobjects.codechat.expr.Node;
+import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.Property;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.Delete;
@@ -33,14 +34,17 @@ public class Parser {
     public static final int PRECEDENCE_RELATIONAL = 1;
     public static final int PRECEDENCE_EQUALITY = 0;
 
+    private static Pattern IDENTIFIER_PATTERN = Pattern.compile(
+            "\\G\\s*[\\p{Alpha}_$][\\p{Alpha}_$\\d]*(#\\d+)?");
+
     private final Environment environment;
-    ExpressionParser<Node> expressionParser = createExpressionParser();
+    private final ExpressionParser<Expression> expressionParser = createExpressionParser();
 
     Parser(Environment environment) {
         this.environment = environment;
     }
 
-    Block parseBlock(ExpressionParser.Tokenizer tokenizer, String end) {
+    Block parseBlock(ExpressionParser.Tokenizer tokenizer, Scope scope, String end) {
         ArrayList<Evaluable> statements = new ArrayList<>();
         while(true) {
             while(tokenizer.tryConsume(";")) {
@@ -49,13 +53,13 @@ public class Parser {
             if (tokenizer.tryConsume(end)) {
                 break;
             }
-            statements.add(parseStatement(tokenizer));
+            statements.add(parseStatement(tokenizer, scope));
         }
         return new Block(statements.toArray(new Evaluable[statements.size()]));
     }
 
     OnStatement parseOn(ExpressionParser.Tokenizer tokenizer, String name) {
-        final Node condition = expressionParser.parse(tokenizer);
+        final Expression condition = parseExpression(tokenizer, environment.rootScope);
 
         boolean needsClose;
         if (tokenizer.currentValue.equals(":")) {
@@ -66,7 +70,7 @@ public class Parser {
             needsClose = true;
         }
 
-        final Block exec = parseBlock(tokenizer, needsClose ? "}" : "");
+        final Block exec = parseBlock(tokenizer, environment.rootScope, needsClose ? "}" : "");
 
         int cut = name.indexOf('#');
         int instanceId;
@@ -91,34 +95,49 @@ public class Parser {
         return result;
     }
 
-    IfStatement parseIf(ExpressionParser.Tokenizer tokenizer) {
-        final Node condition = expressionParser.parse(tokenizer);
+    IfStatement parseIf(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+        final Expression condition = parseExpression(tokenizer, scope);
         tokenizer.consume("{");
-        final Block body = parseBlock(tokenizer, "}");
+        final Block body = parseBlock(tokenizer, scope, "}");
         return new IfStatement(condition, body);
     }
 
 
-    Evaluable parseStatement(ExpressionParser.Tokenizer tokenizer) {
+    Evaluable parseStatement(ExpressionParser.Tokenizer tokenizer, Scope scope) {
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
             return parseOn(tokenizer, name);
         }
         if (tokenizer.tryConsume("if")) {
-            return parseIf(tokenizer);
+            return parseIf(tokenizer, scope);
         }
 
         if (tokenizer.tryConsume("delete")) {
-            return new Delete(expressionParser.parse(tokenizer));
+            return new Delete(parseExpression(tokenizer, scope));
         }
-        return expressionParser.parse(tokenizer);
+        return parseExpression(tokenizer, scope);
+    }
 
+    Expression parseExpression(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+        Expression unresolved = expressionParser.parse(tokenizer);
+
+        if (scope == environment.rootScope && unresolved instanceof InfixOperator) {
+            InfixOperator op = (InfixOperator) unresolved;
+            if (op.name.equals("=") && op.left instanceof Identifier) {
+                Expression right = op.right.resolve(scope);
+
+                scope.ensureVariable(((Identifier) op.left).name, right.getType());
+
+                return new Assignment(op.left.resolve(scope), right);
+            }
+        }
+        return unresolved.resolve(scope);
     }
 
     public Evaluable parse(String line) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
-        return parseStatement(tokenizer);
+        return parseStatement(tokenizer, environment.rootScope);
     }
 
     public ExpressionParser.Tokenizer createTokenizer(String s) {
@@ -129,20 +148,16 @@ public class Parser {
         ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
                 new Scanner(reader),
                 expressionParser.getSymbols(), ":", "{", "}");
-        tokenizer.identifierPattern = Parser.Processor.IDENTIFIER_PATTERN;
+        tokenizer.identifierPattern = IDENTIFIER_PATTERN;
         return tokenizer;
     }
 
 
 
-    public static class Processor extends ExpressionParser.Processor<Node> {
-
-
-        static Pattern IDENTIFIER_PATTERN = Pattern.compile(
-                "\\G\\s*[\\p{Alpha}_$][\\p{Alpha}_$\\d]*(#\\d+)?");
+    public static class Processor extends ExpressionParser.Processor<Expression> {
 
         @Override
-        public Node infixOperator(ExpressionParser.Tokenizer tokenizer, String name, Node left, Node right) {
+        public Expression infixOperator(ExpressionParser.Tokenizer tokenizer, String name, Expression left, Expression right) {
             switch (name) {
                 case ".":
                 case "'s":
@@ -153,10 +168,10 @@ public class Parser {
         }
 
         @Override
-        public Node implicitOperator(ExpressionParser.Tokenizer tokenizer, boolean strong, Node left, Node right) {
+        public Expression implicitOperator(ExpressionParser.Tokenizer tokenizer, boolean strong, Expression left, Expression right) {
             if (left instanceof Implicit) {
                 Implicit li = (Implicit) left;
-                Node[] children = new Node[li.children.length + 1];
+                Expression[] children = new Expression[li.children.length + 1];
                 System.arraycopy(li.children, 0, children, 0, li.children.length);
                 children[li.children.length] = right;
                 return new Implicit(children);
@@ -165,17 +180,17 @@ public class Parser {
         }
 
         @Override
-        public Node prefixOperator(ExpressionParser.Tokenizer tokenizer, String name, Node argument) {
+        public Expression prefixOperator(ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
             return new InfixOperator(name, argument, null);
         }
 
         @Override
-        public Node numberLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
+        public Expression numberLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
             return new Literal(Double.parseDouble(value));
         }
 
         @Override
-        public Node identifier(ExpressionParser.Tokenizer tokenizer, String name) {
+        public Expression identifier(ExpressionParser.Tokenizer tokenizer, String name) {
             if (name.equals("true")) {
                 return new Literal(Boolean.TRUE);
             }
@@ -183,23 +198,23 @@ public class Parser {
                 return new Literal(Boolean.FALSE);
             }
             if (name.indexOf('#') != -1) {
-                return new InstanceRef(name);
+                return new Reference(name);
             }
             return new Identifier(name);
         }
 
         @Override
-        public Node group(ExpressionParser.Tokenizer tokenizer, String paren, List<Node> elements) {
+        public Expression group(ExpressionParser.Tokenizer tokenizer, String paren, List<Expression> elements) {
             return elements.get(0);
         }
 
         @Override
-        public Node stringLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
+        public Expression stringLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
             return new Literal(ExpressionParser.unquote(value));
         }
 
         @Override
-        public Node emoji(ExpressionParser.Tokenizer tokenizer, String value) {
+        public Expression emoji(ExpressionParser.Tokenizer tokenizer, String value) {
             return new Literal(new Emoji(value));
         }
 
@@ -207,7 +222,7 @@ public class Parser {
          * Delegates function calls to Math via reflection.
          */
         @Override
-        public Node call(ExpressionParser.Tokenizer tokenizer, String identifier, String bracket, List<Node> arguments) {
+        public Expression call(ExpressionParser.Tokenizer tokenizer, String identifier, String bracket, List<Expression> arguments) {
             return new FunctionCall(identifier, arguments);
         }
     }
@@ -215,8 +230,8 @@ public class Parser {
     /**
      * Creates a parser for this processor with matching operations and precedences set up.
      */
-    static ExpressionParser<Node> createExpressionParser() {
-        ExpressionParser<Node> parser = new ExpressionParser<>(new Processor());
+    ExpressionParser<Expression> createExpressionParser() {
+        ExpressionParser<Expression> parser = new ExpressionParser<>(new Processor());
         parser.addCallBrackets("(", ",", ")");
         parser.addGroupBrackets("(", null, ")");
 

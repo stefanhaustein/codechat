@@ -1,14 +1,29 @@
 package org.kobjects.codechat.expr;
 
 import java.util.List;
-import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.Type;
 
-public class FunctionCall extends Node {
+public class FunctionCall extends Expression {
     private final String name;
-    private Node[] children;
-    public FunctionCall(String identifier, List<Node> arguments) {
+    private Expression[] children;
+    public FunctionCall(String identifier, List<Expression> arguments) {
         this.name = identifier;
-        children = arguments.toArray(new Node[arguments.size()]);
+        children = arguments.toArray(new Expression[arguments.size()]);
+    }
+
+    @Override
+    public Expression resolve(Scope scope) {
+        for (int i = 0; i < children.length; i++) {
+            children[i] = children[i].resolve(scope);
+        }
+        return this;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.NUMBER;
     }
 
     public void toString(StringBuilder sb, int parentPrecedence) {
@@ -25,9 +40,9 @@ public class FunctionCall extends Node {
     }
 
     @Override
-    public Object eval(Environment environment) {
+    public Object eval(Context context) {
         if (children.length == 1) {
-            Object p0 = children[0].eval(environment);
+            Object p0 = children[0].eval(context);
             if (p0 instanceof Number) {
                return evalNumber(((Number) p0).doubleValue());
             }

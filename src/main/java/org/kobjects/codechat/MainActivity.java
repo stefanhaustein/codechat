@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +16,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Evaluable;
 import org.kobjects.codechat.ui.ChatView;
@@ -172,11 +170,12 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 printRight(evaluable.toString(), update);
                 printed = true;
 
-                Object result = evaluable.eval(environment);
+                Object result = evaluable.eval(environment.getRootContext());
                 printLeft(result == null ? "ok" : String.valueOf(result));
                 pending = "";
             }
         } catch (Exception e) {
+            e.printStackTrace();
             if (!printed) {
                 printRight(pending, update);
             }

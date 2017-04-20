@@ -1,64 +1,62 @@
 package org.kobjects.codechat.expr;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import org.kobjects.codechat.api.Builtins;
-import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.Type;
 
-public class Implicit extends Node {
-    public Node[] children;
-    public Implicit(Node... children) {
+public class Implicit extends Unresolved {
+    public Expression[] children;
+    public Implicit(Expression... children) {
         this.children = children;
     }
 
 
     @Override
-    public Object eval(Environment environment) {
+    public Expression resolve(Scope scope) {
         if (!(children[0] instanceof Identifier)) {
             throw new RuntimeException("verb expected as first parameter");
         }
         String name = ((Identifier) children[0]).name;
-        Object o = children[1].eval(environment);
 
-        // BAD HACK!!!
-        if ("delete".equals(name) && children[1] instanceof Identifier) {
-            environment.variables.remove(((Identifier) children[1]).name);
+        if ("create".equals(name) && children[1] instanceof Identifier) {
+            String argName = ((Identifier) children[1]).name;
+
+            Type type = scope.environment.resolveType(argName);
+            if (type != null && Instance.class.isAssignableFrom(type.getJavaClass())) {
+                return new ConstructorInvocation(type);
+            }
         }
 
-        if (o instanceof Instance) {
-            Object[] param = new Object[children.length - 2];
-            Class[] pc = new Class[param.length];
-            for (int i = 0; i < param.length; i++) {
-                Object pi = param[i] = children[i + 2].eval(environment);
-                Class pci = pi.getClass();
-                pc[i] = pci == Double.class ? Double.TYPE : pci;
+        Expression[] resolved = new Expression[children.length - 1];
+        for (int i = 0; i < resolved.length; i++) {
+            resolved[i] = children[i + 1].resolve(scope);
+        }
+
+        if (Instance.class.isAssignableFrom(resolved[0].getType().getJavaClass())) {
+            Class[] paramTypes = new Class[resolved.length - 1];
+            for (int i = 0; i < paramTypes.length; i++) {
+                paramTypes[i] = resolved[i + 1].getType().getJavaClassForSignature();
             }
-            Class c = o.getClass();
             try {
-                Method method = c.getMethod(name, pc);
-                return method.invoke(o, param);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                Method method = resolved[0].getType().getJavaClass().getMethod(name, paramTypes);
+                return new MethodInvocation(method, resolved);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(paramTypes) + " not found in class " + resolved[0].getType());
             }
         } else {
-            Object[] param = new Object[children.length - 1];
-            Class[] pc = new Class[param.length];
-            for (int i = 0; i < param.length; i++) {
-                Object pi = param[i] = i == 0 ? o : children[i + 2].eval(environment);
-                Class pci = pi.getClass();
-                pc[i] = pci == Double.class ? Double.TYPE : pci;
+            Class[] paramTypes = new Class[resolved.length];
+            for (int i = 0; i < paramTypes.length; i++) {
+                paramTypes[i] = resolved[i].getType().getJavaClassForSignature();
             }
             try {
-                Method method = Builtins.class.getMethod(name, pc);
-                return method.invoke(environment.builtins, param);
+                Method method = Builtins.class.getMethod(name, paramTypes);
+                return new BuiltinInvocation(method, false, resolved);
             } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }  catch (InvocationTargetException e) {
-                throw new RuntimeException(e.getCause());
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(Arrays.copyOfRange(paramTypes, 1, paramTypes.length)) + " not found in class " + resolved[0].getType());
             }
         }
     }
@@ -78,5 +76,4 @@ public class Implicit extends Node {
             sb.append(')');
         }
     }
-
 }

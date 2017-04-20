@@ -39,7 +39,7 @@ public class Builtins {
     }
 
     public void gc() {
-        Runtime.getRuntime().gc();
+        java.lang.Runtime.getRuntime().gc();
     }
 
     public void unpause() {

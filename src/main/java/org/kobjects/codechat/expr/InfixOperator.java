@@ -1,45 +1,41 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.Type;
 
-public class InfixOperator extends Node {
+public class InfixOperator extends Expression {
 
-    final String name;
-    Node left;
-    Node right;
-    public InfixOperator(String name, Node left, Node right) {
+    public final String name;
+    public Expression left;
+    public Expression right;
+    public InfixOperator(String name, Expression left, Expression right) {
         this.name = name;
         this.left = left;
         this.right = right;
     }
 
     @Override
-    public Object eval(Environment environment) {
+    public Object eval(Context context) {
+        Object p0 = left.eval(context);
         if (right == null) {
-            Object p0 = left.eval(environment);
             if (p0 instanceof Number) {
                 return evalNumber(((Number) p0).doubleValue());
             }
             throw new RuntimeException("Can't apply " + name + " to " + p0.getClass().getSimpleName());
-        } else if (name.equals("=")) {
-            Object value = right.eval(environment);
-            left.assign(environment, value);
-            return value;
-        } else {
-            Object p0 = left.eval(environment);
-            Object p1 = right.eval(environment);
-            if (p0.getClass() != p1.getClass()) {
-                throw new RuntimeException("Parameters must be of the same type for " + name);
-            }
-            if (p0 instanceof Number) {
-                return evalNumber(((Number) p0).doubleValue(), ((Number) p1).doubleValue());
-            }
-            if (p0 instanceof String) {
-                return evalString((String) p0, (String) p1);
-            }
-            throw new RuntimeException("Can't apply " + name + " to " + p0.getClass().getSimpleName());
         }
+        Object p1 = right.eval(context);
+        if (p0.getClass() != p1.getClass()) {
+           throw new RuntimeException("Parameters must be of the same type for " + name);
+        }
+        if (p0 instanceof Number) {
+           return evalNumber(((Number) p0).doubleValue(), ((Number) p1).doubleValue());
+        }
+        if (p0 instanceof String) {
+            return evalString((String) p0, (String) p1);
+        }
+        throw new RuntimeException("Can't apply " + name + " to " + p0.getClass().getSimpleName());
     }
 
     private Object evalNumber(double p1, double p2) {
@@ -94,6 +90,33 @@ public class InfixOperator extends Node {
             default:
                 throw new RuntimeException("getPrecedence undefined for " + name);
 
+        }
+    }
+
+    @Override
+    public Expression resolve(Scope scope) {
+        left = left.resolve(scope);
+        if (right != null) {
+            right = right.resolve(scope);
+            if (name.equals("=")) {
+                return new Assignment(left, right);
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public Type getType() {
+        switch (name) {
+            case "<":
+            case ">":
+            case "<=":
+            case ">=":
+            case "=":
+            case "==":
+                return Type.BOOLEAN;
+            default:
+                return left.getType();
         }
     }
 

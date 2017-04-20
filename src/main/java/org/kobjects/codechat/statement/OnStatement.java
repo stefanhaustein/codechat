@@ -1,16 +1,17 @@
 package org.kobjects.codechat.statement;
 
+import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.api.Ticking;
-import org.kobjects.codechat.expr.Node;
+import org.kobjects.codechat.expr.Expression;
 
 public class OnStatement extends Instance implements Statement, Ticking {
     Environment environment;
-    public Node condition;
+    public Expression condition;
     public Block body;
 
-    public OnStatement(Environment environment, int id, Node condition, Block body) {
+    public OnStatement(Environment environment, int id, Expression condition, Block body) {
         super(environment, id);
         this.environment = environment;
         this.condition = condition;
@@ -19,8 +20,8 @@ public class OnStatement extends Instance implements Statement, Ticking {
 
     @Override
     public void tick(boolean force) {
-        if (Boolean.TRUE.equals(condition.eval(environment))) {
-            body.eval(environment);
+        if (Boolean.TRUE.equals(condition.eval(environment.getRootContext()))) {
+            body.eval(environment.getRootContext());
         }
     }
 
@@ -31,7 +32,7 @@ public class OnStatement extends Instance implements Statement, Ticking {
     }
 
     @Override
-    public Object eval(Environment environment) {
+    public Object eval(Context context) {
         environment.ticking.add(this);
         return null;
     }

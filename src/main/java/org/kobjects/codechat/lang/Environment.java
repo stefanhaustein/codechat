@@ -52,7 +52,6 @@ public class Environment implements Runnable {
     public Builtins builtins = new Builtins(this);
     public double scale;
     public FrameLayout rootView;
-    public Map<String, Object> variables = new TreeMap<>();
     public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
     public boolean paused;
     Handler handler = new Handler();
@@ -61,7 +60,9 @@ public class Environment implements Runnable {
     File rootDir;
     boolean loading;
     EnvironmentListener environmentListener;
+    Scope rootScope = new Scope(this);
     Parser parser = new Parser(this);
+    private Context rootContext = new Context(this);
 
     public Environment(EnvironmentListener environmentListener, FrameLayout rootView) {
         this.environmentListener = environmentListener;
@@ -93,7 +94,7 @@ public class Environment implements Runnable {
 
     @Override
     public void run() {
-        float newScale = rootView.getWidth() / 1000f;
+        float newScale = Math.min(rootView.getWidth(), rootView.getHeight()) / 1000f;
         boolean force = newScale != scale;
         scale = newScale;
         if (!paused || force) {
@@ -101,7 +102,7 @@ public class Environment implements Runnable {
                 try {
                     t.tick(force);
                 } catch (Exception e) {
-                    System.err.println(e.toString());
+                    e.printStackTrace();
                 }
             }
         }
@@ -116,13 +117,10 @@ public class Environment implements Runnable {
                 instance.dump(writer);
             }
         }
-        for (Map.Entry<String,Object> var : variables.entrySet()) {
-            if (var.getValue() instanceof Class<?>) {
-                continue;
-            }
-            writer.write(var.getKey());
+        for (Variable var : rootScope.variables.values()) {
+            writer.write(var.getName());
             writer.write(" = ");
-            writer.write(var.getValue().toString());
+            writer.write(toLiteral(rootContext.variables[var.getIndex()]));
             writer.write("\n");
         }
         for (Ticking t : ticking) {
@@ -174,17 +172,17 @@ public class Environment implements Runnable {
     }
 
 
-    public Object getInstance(String type, int id) {
+    public Object getInstance(Type type, int id) {
         WeakReference reference = everything.get(id);
         Object result = reference != null ? reference.get() : null;
         if (result == null) {
             if (!loading) {
                 throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
             }
-            Class<?> c = (Class<?>) variables.get(type);
+            Class<?> c = type.getJavaClass();
             result = instantiate(c);
         } else {
-            if (!result.getClass().getSimpleName().equalsIgnoreCase(type)) {
+            if (!result.getClass().getSimpleName().equalsIgnoreCase(type.toString())) {
                 throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + result.getClass().getSimpleName().toLowerCase());
             }
             lastId = Math.max(lastId, id);
@@ -194,10 +192,9 @@ public class Environment implements Runnable {
 
     public void clear() {
         ticking.clear();
-        variables.clear();
+        rootScope.variables.clear();
         everything.clear();
         lastId = 0;
-        variables.put("sprite", Sprite.class);
         for (int i = rootView.getChildCount() - 1; i >= 0; i--) {
             View child = rootView.getChildAt(i);
             if (child instanceof ImageView) {
@@ -251,7 +248,7 @@ public class Environment implements Runnable {
                     try {
                         Evaluable e = parse(line);
                         if (e != null) {
-                            e.eval(this);
+                            e.eval(getRootContext());
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -276,6 +273,26 @@ public class Environment implements Runnable {
             this.paused = paused;
             environmentListener.paused(paused);
         }
+    }
+
+    public Type resolveType(String name) {
+        if (name.equals("sprite")) {
+            return Type.forJavaClass(Sprite.class);
+        }
+        return null;
+    }
+
+    public Context getRootContext() {
+        if (rootScope.nextIndex > 0) {
+            if (rootContext.variables == null) {
+                rootContext.variables = new Object[rootScope.nextIndex];
+            } else if (rootScope.nextIndex > rootContext.variables.length) {
+                Object[] newVars = new Object[rootScope.nextIndex];
+                System.arraycopy(rootContext.variables, 0, newVars, 0, rootContext.variables.length);
+                rootContext.variables = newVars;
+            }
+        }
+        return rootContext;
     }
 
 

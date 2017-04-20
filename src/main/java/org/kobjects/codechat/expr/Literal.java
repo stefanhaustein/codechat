@@ -1,17 +1,26 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.Type;
 
-public class Literal extends Node {
+public class Literal extends Expression {
     final Object value;
 
     public Literal(Object value) {
         this.value = value;
     }
 
-    public Object eval(Environment environment) {
-        return value;
+    @Override
+    public Expression resolve(Scope scope) {
+        return this;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.forJavaClass(value.getClass());
     }
 
     @Override
@@ -37,4 +46,8 @@ public class Literal extends Node {
         }
     }
 
+    @Override
+    public Object eval(Context context) {
+        return value;
+    }
 }
