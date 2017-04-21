@@ -3,7 +3,7 @@ package org.kobjects.codechat.expr;
 import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Type;
 
-public abstract class Unresolved extends Expression {
+public abstract class AbstractUnresolved extends Expression {
 
     @Override
     public final Type getType() {

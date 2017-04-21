@@ -8,7 +8,7 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class UnresolvedInvocation extends Unresolved {
+public class UnresolvedInvocation extends AbstractUnresolved {
 
     static int getPrecedence(boolean parens) {
         return  parens ? Parser.PRECEDENCE_PATH : Parser.PRECEDENCE_IMPLICIT;
@@ -78,12 +78,17 @@ public class UnresolvedInvocation extends Unresolved {
             for (int i = 0; i < paramTypes.length; i++) {
                 paramTypes[i] = resolved[i].getType().getJavaClassForSignature();
             }
+            Method method;
             try {
-                Method method = Builtins.class.getMethod(name, paramTypes);
-                return new BuiltinInvocation(method, false, resolved);
+                method = Builtins.class.getMethod(name, paramTypes);
             } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(Arrays.copyOfRange(paramTypes, 1, paramTypes.length)) + " not found in class " + resolved[0].getType());
+                try {
+                    method = Math.class.getMethod(name, paramTypes);
+                } catch (NoSuchMethodException e2) {
+                    throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(Arrays.copyOfRange(paramTypes, 1, paramTypes.length)) + " not found in class " + resolved[0].getType());
+                }
             }
+            return new BuiltinInvocation(method, false, resolved);
         }
     }
 

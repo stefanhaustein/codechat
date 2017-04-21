@@ -221,7 +221,7 @@ public class ExpressionParser<T> {
   }
 
   /**
-   * Returns all symbols registered via add...InfixOperator and add...Bracket calls.
+   * Returns all symbols registered via add...BinaryOperator and add...Bracket calls.
    * Useful for tokenizer construction.
    */
   public Iterable<String> getSymbols() {

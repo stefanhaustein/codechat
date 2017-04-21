@@ -5,12 +5,12 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class Reference extends Expression {
+public class InstanceReference extends Expression {
     int id;
     String typeName;
     Type type;
 
-    public Reference(String name) {
+    public InstanceReference(String name) {
         int cut = name.indexOf('#');
         id = Integer.parseInt(name.substring(cut + 1));
 ;       typeName = name.substring(0, cut);

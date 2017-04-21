@@ -5,7 +5,7 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Type;
 import org.kobjects.codechat.lang.Variable;
 
-public class VariableNode extends Resolved {
+public class VariableNode extends AbstractResolved {
     Variable variable;
 
     public VariableNode(Variable variable) {

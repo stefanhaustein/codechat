@@ -5,12 +5,12 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class InfixOperator extends Expression {
+public class BinaryOperator extends Expression {
     public char name;
     public Expression left;
     public Expression right;
 
-    public InfixOperator(char name, Expression left, Expression right) {
+    public BinaryOperator(char name, Expression left, Expression right) {
         this.name = name;
         this.left = left;
         this.right = right;
@@ -84,6 +84,6 @@ public class InfixOperator extends Expression {
         sb.append(' ');
         sb.append(name == '$' ? '+' : name);
         sb.append(' ');
-        left.toString(sb, precedence);
+        right.toString(sb, precedence);
     }
 }

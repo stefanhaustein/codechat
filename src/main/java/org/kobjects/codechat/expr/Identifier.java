@@ -6,7 +6,7 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Variable;
 
-public class Identifier extends Unresolved {
+public class Identifier extends AbstractUnresolved {
     public final String name;
 
     public Identifier(String name) {

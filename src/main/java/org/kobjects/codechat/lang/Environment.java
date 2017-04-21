@@ -18,35 +18,10 @@ import java.util.*;
 import org.kobjects.codechat.api.Builtins;
 import org.kobjects.codechat.api.Sprite;
 import org.kobjects.codechat.api.Ticking;
+import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment implements Runnable {
-
-    public static String quote(String s) {
-        StringBuilder sb = new StringBuilder(s.length() + 2);
-        sb.append('"');
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            switch (c) {
-                case '"':
-                    sb.append("\\\"");
-                    break;
-                case '\n':
-                    sb.append("\\n");
-                    break;
-                default:
-                    if (c < ' ') {
-                        sb.append("\\u00");
-                        sb.append(Character.digit(c / 16, 16));
-                        sb.append(Character.digit(c % 16, 16));
-                    } else {
-                        sb.append(c);
-                    }
-            }
-        }
-        sb.append('"');
-        return sb.toString();
-    }
 
 
     public Builtins builtins = new Builtins(this);
@@ -57,9 +32,9 @@ public class Environment implements Runnable {
     Handler handler = new Handler();
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
-    File rootDir;
+    File codeDir;
     boolean loading;
-    EnvironmentListener environmentListener;
+    public EnvironmentListener environmentListener;
     Scope rootScope = new Scope(this);
     Parser parser = new Parser(this);
     private Context rootContext = new Context(this);
@@ -67,7 +42,10 @@ public class Environment implements Runnable {
     public Environment(EnvironmentListener environmentListener, FrameLayout rootView) {
         this.environmentListener = environmentListener;
         this.rootView = rootView;
-        this.rootDir = rootView.getContext().getFilesDir();
+        this.codeDir = rootView.getContext().getExternalFilesDir("code");
+
+        System.out.println("ROOT DIR: " + codeDir.getAbsolutePath().toString());
+
         clear();
         handler.postDelayed(this, 100);
     }
@@ -143,7 +121,7 @@ public class Environment implements Runnable {
             }
         }
         if (o instanceof String) {
-            return quote((String) o);
+            return Formatting.quote((String) o);
         }
         return String.valueOf(o);
     }
@@ -167,7 +145,7 @@ public class Environment implements Runnable {
     }
 
 
-    public Evaluable parse(String line) {
+    public Statement parse(String line) {
         return parser.parse(line);
     }
 
@@ -205,7 +183,7 @@ public class Environment implements Runnable {
 
     public void save(String name) {
         try {
-            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(rootDir, name)), "utf-8");
+            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(codeDir, name)), "utf-8");
             dump(writer);
             writer.close();
         } catch (IOException e) {
@@ -216,7 +194,7 @@ public class Environment implements Runnable {
     public void load(String name) {
         try {
             loading = true;
-            File file = new File(rootDir, name);
+            File file = new File(codeDir, name);
             if (!file.exists()) {
                 throw new RuntimeException("File '" + name + "' does not exist.");
             }
@@ -246,7 +224,7 @@ public class Environment implements Runnable {
                     pending.setLength(0);
 
                     try {
-                        Evaluable e = parse(line);
+                        Statement e = parse(line);
                         if (e != null) {
                             e.eval(getRootContext());
                         }
@@ -283,11 +261,12 @@ public class Environment implements Runnable {
     }
 
     public Context getRootContext() {
-        if (rootScope.nextIndex > 0) {
+        int varCount = rootScope.getVarCount();
+        if (varCount > 0) {
             if (rootContext.variables == null) {
-                rootContext.variables = new Object[rootScope.nextIndex];
-            } else if (rootScope.nextIndex > rootContext.variables.length) {
-                Object[] newVars = new Object[rootScope.nextIndex];
+                rootContext.variables = new Object[varCount];
+            } else if (varCount > rootContext.variables.length) {
+                Object[] newVars = new Object[varCount];
                 System.arraycopy(rootContext.variables, 0, newVars, 0, rootContext.variables.length);
                 rootContext.variables = newVars;
             }
@@ -299,5 +278,6 @@ public class Environment implements Runnable {
     public interface EnvironmentListener {
         void paused(boolean paused);
         void setTitle(String name);
+        void print(String s);
     }
 }

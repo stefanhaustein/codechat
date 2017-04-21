@@ -10,18 +10,21 @@ import java.util.regex.Pattern;
 import org.kobjects.codechat.api.Emoji;
 import org.kobjects.codechat.expr.Assignment;
 import org.kobjects.codechat.expr.Identifier;
-import org.kobjects.codechat.expr.Relational;
+import org.kobjects.codechat.expr.RelationalOperator;
 import org.kobjects.codechat.expr.UnaryOperator;
 import org.kobjects.codechat.expr.UnresolvedInvocation;
-import org.kobjects.codechat.expr.InfixOperator;
-import org.kobjects.codechat.expr.Reference;
+import org.kobjects.codechat.expr.BinaryOperator;
+import org.kobjects.codechat.expr.InstanceReference;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.Property;
 import org.kobjects.codechat.statement.Block;
-import org.kobjects.codechat.statement.Delete;
+import org.kobjects.codechat.statement.CountStatement;
+import org.kobjects.codechat.statement.DeleteStatement;
+import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.IfStatement;
 import org.kobjects.codechat.statement.OnStatement;
+import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Parser {
@@ -46,7 +49,7 @@ public class Parser {
     }
 
     Block parseBlock(ExpressionParser.Tokenizer tokenizer, Scope scope, String end) {
-        ArrayList<Evaluable> statements = new ArrayList<>();
+        ArrayList<Statement> statements = new ArrayList<>();
         while(true) {
             while(tokenizer.tryConsume(";")) {
                 //
@@ -56,7 +59,26 @@ public class Parser {
             }
             statements.add(parseStatement(tokenizer, scope));
         }
-        return new Block(statements.toArray(new Evaluable[statements.size()]));
+        return new Block(statements.toArray(new Statement[statements.size()]));
+    }
+
+    CountStatement parseCount(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+        String varName = tokenizer.consumeIdentifier();
+        Expression expression = parseExpression(tokenizer, scope);
+
+        if (!expression.getType().equals(Type.NUMBER)) {
+            throw new RuntimeException("Count expression must be a number.");
+        }
+
+        Scope countScope = new Scope(scope);
+
+        Variable counter = countScope.addVariable(varName, Type.NUMBER);
+
+        tokenizer.consume("{");
+
+        Block block = parseBlock(tokenizer, countScope, "}");
+
+        return new CountStatement(counter, expression, block);
     }
 
     OnStatement parseOn(ExpressionParser.Tokenizer tokenizer, String name) {
@@ -104,7 +126,13 @@ public class Parser {
     }
 
 
-    Evaluable parseStatement(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+    Statement parseStatement(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+        if (tokenizer.tryConsume("count")) {
+            return parseCount(tokenizer, scope);
+        }
+        if (tokenizer.tryConsume("delete")) {
+            return new DeleteStatement(parseExpression(tokenizer, scope));
+        }
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
             return parseOn(tokenizer, name);
@@ -112,11 +140,8 @@ public class Parser {
         if (tokenizer.tryConsume("if")) {
             return parseIf(tokenizer, scope);
         }
-
-        if (tokenizer.tryConsume("delete")) {
-            return new Delete(parseExpression(tokenizer, scope));
-        }
-        return parseExpression(tokenizer, scope);
+        Expression expression = parseExpression(tokenizer, scope);
+        return new ExpressionStatement(expression);
     }
 
     Expression parseExpression(ExpressionParser.Tokenizer tokenizer, Scope scope) {
@@ -135,7 +160,7 @@ public class Parser {
         return unresolved.resolve(scope);
     }
 
-    public Evaluable parse(String line) {
+    public Statement parse(String line) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
         return parseStatement(tokenizer, environment.rootScope);
@@ -174,9 +199,9 @@ public class Parser {
                 case "\u2260":
                 case "\u2264":
                 case "\u2265":
-                    return new Relational(name, left, right);
+                    return new RelationalOperator(name, left, right);
                 default:
-                    return new InfixOperator(name.charAt(0), left, right);
+                    return new BinaryOperator(name.charAt(0), left, right);
             }
         }
 
@@ -214,7 +239,7 @@ public class Parser {
                 return new Literal(Boolean.FALSE);
             }
             if (name.indexOf('#') != -1) {
-                return new Reference(name);
+                return new InstanceReference(name);
             }
             return new Identifier(name);
         }
@@ -252,7 +277,8 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, "'s");
         parser.addOperators(ExpressionParser.OperatorType.INFIX_RTL, PRECEDENCE_SIGN, "^");
-        parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-");
+        parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-", "\u221a");
+
        // parser.setImplicitOperatorPrecedence(true, 2);
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ADDITIVE, "+", "-");

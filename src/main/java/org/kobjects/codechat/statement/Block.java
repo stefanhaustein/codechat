@@ -1,13 +1,11 @@
 package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.lang.Context;
-import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Evaluable;
 
 public class Block extends AbstractStatement {
-    Evaluable[] statements;
+    Statement[] statements;
 
-    public Block(Evaluable[] statements) {
+    public Block(Statement[] statements) {
         this.statements = statements;
     }
 
@@ -22,14 +20,8 @@ public class Block extends AbstractStatement {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        for (Evaluable e: statements) {
-            if (e instanceof Statement) {
-                ((Statement) e).toString(sb, indent);
-            } else {
-                indent(sb, indent);
-                sb.append(e.toString());
-                sb.append(";\n");
-            }
+        for (Statement statement: statements) {
+            statement.toString(sb, indent);
         }
     }
 }

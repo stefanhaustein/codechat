@@ -5,14 +5,14 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class Relational extends Expression {
+public class RelationalOperator extends Expression {
 
     char name;
 
     Expression left;
     Expression right;
 
-    public Relational(String name, Expression left, Expression right) {
+    public RelationalOperator(String name, Expression left, Expression right) {
 
         if (name.length() == 1) {
             this.name = name.charAt(0);

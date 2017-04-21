@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Type;
 
-public class BuiltinInvocation extends Resolved {
+public class BuiltinInvocation extends AbstractResolved {
     static final Object[] EMPTY_ARRAY = new Object[0];
 
     boolean parens;

@@ -19,6 +19,8 @@ public class UnaryOperator extends Expression {
     public Object eval(Context context) {
         double value = ((Number) operand.eval(context)).doubleValue();
         switch (name) {
+            case '\u221a':
+                return Math.sqrt(value);
             case '+':
                 return value;
             case '-':

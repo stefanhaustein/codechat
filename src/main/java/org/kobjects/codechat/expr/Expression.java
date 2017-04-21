@@ -1,11 +1,12 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.Context;
-import org.kobjects.codechat.lang.Evaluable;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public abstract class Expression implements Evaluable {
+public abstract class Expression {
+
+    public abstract Object eval(Context context);
 
     public void assign(Context context, Object value) {
         throw new RuntimeException("Assignment not supported for " + this);

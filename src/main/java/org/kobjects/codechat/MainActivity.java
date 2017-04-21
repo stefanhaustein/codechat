@@ -16,8 +16,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import org.kobjects.codechat.expr.BuiltinInvocation;
+import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Evaluable;
+import org.kobjects.codechat.lang.Formatting;
+import org.kobjects.codechat.lang.Type;
+import org.kobjects.codechat.statement.ExpressionStatement;
+import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.ui.ChatView;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
@@ -142,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         });
     }
 
-    void printLeft(String s) {
+    public void print(String s) {
         listView.addLeft(s);
         listView.setSelection(listView.getCount() - 1);
         listView.post(new Runnable() {
@@ -166,12 +171,25 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             } else if (balance > 0) {
                 printRight(pending + "(append " + (balance == 1 ? "" : (String.valueOf(balance) + ' ')) + "'}' to complete input)", update);
             } else {
-                Evaluable evaluable = environment.parse(pending);
-                printRight(evaluable.toString(), update);
-                printed = true;
+                Statement statement = environment.parse(pending);
 
-                Object result = evaluable.eval(environment.getRootContext());
-                printLeft(result == null ? "ok" : String.valueOf(result));
+                if (statement instanceof ExpressionStatement) {
+                    Expression expression = ((ExpressionStatement) statement).expression;
+                    String s = expression.toString();
+                    printRight(s, update);
+                    printed = true;
+                    Object result = expression.eval(environment.getRootContext());
+                    if (Type.VOID.equals(expression.getType())) {
+                        print("ok");
+                    } else {
+                        print(Formatting.toLiteral(result));
+                    }
+                } else {
+                    printRight(statement.toString(), update);
+                    printed = true;
+                    statement.eval(environment.getRootContext());
+                    print("ok");
+                }
                 pending = "";
             }
         } catch (Exception e) {
@@ -180,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 printRight(pending, update);
             }
             pending = "";
-            printLeft(e.getMessage());
+            print(e.getMessage());
         }
     }
 

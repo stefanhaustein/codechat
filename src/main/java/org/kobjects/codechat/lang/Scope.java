@@ -7,15 +7,17 @@ public class Scope {
     public Environment environment;
     Scope parent;
     public Map<String, Variable> variables = new TreeMap<>();
-    int nextIndex;
+    int[] nextIndex;
 
     public Scope(Environment environment) {
         this.environment = environment;
+        nextIndex = new int[1];
     }
 
     public Scope(Scope parent) {
         this(parent.environment);
         this.parent = parent;
+        this.nextIndex = parent.nextIndex;
     }
 
     public Variable resolve(String name) {
@@ -29,7 +31,20 @@ public class Scope {
                 throw new RuntimeException("Can't assign " + type + " to variable of type " + existing.getType());
             }
         } else {
-            variables.put(name, new Variable(name, type, nextIndex++));
+            addVariable(name, type);
         }
+    }
+
+    public Variable addVariable(String name, Type type) {
+        if (variables.containsKey(name)) {
+            throw new RuntimeException("Variable '" + name + "' exists already.");
+        }
+        Variable variable = new Variable(name, type, nextIndex[0]++);
+        variables.put(name, variable);
+        return variable;
+    }
+
+    public int getVarCount() {
+        return nextIndex[0];
     }
 }

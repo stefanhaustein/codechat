@@ -7,10 +7,10 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.expr.Identifier;
 import org.kobjects.codechat.expr.Expression;
 
-public class Delete extends AbstractStatement {
+public class DeleteStatement extends AbstractStatement {
     Expression expr;
 
-    public Delete(Expression expr) {
+    public DeleteStatement(Expression expr) {
         this.expr = expr;
     }
 

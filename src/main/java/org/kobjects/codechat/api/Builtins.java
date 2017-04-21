@@ -12,14 +12,18 @@ public class Builtins {
         this.environment = environment;
     }
 
-    public String dump() {
+    public void list() {
         StringWriter sw = new StringWriter();
         try {
             environment.dump(sw);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return sw.toString();
+        String list = sw.toString();
+        while (list.endsWith("\n")) {
+            list = list.substring(0, list.length() - 1);
+        }
+        environment.environmentListener.print(list);
     }
 
     public Instance create(Class c) {
@@ -38,8 +42,16 @@ public class Builtins {
         environment.pause(true);
     }
 
-    public void gc() {
-        java.lang.Runtime.getRuntime().gc();
+    public void print(double d) {
+        environment.environmentListener.print(String.valueOf(d));
+    }
+
+    public void print(String s) {
+        environment.environmentListener.print(String.valueOf(s));
+    }
+
+    public void print(boolean b) {
+        environment.environmentListener.print(String.valueOf(b));
     }
 
     public void unpause() {

@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.Context;
-import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
@@ -31,18 +31,7 @@ public class Literal extends Expression {
 
     @Override
     public void toString(StringBuilder sb) {
-        if (value instanceof Number) {
-            Number n = (Number) value;
-            if (n.longValue() == n.doubleValue()) {
-                sb.append(n.longValue());
-            } else {
-                sb.append(n.doubleValue());
-            }
-        } else if (value instanceof String) {
-            sb.append(Environment.quote((String) value));
-        } else {
-            sb.append(value);
-        }
+        sb.append(Formatting.toLiteral(value));
     }
 
     @Override

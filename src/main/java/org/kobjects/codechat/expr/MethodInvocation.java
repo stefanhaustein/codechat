@@ -4,10 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class MethodInvocation extends Resolved {
+public class MethodInvocation extends AbstractResolved {
     static final Object[] EMPTY_ARRAY = new Object[0];
 
     boolean parens;
