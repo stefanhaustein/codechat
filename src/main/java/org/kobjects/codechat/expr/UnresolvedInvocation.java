@@ -48,7 +48,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
 
     @Override
     public Expression resolve(Scope scope) {
-        if ("create".equals(name) && children[1] instanceof Identifier) {
+        if ("create".equals(name) && children[0] instanceof Identifier) {
             String argName = ((Identifier) children[0]).name;
 
             Type type = scope.environment.resolveType(argName);

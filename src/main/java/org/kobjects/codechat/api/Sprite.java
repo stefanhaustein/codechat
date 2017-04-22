@@ -1,5 +1,7 @@
 package org.kobjects.codechat.api;
 
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
@@ -15,6 +17,7 @@ public class Sprite extends Instance implements Ticking {
     double x;
     double y;
     double rotation;
+    boolean touched;
     private Emoji face;
 
     public Sprite(Environment environment, int id) {
@@ -22,6 +25,20 @@ public class Sprite extends Instance implements Ticking {
         view = new ImageView(environment.rootView.getContext());
         view.setAdjustViewBounds(true);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    touched = true;
+                    return true;
+                }
+                if (motionEvent.getActionMasked() == MotionEvent.ACTION_UP) {
+                    touched = false;
+                    return true;
+                }
+                return false;
+            }
+        });
         environment.rootView.addView(view);
 
         setFace(new Emoji(0x1f603));
@@ -77,6 +94,15 @@ public class Sprite extends Instance implements Ticking {
         setX(x);
         setY(y);
     }
+
+    public void setTouched(boolean value) {
+        touched = value;
+    }
+
+    public boolean getTouched() {
+        return touched;
+    }
+
 
     public void setFace(Emoji emoji) {
         view.setImageDrawable(emoji.getDrawable(view.getContext()));

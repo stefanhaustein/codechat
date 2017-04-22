@@ -20,8 +20,13 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.vanniktech.emoji.EmojiEditText;
+import com.vanniktech.emoji.EmojiManager;
+import com.vanniktech.emoji.EmojiPopup;
+import com.vanniktech.emoji.one.EmojiOneProvider;
 import org.kobjects.codechat.expr.BuiltinInvocation;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Environment;
@@ -34,16 +39,18 @@ import org.kobjects.codechat.ui.ChatView;
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
 
 public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener {
-    EditText input;
+    EmojiEditText input;
     FrameLayout mainLayout;
     ChatView listView;
     Environment environment;
     Toolbar toolbar;
     MenuItem pauseItem;
     String pending = "";
+    EmojiPopup emojiPopup;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
+        EmojiManager.install(new EmojiOneProvider());
         mainLayout = new FrameLayout(this);
         environment = new Environment(this, mainLayout);
 
@@ -68,8 +75,13 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
         LinearLayout inputLayout = new LinearLayout(this);
 
-        input = new AppCompatEditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE);//|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        final ImageView emojiInputButton = new ImageView(this);
+        inputLayout.addView(emojiInputButton);
+        emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
+        emojiInputButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
+
+        input = new EmojiEditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);//|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
             @Override
@@ -90,8 +102,23 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         inputLayout.addView(input);
         ((LinearLayout.LayoutParams) input.getLayoutParams()).weight = 1;
 
-        ImageButton enterButton = new ImageButton(this);
-        enterButton.setImageResource(R.drawable.ic_subdirectory_arrow_left_black_24dp);
+        emojiInputButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (emojiPopup == null) {
+                    emojiPopup = EmojiPopup.Builder.fromRootView(mainLayout).build(input);
+                }
+                emojiPopup.toggle();
+                if (emojiPopup.isShowing()) {
+                    emojiInputButton.setImageResource(R.drawable.ic_keyboard_black_24dp);
+                } else {
+                    emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
+                }
+            }
+        });
+
+        ImageView enterButton = new ImageView(this);
+        enterButton.setImageResource(R.drawable.ic_send_black_24dp);
       //  enterButton.setImageDrawable(new Emoji(0x2705).getDrawable(this));
         //enterButton.setText("\u23ce");
         inputLayout.addView(enterButton);

@@ -17,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.vanniktech.emoji.EmojiTextView;
 import java.util.ArrayList;
 import java.util.BitSet;
 
@@ -84,12 +85,12 @@ public class ChatView extends ListView {
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             LinearLayout result;
-            TextView textView;
+            EmojiTextView textView;
             if (view instanceof LinearLayout) {
                 result = (LinearLayout) view;
-                textView = (TextView) result.getChildAt(0);
+                textView = (EmojiTextView) result.getChildAt(0);
             } else {
-                textView = new TextView(viewGroup.getContext());
+                textView = new EmojiTextView(viewGroup.getContext());
                 boolean r = right.get(i);
                 textView.setBackground(new BubbleDrawable(arrowSize, cornerBox, r));
                 textView.setPadding(r ? sidePadding : sidePadding + arrowSize, topPadding, r ? sidePadding + arrowSize : sidePadding, bottomPadding);
