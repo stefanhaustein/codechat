@@ -5,6 +5,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -129,14 +135,11 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         return true;
     }
 
-    void printRight(String s, boolean update) {
-        if (s.endsWith("\n")) {
-            s = s.substring(0, s.length() - 1);
-        }
+    void printRight(CharSequence s, boolean update) {
         if (update) {
             listView.setValue(listView.getCount() - 1, s);
         } else {
-            listView.addRight(s);
+            listView.add(true, s);
             listView.setSelection(listView.getCount() - 1);
         }
         listView.post(new Runnable() {
@@ -148,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     }
 
     public void print(String s) {
-        listView.addLeft(s);
+        listView.add(false, s);
         listView.setSelection(listView.getCount() - 1);
         listView.post(new Runnable() {
             @Override
@@ -161,15 +164,17 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     void processInput(String line) {
         boolean printed = false;
         boolean update = !pending.isEmpty();
-        pending += line + "\n";
-
+        pending = update ? pending + "\n" + line : line;
 
         int balance = environment.getBalance(pending);
         try {
             if (balance < 0) {
                 throw new RuntimeException("Unmatched closing '}'");
             } else if (balance > 0) {
-                printRight(pending + "(append " + (balance == 1 ? "" : (String.valueOf(balance) + ' ')) + "'}' to complete input)", update);
+                Spannable spannable = new SpannableString(pending + "\nappend " + (balance == 1 ? "" : (String.valueOf(balance) + ' ')) + "'}' to complete input");
+                spannable.setSpan(new ForegroundColorSpan(0x088000000), pending.length(), spannable.length(), 0);
+                spannable.setSpan(new RelativeSizeSpan(0.8f), pending.length(), spannable.length(), 0);
+                printRight(spannable, update);
             } else {
                 Statement statement = environment.parse(pending);
 

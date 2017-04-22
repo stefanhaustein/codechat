@@ -8,6 +8,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.text.SpannableStringBuilder;
 import android.view.Gravity;
 import android.view.OrientationEventListener;
 import android.view.View;
@@ -22,7 +23,7 @@ import java.util.BitSet;
 import static android.graphics.PixelFormat.TRANSLUCENT;
 
 public class ChatView extends ListView {
-    ArrayList<String> text = new ArrayList<>();
+    ArrayList<CharSequence> text = new ArrayList<>();
     BitSet right = new BitSet();
     ChatAdapter chatAdapter = new ChatAdapter();
     private final int topPadding;
@@ -51,18 +52,13 @@ public class ChatView extends ListView {
         wideHorizontalMarign = Math.round(32 * dpToPx);
     }
 
-    public void addRight(String s) {
-        right.set(text.size(), true);
+    public void add(boolean right, CharSequence s) {
+        this.right.set(text.size(), right);
         text.add(s);
         chatAdapter.notifyDataSetChanged();
     }
 
-    public void addLeft(String s) {
-        text.add(s);
-        chatAdapter.notifyDataSetChanged();
-    }
-
-    public void setValue(int i, String s) {
+    public void setValue(int i, CharSequence s) {
         text.set(i, s);
         chatAdapter.notifyDataSetChanged();
     }
@@ -111,7 +107,7 @@ public class ChatView extends ListView {
                 params.leftMargin = r ? wideHorizontalMarign : narrowHorizontalMarign;
                 params.rightMargin = r ? narrowHorizontalMarign : wideHorizontalMarign;
             }
-            textView.setText(String.valueOf(getItem(i)));
+            textView.setText((CharSequence) getItem(i));
             return result;
         }
 
