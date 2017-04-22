@@ -1,16 +1,19 @@
 package org.kobjects.codechat.expr;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Scope;
 import org.kobjects.codechat.lang.Type;
 
-public class Property extends Expression {
+public class PropertyAccess extends Expression {
     String name;
     Expression base;
+    Field property;
 
-    public Property(Expression left, Expression right) {
+    public PropertyAccess(Expression left, Expression right) {
         if (!(right instanceof Identifier)) {
             throw new IllegalArgumentException("Right node must be identifier");
         }
@@ -22,9 +25,9 @@ public class Property extends Expression {
     public Object eval(Context context) {
         Object value = base.eval(context);
         try {
-            Method method = value.getClass().getMethod("get" + Character.toUpperCase(name.charAt(0)) + name.substring(1));
-            return method.invoke(value);
-        } catch (Exception e) {
+            Property p = (Property) property.get(value);
+            return p.get();
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -33,10 +36,8 @@ public class Property extends Expression {
     public void assign(Context context, Object value) {
         Object baseValue = base.eval(context);
         try {
-            Class c = value.getClass();
-            Method method = baseValue.getClass().getMethod("set" + Character.toUpperCase(name.charAt(0)) + name.substring(1),
-                    c == Double.class ? Double.TYPE : c);
-            method.invoke(baseValue, value);
+            Property p = (Property) property.get(baseValue);
+            p.set(value);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -45,17 +46,22 @@ public class Property extends Expression {
     @Override
     public Expression resolve(Scope scope) {
         base = base.resolve(scope);
+        Class c = base.getType().getJavaClass();
+        try {
+            property = c.getField(name);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+        if (!Property.class.isAssignableFrom(property.getType())) {
+            throw new RuntimeException("Property " + name + " not found (not of type Property but: " + property.getType());
+        }
         return this;
     }
 
     @Override
     public Type getType() {
-        try {
-            Method method = base.getType().getJavaClass().getMethod("get" + Character.toUpperCase(name.charAt(0)) + name.substring(1));
-            return Type.forJavaClass(method.getReturnType());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        Class propertyType = (Class) ((ParameterizedType) property.getGenericType()).getActualTypeArguments()[0];
+        return Type.forJavaClass(propertyType);
     }
 
     @Override

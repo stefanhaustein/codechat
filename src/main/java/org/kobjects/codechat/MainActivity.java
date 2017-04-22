@@ -75,10 +75,11 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
         LinearLayout inputLayout = new LinearLayout(this);
 
-        final ImageView emojiInputButton = new ImageView(this);
+        final ImageButton emojiInputButton = new ImageButton(this);
         inputLayout.addView(emojiInputButton);
         emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
-        emojiInputButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
+//        emojiInputButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
+        emojiInputButton.setBackgroundColor(0);
 
         input = new EmojiEditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);//|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             }
         });
 
-        ImageView enterButton = new ImageView(this);
+        ImageButton enterButton = new ImageButton(this);
         enterButton.setImageResource(R.drawable.ic_send_black_24dp);
       //  enterButton.setImageDrawable(new Emoji(0x2705).getDrawable(this));
         //enterButton.setText("\u23ce");
@@ -130,7 +131,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 input.setText("");
             }
         });
-        enterButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
+//        enterButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
+        enterButton.setBackgroundColor(0);
 
         linearLayout.addView(inputLayout);
 

@@ -17,7 +17,7 @@ import org.kobjects.codechat.expr.BinaryOperator;
 import org.kobjects.codechat.expr.InstanceReference;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.Property;
+import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.CountStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
@@ -187,7 +187,7 @@ public class Parser {
             switch (name) {
                 case ".":
                 case "'s":
-                    return new Property(left, right);
+                    return new PropertyAccess(left, right);
                 case "=":
                     return new Assignment(left, right);
                 case "<":

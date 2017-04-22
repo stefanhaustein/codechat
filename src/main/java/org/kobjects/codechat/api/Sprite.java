@@ -8,17 +8,24 @@ import android.widget.ImageView;
 
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.Property;
 
-public class Sprite extends Instance implements Ticking {
-    ImageView view;
-    double dx;
-    double dy;
-    double size;
-    double x;
-    double y;
-    double rotation;
-    boolean touched;
-    private Emoji face;
+public class Sprite extends Instance implements Ticking, Runnable {
+
+    private final ImageView view;
+    private boolean syncRequested;
+
+    public VisualProperty<Double> size = new VisualProperty<>(100.0);
+    public VisualProperty<Double> x = new VisualProperty<>(500.0);
+    public VisualProperty<Double> y = new VisualProperty<>(500.0);
+    public VisualProperty<Double> rotation = new VisualProperty<>(0.0);
+    public VisualProperty<Emoji> face = new VisualProperty<>(new Emoji(0x1f603));
+
+    public Property<Double> dx = new Property<>(0.0);
+    public Property<Double> dy = new Property<>(0.0);
+    public Property<Boolean> touched = new Property<>(false);
+
+    private Emoji lastFace;
 
     public Sprite(Environment environment, int id) {
         super(environment, id);
@@ -29,84 +36,47 @@ public class Sprite extends Instance implements Ticking {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    touched = true;
+                    touched.set(true);
                     return true;
                 }
                 if (motionEvent.getActionMasked() == MotionEvent.ACTION_UP) {
-                    touched = false;
+                    touched.set(false);
                     return true;
                 }
                 return false;
             }
         });
         environment.rootView.addView(view);
-
-        setFace(new Emoji(0x1f603));
-        setSize(100);
-        setX(500);
-        setY(500);
+        syncView();
     }
 
     public void move(double x, double y) {
-        setX(x);
-        setY(y);
+        this.x.set(x);
+        this.y.set(y);
     }
 
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public double getDx() { return dx; }
-    public double getDy() { return dy; }
-    public double getSize() { return size; }
-    public Emoji getFace() { return face; }
 
-    public void setX(double x) {
-        this.x = x;
-        view.setX((float) (environment.scale * (x - size / 2)));
+    public void syncView() {
+        if (!syncRequested) {
+            syncRequested = true;
+            view.post(this);
+        }
     }
 
-    public void setY(double y) {
-        this.y = y;
-        view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y + size / 2)));
-    }
-
-    public void setDx(double dx) {
-        this.dx = dx;
-    }
-
-    public void setDy(double dy) {
-        this.dy = dy;
-    }
-
-    public void setRotation(double r) {
-        this.rotation = r;
-        view.setRotation((float) r);
-    }
-
-    public double getRotation() {
-        return rotation;
-    }
-
-    public void setSize(double s) {
-        size = s;
-
+    public void run() {
+        syncRequested = false;
+        double size = this.size.get();
+        view.setX((float) (environment.scale * (x.get() - size / 2)));
+        view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y.get() + size / 2)));
+        view.setRotation(rotation.get().floatValue());
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = params.height = Math.round((float) (environment.scale * size));
-        setX(x);
-        setY(y);
+        if (face.get() != lastFace) {
+            lastFace = face.get();
+            view.setImageDrawable(lastFace.getDrawable(view.getContext()));
+        }
     }
 
-    public void setTouched(boolean value) {
-        touched = value;
-    }
-
-    public boolean getTouched() {
-        return touched;
-    }
-
-
-    public void setFace(Emoji emoji) {
-        view.setImageDrawable(emoji.getDrawable(view.getContext()));
-    }
 /*
     public Emoji getFace() {
         return new Emoji(view.getText().toString());
@@ -114,9 +84,9 @@ public class Sprite extends Instance implements Ticking {
 */
     @Override
     public void tick(boolean force) {
-        if (force || dx != 0 || dy != 0) {
-            setX(getX() + dx);
-            setY(getY() + dy);
+        if (force || dx.get() != 0 || dy.get() != 0) {
+            x.set(x.get() + dx.get());
+            y.set(y.get() + dy.get());
         }
     }
 
@@ -128,5 +98,19 @@ public class Sprite extends Instance implements Ticking {
         environment.ticking.remove(this);
     }
 
+
+    class VisualProperty<T> extends Property<T> {
+
+        public VisualProperty(T value) {
+            super(value);
+        }
+
+
+        @Override
+        public void set(T value) {
+            super.set(value);
+            syncView();
+        }
+    }
 
 }
