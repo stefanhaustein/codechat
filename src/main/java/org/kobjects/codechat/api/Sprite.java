@@ -71,6 +71,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
         view.setRotation(rotation.get().floatValue());
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = params.height = Math.round((float) (environment.scale * size));
+        view.requestLayout();
         if (face.get() != lastFace) {
             lastFace = face.get();
             view.setImageDrawable(lastFace.getDrawable(view.getContext()));

@@ -32,21 +32,21 @@ public class Environment implements Runnable {
     Handler handler = new Handler();
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
-    File codeDir;
+    public File codeDir;
     boolean loading;
     public EnvironmentListener environmentListener;
     Scope rootScope = new Scope(this);
     Parser parser = new Parser(this);
     private Context rootContext = new Context(this);
 
-    public Environment(EnvironmentListener environmentListener, FrameLayout rootView) {
+    public Environment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
         this.environmentListener = environmentListener;
         this.rootView = rootView;
-        this.codeDir = rootView.getContext().getExternalFilesDir("code");
+        this.codeDir = codeDir;
 
         System.out.println("ROOT DIR: " + codeDir.getAbsolutePath().toString());
 
-        clear();
+        clearAll();
         handler.postDelayed(this, 100);
     }
 
@@ -168,7 +168,7 @@ public class Environment implements Runnable {
         return result;
     }
 
-    public void clear() {
+    public void clearAll() {
         ticking.clear();
         rootScope.variables.clear();
         everything.clear();
@@ -181,9 +181,9 @@ public class Environment implements Runnable {
         }
     }
 
-    public void save(String name) {
+    public void save(File file) {
         try {
-            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(codeDir, name)), "utf-8");
+            Writer writer = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
             dump(writer);
             writer.close();
         } catch (IOException e) {
@@ -191,14 +191,13 @@ public class Environment implements Runnable {
         }
     }
 
-    public void load(String name) {
+    public void load(File file) {
         try {
             loading = true;
-            File file = new File(codeDir, name);
             if (!file.exists()) {
-                throw new RuntimeException("File '" + name + "' does not exist.");
+                throw new RuntimeException("File '" + file.getName() + "' does not exist.");
             }
-            clear();
+            clearAll();
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
 
             StringBuilder pending = new StringBuilder();
@@ -233,8 +232,6 @@ public class Environment implements Runnable {
                     }
                 }
             }
-            environmentListener.setTitle(name);
-
             if (balance != 0) {
                 throw new RuntimeException("Unbalanced input!");
             }
@@ -277,7 +274,7 @@ public class Environment implements Runnable {
 
     public interface EnvironmentListener {
         void paused(boolean paused);
-        void setTitle(String name);
+        void setName(String name);
         void print(String s);
     }
 }

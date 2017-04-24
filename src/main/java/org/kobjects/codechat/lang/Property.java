@@ -22,15 +22,22 @@ public class Property<T> {
                 listener.valueChanged(this, oldValue, value);
             }
         }
-
     }
 
     public T get() {
         return value;
     }
 
+    public void addListener(PropertyListener<T> listener) {
+        listeners.add(listener);
+    }
 
-    interface PropertyListener<T> {
+    public void removeListener(PropertyListener<T> listener) {
+        listeners.remove(listener);
+    }
+
+
+    public interface PropertyListener<T> {
         void valueChanged(Property<T> property, T oldValue, T newValue);
     }
 

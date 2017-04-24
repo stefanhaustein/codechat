@@ -1,5 +1,6 @@
 package org.kobjects.codechat.api;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import org.kobjects.codechat.lang.Environment;
@@ -31,11 +32,17 @@ public class Builtins {
     }
 
     public void save(String name) {
-        environment.save(name);
+        environment.save(new File(environment.codeDir, name));
     }
 
     public void load(String name) {
-        environment.load(name);
+        environment.load(new File(environment.codeDir, name));
+        environment.environmentListener.setName(name);
+    }
+
+    public void clearAll() {
+        environment.clearAll();
+        environment.environmentListener.setName(null);
     }
 
     public void pause() {

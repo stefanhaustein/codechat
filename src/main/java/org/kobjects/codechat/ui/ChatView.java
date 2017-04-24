@@ -98,6 +98,12 @@ public class ChatView extends ListView {
               //  textView.setGravity(r ? Gravity.RIGHT : Gravity.LEFT);
                 textView.setTextIsSelectable(true);
                 result = new LinearLayout(viewGroup.getContext());
+                textView.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        System.out.println("Clicked!");
+                    }
+                });
                 result.setOrientation(LinearLayout.VERTICAL);
                 result.addView(textView);
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textView.getLayoutParams();
@@ -127,13 +133,15 @@ public class ChatView extends ListView {
         boolean right;
         float cornerBox;
         float arrowSize;
+        Paint paint = new Paint();
+
         BubbleDrawable(float arrowSize, float cornerBox, boolean right) {
             this.arrowSize = arrowSize;
             this.cornerBox = cornerBox;
             this.right = right;
+            paint.setAntiAlias(true);
         }
 
-        Paint paint = new Paint();
 
         @Override
         public void setBounds(Rect bounds) {

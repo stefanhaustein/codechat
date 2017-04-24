@@ -1,33 +1,37 @@
 package org.kobjects.codechat;
 
+import android.app.ActionBar;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
-import org.kobjects.codechat.expr.BuiltinInvocation;
+import java.io.File;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Formatting;
@@ -37,53 +41,74 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.ui.ChatView;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
+import static android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener {
+    static final String SETTINGS_FILE_NAME = "fileName";
+
     EmojiEditText input;
-    FrameLayout mainLayout;
-    ChatView listView;
+    FrameLayout rootLayout;
+    FrameLayout contentLayout;
+    LinearLayout inputRow;
+    ChatView chatView;
     Environment environment;
     Toolbar toolbar;
     MenuItem pauseItem;
     String pending = "";
     EmojiPopup emojiPopup;
+    int balance;
+    SharedPreferences settings;
+    File codeDir;
+    File defaultFile;
+    File currentFile;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
-        EmojiManager.install(new EmojiOneProvider());
-        mainLayout = new FrameLayout(this);
-        environment = new Environment(this, mainLayout);
 
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.addView(linearLayout);
+        settings = PreferenceManager.getDefaultSharedPreferences(this);
+        String fileName = settings.getString(SETTINGS_FILE_NAME, "");
+        codeDir = getExternalFilesDir("code");
+        defaultFile = new File(getFilesDir(), "snapshot");
+        currentFile = fileName.isEmpty() ? defaultFile : new File(codeDir, fileName);
+
+        EmojiManager.install(new EmojiOneProvider());
+        rootLayout = new FrameLayout(this);
+        contentLayout = new FrameLayout(this);
+        contentLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return false;
+            }
+        });
 
         toolbar = new Toolbar(this);
-        toolbar.setTitle("CodeChat");
         toolbar.setBackgroundColor(0xff3f51b5);
         toolbar.setTitleTextColor(0x0ffffffff);
-        linearLayout.addView(toolbar);
-//        toolbar.getLayoutParams().height = 100;
+        toolbar.setTitle("CodeChat");
         setSupportActionBar(toolbar);
+
+        environment = new Environment(this, contentLayout, codeDir);
+
+//        toolbar.getLayoutParams().height = 100;
 
 //        option
 
 
-        listView = new ChatView(this);
-        linearLayout.addView(listView);
-        ((LinearLayout.LayoutParams) listView.getLayoutParams()).weight = 1;
+        chatView = new ChatView(this);
 
-        LinearLayout inputLayout = new LinearLayout(this);
+        inputRow = new LinearLayout(this);
 
         final ImageButton emojiInputButton = new ImageButton(this);
-        inputLayout.addView(emojiInputButton);
+        inputRow.addView(emojiInputButton);
         emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
 //        emojiInputButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
         emojiInputButton.setBackgroundColor(0);
 
         input = new EmojiEditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);//|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_NO_SUGGESTIONS);//|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        input.setPrivateImeOptions("nm");
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -100,14 +125,14 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 return true;
             }
         });
-        inputLayout.addView(input);
+        inputRow.addView(input);
         ((LinearLayout.LayoutParams) input.getLayoutParams()).weight = 1;
 
         emojiInputButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (emojiPopup == null) {
-                    emojiPopup = EmojiPopup.Builder.fromRootView(mainLayout).build(input);
+                    emojiPopup = EmojiPopup.Builder.fromRootView(rootLayout).build(input);
                 }
                 emojiPopup.toggle();
                 if (emojiPopup.isShowing()) {
@@ -122,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         enterButton.setImageResource(R.drawable.ic_send_black_24dp);
       //  enterButton.setImageDrawable(new Emoji(0x2705).getDrawable(this));
         //enterButton.setText("\u23ce");
-        inputLayout.addView(enterButton);
+        inputRow.addView(enterButton);
         enterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -134,16 +159,112 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 //        enterButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
         enterButton.setBackgroundColor(0);
 
-        linearLayout.addView(inputLayout);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        chatView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                input.setText(String.valueOf(listView.getAdapter().getItem(position)));
+                String content = chatView.getAdapter().getItem(position).toString();
+                System.out.println("Clicked: '" + content + "'");
+                input.setText(content);
             }
         });
 
-        setContentView(mainLayout);
+        setContentView(rootLayout);
+
+        arrangeUi();
+
+        if (currentFile.exists()) {
+            environment.load(currentFile);
+            if (!fileName.isEmpty()) {
+                toolbar.setTitle(fileName);
+            }
+        }
+    }
+
+    void detach(View view) {
+        if (view.getParent() instanceof ViewGroup) {
+            ((ViewGroup) view.getParent()).removeView(view);
+        }
+    }
+
+    void arrangeUi() {
+        if (emojiPopup != null) {
+            emojiPopup.dismiss();
+            emojiPopup = null;
+        }
+        rootLayout.removeAllViews();
+
+        detach(chatView);
+        detach(inputRow);
+        detach(toolbar);
+        detach(contentLayout);
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        if (size.x > size.y) {
+            LinearLayout columns = new LinearLayout(this);
+            rootLayout.addView(columns);
+            FrameLayout.LayoutParams columnsParams = (FrameLayout.LayoutParams) columns.getLayoutParams();
+            columnsParams.height = MATCH_PARENT;
+            columnsParams.width = MATCH_PARENT;
+
+            LinearLayout rows = new LinearLayout(this);
+            rows.setOrientation(LinearLayout.VERTICAL);
+
+           // rows.addView(toolbar);
+            rows.addView(chatView);
+            ((LinearLayout.LayoutParams) chatView.getLayoutParams()).weight = 1;
+
+            rows.addView(inputRow);
+
+            columns.addView(rows);
+            LinearLayout.LayoutParams rowsParams = (LinearLayout.LayoutParams) rows.getLayoutParams();
+            rowsParams.width = 0;
+            rowsParams.weight = 0.5f;
+            rowsParams.height = MATCH_PARENT;
+
+            columns.addView(contentLayout);
+            LinearLayout.LayoutParams contentParams = (LinearLayout.LayoutParams) contentLayout.getLayoutParams();
+            contentParams.width = 0;
+            contentParams.weight = 0.5f;
+            contentParams.height = MATCH_PARENT;
+            contentLayout.setBackgroundColor(0xff888888);
+        } else {
+            FrameLayout overlay = new FrameLayout(this);
+            overlay.addView(chatView);
+            FrameLayout.LayoutParams chatParams = (FrameLayout.LayoutParams) chatView.getLayoutParams();
+            chatParams.width = MATCH_PARENT;
+            chatParams.height = MATCH_PARENT;
+            overlay.addView(contentLayout);
+            FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) contentLayout.getLayoutParams();
+            contentParams.width = MATCH_PARENT;
+            contentParams.height = MATCH_PARENT;
+
+            LinearLayout rows = new LinearLayout(this);
+            rows.setOrientation(LinearLayout.VERTICAL);
+
+            rows.addView(toolbar);
+            rows.addView(overlay);
+            ((LinearLayout.LayoutParams) overlay.getLayoutParams()).weight = 1;
+            rows.addView(inputRow);
+
+            rootLayout.addView(rows);
+            FrameLayout.LayoutParams rowsParams = (FrameLayout.LayoutParams) rows.getLayoutParams();
+            rowsParams.height = MATCH_PARENT;
+            rowsParams.width = MATCH_PARENT;
+            contentLayout.setBackgroundColor(0);
+        }
+
+        input.requestFocus();
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        arrangeUi();
     }
 
     @Override
@@ -166,26 +287,26 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
     void printRight(CharSequence s, boolean update) {
         if (update) {
-            listView.setValue(listView.getCount() - 1, s);
+            chatView.setValue(chatView.getCount() - 1, s);
         } else {
-            listView.add(true, s);
-            listView.setSelection(listView.getCount() - 1);
+            chatView.add(true, s);
+            chatView.setSelection(chatView.getCount() - 1);
         }
-        listView.post(new Runnable() {
+        chatView.post(new Runnable() {
             @Override
             public void run() {
-                listView.smoothScrollToPosition(listView.getCount());
+                chatView.smoothScrollToPosition(chatView.getCount());
             }
         });
     }
 
     public void print(String s) {
-        listView.add(false, s);
-        listView.setSelection(listView.getCount() - 1);
-        listView.post(new Runnable() {
+        chatView.add(false, s);
+        chatView.setSelection(chatView.getCount() - 1);
+        chatView.post(new Runnable() {
             @Override
             public void run() {
-                listView.smoothScrollToPosition(listView.getCount());
+                chatView.smoothScrollToPosition(chatView.getCount());
             }
         });
     }
@@ -193,9 +314,19 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     void processInput(String line) {
         boolean printed = false;
         boolean update = !pending.isEmpty();
-        pending = update ? pending + "\n" + line : line;
+        if (update) {
+            StringBuilder sb = new StringBuilder(pending);
+            sb.append('\n');
+            for (int i = 0; i < balance; i++) {
+                sb.append("  ");
+            }
+            sb.append(line);
+            pending = sb.toString();
+        } else {
+            pending = line;
+        }
 
-        int balance = environment.getBalance(pending);
+        balance = environment.getBalance(pending);
         try {
             if (balance < 0) {
                 throw new RuntimeException("Unmatched closing '}'");
@@ -225,6 +356,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                     print("ok");
                 }
                 pending = "";
+
+                environment.save(currentFile);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -232,6 +365,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 printRight(pending, update);
             }
             pending = "";
+            balance = 0;
             print(e.getMessage());
         }
     }
@@ -243,7 +377,14 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     }
 
     @Override
-    public void setTitle(String name) {
-        toolbar.setTitle(name);
+    public void setName(String name) {
+        if (name == null) {
+            toolbar.setTitle("CodeChat");
+            currentFile = defaultFile;
+        } else {
+            toolbar.setTitle(name);
+            currentFile = new File(codeDir, name);
+            settings.edit().putString(SETTINGS_FILE_NAME, name).commit();
+        }
     }
 }
