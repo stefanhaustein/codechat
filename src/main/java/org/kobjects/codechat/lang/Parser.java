@@ -38,8 +38,11 @@ public class Parser {
     public static final int PRECEDENCE_RELATIONAL = 1;
     public static final int PRECEDENCE_EQUALITY = 0;
 
+    private static String EMOJI_REGEX = "[\\u20a0-\\u32ff\\x{1f000}-\\x{1ffff}]";
+    private static Pattern EMOJI_PATTERN = Pattern.compile("\\G(" + EMOJI_REGEX + ")");
+
     private static Pattern IDENTIFIER_PATTERN = Pattern.compile(
-            "\\G\\s*[\\p{Alpha}_$][\\p{Alpha}_$\\d]*(#\\d+)?");
+            "\\G\\s*(([\\p{Alpha}_$][\\p{Alpha}_$\\d]*(#\\d+)?)|(" + EMOJI_REGEX + "))");
 
     private final Environment environment;
     private final ExpressionParser<Expression> expressionParser = createExpressionParser();
@@ -163,7 +166,9 @@ public class Parser {
     public Statement parse(String line) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
-        return parseStatement(tokenizer, environment.rootScope);
+        Statement statement = parseStatement(tokenizer, environment.rootScope);
+        tokenizer.consume("");
+        return statement;
     }
 
     public ExpressionParser.Tokenizer createTokenizer(String s) {
@@ -232,6 +237,11 @@ public class Parser {
 
         @Override
         public Expression identifier(ExpressionParser.Tokenizer tokenizer, String name) {
+
+            if (EMOJI_PATTERN.matcher(name).matches()) {
+                return new Literal(new Emoji(name));
+            }
+
             if (name.equals("true")) {
                 return new Literal(Boolean.TRUE);
             }

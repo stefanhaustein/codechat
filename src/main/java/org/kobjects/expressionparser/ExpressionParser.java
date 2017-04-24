@@ -401,11 +401,7 @@ public class ExpressionParser<T> {
         result = processor.stringLiteral(tokenizer, candidate);
         tokenizer.nextToken();
         break;
-      case UNRECOGNIZED:
-        result = processor.emoji(tokenizer, candidate);
-        tokenizer.nextToken();
-        break;
-      default:
+     default:
         throw tokenizer.exception("Unexpected token type.", null);
     }
     return result;
