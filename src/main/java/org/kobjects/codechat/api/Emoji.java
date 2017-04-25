@@ -6,18 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Emoji {
-    final int codepoint;
-
-    public Emoji(int codepoint) {
-        this.codepoint = codepoint;
-    }
-
+    String code;
     public Emoji(String s) {
-        this.codepoint = s.codePointAt(0);
+        code = s;
     }
 
     public String toString() {
-        return new String(Character.toChars(codepoint));
+        return code;
     }
 
 
@@ -25,7 +20,20 @@ public class Emoji {
     public Drawable getDrawable(Context context) {
         try
         {
-            InputStream is = context.getAssets().open("emoji/png_128/" + Integer.toHexString(codepoint) + ".png");
+            StringBuilder sb = new StringBuilder("emoji/png_128/");
+
+            int codepoint = code.codePointAt(0);
+            sb.append(Long.toHexString(codepoint));
+            int offset = Character.charCount(codepoint);
+            while (offset < code.length()) {
+                sb.append('-');
+                codepoint = code.codePointAt(offset);
+                sb.append(Long.toHexString(codepoint));
+                offset += Character.charCount(codepoint);
+            }
+            sb.append(".png");
+
+            InputStream is = context.getAssets().open(sb.toString());
             // load image as Drawable
             Drawable d = Drawable.createFromStream(is, null);
             // set image to ImageView

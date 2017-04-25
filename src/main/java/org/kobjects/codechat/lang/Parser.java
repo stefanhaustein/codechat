@@ -38,7 +38,8 @@ public class Parser {
     public static final int PRECEDENCE_RELATIONAL = 1;
     public static final int PRECEDENCE_EQUALITY = 0;
 
-    private static String EMOJI_REGEX = "[\\u20a0-\\u32ff\\x{1f000}-\\x{1ffff}]";
+    private static String EMOJI_REGEX =
+            "[\\u20a0-\\u32ff\\x{1f000}-\\x{1ffff}][\\x{1F1E6}-\\x{1f1ff}\\x{1f3fe}-\\x{1f3fe}]?";
     private static Pattern EMOJI_PATTERN = Pattern.compile("\\G(" + EMOJI_REGEX + ")");
 
     private static Pattern IDENTIFIER_PATTERN = Pattern.compile(

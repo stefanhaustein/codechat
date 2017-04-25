@@ -19,7 +19,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public VisualProperty<Double> x = new VisualProperty<>(0.0);
     public VisualProperty<Double> y = new VisualProperty<>(0.0);
     public VisualProperty<Double> rotation = new VisualProperty<>(0.0);
-    public VisualProperty<Emoji> face = new VisualProperty<>(new Emoji(0x1f603));
+    public VisualProperty<Emoji> face = new VisualProperty<>(new Emoji(new String(Character.toChars(0x1f603))));
 
     public Property<Double> dx = new Property<>(0.0);
     public Property<Double> dy = new Property<>(0.0);
