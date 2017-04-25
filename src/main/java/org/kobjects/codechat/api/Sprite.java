@@ -16,8 +16,8 @@ public class Sprite extends Instance implements Ticking, Runnable {
     private boolean syncRequested;
 
     public VisualProperty<Double> size = new VisualProperty<>(100.0);
-    public VisualProperty<Double> x = new VisualProperty<>(500.0);
-    public VisualProperty<Double> y = new VisualProperty<>(500.0);
+    public VisualProperty<Double> x = new VisualProperty<>(0.0);
+    public VisualProperty<Double> y = new VisualProperty<>(0.0);
     public VisualProperty<Double> rotation = new VisualProperty<>(0.0);
     public VisualProperty<Emoji> face = new VisualProperty<>(new Emoji(0x1f603));
 
@@ -66,8 +66,8 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public void run() {
         syncRequested = false;
         double size = this.size.get();
-        view.setX((float) (environment.scale * (x.get() - size / 2)));
-        view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y.get() + size / 2)));
+        view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - size / 2)));
+        view.setY(environment.rootView.getMeasuredHeight()/2 - (float) (environment.scale * (y.get() + size / 2)));
         view.setRotation(rotation.get().floatValue());
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = params.height = Math.round((float) (environment.scale * size));
