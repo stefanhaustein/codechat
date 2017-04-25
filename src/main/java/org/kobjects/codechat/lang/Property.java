@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Property<T> {
-    T value;
+    protected T value;
     ArrayList<PropertyListener<T>> listeners;
 
     public Property(T value) {

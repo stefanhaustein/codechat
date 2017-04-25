@@ -16,6 +16,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import org.kobjects.codechat.api.Builtins;
+import org.kobjects.codechat.api.Screen;
 import org.kobjects.codechat.api.Sprite;
 import org.kobjects.codechat.api.Ticking;
 import org.kobjects.codechat.statement.Statement;
@@ -38,6 +39,9 @@ public class Environment implements Runnable {
     Scope rootScope = new Scope(this);
     Parser parser = new Parser(this);
     private Context rootContext = new Context(this);
+    public Screen screen = new Screen();
+    public int viewportWidth = 1000;
+    public int viewportHeight = 1000;
 
     public Environment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
         this.environmentListener = environmentListener;
@@ -72,6 +76,9 @@ public class Environment implements Runnable {
 
     @Override
     public void run() {
+        int width = rootView.getWidth();
+        int height = rootView.getHeight();
+        screen.update(width, height);
         float newScale = Math.min(rootView.getWidth(), rootView.getHeight()) / 1000f;
         boolean force = newScale != scale;
         scale = newScale;

@@ -8,6 +8,7 @@ import android.widget.ImageView;
 
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.MutableProperty;
 import org.kobjects.codechat.lang.Property;
 
 public class Sprite extends Instance implements Ticking, Runnable {
@@ -21,9 +22,9 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public VisualProperty<Double> rotation = new VisualProperty<>(0.0);
     public VisualProperty<Emoji> face = new VisualProperty<>(new Emoji(new String(Character.toChars(0x1f603))));
 
-    public Property<Double> dx = new Property<>(0.0);
-    public Property<Double> dy = new Property<>(0.0);
-    public Property<Boolean> touched = new Property<>(false);
+    public MutableProperty<Double> dx = new MutableProperty<>(0.0);
+    public MutableProperty<Double> dy = new MutableProperty<>(0.0);
+    public MutableProperty<Boolean> touched = new MutableProperty<>(false);
 
     private Emoji lastFace;
 
@@ -100,7 +101,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
     }
 
 
-    class VisualProperty<T> extends Property<T> {
+    class VisualProperty<T> extends MutableProperty<T> {
 
         public VisualProperty(T value) {
             super(value);

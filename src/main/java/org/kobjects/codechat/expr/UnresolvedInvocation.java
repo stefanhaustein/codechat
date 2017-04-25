@@ -48,7 +48,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
 
     @Override
     public Expression resolve(Scope scope) {
-        if ("create".equals(name) && children[0] instanceof Identifier) {
+        if (("create".equals(name)  || "new".equals(name)) && children[0] instanceof Identifier) {
             String argName = ((Identifier) children[0]).name;
 
             Type type = scope.environment.resolveType(argName);
@@ -62,18 +62,8 @@ public class UnresolvedInvocation extends AbstractUnresolved {
             resolved[i] = children[i].resolve(scope);
         }
 
-        if (Instance.class.isAssignableFrom(resolved[0].getType().getJavaClass())) {
-            Class[] paramTypes = new Class[resolved.length - 1];
-            for (int i = 0; i < paramTypes.length; i++) {
-                paramTypes[i] = resolved[i + 1].getType().getJavaClassForSignature();
-            }
-            try {
-                Method method = resolved[0].getType().getJavaClass().getMethod(name, paramTypes);
-                return new MethodInvocation(method, parens, resolved);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(paramTypes) + " not found in class " + resolved[0].getType());
-            }
-        } else {
+        Type type = resolved[0].getType();
+        if (Type.NUMBER.equals(type) || Type.BOOLEAN.equals(type) || Type.STRING.equals(type)) {
             Class[] paramTypes = new Class[resolved.length];
             for (int i = 0; i < paramTypes.length; i++) {
                 paramTypes[i] = resolved[i].getType().getJavaClassForSignature();
@@ -89,6 +79,16 @@ public class UnresolvedInvocation extends AbstractUnresolved {
                 }
             }
             return new BuiltinInvocation(method, false, resolved);
+        }
+        Class[] paramTypes = new Class[resolved.length - 1];
+        for (int i = 0; i < paramTypes.length; i++) {
+            paramTypes[i] = resolved[i + 1].getType().getJavaClassForSignature();
+        }
+        try {
+            Method method = resolved[0].getType().getJavaClass().getMethod(name, paramTypes);
+            return new MethodInvocation(method, parens, resolved);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(paramTypes) + " not found in class " + resolved[0].getType());
         }
     }
 

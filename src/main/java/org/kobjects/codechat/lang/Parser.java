@@ -168,6 +168,7 @@ public class Parser {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
         Statement statement = parseStatement(tokenizer, environment.rootScope);
+        while (tokenizer.tryConsume(";"))
         tokenizer.consume("");
         return statement;
     }

@@ -64,4 +64,16 @@ public class Builtins {
     public void unpause() {
         environment.pause(false);
     }
+
+    public Screen screen() {
+        return environment.screen;
+    }
+
+    public double round(double d) {
+        return Math.round(d);
+    }
+
+    public double random() {
+        return Math.random();
+    }
 }
