@@ -35,4 +35,8 @@ public abstract class Expression {
             toString(sb);
         }
     }
+
+    public boolean isAssignable() {
+        return false;
+    }
 }

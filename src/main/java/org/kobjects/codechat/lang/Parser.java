@@ -135,7 +135,7 @@ public class Parser {
             return parseCount(tokenizer, scope);
         }
         if (tokenizer.tryConsume("delete")) {
-            return new DeleteStatement(parseExpression(tokenizer, scope));
+            return new DeleteStatement(parseExpression(tokenizer, scope), scope);
         }
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();

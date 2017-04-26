@@ -33,6 +33,10 @@ public class PropertyAccess extends Expression {
         }
     }
 
+    public boolean isAssignable() {
+        return MutableProperty.class.isAssignableFrom(property.getType());
+    }
+
     @Override
     public void assign(Context context, Object value) {
         Object baseValue = base.eval(context);

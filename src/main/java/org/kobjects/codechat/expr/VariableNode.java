@@ -6,7 +6,7 @@ import org.kobjects.codechat.lang.Type;
 import org.kobjects.codechat.lang.Variable;
 
 public class VariableNode extends AbstractResolved {
-    Variable variable;
+    public Variable variable;
 
     public VariableNode(Variable variable) {
         this.variable = variable;
@@ -36,5 +36,9 @@ public class VariableNode extends AbstractResolved {
     @Override
     public void toString(StringBuilder sb) {
         sb.append(variable.getName());
+    }
+
+    public boolean isAssignable() {
+        return true;
     }
 }

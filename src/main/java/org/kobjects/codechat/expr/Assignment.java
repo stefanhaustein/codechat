@@ -25,6 +25,15 @@ public class Assignment extends Expression {
     public Expression resolve(Scope scope) {
         left = left.resolve(scope);
         right = right.resolve(scope);
+
+        if (!left.isAssignable()) {
+            throw new RuntimeException("Not assignable: " + left);
+        }
+
+        if (!left.getType().equals(right.getType())) {
+            throw new RuntimeException("Incompatible types for assignment: " + this);
+        }
+
         return this;
     }
 
