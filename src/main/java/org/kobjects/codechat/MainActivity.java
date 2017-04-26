@@ -46,6 +46,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener {
     static final String SETTINGS_FILE_NAME = "fileName";
+    static final String SETTINGS_FILE_NAME_DEFAULT = "CodeChat";
 
     EmojiEditText input;
     FrameLayout rootLayout;
@@ -60,17 +61,11 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     int balance;
     SharedPreferences settings;
     File codeDir;
-    File defaultFile;
-    File currentFile;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
 
-        settings = PreferenceManager.getDefaultSharedPreferences(this);
-        String fileName = settings.getString(SETTINGS_FILE_NAME, "");
         codeDir = getExternalFilesDir("code");
-        defaultFile = new File(getFilesDir(), "snapshot");
-        currentFile = fileName.isEmpty() ? defaultFile : new File(codeDir, fileName);
 
         EmojiManager.install(new EmojiOneProvider());
         rootLayout = new FrameLayout(this);
@@ -88,14 +83,9 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         toolbar.setTitle("CodeChat");
         setSupportActionBar(toolbar);
 
-        environment = new Environment(this, contentLayout, codeDir);
-
-//        toolbar.getLayoutParams().height = 100;
-
-//        option
-
-
         chatView = new ChatView(this);
+
+        environment = new Environment(this, contentLayout, codeDir);
 
         inputRow = new LinearLayout(this);
 
@@ -172,10 +162,15 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
         arrangeUi();
 
-        if (currentFile.exists()) {
-            environment.load(currentFile);
-            if (!fileName.isEmpty()) {
-                toolbar.setTitle(fileName);
+        settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String fileName = settings.getString(SETTINGS_FILE_NAME, SETTINGS_FILE_NAME_DEFAULT);
+
+        if (new File(codeDir, fileName).exists()) {
+            try {
+                environment.load(fileName);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -357,7 +352,9 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 }
                 pending = "";
 
-                environment.save(currentFile);
+                if (environment.autoSave) {
+                    environment.save(toolbar.getTitle().toString());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -378,12 +375,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
     @Override
     public void setName(String name) {
-        if (name == null) {
-            toolbar.setTitle("CodeChat");
-            currentFile = defaultFile;
-        } else {
+        if (!name.equals(toolbar.getTitle().toString())) {
             toolbar.setTitle(name);
-            currentFile = new File(codeDir, name);
             settings.edit().putString(SETTINGS_FILE_NAME, name).commit();
         }
     }

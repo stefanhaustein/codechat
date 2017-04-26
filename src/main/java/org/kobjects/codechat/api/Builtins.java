@@ -32,17 +32,16 @@ public class Builtins {
     }
 
     public void save(String name) {
-        environment.save(new File(environment.codeDir, name));
+        environment.save(name);
     }
 
     public void load(String name) {
-        environment.load(new File(environment.codeDir, name));
-        environment.environmentListener.setName(name);
+        environment.load(name);
     }
 
     public void clearAll() {
         environment.clearAll();
-        environment.environmentListener.setName(null);
+        environment.environmentListener.setName("CodeChat");
     }
 
     public void pause() {

@@ -40,8 +40,7 @@ public class Environment implements Runnable {
     Parser parser = new Parser(this);
     private Context rootContext = new Context(this);
     public Screen screen = new Screen();
-    public int viewportWidth = 1000;
-    public int viewportHeight = 1000;
+    public boolean autoSave;
 
     public Environment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
         this.environmentListener = environmentListener;
@@ -188,24 +187,31 @@ public class Environment implements Runnable {
         }
     }
 
-    public void save(File file) {
+    public void save(String fileName) {
         try {
-            Writer writer = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
+            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(codeDir, fileName)), "utf-8");
             dump(writer);
             writer.close();
+            autoSave = true;
+            environmentListener.setName(fileName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void load(File file) {
+    public void load(String fileName) {
+        File file = new File(codeDir, fileName);
+        if (!file.exists()) {
+            throw new RuntimeException("File '" + file.getName() + "' does not exist.");
+        }
+
         try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file), "utf-8"));
+
+            environmentListener.setName(file.getName());
             loading = true;
-            if (!file.exists()) {
-                throw new RuntimeException("File '" + file.getName() + "' does not exist.");
-            }
             clearAll();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
 
             StringBuilder pending = new StringBuilder();
             int balance = 0;
@@ -229,21 +235,18 @@ public class Environment implements Runnable {
                     line = pending.toString();
                     pending.setLength(0);
 
-                    try {
-                        Statement e = parse(line);
-                        if (e != null) {
-                            e.eval(getRootContext());
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    Statement e = parse(line);
+                    if (e != null) {
+                       e.eval(getRootContext());
                     }
                 }
             }
             if (balance != 0) {
                 throw new RuntimeException("Unbalanced input!");
             }
-
-        } catch (IOException e) {
+            autoSave = true;
+        } catch (Exception e) {
+            autoSave = false;
             throw new RuntimeException(e);
         } finally {
             loading = false;
