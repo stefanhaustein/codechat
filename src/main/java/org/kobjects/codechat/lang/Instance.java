@@ -20,17 +20,19 @@ public class Instance {
 
     public void dump(Writer writer) throws IOException {
         for (Field field : getClass().getFields()) {
-            if (Property.class.isAssignableFrom(field.getType())) {
+            if (MutableProperty.class.isAssignableFrom(field.getType())) {
                 try {
-                    Property property = (Property) field.get(this);
-                    Object value = property.get();
-                    if (value != null) {
-                        writer.write(toString());
-                        writer.write('.');
-                        writer.write(field.getName());
-                        writer.write(" = ");
-                        writer.write(Formatting.toLiteral(value));
-                        writer.write(";\n");
+                    MutableProperty property = (MutableProperty) field.get(this);
+                    if (property.modified()) {
+                        Object value = property.get();
+                        if (value != null) {
+                            writer.write(toString());
+                            writer.write('.');
+                            writer.write(field.getName());
+                            writer.write(" = ");
+                            writer.write(Formatting.toLiteral(value));
+                            writer.write(";\n");
+                        }
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();

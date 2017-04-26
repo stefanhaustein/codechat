@@ -24,7 +24,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
     public MutableProperty<Double> dx = new MutableProperty<>(0.0);
     public MutableProperty<Double> dy = new MutableProperty<>(0.0);
-    public MutableProperty<Boolean> touched = new MutableProperty<>(false);
+    public Property<Boolean> touched = new MutableProperty<>(false);
 
     private Emoji lastFace;
 
