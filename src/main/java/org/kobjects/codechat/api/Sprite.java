@@ -24,6 +24,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
     public MutableProperty<Double> dx = new MutableProperty<>(0.0);
     public MutableProperty<Double> dy = new MutableProperty<>(0.0);
+    public MutableProperty<Double> rotationSpeed = new MutableProperty<>(0.0);
     public Property<Boolean> touched = new MutableProperty<>(false);
 
     private Emoji lastFace;
@@ -86,9 +87,10 @@ public class Sprite extends Instance implements Ticking, Runnable {
 */
     @Override
     public void tick(boolean force) {
-        if (force || dx.get() != 0 || dy.get() != 0) {
+        if (force || dx.get() != 0 || dy.get() != 0 || rotationSpeed.get() != 0) {
             x.set(x.get() + dx.get());
             y.set(y.get() + dy.get());
+            rotation.set(rotation.get() + rotationSpeed.get());
         }
     }
 
