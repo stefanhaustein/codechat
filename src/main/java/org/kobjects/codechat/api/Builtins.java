@@ -27,9 +27,11 @@ public class Builtins {
         environment.environmentListener.print(list);
     }
 
+    /*
     public Instance create(Class c) {
         return environment.instantiate(c);
     }
+    */
 
     public void save(String name) {
         environment.save(name);

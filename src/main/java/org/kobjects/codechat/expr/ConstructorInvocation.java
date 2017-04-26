@@ -7,14 +7,16 @@ import org.kobjects.codechat.lang.Type;
 public class ConstructorInvocation extends AbstractResolved {
 
     Type type;
+    int id;
 
-    ConstructorInvocation(Type type) {
+    ConstructorInvocation(Type type, int id) {
         this.type = type;
+        this.id = id;
     }
 
     @Override
     public Object eval(Context context) {
-        return context.environment.instantiate(type.getJavaClass());
+        return context.environment.instantiate(type.getJavaClass(), id);
     }
 
     @Override
@@ -29,6 +31,6 @@ public class ConstructorInvocation extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb) {
-        sb.append("create ").append(type.toString());
+        sb.append("new ").append(type.toString());
     }
 }

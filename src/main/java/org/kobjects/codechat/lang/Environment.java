@@ -19,6 +19,7 @@ import org.kobjects.codechat.api.Builtins;
 import org.kobjects.codechat.api.Screen;
 import org.kobjects.codechat.api.Sprite;
 import org.kobjects.codechat.api.Ticking;
+import org.kobjects.codechat.statement.OnStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -53,11 +54,18 @@ public class Environment implements Runnable {
         handler.postDelayed(this, 100);
     }
 
-    public Instance instantiate(Class type) {
+    public Instance instantiate(Class type, int id) {
         try {
-            int instanceId = ++lastId;
-            Instance instance = (Instance) type.getConstructor(Environment.class, Integer.TYPE).newInstance(this, instanceId);
-            everything.put(instanceId, new WeakReference<Instance>(instance));
+            if (id == -1) {
+                id = ++lastId;
+            } else {
+                lastId = Math.max(id, lastId);
+                if (everything.get(id) != null) {
+                    throw new RuntimeException("instance with id " + id + " exists already.");
+                }
+            }
+            Instance instance = (Instance) type.getConstructor(Environment.class, Integer.TYPE).newInstance(this, id);
+            everything.put(id, new WeakReference<Instance>(instance));
             if (instance instanceof Ticking) {
                 ticking.add((Ticking) instance);
             }
@@ -95,6 +103,14 @@ public class Environment implements Runnable {
 
 
     public void dump(Writer writer) throws IOException {
+        for (WeakReference<Instance> reference : everything.values()) {
+            Instance instance = reference.get();
+            if (instance != null && !(instance instanceof OnStatement)) {
+                writer.write("new ");
+                writer.write(instance.toString());
+                writer.write("\n");
+            }
+        }
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
@@ -164,7 +180,7 @@ public class Environment implements Runnable {
                 throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
             }
             Class<?> c = type.getJavaClass();
-            result = instantiate(c);
+            result = instantiate(c, id);
         } else {
             if (!result.getClass().getSimpleName().equalsIgnoreCase(type.toString())) {
                 throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + result.getClass().getSimpleName().toLowerCase());
@@ -211,6 +227,7 @@ public class Environment implements Runnable {
 
             environmentListener.setName(file.getName());
             loading = true;
+            boolean success = true;
             clearAll();
 
             StringBuilder pending = new StringBuilder();
@@ -235,14 +252,22 @@ public class Environment implements Runnable {
                     line = pending.toString();
                     pending.setLength(0);
 
-                    Statement e = parse(line);
-                    if (e != null) {
-                       e.eval(getRootContext());
+                    try {
+                        Statement e = parse(line);
+                        if (e != null) {
+                            e.eval(getRootContext());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        success = false;
                     }
                 }
             }
             if (balance != 0) {
                 throw new RuntimeException("Unbalanced input!");
+            }
+            if (!success) {
+                throw new RuntimeException("Parsing error(s)");
             }
             autoSave = true;
         } catch (Exception e) {

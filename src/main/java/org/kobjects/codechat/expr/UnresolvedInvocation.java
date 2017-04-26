@@ -53,8 +53,12 @@ public class UnresolvedInvocation extends AbstractUnresolved {
 
             Type type = scope.environment.resolveType(argName);
             if (type != null && Instance.class.isAssignableFrom(type.getJavaClass())) {
-                return new ConstructorInvocation(type);
+                return new ConstructorInvocation(type, -1);
             }
+        }
+        if ("new".equals(name) && children[0] instanceof InstanceReference) {
+            InstanceReference resolvedRef = (InstanceReference) children[0].resolve(scope);
+            return new ConstructorInvocation(resolvedRef.type, resolvedRef.id);
         }
 
         Expression[] resolved = new Expression[children.length];
