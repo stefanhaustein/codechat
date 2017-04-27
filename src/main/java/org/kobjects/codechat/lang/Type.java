@@ -38,7 +38,7 @@ public class Type {
 
 
     public Class<?> getJavaClassForSignature() {
-        return javaClass == Double.class ? Double.TYPE : javaClass;
+        return javaClass == Double.class ? Double.TYPE : javaClass == Boolean.class ? Boolean.TYPE : javaClass;
     }
 
     public String toString() {

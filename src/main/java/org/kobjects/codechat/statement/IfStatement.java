@@ -7,9 +7,9 @@ import org.kobjects.codechat.lang.Environment;
 public class IfStatement extends AbstractStatement {
     Environment environment;
     public Expression condition;
-    public Block body;
+    public Statement body;
 
-    public IfStatement(Expression condition, Block body) {
+    public IfStatement(Expression condition, Statement body) {
         this.condition = condition;
         this.body = body;
     }

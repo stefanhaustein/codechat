@@ -29,6 +29,9 @@ public class Property<T> {
     }
 
     public void addListener(PropertyListener<T> listener) {
+        if (listeners == null) {
+            listeners = new ArrayList<>();
+        }
         listeners.add(listener);
     }
 

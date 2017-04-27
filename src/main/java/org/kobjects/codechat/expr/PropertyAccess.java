@@ -24,28 +24,27 @@ public class PropertyAccess extends Expression {
 
     @Override
     public Object eval(Context context) {
-        Object value = base.eval(context);
-        try {
-            Property p = (Property) property.get(value);
-            return p.get();
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        return getProperty(context).get();
     }
 
     public boolean isAssignable() {
         return MutableProperty.class.isAssignableFrom(property.getType());
     }
 
-    @Override
-    public void assign(Context context, Object value) {
+
+    public Property getProperty(Context context) {
         Object baseValue = base.eval(context);
         try {
-            MutableProperty p = (MutableProperty) property.get(baseValue);
-            p.set(value);
-        } catch (Exception e) {
+            return (Property) property.get(baseValue);
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void assign(Context context, Object value) {
+        MutableProperty p = (MutableProperty) getProperty(context);
+        p.set(value);
     }
 
     @Override

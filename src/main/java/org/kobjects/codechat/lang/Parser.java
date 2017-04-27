@@ -24,6 +24,7 @@ import org.kobjects.codechat.statement.DeleteStatement;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.IfStatement;
 import org.kobjects.codechat.statement.OnStatement;
+import org.kobjects.codechat.statement.OnchangeStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -85,47 +86,68 @@ public class Parser {
         return new CountStatement(counter, expression, block);
     }
 
+    Statement parseBody(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+        if (tokenizer.tryConsume(":")) {
+            return parseStatement(tokenizer, scope);
+        }
+        if (tokenizer.tryConsume("{")) {
+            return parseBlock(tokenizer, scope, "}");
+        }
+        throw new RuntimeException("':' or '{' expected for body.");
+    }
+
+    Object resolveOrCreate(String reference) {
+        int cut = reference.indexOf('#');
+        int instanceId;
+        Type type;
+        if (cut == -1) {
+            instanceId = -1;
+            type = environment.resolveType(reference);
+        } else {
+            instanceId = Integer.parseInt(reference.substring(cut + 1));
+            String typeName = reference.substring(0, cut);
+            type = environment.resolveType(typeName);
+            if (type == null) {
+                throw new RuntimeException("Unknown type: " + typeName);
+            }
+            WeakReference<Instance> weakReference = environment.everything.get(instanceId);
+            Object o = weakReference == null ? null : weakReference.get();
+            if (o != null) {
+                if (o.getClass() != type.getJavaClass()) {
+                    throw new RuntimeException("Object type mismatch with " + o);
+                }
+                return o;
+            }
+        }
+        return environment.instantiate(type.getJavaClass(), instanceId);
+    }
+
+
     OnStatement parseOn(ExpressionParser.Tokenizer tokenizer, String name) {
         final Expression condition = parseExpression(tokenizer, environment.rootScope);
 
-        boolean needsClose;
-        if (tokenizer.currentValue.equals(":")) {
-            tokenizer.consume(":");
-            needsClose = false;
-        } else {
-            tokenizer.consume("{");
-            needsClose = true;
-        }
+        final Statement body = parseBody(tokenizer, environment.rootScope);
 
-        final Block exec = parseBlock(tokenizer, environment.rootScope, needsClose ? "}" : "");
-
-        int cut = name.indexOf('#');
-        int instanceId;
-        if (cut == -1) {
-            instanceId = ++environment.lastId;
-        } else {
-            instanceId = Integer.parseInt(name.substring(cut + 1));
-            WeakReference<Instance> reference = environment.everything.get(instanceId);
-            Object o = reference == null ? null : reference.get();
-            if (o instanceof OnStatement) {
-                OnStatement on = (OnStatement) o;
-                on.body = exec;
-                on.condition = condition;
-                return on;
-            } else if (o != null) {
-                throw new RuntimeException("Object type mismatch with " + o);
-            }
-        }
-        OnStatement result = new OnStatement(environment, instanceId, condition, exec);
-        environment.lastId = Math.max(environment.lastId, instanceId);
-        environment.everything.put(instanceId, new WeakReference<Instance>(result));
+        OnStatement result = (OnStatement) resolveOrCreate(name);
+        result.body = body;
+        result.condition = condition;
         return result;
     }
 
+    OnchangeStatement parseOnchange(ExpressionParser.Tokenizer tokenizer, String name) {
+        final Expression property = parseExpression(tokenizer, environment.rootScope);
+
+        final Statement body = parseBody(tokenizer, environment.rootScope);
+
+        OnchangeStatement result = (OnchangeStatement) resolveOrCreate(name);
+        result.init((PropertyAccess) property, body);
+        return result;
+    }
+
+
     IfStatement parseIf(ExpressionParser.Tokenizer tokenizer, Scope scope) {
         final Expression condition = parseExpression(tokenizer, scope);
-        tokenizer.consume("{");
-        final Block body = parseBlock(tokenizer, scope, "}");
+        final Statement body = parseBody(tokenizer, scope);
         return new IfStatement(condition, body);
     }
 
@@ -140,6 +162,10 @@ public class Parser {
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
             return parseOn(tokenizer, name);
+        }
+        if (tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
+            String name = tokenizer.consumeIdentifier();
+            return parseOnchange(tokenizer, name);
         }
         if (tokenizer.tryConsume("if")) {
             return parseIf(tokenizer, scope);

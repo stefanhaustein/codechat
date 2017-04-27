@@ -20,7 +20,9 @@ import org.kobjects.codechat.api.Screen;
 import org.kobjects.codechat.api.Sprite;
 import org.kobjects.codechat.api.Ticking;
 import org.kobjects.codechat.statement.OnStatement;
+import org.kobjects.codechat.statement.OnchangeStatement;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment implements Runnable {
@@ -105,7 +107,7 @@ public class Environment implements Runnable {
     public void dump(Writer writer) throws IOException {
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
-            if (instance != null && !(instance instanceof OnStatement)) {
+            if (instance != null && !(instance instanceof StatementInstance)) {
                 writer.write("new ");
                 writer.write(instance.toString());
                 writer.write("\n");
@@ -123,9 +125,10 @@ public class Environment implements Runnable {
             writer.write(toLiteral(rootContext.variables[var.getIndex()]));
             writer.write("\n");
         }
-        for (Ticking t : ticking) {
-            if (!(t instanceof Sprite)) {
-                String s = t.toString();
+        for (WeakReference<Instance> reference : everything.values()) {
+            Instance instance = reference.get();
+            if (instance != null && (instance instanceof StatementInstance)) {
+                String s = instance.toString();
                 writer.write(s);
                 if (!s.endsWith("\n")) {
                     writer.write("\n");
@@ -288,6 +291,21 @@ public class Environment implements Runnable {
     public Type resolveType(String name) {
         if (name.equals("sprite")) {
             return Type.forJavaClass(Sprite.class);
+        }
+        if (name.equals("on")) {
+            return Type.forJavaClass(OnStatement.class);
+        }
+        if (name.equals("onchange")) {
+            return Type.forJavaClass(OnchangeStatement.class);
+        }
+        if (name.equals("number")) {
+            return Type.NUMBER;
+        }
+        if (name.equals("boolean")) {
+            return Type.BOOLEAN;
+        }
+        if (name.equals("string")) {
+            return Type.STRING;
         }
         return null;
     }

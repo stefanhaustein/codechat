@@ -6,16 +6,12 @@ import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.api.Ticking;
 import org.kobjects.codechat.expr.Expression;
 
-public class OnStatement extends Instance implements Statement, Ticking {
-    Environment environment;
+public class OnStatement extends StatementInstance implements Ticking {
     public Expression condition;
-    public Block body;
+    public Statement body;
 
-    public OnStatement(Environment environment, int id, Expression condition, Block body) {
+    public OnStatement(Environment environment, int id) {
         super(environment, id);
-        this.environment = environment;
-        this.condition = condition;
-        this.body = body;
     }
 
     @Override
@@ -25,11 +21,6 @@ public class OnStatement extends Instance implements Statement, Ticking {
         }
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        toString(sb, 0);
-        return sb.toString();
-    }
 
     @Override
     public Object eval(Context context) {
