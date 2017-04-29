@@ -82,4 +82,14 @@ public class RelationalOperator extends Expression {
         sb.append(' ');
         right.toString(sb, Parser.PRECEDENCE_RELATIONAL);
     }
+
+    @Override
+    public int getChildCount() {
+        return 2;
+    }
+
+    @Override
+    public Expression getChild(int index) {
+        return index == 0 ? left : right;
+    }
 }

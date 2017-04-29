@@ -105,4 +105,14 @@ public class UnresolvedInvocation extends AbstractUnresolved {
     public void toString(StringBuilder sb) {
         toString(sb, name, parens, children);
     }
+
+    @Override
+    public int getChildCount() {
+        return children.length;
+    }
+
+    @Override
+    public Expression getChild(int index) {
+        return children[index];
+    }
 }

@@ -55,4 +55,14 @@ public class BuiltinInvocation extends AbstractResolved {
         UnresolvedInvocation.toString(sb, method.getName(), parens, children);
 
     }
+
+    @Override
+    public int getChildCount() {
+        return children.length;
+    }
+
+    @Override
+    public Expression getChild(int i) {
+        return children[i];
+    }
 }

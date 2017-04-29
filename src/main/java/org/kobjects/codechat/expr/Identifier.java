@@ -35,4 +35,9 @@ public class Identifier extends AbstractUnresolved {
     public void toString(StringBuilder sb) {
         sb.append(name);
     }
+
+    @Override
+    public int getChildCount() {
+        return 0;
+    }
 }

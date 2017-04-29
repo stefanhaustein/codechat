@@ -35,6 +35,11 @@ public class Literal extends Expression {
     }
 
     @Override
+    public int getChildCount() {
+        return 0;
+    }
+
+    @Override
     public Object eval(Context context) {
         return value;
     }

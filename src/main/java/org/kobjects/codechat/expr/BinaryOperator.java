@@ -86,4 +86,14 @@ public class BinaryOperator extends Expression {
         sb.append(' ');
         right.toString(sb, precedence);
     }
+
+    @Override
+    public int getChildCount() {
+        return 2;
+    }
+
+    @Override
+    public Expression getChild(int i) {
+        return i == 0 ? left : right;
+    }
 }

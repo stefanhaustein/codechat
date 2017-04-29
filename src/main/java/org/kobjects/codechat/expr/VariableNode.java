@@ -38,6 +38,11 @@ public class VariableNode extends AbstractResolved {
         sb.append(variable.getName());
     }
 
+    @Override
+    public int getChildCount() {
+        return 0;
+    }
+
     public boolean isAssignable() {
         return true;
     }

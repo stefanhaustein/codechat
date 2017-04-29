@@ -78,4 +78,17 @@ public class PropertyAccess extends Expression {
         sb.append('.');
         sb.append(name);
     }
+
+    @Override
+    public int getChildCount() {
+        return 1;
+    }
+
+
+    @Override
+    public Expression getChild(int index) {
+        return base;
+    }
+
+
 }

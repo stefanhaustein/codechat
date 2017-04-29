@@ -99,6 +99,7 @@ public class Environment implements Runnable {
                     e.printStackTrace();
                 }
             }
+            screen.frame.set(screen.frame.get() + 1);
         }
         handler.postDelayed(this, 17);
     }

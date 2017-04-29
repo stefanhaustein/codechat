@@ -53,4 +53,13 @@ public class Assignment extends Expression {
         sb.append(" = ");
         right.toString(sb, Parser.PRECEDENCE_EQUALITY);
     }
+
+    @Override
+    public int getChildCount() {
+        return 2;
+    }
+
+    public Expression getChild(int i) {
+        return i == 0 ? left : right;
+    }
 }

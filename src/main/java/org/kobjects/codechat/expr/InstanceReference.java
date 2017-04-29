@@ -44,4 +44,9 @@ public class InstanceReference extends Expression {
     public void toString(StringBuilder sb) {
         sb.append(type).append('#').append(id);
     }
+
+    @Override
+    public int getChildCount() {
+        return 0;
+    }
 }

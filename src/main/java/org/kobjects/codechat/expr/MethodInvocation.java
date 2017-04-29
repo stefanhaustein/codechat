@@ -55,4 +55,14 @@ public class MethodInvocation extends AbstractResolved {
     public void toString(StringBuilder sb) {
         UnresolvedInvocation.toString(sb, method.getName(), parens, children);
     }
+
+    @Override
+    public int getChildCount() {
+        return children.length;
+    }
+
+    @Override
+    public Expression getChild(int index) {
+        return children[index];
+    }
 }

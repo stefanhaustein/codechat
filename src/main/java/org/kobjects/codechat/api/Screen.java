@@ -14,6 +14,8 @@ public class Screen {
     Property<Double> left = new Property<>(500.0);
     Property<Double> right = new Property<>(500.0);
 
+    public Property<Double> frame = new Property<>(0.0);
+
     int oldNativeHeight;
     int oldNativeWidth;
 

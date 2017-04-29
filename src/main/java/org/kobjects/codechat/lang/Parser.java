@@ -129,8 +129,7 @@ public class Parser {
         final Statement body = parseBody(tokenizer, environment.rootScope);
 
         OnStatement result = (OnStatement) resolveOrCreate(name);
-        result.body = body;
-        result.condition = condition;
+        result.init(condition, body);
         return result;
     }
 

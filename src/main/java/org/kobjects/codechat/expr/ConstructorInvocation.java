@@ -33,4 +33,9 @@ public class ConstructorInvocation extends AbstractResolved {
     public void toString(StringBuilder sb) {
         sb.append("new ").append(type.toString());
     }
+
+    @Override
+    public int getChildCount() {
+        return 0;
+    }
 }

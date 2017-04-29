@@ -36,6 +36,12 @@ public abstract class Expression {
         }
     }
 
+    public abstract int getChildCount();
+
+    public Expression getChild(int i) {
+        throw new UnsupportedOperationException();
+    }
+
     public boolean isAssignable() {
         return false;
     }

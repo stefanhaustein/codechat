@@ -54,4 +54,14 @@ public class UnaryOperator extends Expression {
         sb.append(name);
         operand.toString(sb, getPrecedence());
     }
+
+    @Override
+    public int getChildCount() {
+        return 1;
+    }
+
+    @Override
+    public Expression getChild(int index) {
+        return operand;
+    }
 }
