@@ -7,6 +7,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.Spannable;
@@ -44,9 +45,12 @@ import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
 import static android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener {
+public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener, PopupMenu.OnMenuItemClickListener {
     static final String SETTINGS_FILE_NAME = "fileName";
     static final String SETTINGS_FILE_NAME_DEFAULT = "CodeChat";
+
+    static final String MENU_ITEM_CONTINUE = "Continue";
+    static final String MENU_ITEM_PAUSE = "Pause";
 
     EmojiEditText input;
     FrameLayout rootLayout;
@@ -55,7 +59,11 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     ChatView chatView;
     Environment environment;
     Toolbar toolbar;
+    ImageButton menuButton;
+
     MenuItem pauseItem;
+    MenuItem windowItem;
+
     String pending = "";
     EmojiPopup emojiPopup;
     int balance;
@@ -133,11 +141,9 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             }
         });
 
-        ImageButton enterButton = new ImageButton(this);
+        final ImageButton enterButton = new ImageButton(this);
         enterButton.setImageResource(R.drawable.ic_send_black_24dp);
-      //  enterButton.setImageDrawable(new Emoji(0x2705).getDrawable(this));
-        //enterButton.setText("\u23ce");
-        inputRow.addView(enterButton);
+        enterButton.setBackgroundColor(0);
         enterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,8 +152,24 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 input.setText("");
             }
         });
-//        enterButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
-        enterButton.setBackgroundColor(0);
+        inputRow.addView(enterButton);
+
+        menuButton = new ImageButton(this);
+        menuButton.setImageResource(R.drawable.ic_more_vert_black_24dp);
+        menuButton.setBackgroundColor(0);
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(MainActivity.this, v);
+                Menu menu = popup.getMenu();
+                popup.getMenu().add(environment.paused ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
+
+                popup.setOnMenuItemClickListener(MainActivity.this);
+                popup.show();
+            }
+        });
+        inputRow.addView(menuButton);
+
 
         chatView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -225,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             contentParams.weight = 0.5f;
             contentParams.height = MATCH_PARENT;
             contentLayout.setBackgroundColor(0xff888888);
+
+            menuButton.setVisibility(View.VISIBLE);
         } else {
             FrameLayout overlay = new FrameLayout(this);
             overlay.addView(chatView);
@@ -249,6 +273,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             rowsParams.height = MATCH_PARENT;
             rowsParams.width = MATCH_PARENT;
             contentLayout.setBackgroundColor(0);
+
+            menuButton.setVisibility(View.GONE);
         }
 
         input.requestFocus();
@@ -262,23 +288,41 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         arrangeUi();
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        pauseItem = menu.add("pause");
+        pauseItem = menu.add(MENU_ITEM_PAUSE);
         pauseItem.setIcon(R.drawable.ic_pause_white_24dp).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
+
         return true;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item == pauseItem) {
-            environment.pause(!environment.paused);
-        } else {
-            processInput(item.getTitle().toString());
+        return onMenuItemClick(item);
+    }
+
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        String title = item.getTitle().toString();
+        switch (title) {
+            case MENU_ITEM_PAUSE:
+                environment.pause(true);
+                break;
+            case MENU_ITEM_CONTINUE:
+                environment.pause(false);
+                break;
+            default:
+                processInput(title);
         }
         return true;
     }
+
+
 
     void printRight(CharSequence s, boolean update) {
         if (update) {
@@ -370,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     @Override
     public void paused(boolean paused) {
         pauseItem.setIcon(paused ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
-        pauseItem.setTitle(paused ? "continue" : "pause");
+        pauseItem.setTitle(paused ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
     }
 
     @Override
@@ -380,4 +424,5 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             settings.edit().putString(SETTINGS_FILE_NAME, name).commit();
         }
     }
+
 }
