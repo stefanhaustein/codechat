@@ -113,7 +113,14 @@ public class Sprite extends Instance implements Ticking, Runnable {
         }
         double rotationSpeedVaue = rotationSpeed.get();
         if (rotationSpeedVaue != 0) {
-            rotation.set(rotation.get() + rotationSpeedVaue);
+            double rotationValue = rotation.get() + rotationSpeedVaue;
+            while (rotationValue > 360) {
+                rotationValue -= 360;
+            }
+            while (rotationValue < -360) {
+                rotationValue += 360;
+            }
+            rotation.set(rotationValue);
         }
     }
 
