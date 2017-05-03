@@ -87,10 +87,33 @@ public class Sprite extends Instance implements Ticking, Runnable {
 */
     @Override
     public void tick(boolean force) {
-        if (force || dx.get() != 0 || dy.get() != 0 || rotationSpeed.get() != 0) {
-            x.set(x.get() + dx.get());
-            y.set(y.get() + dy.get());
-            rotation.set(rotation.get() + rotationSpeed.get());
+        double dxValue = dx.get();
+        double dyValue = dy.get();
+        if (force || dxValue != 0 || dyValue != 0) {
+            Screen screen = environment.screen;
+            double xValue = x.get();
+            double yValue = y.get();
+            double sizeValue = size.get();
+
+            if (dxValue > 0 && xValue > screen.right.get() + sizeValue) {
+                x.set(screen.left.get() - sizeValue);
+            } else if (dxValue < 0 && xValue < screen.left.get() - sizeValue) {
+                x.set(screen.right.get() + sizeValue);
+            } else {
+                x.set(xValue + dxValue);
+            }
+
+            if (dyValue > 0 && yValue > screen.top.get() + sizeValue) {
+                y.set(screen.bottom.get() - sizeValue);
+            } else if (dyValue < 0 && yValue < screen.bottom.get() - sizeValue) {
+                y.set(screen.top.get() + sizeValue);
+            } else {
+                y.set(yValue + dyValue);
+            }
+        }
+        double rotationSpeedVaue = rotationSpeed.get();
+        if (rotationSpeedVaue != 0) {
+            rotation.set(rotation.get() + rotationSpeedVaue);
         }
     }
 
