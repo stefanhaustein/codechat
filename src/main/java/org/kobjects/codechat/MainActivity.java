@@ -15,13 +15,7 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -52,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
     static final String MENU_ITEM_CONTINUE = "Continue";
     static final String MENU_ITEM_PAUSE = "Pause";
+    static final String MENU_ITEM_WINDOW_MODE = "Window mode";
 
     static final int SHOW_TOOLBAR_HEIGHT_DP = 620;
 
@@ -65,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     ImageButton menuButton;
 
     MenuItem pauseItem;
-    MenuItem windowItem;
 
     String pending = "";
     EmojiPopup emojiPopup;
@@ -73,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     SharedPreferences settings;
     File codeDir;
     private float pixelPerDp;
+    boolean windowMode;
+    Point displaySize = new Point();
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -166,9 +162,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             @Override
             public void onClick(View v) {
                 PopupMenu popup = new PopupMenu(MainActivity.this, v);
-                Menu menu = popup.getMenu();
-                popup.getMenu().add(environment.paused ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
-
+                fillMenu(popup.getMenu(), false);
                 popup.setOnMenuItemClickListener(MainActivity.this);
                 popup.show();
             }
@@ -220,23 +214,11 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         detach(toolbar);
         detach(contentLayout);
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
-        float displayHightDp = size.y / pixelPerDp;
-
-        if (displayHightDp >= SHOW_TOOLBAR_HEIGHT_DP) {
-            toolbar.setVisibility(View.VISIBLE);
-            menuButton.setVisibility(View.GONE);
-        } else {
-            toolbar.setVisibility(View.GONE);
-            menuButton.setVisibility(View.VISIBLE);
-        }
+        getWindowManager().getDefaultDisplay().getSize(displaySize);
 
         // System.out.println("**** DisplayHeight in DP: " + displayHightDp);
 
-        if (size.x > size.y) {
+        if (displaySize.x > displaySize.y) {
             LinearLayout columns = new LinearLayout(this);
             rootLayout.addView(columns);
             FrameLayout.LayoutParams columnsParams = (FrameLayout.LayoutParams) columns.getLayoutParams();
@@ -270,10 +252,6 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             FrameLayout.LayoutParams chatParams = (FrameLayout.LayoutParams) chatView.getLayoutParams();
             chatParams.width = MATCH_PARENT;
             chatParams.height = MATCH_PARENT;
-            overlay.addView(contentLayout);
-            FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) contentLayout.getLayoutParams();
-            contentParams.width = MATCH_PARENT;
-            contentParams.height = MATCH_PARENT;
 
             LinearLayout rows = new LinearLayout(this);
             rows.setOrientation(LinearLayout.VERTICAL);
@@ -287,11 +265,30 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             FrameLayout.LayoutParams rowsParams = (FrameLayout.LayoutParams) rows.getLayoutParams();
             rowsParams.height = MATCH_PARENT;
             rowsParams.width = MATCH_PARENT;
-            contentLayout.setBackgroundColor(0);
 
-            menuButton.setVisibility(View.GONE);
+            overlay.addView(contentLayout);
+            FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) contentLayout.getLayoutParams();
+
+            if (windowMode) {
+                contentLayout.setBackgroundColor(0x0ff888888);
+                contentParams.gravity = Gravity.RIGHT | Gravity.TOP;
+                contentParams.width = displaySize.x / 2;
+                contentParams.height = displaySize.x * 3 / 8;
+            } else {
+                contentLayout.setBackgroundColor(0);
+                contentParams.width = MATCH_PARENT;
+                contentParams.height = MATCH_PARENT;
+            }
         }
 
+        float displayHightDp = displaySize.y / pixelPerDp;
+        if (displayHightDp < SHOW_TOOLBAR_HEIGHT_DP || windowMode) {
+            toolbar.setVisibility(View.GONE);
+            menuButton.setVisibility(View.VISIBLE);
+        } else {
+            toolbar.setVisibility(View.VISIBLE);
+            menuButton.setVisibility(View.GONE);
+        }
 
         input.requestFocus();
     }
@@ -304,17 +301,24 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         arrangeUi();
     }
 
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        pauseItem = menu.add(MENU_ITEM_PAUSE);
-        pauseItem.setIcon(R.drawable.ic_pause_white_24dp).setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
-
-        return true;
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+       menu.clear();
+       fillMenu(menu, true);
+       return true;
     }
 
-
+    public void fillMenu(final Menu menu, boolean isOptionsMenu) {
+        MenuItem pause = menu.add(environment.paused ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
+        if (isOptionsMenu) {
+            pauseItem = pause;
+            pauseItem.setIcon(environment.paused ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
+            pauseItem.setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
+        }
+        if (displaySize.x <= displaySize.y) {
+            menu.add(MENU_ITEM_WINDOW_MODE).setCheckable(true).setChecked(windowMode);
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -332,13 +336,15 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             case MENU_ITEM_CONTINUE:
                 environment.pause(false);
                 break;
+            case MENU_ITEM_WINDOW_MODE:
+                windowMode = !windowMode;
+                arrangeUi();
+                break;
             default:
                 processInput(title);
         }
         return true;
     }
-
-
 
     void printRight(CharSequence s, boolean update) {
         if (update) {
@@ -426,6 +432,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             print(e.getMessage());
         }
     }
+
 
     @Override
     public void paused(boolean paused) {
