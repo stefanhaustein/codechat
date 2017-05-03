@@ -14,6 +14,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     static final String MENU_ITEM_CONTINUE = "Continue";
     static final String MENU_ITEM_PAUSE = "Pause";
 
+    static final int SHOW_TOOLBAR_HEIGHT_DP = 620;
+
     EmojiEditText input;
     FrameLayout rootLayout;
     FrameLayout contentLayout;
@@ -69,9 +72,11 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     int balance;
     SharedPreferences settings;
     File codeDir;
+    private float pixelPerDp;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
+        pixelPerDp = getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT;
 
         codeDir = getExternalFilesDir("code");
 
@@ -219,6 +224,18 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         Point size = new Point();
         display.getSize(size);
 
+        float displayHightDp = size.y / pixelPerDp;
+
+        if (displayHightDp >= SHOW_TOOLBAR_HEIGHT_DP) {
+            toolbar.setVisibility(View.VISIBLE);
+            menuButton.setVisibility(View.GONE);
+        } else {
+            toolbar.setVisibility(View.GONE);
+            menuButton.setVisibility(View.VISIBLE);
+        }
+
+        // System.out.println("**** DisplayHeight in DP: " + displayHightDp);
+
         if (size.x > size.y) {
             LinearLayout columns = new LinearLayout(this);
             rootLayout.addView(columns);
@@ -229,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             LinearLayout rows = new LinearLayout(this);
             rows.setOrientation(LinearLayout.VERTICAL);
 
-           // rows.addView(toolbar);
+            rows.addView(toolbar);
             rows.addView(chatView);
             ((LinearLayout.LayoutParams) chatView.getLayoutParams()).weight = 1;
 
@@ -247,8 +264,6 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             contentParams.weight = 0.5f;
             contentParams.height = MATCH_PARENT;
             contentLayout.setBackgroundColor(0xff888888);
-
-            menuButton.setVisibility(View.VISIBLE);
         } else {
             FrameLayout overlay = new FrameLayout(this);
             overlay.addView(chatView);
@@ -276,6 +291,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
             menuButton.setVisibility(View.GONE);
         }
+
 
         input.requestFocus();
     }
