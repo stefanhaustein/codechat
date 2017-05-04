@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Space;
 import android.widget.TextView;
 import com.vanniktech.emoji.EmojiTextView;
 import java.util.ArrayList;
@@ -35,13 +37,15 @@ public class ChatView extends ListView {
     private final int verticalMargin;
     private final int narrowHorizontalMarign;
     private final int wideHorizontalMarign;
+    private final float dpToPx;
+    SelectionCallback selectionCallback;
 
     public ChatView(Context context) {
         super(context);
         setDivider(null);
         setAdapter(chatAdapter);
         setBackgroundColor(0xffeeeedd);
-        float dpToPx = context.getResources().getDisplayMetrics().density;
+        dpToPx = context.getResources().getDisplayMetrics().density;
 
         arrowSize = Math.round(6 * dpToPx);
         cornerBox = Math.round(10 * dpToPx);
@@ -51,6 +55,14 @@ public class ChatView extends ListView {
         verticalMargin = Math.round(2 * dpToPx);
         narrowHorizontalMarign = Math.round(4 * dpToPx);
         wideHorizontalMarign = Math.round(32 * dpToPx);
+
+        setStackFromBottom(true);
+        setOverScrollMode(OVER_SCROLL_ALWAYS);
+        setTranscriptMode(TRANSCRIPT_MODE_ALWAYS_SCROLL);
+    }
+
+    public void setSelectionCallback(SelectionCallback selectionCallback) {
+        this.selectionCallback = selectionCallback;
     }
 
     public void add(boolean right, CharSequence s) {
@@ -83,15 +95,29 @@ public class ChatView extends ListView {
         }
 
         @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
+        public View getView(final int i, View view, final ViewGroup viewGroup) {
+            final int type = getItemViewType(i);
+            if (type == 0) {
+                if (view != null) {
+                    return view;
+                }
+                View result = new View(viewGroup.getContext()) {
+                    @Override
+                    protected void onMeasure(int wms, int hms) {
+                        setMeasuredDimension(1, Math.round(36 * dpToPx));
+                    }
+                };
+                return result;
+            }
+
             LinearLayout result;
-            EmojiTextView textView;
+            final EmojiTextView textView;
             if (view instanceof LinearLayout) {
                 result = (LinearLayout) view;
                 textView = (EmojiTextView) result.getChildAt(0);
             } else {
                 textView = new EmojiTextView(viewGroup.getContext());
-                boolean r = right.get(i);
+                final boolean r = type == 2;
                 textView.setBackground(new BubbleDrawable(arrowSize, cornerBox, r));
                 textView.setPadding(r ? sidePadding : sidePadding + arrowSize, topPadding, r ? sidePadding + arrowSize : sidePadding, bottomPadding);
                 textView.setTextColor(0x0ff000000);
@@ -101,9 +127,10 @@ public class ChatView extends ListView {
                 textView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        System.out.println("Clicked!");
+                        selectionCallback.selected(r, getItem(i).toString());
                     }
                 });
+                textView.setFocusableInTouchMode(false);
                 result.setOrientation(LinearLayout.VERTICAL);
                 result.addView(textView);
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textView.getLayoutParams();
@@ -120,11 +147,11 @@ public class ChatView extends ListView {
 
         @Override
         public int getViewTypeCount() {
-            return 2;
+            return 3;
         }
 
         public int getItemViewType(int position) {
-            return right.get(position) ? 0 : 1;
+            return text.get(position).length() == 0 ? 0 : right.get(position) ? 2 : 1;
         }
     }
 
@@ -212,4 +239,8 @@ public class ChatView extends ListView {
 
     }
 
+
+    public interface SelectionCallback {
+        void selected(boolean right, String text);
+    }
 }

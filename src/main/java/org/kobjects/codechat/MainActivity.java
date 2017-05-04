@@ -127,6 +127,14 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         inputRow.addView(input);
         ((LinearLayout.LayoutParams) input.getLayoutParams()).weight = 1;
 
+        chatView.setSelectionCallback(new ChatView.SelectionCallback() {
+            @Override
+            public void selected(boolean right, String text) {
+                input.setText(text);
+            }
+        });
+
+
         emojiInputButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -348,28 +356,14 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
     void printRight(CharSequence s, boolean update) {
         if (update) {
-            chatView.setValue(chatView.getCount() - 1, s);
+            chatView.setValue(chatView.getCount() - 3, s);
         } else {
             chatView.add(true, s);
-            chatView.setSelection(chatView.getCount() - 1);
         }
-        chatView.post(new Runnable() {
-            @Override
-            public void run() {
-                chatView.smoothScrollToPosition(chatView.getCount());
-            }
-        });
     }
 
     public void print(String s) {
         chatView.add(false, s);
-        chatView.setSelection(chatView.getCount() - 1);
-        chatView.post(new Runnable() {
-            @Override
-            public void run() {
-                chatView.smoothScrollToPosition(chatView.getCount());
-            }
-        });
     }
 
     void processInput(String line) {
@@ -383,6 +377,9 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             }
             sb.append(line);
             pending = sb.toString();
+        } else if (line.length() == 0) {
+            printRight("", false);
+            return;
         } else {
             pending = line;
         }
