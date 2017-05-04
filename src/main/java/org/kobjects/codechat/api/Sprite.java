@@ -52,9 +52,9 @@ public class Sprite extends Instance implements Ticking, Runnable {
         syncView();
     }
 
-    public void move(double x, double y) {
-        this.x.set(x);
-        this.y.set(y);
+    public void move(double speed, double angle) {
+        this.dx.set(speed * Math.cos(angle * Math.PI / 180));
+        this.dy.set(speed * Math.sin(angle * Math.PI / 180));
     }
 
 
