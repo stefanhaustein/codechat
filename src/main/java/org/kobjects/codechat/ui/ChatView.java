@@ -127,7 +127,7 @@ public class ChatView extends ListView {
                 textView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        selectionCallback.selected(r, getItem(i).toString());
+                        selectionCallback.selected(r, textView.getText().toString());
                     }
                 });
                 textView.setFocusableInTouchMode(false);
