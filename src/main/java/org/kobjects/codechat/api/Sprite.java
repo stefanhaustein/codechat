@@ -70,7 +70,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
         double size = this.size.get();
         view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - size / 2)));
         view.setY(environment.rootView.getMeasuredHeight()/2 - (float) (environment.scale * (y.get() + size / 2)));
-        view.setRotation(rotation.get().floatValue());
+        view.setRotation(-rotation.get().floatValue());
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = Math.round((float) (environment.scale * size));
         if (params.height != params.width) {
