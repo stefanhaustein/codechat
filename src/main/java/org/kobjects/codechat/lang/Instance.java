@@ -15,7 +15,11 @@ public class Instance {
 
 
     public String toString() {
-        return getClass().getSimpleName().toLowerCase() + "#" + id;
+        String name = getClass().getSimpleName();
+        if (name.endsWith("Statement")) {
+            name = name.substring(0, name.length() - "Statement".length());
+        }
+        return name.toLowerCase() + "#" + id;
     }
 
     public void dump(Writer writer) throws IOException {
