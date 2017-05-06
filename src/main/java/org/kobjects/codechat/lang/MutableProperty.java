@@ -1,8 +1,6 @@
 package org.kobjects.codechat.lang;
 
-import org.kobjects.codechat.lang.Property;
-
-public class MutableProperty<T> extends Property<T> {
+public class MutableProperty<T> extends MaterialProperty<T> {
     private final T initialValue;
 
     public MutableProperty(T value) {

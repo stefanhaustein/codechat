@@ -3,7 +3,7 @@ package org.kobjects.codechat.statement;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 
 public class OnchangeStatement extends StatementInstance implements Property.PropertyListener {

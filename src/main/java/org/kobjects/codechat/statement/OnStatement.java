@@ -3,9 +3,8 @@ package org.kobjects.codechat.statement;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.api.Ticking;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 
 import java.util.ArrayList;

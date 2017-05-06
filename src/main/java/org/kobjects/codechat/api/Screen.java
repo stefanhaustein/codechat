@@ -1,20 +1,19 @@
 package org.kobjects.codechat.api;
 
-import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.lang.MaterialProperty;
 
 public class Screen {
 
-    Property<Double> width = new Property<>(1000.0);
-    Property<Double> height = new Property<>(1000.0);
+    MaterialProperty<Double> width = new MaterialProperty<>(1000.0);
+    MaterialProperty<Double> height = new MaterialProperty<>(1000.0);
 
-    Property<Double> top = new Property<>(-500.0);
-    Property<Double> bottom = new Property<>(-500.0);
+    MaterialProperty<Double> top = new MaterialProperty<>(-500.0);
+    MaterialProperty<Double> bottom = new MaterialProperty<>(-500.0);
 
-    Property<Double> left = new Property<>(500.0);
-    Property<Double> right = new Property<>(500.0);
+    MaterialProperty<Double> left = new MaterialProperty<>(500.0);
+    MaterialProperty<Double> right = new MaterialProperty<>(500.0);
 
-    public Property<Double> frame = new Property<>(0.0);
+    public MaterialProperty<Double> frame = new MaterialProperty<>(0.0);
 
     int oldNativeHeight;
     int oldNativeWidth;

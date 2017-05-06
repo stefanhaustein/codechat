@@ -6,10 +6,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
-import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.MutableProperty;
-import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.lang.*;
 
 public class Sprite extends Instance implements Ticking, Runnable {
 
@@ -25,7 +22,19 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public MutableProperty<Double> dx = new MutableProperty<>(0.0);
     public MutableProperty<Double> dy = new MutableProperty<>(0.0);
     public MutableProperty<Double> rotationSpeed = new MutableProperty<>(0.0);
-    public Property<Boolean> touched = new MutableProperty<>(false);
+    public MaterialProperty<Boolean> touched = new MutableProperty<>(false);
+
+    public LazyProperty<Boolean> visible = new LazyProperty<Boolean>() {
+        @Override
+        protected Boolean compute() {
+            Screen screen = environment.screen;
+            double size2 = size.get() / 2;
+            return x.get() >= screen.left.get() - size2 &&
+                    x.get() <= screen.right.get() + size2 &&
+                    y.get() >= screen.bottom.get() - size2 &&
+                    y.get() <= screen.top.get() + size2;
+        }
+    };
 
     private Emoji lastFace;
 
@@ -113,6 +122,8 @@ public class Sprite extends Instance implements Ticking, Runnable {
             } else {
                 y.set(yValue + dyValue);
             }
+
+            visible.invalidate();
         }
         double rotationSpeedVaue = rotationSpeed.get();
         if (rotationSpeedVaue != 0) {
@@ -144,8 +155,8 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
 
         @Override
-        public void set(T value) {
-            super.set(value);
+        public void set(T newValue) {
+            super.set(newValue);
             syncView();
         }
     }

@@ -1,44 +1,36 @@
 package org.kobjects.codechat.lang;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
-public class Property<T> {
-    protected T value;
-    ArrayList<PropertyListener<T>> listeners;
+public abstract class Property<T> {
+    protected ArrayList<MaterialProperty.PropertyListener<T>> listeners;
 
-    public Property(T value) {
-        this.value = value;
-    }
+    public abstract T get();
 
-    public void set(T value) {
-        if (value == this.value || this.value != null && this.value.equals(value)) {
-            return;
-        }
-        T oldValue = value;
-        this.value = value;
-        if (listeners != null) {
-            for (PropertyListener<T> listener : listeners) {
-                listener.valueChanged(this, oldValue, value);
-            }
-        }
-    }
-
-    public T get() {
-        return value;
-    }
-
-    public void addListener(PropertyListener<T> listener) {
+    public void addListener(MaterialProperty.PropertyListener<T> listener) {
         if (listeners == null) {
             listeners = new ArrayList<>();
         }
         listeners.add(listener);
     }
 
-    public void removeListener(PropertyListener<T> listener) {
-        listeners.remove(listener);
+    public void removeListener(MaterialProperty.PropertyListener<T> listener) {
+        if (listeners != null) {
+            listeners.remove(listener);
+        }
     }
 
+    boolean hasListeners() {
+        return listeners != null && listeners.size() > 0;
+    }
+
+    void notifyChanged(T oldValue, T newValue) {
+        if (listeners != null) {
+            for (MaterialProperty.PropertyListener<T> listener : listeners) {
+                listener.valueChanged(this, oldValue, newValue);
+            }
+        }
+    }
 
     public interface PropertyListener<T> {
         void valueChanged(Property<T> property, T oldValue, T newValue);
