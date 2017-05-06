@@ -4,12 +4,12 @@ import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Type;
 
-public class ConstructorInvocation extends AbstractResolved {
+class ConstructorInvocation extends AbstractResolved {
 
     Type type;
     int id;
 
-    ConstructorInvocation(Type type, int id) {
+    public ConstructorInvocation(Type type, int id) {
         this.type = type;
         this.id = id;
     }

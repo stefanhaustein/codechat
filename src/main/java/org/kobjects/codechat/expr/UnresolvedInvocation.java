@@ -15,23 +15,17 @@ public class UnresolvedInvocation extends AbstractUnresolved {
     }
 
     static void toString(StringBuilder sb, String name, boolean parens, Expression[] children) {
+        sb.append(name);
+        sb.append(parens ? '(' : ' ');
+        if (children.length > 0) {
+            children[0].toString(sb, 0);
+            for (int i = 1; i < children.length; i++) {
+                sb.append(", ");
+                children[i].toString(sb, 0);
+            }
+        }
         if (parens) {
-            sb.append(name);
-            sb.append('(');
-            if (children.length > 0) {
-                children[0].toString(sb, 0);
-                for (int i = 1; i < children.length; i++) {
-                    sb.append(", ");
-                    children[0].toString(sb, 0);
-                }
-            }
             sb.append(')');
-        } else {
-            sb.append(name);
-            for (int i = 0; i < children.length; i++) {
-                sb.append(' ');
-                children[i].toString(sb, Parser.PRECEDENCE_PATH);
-            }
         }
     }
 
