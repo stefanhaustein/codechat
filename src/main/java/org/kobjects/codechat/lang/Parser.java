@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.api.Emoji;
+import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.statement.Assignment;
 import org.kobjects.codechat.expr.Identifier;
 import org.kobjects.codechat.expr.RelationalOperator;
@@ -23,8 +24,7 @@ import org.kobjects.codechat.statement.CountStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.IfStatement;
-import org.kobjects.codechat.statement.OnStatement;
-import org.kobjects.codechat.statement.OnchangeStatement;
+import org.kobjects.codechat.expr.OnchangeExpression;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -46,6 +46,11 @@ public class Parser {
 
     private static Pattern IDENTIFIER_PATTERN = Pattern.compile(
             "\\G\\s*(([\\p{Alpha}_$][\\p{Alpha}_$\\d]*(#\\d+)?)|(" + EMOJI_REGEX + "))");
+
+    public static int extractId(String s) {
+        int cut = s.indexOf('#');
+        return cut == -1 ? -1 : Integer.parseInt(s.substring(cut + 1));
+    }
 
     private final Environment environment;
     private final ExpressionParser<Expression> expressionParser = createExpressionParser();
@@ -124,23 +129,21 @@ public class Parser {
     }
 
 
-    OnStatement parseOn(ExpressionParser.Tokenizer tokenizer, String name) {
+    OnExpression parseOn(ExpressionParser.Tokenizer tokenizer, int id) {
         final Expression condition = parseExpression(tokenizer, environment.rootScope);
 
         final Statement body = parseBody(tokenizer, environment.rootScope);
 
-        OnStatement result = (OnStatement) resolveOrCreate(name);
-        result.init(condition, body);
+        OnExpression result = new OnExpression(id, condition, body);
         return result;
     }
 
-    OnchangeStatement parseOnchange(ExpressionParser.Tokenizer tokenizer, String name) {
+    OnchangeExpression parseOnchange(ExpressionParser.Tokenizer tokenizer, int id) {
         final Expression property = parseExpression(tokenizer, environment.rootScope);
 
         final Statement body = parseBody(tokenizer, environment.rootScope);
 
-        OnchangeStatement result = (OnchangeStatement) resolveOrCreate(name);
-        result.init((PropertyAccess) property, body);
+        OnchangeExpression result = new OnchangeExpression(id, (PropertyAccess) property, body);
         return result;
     }
 
@@ -161,11 +164,11 @@ public class Parser {
         }
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
-            return parseOn(tokenizer, name);
+            return new ExpressionStatement(parseOn(tokenizer, extractId(name)));
         }
         if (tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
             String name = tokenizer.consumeIdentifier();
-            return parseOnchange(tokenizer, name);
+            return new ExpressionStatement(parseOnchange(tokenizer, extractId(name)));
         }
         if (tokenizer.tryConsume("if")) {
             return parseIf(tokenizer, scope);

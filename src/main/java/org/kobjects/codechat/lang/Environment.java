@@ -19,15 +19,12 @@ import org.kobjects.codechat.api.Builtins;
 import org.kobjects.codechat.api.Screen;
 import org.kobjects.codechat.api.Sprite;
 import org.kobjects.codechat.api.Ticking;
-import org.kobjects.codechat.statement.OnStatement;
-import org.kobjects.codechat.statement.OnchangeStatement;
+import org.kobjects.codechat.expr.OnchangeExpression;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment implements Runnable {
-
-
     public Builtins builtins = new Builtins(this);
     public double scale;
     public FrameLayout rootView;
@@ -37,7 +34,6 @@ public class Environment implements Runnable {
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
     public File codeDir;
-    boolean loading;
     public EnvironmentListener environmentListener;
     Scope rootScope = new Scope(this);
     Parser parser = new Parser(this);
@@ -108,7 +104,8 @@ public class Environment implements Runnable {
     public void dump(Writer writer) throws IOException {
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
-            if (instance != null && !(instance instanceof StatementInstance)) {
+            if (instance != null && !(instance instanceof StatementInstance) &&
+                    !(instance instanceof OnInstance)) {
                 writer.write("new ");
                 writer.write(instance.toString());
                 writer.write("\n");
@@ -128,7 +125,7 @@ public class Environment implements Runnable {
         }
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
-            if (instance != null && (instance instanceof StatementInstance)) {
+            if (instance != null && (instance instanceof StatementInstance || instance instanceof OnInstance)) {
                 String s = instance.toString();
                 writer.write(s);
                 if (!s.endsWith("\n")) {
@@ -176,11 +173,11 @@ public class Environment implements Runnable {
     }
 
 
-    public Object getInstance(Type type, int id) {
+    public Object getInstance(Type type, int id, boolean force) {
         WeakReference reference = everything.get(id);
         Object result = reference != null ? reference.get() : null;
         if (result == null) {
-            if (!loading) {
+            if (!force) {
                 throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
             }
             Class<?> c = type.getJavaClass();
@@ -230,7 +227,6 @@ public class Environment implements Runnable {
                     new InputStreamReader(new FileInputStream(file), "utf-8"));
 
             environmentListener.setName(file.getName());
-            loading = true;
             boolean success = true;
             clearAll();
 
@@ -277,8 +273,6 @@ public class Environment implements Runnable {
         } catch (Exception e) {
             autoSave = false;
             throw new RuntimeException(e);
-        } finally {
-            loading = false;
         }
     }
 
@@ -294,10 +288,10 @@ public class Environment implements Runnable {
             return Type.forJavaClass(Sprite.class);
         }
         if (name.equals("on")) {
-            return Type.forJavaClass(OnStatement.class);
+            return Type.forJavaClass(OnInstance.class);
         }
         if (name.equals("onchange")) {
-            return Type.forJavaClass(OnchangeStatement.class);
+            return Type.forJavaClass(OnchangeExpression.class);
         }
         if (name.equals("number")) {
             return Type.NUMBER;

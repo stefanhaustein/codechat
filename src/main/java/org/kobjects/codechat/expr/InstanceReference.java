@@ -18,7 +18,7 @@ public class InstanceReference extends Expression {
 
     @Override
     public Object eval(Context context) {
-        return context.environment.getInstance(type, id);
+        return context.environment.getInstance(type, id, false);
     }
 
     @Override
