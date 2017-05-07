@@ -122,7 +122,6 @@ public class ChatView extends ListView {
                 textView.setPadding(r ? sidePadding : sidePadding + arrowSize, topPadding, r ? sidePadding + arrowSize : sidePadding, bottomPadding);
                 textView.setTextColor(0x0ff000000);
               //  textView.setGravity(r ? Gravity.RIGHT : Gravity.LEFT);
-                textView.setTextIsSelectable(true);
                 result = new LinearLayout(viewGroup.getContext());
                 textView.setOnClickListener(new OnClickListener() {
                     @Override
@@ -130,7 +129,8 @@ public class ChatView extends ListView {
                         selectionCallback.selected(r, textView.getText().toString());
                     }
                 });
-                textView.setFocusableInTouchMode(false);
+                textView.setTextIsSelectable(true);
+                //  textView.setFocusableInTouchMode(false);
                 result.setOrientation(LinearLayout.VERTICAL);
                 result.addView(textView);
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textView.getLayoutParams();

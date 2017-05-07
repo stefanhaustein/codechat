@@ -35,6 +35,7 @@ public class Assignment extends AbstractStatement {
         left.toString(sb, Parser.PRECEDENCE_EQUALITY);
         sb.append(" = ");
         right.toString(sb, Parser.PRECEDENCE_EQUALITY);
+        sb.append(";\n");
 
     }
 

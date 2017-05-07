@@ -105,9 +105,9 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         emojiInputButton.setBackgroundColor(0);
 
         input = new EmojiEditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_NO_SUGGESTIONS);//|InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE); // TYPE_TEXT_FLAG_NO_SUGGESTIONS);//|
         input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        input.setPrivateImeOptions("nm");
+//        input.setPrivateImeOptions("nm");
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -130,6 +130,18 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         chatView.setSelectionCallback(new ChatView.SelectionCallback() {
             @Override
             public void selected(boolean right, String text) {
+                int lineCount = 0;
+                for (int i = 0; i < text.length(); i++) {
+                    if (text.charAt(i) == '\n') {
+                        lineCount++;
+                        if (lineCount > 5) {
+                            return;
+                        }
+                    }
+                }
+                if (lineCount == 0) {
+                    text = input.getText().toString() + text;
+                }
                 input.setText(text);
             }
         });
