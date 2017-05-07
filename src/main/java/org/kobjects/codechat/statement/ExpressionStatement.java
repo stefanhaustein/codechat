@@ -19,7 +19,7 @@ public class ExpressionStatement extends AbstractStatement {
     @Override
     public void toString(StringBuilder sb, int indent) {
         AbstractStatement.indent(sb, indent);
-        expression.toString(sb);
+        expression.toString(sb, indent);
         sb.append(";\n");
     }
 }

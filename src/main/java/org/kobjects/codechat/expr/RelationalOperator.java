@@ -64,12 +64,12 @@ public class RelationalOperator extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
-        left.toString(sb, Parser.PRECEDENCE_RELATIONAL);
+    public void toString(StringBuilder sb, int indent) {
+        left.toString(sb, 0, Parser.PRECEDENCE_RELATIONAL);
         sb.append(' ');
         sb.append(name);
         sb.append(' ');
-        right.toString(sb, Parser.PRECEDENCE_RELATIONAL);
+        right.toString(sb, 0, Parser.PRECEDENCE_RELATIONAL);
     }
 
     @Override

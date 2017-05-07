@@ -32,7 +32,7 @@ public class Identifier extends AbstractUnresolved {
         return Parser.PRECEDENCE_PATH;
     }
 
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         sb.append(name);
     }
 

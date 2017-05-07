@@ -1,8 +1,5 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.expr.AbstractResolved;
-import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.lang.Context;
 import org.kobjects.codechat.lang.OnchangeInstance;
 import org.kobjects.codechat.lang.Type;
@@ -40,13 +37,11 @@ public class OnchangeExpression extends AbstractResolved {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
-        int indent = 1;  //FIXME
-        AbstractStatement.indent(sb, indent);
+    public void toString(StringBuilder sb, int indent) {
         sb.append("onchange#").append(id).append(' ').append(propertyExpr).append(" {\n");
         body.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
-        sb.append("}\n");
+        sb.append("}");
     }
 
     @Override

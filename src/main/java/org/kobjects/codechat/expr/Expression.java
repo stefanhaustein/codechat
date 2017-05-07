@@ -14,7 +14,7 @@ public abstract class Expression {
 
     public final String toString() {
         StringBuilder sb = new StringBuilder();
-        toString(sb, 0);
+        toString(sb, 0, 0);
         return sb.toString();
     }
 
@@ -24,15 +24,15 @@ public abstract class Expression {
 
     public abstract int getPrecedence();
 
-    public abstract void toString(StringBuilder sb);
+    public abstract void toString(StringBuilder sb, int indent);
 
-    public final void toString(StringBuilder sb, int parentPrecedence) {
+    public final void toString(StringBuilder sb, int indent, int parentPrecedence) {
         if (parentPrecedence > getPrecedence()) {
             sb.append('(');
-            toString(sb);
+            toString(sb, indent);
             sb.append(')');
         } else {
-            toString(sb);
+            toString(sb, indent);
         }
     }
 

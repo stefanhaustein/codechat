@@ -74,8 +74,8 @@ public class PropertyAccess extends Expression {
         return Parser.PRECEDENCE_PATH;
     }
 
-    public void toString(StringBuilder sb) {
-        base.toString(sb, Parser.PRECEDENCE_PATH);
+    public void toString(StringBuilder sb, int indent) {
+        base.toString(sb, 0, Parser.PRECEDENCE_PATH);
         sb.append('.');
         sb.append(name);
     }

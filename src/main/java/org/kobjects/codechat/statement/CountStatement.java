@@ -31,7 +31,7 @@ public class CountStatement extends AbstractStatement {
     public void toString(StringBuilder sb, int indent) {
         indent(sb, indent);
         sb.append("count ").append(variable.getName()).append(' ');
-        expression.toString(sb);
+        expression.toString(sb, 0);
         sb.append(" {\n");
 
         body.toString(sb, indent + 1);

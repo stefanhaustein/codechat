@@ -53,6 +53,10 @@ public class DeleteStatement extends AbstractStatement {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append("delete ").append(expr).append(";\n");
+
+        indent(sb, indent);
+        sb.append("delete ");
+        expr.toString(sb, indent);
+        sb.append(";\n");
     }
 }

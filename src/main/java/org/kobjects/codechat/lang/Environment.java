@@ -102,6 +102,8 @@ public class Environment implements Runnable {
 
 
     public void dump(Writer writer) throws IOException {
+        System.gc();
+
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null && !(instance instanceof StatementInstance) &&
@@ -258,6 +260,7 @@ public class Environment implements Runnable {
                             e.eval(getRootContext());
                         }
                     } catch (Exception e) {
+                        System.err.println("Error parsing line: " + line);
                         e.printStackTrace();
                         success = false;
                     }

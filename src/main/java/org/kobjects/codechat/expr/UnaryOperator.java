@@ -50,9 +50,9 @@ public class UnaryOperator extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         sb.append(name);
-        operand.toString(sb, getPrecedence());
+        operand.toString(sb, 0, getPrecedence());
     }
 
     @Override

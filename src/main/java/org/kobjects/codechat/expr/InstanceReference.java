@@ -41,7 +41,7 @@ public class InstanceReference extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         sb.append(type).append('#').append(id);
     }
 

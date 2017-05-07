@@ -18,10 +18,10 @@ public class UnresolvedInvocation extends AbstractUnresolved {
         sb.append(name);
         sb.append(parens ? '(' : ' ');
         if (children.length > 0) {
-            children[0].toString(sb, 0);
+            children[0].toString(sb, 0, 0);
             for (int i = 1; i < children.length; i++) {
                 sb.append(", ");
-                children[i].toString(sb, 0);
+                children[i].toString(sb, 0, 0);
             }
         }
         if (parens) {
@@ -96,7 +96,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         toString(sb, name, parens, children);
     }
 

@@ -34,7 +34,7 @@ public class VariableNode extends AbstractResolved {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         sb.append(variable.getName());
     }
 

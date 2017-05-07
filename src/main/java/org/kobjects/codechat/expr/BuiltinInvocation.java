@@ -51,7 +51,7 @@ public class BuiltinInvocation extends AbstractResolved {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         UnresolvedInvocation.toString(sb, method.getName(), parens, children);
 
     }

@@ -78,13 +78,13 @@ public class BinaryOperator extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         int precedence = getPrecedence();
-        left.toString(sb, precedence);
+        left.toString(sb, 0, precedence);
         sb.append(' ');
         sb.append(name == '$' ? '+' : name);
         sb.append(' ');
-        right.toString(sb, precedence);
+        right.toString(sb, 0, precedence);
     }
 
     @Override

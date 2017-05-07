@@ -30,7 +30,7 @@ public class Literal extends Expression {
 
 
     @Override
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         sb.append(Formatting.toLiteral(value));
     }
 

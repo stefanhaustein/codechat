@@ -33,4 +33,14 @@ public class OnchangeInstance extends Instance implements Property.PropertyListe
         onchangeExpression.body.eval(environment.getRootContext());
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("onchange#").append(id);
+        sb.append(' ').append(onchangeExpression.propertyExpr).append(" {\n");
+        onchangeExpression.body.toString(sb, 1);
+        sb.append("}\n");
+        return sb.toString();
+    }
+
 }

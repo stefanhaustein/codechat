@@ -30,7 +30,7 @@ class ConstructorInvocation extends AbstractResolved {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
+    public void toString(StringBuilder sb, int indent) {
         sb.append("new ").append(type.toString());
     }
 

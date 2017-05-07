@@ -37,9 +37,7 @@ public class OnExpression extends AbstractResolved {
     }
 
     @Override
-    public void toString(StringBuilder sb) {
-        int indent = 1; // FIXME!
-        AbstractStatement.indent(sb, indent);
+    public void toString(StringBuilder sb, int indent) {
         sb.append("on");
         if (id != -1) {
             sb.append('#').append(id);
@@ -47,7 +45,7 @@ public class OnExpression extends AbstractResolved {
         sb.append(' ').append(condition).append(" {\n");
         body.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
-        sb.append("}\n");
+        sb.append("}");
     }
 
     @Override
