@@ -120,10 +120,13 @@ public class Environment implements Runnable {
             }
         }
         for (Variable var : rootScope.variables.values()) {
-            writer.write(var.getName());
-            writer.write(" = ");
-            writer.write(toLiteral(rootContext.variables[var.getIndex()]));
-            writer.write("\n");
+            Object value = rootContext.variables[var.getIndex()];
+            if (value != null) {
+                writer.write(var.getName());
+                writer.write(" = ");
+                writer.write(toLiteral(rootContext.variables[var.getIndex()]));
+                writer.write("\n");
+            }
         }
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
@@ -294,7 +297,7 @@ public class Environment implements Runnable {
             return Type.forJavaClass(OnInstance.class);
         }
         if (name.equals("onchange")) {
-            return Type.forJavaClass(OnchangeExpression.class);
+            return Type.forJavaClass(OnchangeInstance.class);
         }
         if (name.equals("number")) {
             return Type.NUMBER;
