@@ -21,6 +21,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.CountStatement;
+import org.kobjects.codechat.statement.VarStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.IfStatement;
@@ -154,6 +155,14 @@ public class Parser {
         return new IfStatement(condition, body);
     }
 
+    VarStatement parseVar(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
+        String varName = tokenizer.consumeIdentifier();
+        tokenizer.consume("=");
+        Expression init = parseExpression(tokenizer, parsingContext);
+
+        Variable variable = parsingContext.addVariable(varName, init.getType());
+        return new VarStatement(variable, init);
+    }
 
     Statement parseStatement(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
         if (tokenizer.tryConsume("count")) {
@@ -161,6 +170,9 @@ public class Parser {
         }
         if (tokenizer.tryConsume("delete")) {
             return new DeleteStatement(parseExpression(tokenizer, parsingContext), parsingContext);
+        }
+        if (tokenizer.tryConsume("if")) {
+            return parseIf(tokenizer, parsingContext);
         }
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
@@ -170,8 +182,8 @@ public class Parser {
             String name = tokenizer.consumeIdentifier();
             return new ExpressionStatement(parseOnchange(tokenizer, extractId(name)));
         }
-        if (tokenizer.tryConsume("if")) {
-            return parseIf(tokenizer, parsingContext);
+        if (tokenizer.tryConsume("var")) {
+            return parseVar(tokenizer, parsingContext);
         }
 
         Expression unresolved = expressionParser.parse(tokenizer);
@@ -321,6 +333,13 @@ public class Parser {
         public Expression call(ExpressionParser.Tokenizer tokenizer, String identifier, String bracket, List<Expression> arguments) {
             return new UnresolvedInvocation(identifier, true, arguments.toArray(new Expression[arguments.size()]));
         }
+
+        /*
+        @Override
+        public Expression primary(ExpressionParser.Tokenizer tokenizer, String name) {
+
+        }
+        */
     }
 
     /**
@@ -345,6 +364,10 @@ public class Parser {
    //     parser.setImplicitOperatorPrecedence(false, PRECEDENCE_IMPLICIT);
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_RELATIONAL, "<", "<=", ">", ">=", "\u2264", "\u2265");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_EQUALITY, "=", "==", "!=", "\u2260", "\u2261");
+
+        // FIXME
+        // parser.addPrimary("on", "onchange");
+
         return parser;
     }
 

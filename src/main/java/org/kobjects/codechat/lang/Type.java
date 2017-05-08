@@ -1,7 +1,5 @@
 package org.kobjects.codechat.lang;
 
-import org.kobjects.codechat.expr.Expression;
-
 public class Type {
     public static final Type NUMBER = new Type(Double.class);
     public static final Type STRING = new Type(String.class);
@@ -24,7 +22,7 @@ public class Type {
     }
 
 
-    private Type (Class javaClass) {
+    protected Type(Class javaClass) {
         this.javaClass = javaClass;
     }
 
