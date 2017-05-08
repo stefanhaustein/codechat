@@ -59,7 +59,7 @@ public class Parser {
         this.environment = environment;
     }
 
-    Block parseBlock(ExpressionParser.Tokenizer tokenizer, Scope scope, String end) {
+    Block parseBlock(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext, String end) {
         ArrayList<Statement> statements = new ArrayList<>();
         while(true) {
             while(tokenizer.tryConsume(";")) {
@@ -68,36 +68,36 @@ public class Parser {
             if (tokenizer.tryConsume(end)) {
                 break;
             }
-            statements.add(parseStatement(tokenizer, scope));
+            statements.add(parseStatement(tokenizer, parsingContext));
         }
         return new Block(statements.toArray(new Statement[statements.size()]));
     }
 
-    CountStatement parseCount(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+    CountStatement parseCount(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
         String varName = tokenizer.consumeIdentifier();
-        Expression expression = parseExpression(tokenizer, scope);
+        Expression expression = parseExpression(tokenizer, parsingContext);
 
         if (!expression.getType().equals(Type.NUMBER)) {
             throw new RuntimeException("Count expression must be a number.");
         }
 
-        Scope countScope = new Scope(scope);
+        ParsingContext countParsingContext = new ParsingContext(parsingContext);
 
-        Variable counter = countScope.addVariable(varName, Type.NUMBER);
+        Variable counter = countParsingContext.addVariable(varName, Type.NUMBER);
 
         tokenizer.consume("{");
 
-        Block block = parseBlock(tokenizer, countScope, "}");
+        Block block = parseBlock(tokenizer, countParsingContext, "}");
 
         return new CountStatement(counter, expression, block);
     }
 
-    Statement parseBody(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+    Statement parseBody(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
         if (tokenizer.tryConsume(":")) {
-            return parseStatement(tokenizer, scope);
+            return parseStatement(tokenizer, parsingContext);
         }
         if (tokenizer.tryConsume("{")) {
-            return parseBlock(tokenizer, scope, "}");
+            return parseBlock(tokenizer, parsingContext, "}");
         }
         throw new RuntimeException("':' or '{' expected for body.");
     }
@@ -130,37 +130,37 @@ public class Parser {
 
 
     OnExpression parseOn(ExpressionParser.Tokenizer tokenizer, int id) {
-        final Expression condition = parseExpression(tokenizer, environment.rootScope);
+        final Expression condition = parseExpression(tokenizer, environment.rootParsingContext);
 
-        final Statement body = parseBody(tokenizer, environment.rootScope);
+        final Statement body = parseBody(tokenizer, environment.rootParsingContext);
 
         OnExpression result = new OnExpression(id, condition, body);
         return result;
     }
 
     OnchangeExpression parseOnchange(ExpressionParser.Tokenizer tokenizer, int id) {
-        final Expression property = parseExpression(tokenizer, environment.rootScope);
+        final Expression property = parseExpression(tokenizer, environment.rootParsingContext);
 
-        final Statement body = parseBody(tokenizer, environment.rootScope);
+        final Statement body = parseBody(tokenizer, environment.rootParsingContext);
 
         OnchangeExpression result = new OnchangeExpression(id, (PropertyAccess) property, body);
         return result;
     }
 
 
-    IfStatement parseIf(ExpressionParser.Tokenizer tokenizer, Scope scope) {
-        final Expression condition = parseExpression(tokenizer, scope);
-        final Statement body = parseBody(tokenizer, scope);
+    IfStatement parseIf(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
+        final Expression condition = parseExpression(tokenizer, parsingContext);
+        final Statement body = parseBody(tokenizer, parsingContext);
         return new IfStatement(condition, body);
     }
 
 
-    Statement parseStatement(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+    Statement parseStatement(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
         if (tokenizer.tryConsume("count")) {
-            return parseCount(tokenizer, scope);
+            return parseCount(tokenizer, parsingContext);
         }
         if (tokenizer.tryConsume("delete")) {
-            return new DeleteStatement(parseExpression(tokenizer, scope), scope);
+            return new DeleteStatement(parseExpression(tokenizer, parsingContext), parsingContext);
         }
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
@@ -171,18 +171,18 @@ public class Parser {
             return new ExpressionStatement(parseOnchange(tokenizer, extractId(name)));
         }
         if (tokenizer.tryConsume("if")) {
-            return parseIf(tokenizer, scope);
+            return parseIf(tokenizer, parsingContext);
         }
 
         Expression unresolved = expressionParser.parse(tokenizer);
 
         if (unresolved instanceof RelationalOperator && ((RelationalOperator) unresolved).name == '=') {
             RelationalOperator op = (RelationalOperator) unresolved;
-            Expression right = op.right.resolve(scope);
-            if (op.left instanceof Identifier && scope == environment.rootScope) {
-                scope.ensureVariable(((Identifier) op.left).name, right.getType());
+            Expression right = op.right.resolve(parsingContext);
+            if (op.left instanceof Identifier && parsingContext == environment.rootParsingContext) {
+                parsingContext.ensureVariable(((Identifier) op.left).name, right.getType());
             }
-            return new Assignment(op.left.resolve(scope), right);
+            return new Assignment(op.left.resolve(parsingContext), right);
         }
 
         if (unresolved instanceof Identifier) {
@@ -197,19 +197,19 @@ public class Parser {
             }
         }
 
-        Expression resolved = unresolved.resolve(scope);
+        Expression resolved = unresolved.resolve(parsingContext);
         return new ExpressionStatement(resolved);
     }
 
-    Expression parseExpression(ExpressionParser.Tokenizer tokenizer, Scope scope) {
+    Expression parseExpression(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
         Expression unresolved = expressionParser.parse(tokenizer);
-        return unresolved.resolve(scope);
+        return unresolved.resolve(parsingContext);
     }
 
     public Statement parse(String line) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
-        Statement statement = parseStatement(tokenizer, environment.rootScope);
+        Statement statement = parseStatement(tokenizer, environment.rootParsingContext);
         while (tokenizer.tryConsume(";"))
         tokenizer.consume("");
         return statement;

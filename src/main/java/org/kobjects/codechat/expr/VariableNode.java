@@ -1,6 +1,6 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Type;
 import org.kobjects.codechat.lang.Variable;
@@ -14,12 +14,12 @@ public class VariableNode extends AbstractResolved {
 
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         return context.variables[variable.getIndex()];
     }
 
     @Override
-    public void assign(Context context, Object value) {
+    public void assign(EvaluationContext context, Object value) {
         context.variables[variable.getIndex()] = value;
     }
 

@@ -1,7 +1,7 @@
 package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Environment;
 
 public class IfStatement extends AbstractStatement {
@@ -15,7 +15,7 @@ public class IfStatement extends AbstractStatement {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         if (Boolean.TRUE.equals(condition.eval(context))) {
             body.eval(context);
         }

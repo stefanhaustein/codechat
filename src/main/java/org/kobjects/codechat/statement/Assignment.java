@@ -1,7 +1,7 @@
 package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
 
 public class Assignment extends AbstractStatement {
@@ -21,7 +21,7 @@ public class Assignment extends AbstractStatement {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         Object value = right.eval(context);
         left.assign(context, value);
         return value;

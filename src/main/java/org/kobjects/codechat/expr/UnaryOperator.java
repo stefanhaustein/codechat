@@ -1,8 +1,8 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public class UnaryOperator extends Expression {
@@ -16,7 +16,7 @@ public class UnaryOperator extends Expression {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         double value = ((Number) operand.eval(context)).doubleValue();
         switch (name) {
             case '\u221a':
@@ -31,8 +31,8 @@ public class UnaryOperator extends Expression {
     }
 
     @Override
-    public Expression resolve(Scope scope) {
-        operand = operand.resolve(scope);
+    public Expression resolve(ParsingContext parsingContext) {
+        operand = operand.resolve(parsingContext);
         if (!operand.getType().equals(Type.NUMBER)) {
             throw new RuntimeException("Operand must be number.");
         }

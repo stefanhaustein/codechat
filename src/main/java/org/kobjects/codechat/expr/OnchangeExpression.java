@@ -1,6 +1,6 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.OnchangeInstance;
 import org.kobjects.codechat.lang.Type;
 import org.kobjects.codechat.statement.AbstractStatement;
@@ -18,7 +18,7 @@ public class OnchangeExpression extends AbstractResolved {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         OnchangeInstance result = (OnchangeInstance) context.environment.getInstance(
                 Type.forJavaClass(OnchangeInstance.class), id, true);
         result.init(this, context);

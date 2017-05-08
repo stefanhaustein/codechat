@@ -1,14 +1,14 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Context;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public abstract class Expression {
 
-    public abstract Object eval(Context context);
+    public abstract Object eval(EvaluationContext context);
 
-    public void assign(Context context, Object value) {
+    public void assign(EvaluationContext context, Object value) {
         throw new RuntimeException("Assignment not supported for " + this);
     }
 
@@ -18,7 +18,7 @@ public abstract class Expression {
         return sb.toString();
     }
 
-    public abstract Expression resolve(Scope scope);
+    public abstract Expression resolve(ParsingContext parsingContext);
 
     public abstract Type getType();
 

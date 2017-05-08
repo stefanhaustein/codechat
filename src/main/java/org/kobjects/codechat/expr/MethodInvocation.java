@@ -2,7 +2,7 @@ package org.kobjects.codechat.expr;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Type;
 
@@ -21,7 +21,7 @@ public class MethodInvocation extends AbstractResolved {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         Object base = children[0].eval(context);
         Object[] param;
         if (children.length <= 1) {

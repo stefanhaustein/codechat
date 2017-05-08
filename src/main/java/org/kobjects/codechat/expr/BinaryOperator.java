@@ -1,8 +1,8 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public class BinaryOperator extends Expression {
@@ -17,7 +17,7 @@ public class BinaryOperator extends Expression {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         if (name == '$') {
             return (String) left.eval(context) + (String) right.eval(context);
         }
@@ -54,9 +54,9 @@ public class BinaryOperator extends Expression {
     }
 
     @Override
-    public Expression resolve(Scope scope) {
-        left = left.resolve(scope);
-        right = right.resolve(scope);
+    public Expression resolve(ParsingContext parsingContext) {
+        left = left.resolve(parsingContext);
+        right = right.resolve(parsingContext);
         if (!left.getType().equals(right.getType())) {
             throw new RuntimeException("Argument types must match for operator '" + name + "'");
         }

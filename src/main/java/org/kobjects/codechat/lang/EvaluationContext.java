@@ -1,11 +1,11 @@
 package org.kobjects.codechat.lang;
 
 
-public class Context {
+public class EvaluationContext {
     public Environment environment;
     public Object[] variables;
 
-    Context(Environment environment) {
+    EvaluationContext(Environment environment) {
         this.environment = environment;
     }
 }

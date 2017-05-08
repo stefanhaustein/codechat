@@ -3,18 +3,18 @@ package org.kobjects.codechat.lang;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Scope {
+public class ParsingContext {
     public Environment environment;
-    Scope parent;
+    ParsingContext parent;
     public Map<String, Variable> variables = new TreeMap<>();
     int[] nextIndex;
 
-    public Scope(Environment environment) {
+    public ParsingContext(Environment environment) {
         this.environment = environment;
         nextIndex = new int[1];
     }
 
-    public Scope(Scope parent) {
+    public ParsingContext(ParsingContext parent) {
         this(parent.environment);
         this.parent = parent;
         this.nextIndex = parent.nextIndex;

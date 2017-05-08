@@ -19,7 +19,6 @@ import org.kobjects.codechat.api.Builtins;
 import org.kobjects.codechat.api.Screen;
 import org.kobjects.codechat.api.Sprite;
 import org.kobjects.codechat.api.Ticking;
-import org.kobjects.codechat.expr.OnchangeExpression;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.expressionparser.ExpressionParser;
@@ -35,9 +34,9 @@ public class Environment implements Runnable {
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
     public File codeDir;
     public EnvironmentListener environmentListener;
-    Scope rootScope = new Scope(this);
+    ParsingContext rootParsingContext = new ParsingContext(this);
     Parser parser = new Parser(this);
-    private Context rootContext = new Context(this);
+    private EvaluationContext rootContext = new EvaluationContext(this);
     public Screen screen = new Screen();
     public boolean autoSave;
 
@@ -119,7 +118,7 @@ public class Environment implements Runnable {
                 instance.dump(writer);
             }
         }
-        for (Variable var : rootScope.variables.values()) {
+        for (Variable var : rootParsingContext.variables.values()) {
             Object value = rootContext.variables[var.getIndex()];
             if (value != null) {
                 writer.write(var.getName());
@@ -198,7 +197,7 @@ public class Environment implements Runnable {
 
     public void clearAll() {
         ticking.clear();
-        rootScope.variables.clear();
+        rootParsingContext.variables.clear();
         everything.clear();
         lastId = 0;
         for (int i = rootView.getChildCount() - 1; i >= 0; i--) {
@@ -311,8 +310,8 @@ public class Environment implements Runnable {
         return null;
     }
 
-    public Context getRootContext() {
-        int varCount = rootScope.getVarCount();
+    public EvaluationContext getRootContext() {
+        int varCount = rootParsingContext.getVarCount();
         if (varCount > 0) {
             if (rootContext.variables == null) {
                 rootContext.variables = new Object[varCount];

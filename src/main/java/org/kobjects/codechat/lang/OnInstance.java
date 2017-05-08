@@ -16,7 +16,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         super(environment, id);
     }
 
-    public void init(OnExpression onStatement, Context context) {
+    public void init(OnExpression onStatement, EvaluationContext context) {
         detach();
         this.onExpression = onStatement;
         addAll(onStatement.condition, context);
@@ -39,7 +39,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         }
     }
 
-    private void addAll(Expression expr, Context context) {
+    private void addAll(Expression expr, EvaluationContext context) {
         if (expr instanceof PropertyAccess) {
             Property property = ((PropertyAccess) expr).getProperty(context);
             property.addListener(this);

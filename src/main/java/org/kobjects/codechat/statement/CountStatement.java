@@ -1,7 +1,7 @@
 package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Variable;
 
 public class CountStatement extends AbstractStatement {
@@ -16,7 +16,7 @@ public class CountStatement extends AbstractStatement {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         double limit = ((Number) expression.eval(context)).doubleValue();
 
         for (double i = 0; i < limit; i++) {

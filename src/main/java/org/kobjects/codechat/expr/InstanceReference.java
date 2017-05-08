@@ -1,8 +1,8 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public class InstanceReference extends Expression {
@@ -17,13 +17,13 @@ public class InstanceReference extends Expression {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         return context.environment.getInstance(type, id, false);
     }
 
     @Override
-    public Expression resolve(Scope scope) {
-        type = scope.environment.resolveType(typeName);
+    public Expression resolve(ParsingContext parsingContext) {
+        type = parsingContext.environment.resolveType(typeName);
         if (type == null) {
             throw new RuntimeException("Can't resolve type '" + typeName + "'");
         }

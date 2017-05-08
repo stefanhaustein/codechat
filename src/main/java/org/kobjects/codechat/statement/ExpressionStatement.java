@@ -1,7 +1,7 @@
 package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 
 public class ExpressionStatement extends AbstractStatement {
 
@@ -11,7 +11,7 @@ public class ExpressionStatement extends AbstractStatement {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         expression.eval(context);
         return null;
     }

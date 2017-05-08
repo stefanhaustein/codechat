@@ -1,9 +1,9 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public class RelationalOperator extends Expression {
@@ -20,7 +20,7 @@ public class RelationalOperator extends Expression {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         Object l = left.eval(context);
         Object r = right.eval(context);
         switch (name) {
@@ -47,9 +47,9 @@ public class RelationalOperator extends Expression {
     }
 
     @Override
-    public Expression resolve(Scope scope) {
-        left = left.resolve(scope);
-        right = right.resolve(scope);
+    public Expression resolve(ParsingContext parsingContext) {
+        left = left.resolve(parsingContext);
+        right = right.resolve(parsingContext);
         return this;
     }
 

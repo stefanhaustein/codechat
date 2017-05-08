@@ -3,11 +3,11 @@ package org.kobjects.codechat.expr;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.MutableProperty;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public class PropertyAccess extends Expression {
@@ -24,7 +24,7 @@ public class PropertyAccess extends Expression {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         return getProperty(context).get();
     }
 
@@ -33,7 +33,7 @@ public class PropertyAccess extends Expression {
     }
 
 
-    public Property getProperty(Context context) {
+    public Property getProperty(EvaluationContext context) {
         Object baseValue = base.eval(context);
         try {
             return (Property) property.get(baseValue);
@@ -43,14 +43,14 @@ public class PropertyAccess extends Expression {
     }
 
     @Override
-    public void assign(Context context, Object value) {
+    public void assign(EvaluationContext context, Object value) {
         MutableProperty p = (MutableProperty) getProperty(context);
         p.set(value);
     }
 
     @Override
-    public Expression resolve(Scope scope) {
-        base = base.resolve(scope);
+    public Expression resolve(ParsingContext parsingContext) {
+        base = base.resolve(parsingContext);
         Class c = base.getType().getJavaClass();
         try {
             property = c.getField(name);

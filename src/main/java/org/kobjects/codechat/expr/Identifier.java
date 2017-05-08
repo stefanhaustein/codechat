@@ -3,7 +3,7 @@ package org.kobjects.codechat.expr;
 import java.lang.reflect.Method;
 import org.kobjects.codechat.api.Builtins;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Variable;
 
 public class Identifier extends AbstractUnresolved {
@@ -13,8 +13,8 @@ public class Identifier extends AbstractUnresolved {
         this.name = name;
     }
 
-    public Expression resolve(Scope scope) {
-        Variable variable = scope.resolve(name);
+    public Expression resolve(ParsingContext parsingContext) {
+        Variable variable = parsingContext.resolve(name);
         if (variable != null) {
             return new VariableNode(variable);
         }

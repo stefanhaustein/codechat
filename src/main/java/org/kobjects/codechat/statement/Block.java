@@ -1,6 +1,6 @@
 package org.kobjects.codechat.statement;
 
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 
 public class Block extends AbstractStatement {
     Statement[] statements;
@@ -10,7 +10,7 @@ public class Block extends AbstractStatement {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         int count = statements.length;
         for (int i = 0; i < statements.length; i++) {
             statements[i].eval(context);

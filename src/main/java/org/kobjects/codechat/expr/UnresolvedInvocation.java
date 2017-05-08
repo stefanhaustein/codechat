@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.kobjects.codechat.api.Builtins;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public class UnresolvedInvocation extends AbstractUnresolved {
@@ -41,23 +41,23 @@ public class UnresolvedInvocation extends AbstractUnresolved {
     }
 
     @Override
-    public Expression resolve(Scope scope) {
+    public Expression resolve(ParsingContext parsingContext) {
         if (("create".equals(name)  || "new".equals(name)) && children[0] instanceof Identifier) {
             String argName = ((Identifier) children[0]).name;
 
-            Type type = scope.environment.resolveType(argName);
+            Type type = parsingContext.environment.resolveType(argName);
             if (type != null && Instance.class.isAssignableFrom(type.getJavaClass())) {
                 return new ConstructorInvocation(type, -1);
             }
         }
         if ("new".equals(name) && children[0] instanceof InstanceReference) {
-            InstanceReference resolvedRef = (InstanceReference) children[0].resolve(scope);
+            InstanceReference resolvedRef = (InstanceReference) children[0].resolve(parsingContext);
             return new ConstructorInvocation(resolvedRef.type, resolvedRef.id);
         }
 
         Expression[] resolved = new Expression[children.length];
         for (int i = 0; i < resolved.length; i++) {
-            resolved[i] = children[i].resolve(scope);
+            resolved[i] = children[i].resolve(parsingContext);
         }
 
         Type type = resolved[0].getType();

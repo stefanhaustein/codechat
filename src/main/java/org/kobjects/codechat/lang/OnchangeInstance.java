@@ -10,7 +10,7 @@ public class OnchangeInstance extends Instance implements Property.PropertyListe
         super(environment, id);
     }
 
-    public void init(OnchangeExpression onchangeExpression, Context context) {
+    public void init(OnchangeExpression onchangeExpression, EvaluationContext context) {
         detach();
         this.onchangeExpression = onchangeExpression;
         property = onchangeExpression.propertyExpr.getProperty(context);

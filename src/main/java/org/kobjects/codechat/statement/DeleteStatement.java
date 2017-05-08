@@ -3,24 +3,21 @@ package org.kobjects.codechat.statement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.kobjects.codechat.expr.VariableNode;
-import org.kobjects.codechat.lang.Context;
-import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.expr.Identifier;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.Scope;
+import org.kobjects.codechat.lang.ParsingContext;
 
 public class DeleteStatement extends AbstractStatement {
     Expression expr;
-    Scope scope;
+    ParsingContext parsingContext;
 
-    public DeleteStatement(Expression expr, Scope scope) {
+    public DeleteStatement(Expression expr, ParsingContext parsingContext) {
         this.expr = expr;
-        this.scope = scope;
+        this.parsingContext = parsingContext;
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         Object o = expr.eval(context);
         try {
             Method delete = o.getClass().getMethod("delete");
@@ -40,7 +37,7 @@ public class DeleteStatement extends AbstractStatement {
         if (expr instanceof VariableNode) {
             VariableNode varNode = (VariableNode) expr;
             context.variables[varNode.variable.getIndex()] = null;
-            scope.variables.remove(varNode.variable.getName());
+            parsingContext.variables.remove(varNode.variable.getName());
         }
 
 /*

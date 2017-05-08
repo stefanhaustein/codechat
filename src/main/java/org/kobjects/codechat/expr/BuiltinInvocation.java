@@ -2,7 +2,7 @@ package org.kobjects.codechat.expr;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.kobjects.codechat.lang.Context;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Type;
 
 public class BuiltinInvocation extends AbstractResolved {
@@ -21,7 +21,7 @@ public class BuiltinInvocation extends AbstractResolved {
     }
 
     @Override
-    public Object eval(Context context) {
+    public Object eval(EvaluationContext context) {
         Object[] params;
         if (children.length == 0) {
             params = EMPTY_ARRAY;
