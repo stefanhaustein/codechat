@@ -2,14 +2,14 @@ package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Variable;
+import org.kobjects.codechat.lang.LocalVariable;
 
 public class CountStatement extends AbstractStatement {
-    Variable variable;
+    LocalVariable variable;
     Expression expression;
     Block body;
 
-    public CountStatement(Variable counter, Expression expression, Block body) {
+    public CountStatement(LocalVariable counter, Expression expression, Block body) {
         this.variable = counter;
         this.expression = expression;
         this.body = body;
@@ -18,7 +18,6 @@ public class CountStatement extends AbstractStatement {
     @Override
     public Object eval(EvaluationContext context) {
         double limit = ((Number) expression.eval(context)).doubleValue();
-
         for (double i = 0; i < limit; i++) {
             context.variables[variable.getIndex()] = i;
             body.eval(context);

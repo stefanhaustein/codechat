@@ -84,7 +84,7 @@ public class Parser {
 
         ParsingContext countParsingContext = new ParsingContext(parsingContext);
 
-        Variable counter = countParsingContext.addVariable(varName, Type.NUMBER);
+        LocalVariable counter = countParsingContext.addVariable(varName, Type.NUMBER);
 
         tokenizer.consume("{");
 
@@ -131,18 +131,18 @@ public class Parser {
 
 
     OnExpression parseOn(ExpressionParser.Tokenizer tokenizer, int id) {
-        final Expression condition = parseExpression(tokenizer, environment.rootParsingContext);
+        final Expression condition = parseExpression(tokenizer, new ParsingContext(environment));
 
-        final Statement body = parseBody(tokenizer, environment.rootParsingContext);
+        final Statement body = parseBody(tokenizer, new ParsingContext(environment));
 
         OnExpression result = new OnExpression(id, condition, body);
         return result;
     }
 
     OnchangeExpression parseOnchange(ExpressionParser.Tokenizer tokenizer, int id) {
-        final Expression property = parseExpression(tokenizer, environment.rootParsingContext);
+        final Expression property = parseExpression(tokenizer, new ParsingContext(environment));
 
-        final Statement body = parseBody(tokenizer, environment.rootParsingContext);
+        final Statement body = parseBody(tokenizer, new ParsingContext(environment));
 
         OnchangeExpression result = new OnchangeExpression(id, (PropertyAccess) property, body);
         return result;
@@ -160,7 +160,7 @@ public class Parser {
         tokenizer.consume("=");
         Expression init = parseExpression(tokenizer, parsingContext);
 
-        Variable variable = parsingContext.addVariable(varName, init.getType());
+        LocalVariable variable = parsingContext.addVariable(varName, init.getType());
         return new VarStatement(variable, init);
     }
 
@@ -191,8 +191,11 @@ public class Parser {
         if (unresolved instanceof RelationalOperator && ((RelationalOperator) unresolved).name == '=') {
             RelationalOperator op = (RelationalOperator) unresolved;
             Expression right = op.right.resolve(parsingContext);
-            if (op.left instanceof Identifier && parsingContext == environment.rootParsingContext) {
-                parsingContext.ensureVariable(((Identifier) op.left).name, right.getType());
+            if (op.left instanceof Identifier && parsingContext.parent == null) {
+                String name = ((Identifier) op.left).name;
+                if (parsingContext.resolve(name) == null) {
+                    environment.ensureRootVariable(name, right.getType());
+                }
             }
             return new Assignment(op.left.resolve(parsingContext), right);
         }
@@ -218,10 +221,10 @@ public class Parser {
         return unresolved.resolve(parsingContext);
     }
 
-    public Statement parse(String line) {
+    public Statement parse(String line, ParsingContext parsingContext) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
-        Statement statement = parseStatement(tokenizer, environment.rootParsingContext);
+        Statement statement = parseStatement(tokenizer, parsingContext);
         while (tokenizer.tryConsume(";"))
         tokenizer.consume("");
         return statement;

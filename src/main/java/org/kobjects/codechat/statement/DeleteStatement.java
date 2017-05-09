@@ -2,7 +2,7 @@ package org.kobjects.codechat.statement;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.kobjects.codechat.expr.VariableNode;
+import org.kobjects.codechat.expr.LocalVariableNode;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.ParsingContext;
@@ -34,8 +34,8 @@ public class DeleteStatement extends AbstractStatement {
 
         System.err.println("Variable deletion missing here!");
 
-        if (expr instanceof VariableNode) {
-            VariableNode varNode = (VariableNode) expr;
+        if (expr instanceof LocalVariableNode) {
+            LocalVariableNode varNode = (LocalVariableNode) expr;
             context.variables[varNode.variable.getIndex()] = null;
             parsingContext.variables.remove(varNode.variable.getName());
         }

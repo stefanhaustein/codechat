@@ -24,11 +24,11 @@ public class OnInstance extends Instance implements Property.PropertyListener {
 
     @Override
     public void valueChanged(Property property, Object oldValue, Object newValue) {
-        Object conditionValue = onExpression.condition.eval(environment.getRootContext());
+        Object conditionValue = onExpression.condition.eval(new EvaluationContext(environment, 0));
         if (!conditionValue.equals(lastValue)) {
             lastValue = conditionValue;
             if (Boolean.TRUE.equals(conditionValue)) {
-                onExpression.body.eval(environment.getRootContext());
+                onExpression.body.eval(new EvaluationContext(environment, 0));
             }
         }
     }

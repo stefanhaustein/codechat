@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import android.os.Handler;
+import android.support.annotation.RestrictTo;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -32,11 +33,10 @@ public class Environment implements Runnable {
     Handler handler = new Handler();
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
+    public Map<String,RootVariable> rootVariables = new TreeMap<>();
     public File codeDir;
     public EnvironmentListener environmentListener;
-    ParsingContext rootParsingContext = new ParsingContext(this);
     Parser parser = new Parser(this);
-    private EvaluationContext rootContext = new EvaluationContext(this);
     public Screen screen = new Screen();
     public boolean autoSave;
 
@@ -118,12 +118,11 @@ public class Environment implements Runnable {
                 instance.dump(writer);
             }
         }
-        for (Variable var : rootParsingContext.variables.values()) {
-            Object value = rootContext.variables[var.getIndex()];
-            if (value != null) {
-                writer.write(var.getName());
+        for (RootVariable variable : rootVariables.values()) {
+            if (variable.value != null) {
+                writer.write(variable.name);
                 writer.write(" = ");
-                writer.write(toLiteral(rootContext.variables[var.getIndex()]));
+                writer.write(toLiteral(variable.value));
                 writer.write("\n");
             }
         }
@@ -172,8 +171,8 @@ public class Environment implements Runnable {
     }
 
 
-    public Statement parse(String line) {
-        return parser.parse(line);
+    public Statement parse(String line, ParsingContext parsingContext) {
+        return parser.parse(line, parsingContext);
     }
 
 
@@ -197,7 +196,7 @@ public class Environment implements Runnable {
 
     public void clearAll() {
         ticking.clear();
-        rootParsingContext.variables.clear();
+        rootVariables.clear();
         everything.clear();
         lastId = 0;
         for (int i = rootView.getChildCount() - 1; i >= 0; i--) {
@@ -257,9 +256,11 @@ public class Environment implements Runnable {
                     pending.setLength(0);
 
                     try {
-                        Statement e = parse(line);
+                        ParsingContext parsingContext = new ParsingContext(this);
+                        Statement e = parse(line, parsingContext);
                         if (e != null) {
-                            e.eval(getRootContext());
+                            EvaluationContext evaluationContext = parsingContext.createEvaluationContext();
+                            e.eval(evaluationContext);
                         }
                     } catch (Exception e) {
                         System.err.println("Error parsing line: " + line);
@@ -310,6 +311,19 @@ public class Environment implements Runnable {
         return null;
     }
 
+    public void ensureRootVariable(String name, Type type) {
+        RootVariable rootVariable = rootVariables.get(name);
+        if (rootVariable == null) {
+            rootVariable = new RootVariable();
+            rootVariable.name = name;
+            rootVariable.type = type;
+            rootVariables.put(name, rootVariable);
+        } else if (!rootVariable.type.isAssignableFrom(type)) {
+            throw new RuntimeException("Can't assign type " + type + " to variable " + name + " of type " + rootVariable.type);
+        }
+    }
+
+    /*
     public EvaluationContext getRootContext() {
         int varCount = rootParsingContext.getVarCount();
         if (varCount > 0) {
@@ -323,6 +337,7 @@ public class Environment implements Runnable {
         }
         return rootContext;
     }
+    */
 
 
     public interface EnvironmentListener {

@@ -2,13 +2,13 @@ package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Variable;
+import org.kobjects.codechat.lang.LocalVariable;
 
 public class VarStatement extends AbstractStatement {
-    Variable variable;
+    LocalVariable variable;
     Expression initializer;
 
-    public VarStatement(Variable variable, Expression initializer) {
+    public VarStatement(LocalVariable variable, Expression initializer) {
         this.variable = variable;
         this.initializer = initializer;
     }

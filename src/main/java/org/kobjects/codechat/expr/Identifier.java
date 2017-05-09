@@ -4,7 +4,8 @@ import java.lang.reflect.Method;
 import org.kobjects.codechat.api.Builtins;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.Variable;
+import org.kobjects.codechat.lang.LocalVariable;
+import org.kobjects.codechat.lang.RootVariable;
 
 public class Identifier extends AbstractUnresolved {
     public final String name;
@@ -14,9 +15,14 @@ public class Identifier extends AbstractUnresolved {
     }
 
     public Expression resolve(ParsingContext parsingContext) {
-        Variable variable = parsingContext.resolve(name);
+        LocalVariable variable = parsingContext.resolve(name);
         if (variable != null) {
-            return new VariableNode(variable);
+            return new LocalVariableNode(variable);
+        }
+
+        RootVariable rootVariable = parsingContext.environment.rootVariables.get(name);
+        if (rootVariable != null) {
+            return new RootVariableNode(name, rootVariable.type);
         }
 
         try {

@@ -6,7 +6,7 @@ import java.util.TreeMap;
 public class ParsingContext {
     public Environment environment;
     ParsingContext parent;
-    public Map<String, Variable> variables = new TreeMap<>();
+    public Map<String, LocalVariable> variables = new TreeMap<>();
     int[] nextIndex;
 
     public ParsingContext(Environment environment) {
@@ -20,12 +20,12 @@ public class ParsingContext {
         this.nextIndex = parent.nextIndex;
     }
 
-    public Variable resolve(String name) {
+    public LocalVariable resolve(String name) {
         return variables.get(name);
     }
 
     public void ensureVariable(String name, Type type) {
-        Variable existing = variables.get(name);
+        LocalVariable existing = variables.get(name);
         if (existing != null) {
             if (!existing.getType().isAssignableFrom(type)) {
                 throw new RuntimeException("Can't assign " + type + " to variable of type " + existing.getType());
@@ -35,16 +35,20 @@ public class ParsingContext {
         }
     }
 
-    public Variable addVariable(String name, Type type) {
+    public LocalVariable addVariable(String name, Type type) {
         if (variables.containsKey(name)) {
             throw new RuntimeException("Variable '" + name + "' exists already.");
         }
-        Variable variable = new Variable(name, type, nextIndex[0]++);
+        LocalVariable variable = new LocalVariable(name, type, nextIndex[0]++);
         variables.put(name, variable);
         return variable;
     }
 
     public int getVarCount() {
         return nextIndex[0];
+    }
+
+    public EvaluationContext createEvaluationContext() {
+        return new EvaluationContext(environment, getVarCount());
     }
 }

@@ -3,12 +3,12 @@ package org.kobjects.codechat.expr;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Type;
-import org.kobjects.codechat.lang.Variable;
+import org.kobjects.codechat.lang.LocalVariable;
 
-public class VariableNode extends AbstractResolved {
-    public Variable variable;
+public class LocalVariableNode extends AbstractResolved {
+    public LocalVariable variable;
 
-    public VariableNode(Variable variable) {
+    public LocalVariableNode(LocalVariable variable) {
         this.variable = variable;
     }
 

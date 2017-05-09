@@ -31,6 +31,7 @@ import java.io.File;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Formatting;
+import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
@@ -406,14 +407,15 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 spannable.setSpan(new RelativeSizeSpan(0.8f), pending.length(), spannable.length(), 0);
                 printRight(spannable, update);
             } else {
-                Statement statement = environment.parse(pending);
+                ParsingContext parsingContext = new ParsingContext(environment);
+                Statement statement = environment.parse(pending, parsingContext);
 
                 if (statement instanceof ExpressionStatement) {
                     Expression expression = ((ExpressionStatement) statement).expression;
                     String s = expression.toString();
                     printRight(s, update);
                     printed = true;
-                    Object result = expression.eval(environment.getRootContext());
+                    Object result = expression.eval(parsingContext.createEvaluationContext());
                     if (Type.VOID.equals(expression.getType())) {
                         print("ok");
                     } else {
@@ -422,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 } else {
                     printRight(statement.toString(), update);
                     printed = true;
-                    statement.eval(environment.getRootContext());
+                    statement.eval(parsingContext.createEvaluationContext());
                     print("ok");
                 }
                 pending = "";

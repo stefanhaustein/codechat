@@ -30,7 +30,7 @@ public class OnchangeInstance extends Instance implements Property.PropertyListe
 
     @Override
     public void valueChanged(Property property, Object oldValue, Object newValue) {
-        onchangeExpression.body.eval(environment.getRootContext());
+        onchangeExpression.body.eval(new EvaluationContext(environment, 0));
     }
 
     @Override
