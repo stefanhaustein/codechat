@@ -9,10 +9,12 @@ import org.kobjects.codechat.statement.Statement;
 public class OnchangeExpression extends AbstractResolved {
     private final int id;
     public PropertyAccess propertyExpr;
-    public Statement body;
+    public final Statement body;
+    private final int varCount;
 
-    public OnchangeExpression(int id, PropertyAccess property, Statement body) {
+    public OnchangeExpression(int id, PropertyAccess property, Statement body, int varCount) {
         this.id = id;
+        this.varCount = varCount;
         this.propertyExpr = property;
         this.body = body;
     }
@@ -21,7 +23,7 @@ public class OnchangeExpression extends AbstractResolved {
     public Object eval(EvaluationContext context) {
         OnchangeInstance result = (OnchangeInstance) context.environment.getInstance(
                 Type.forJavaClass(OnchangeInstance.class), id, true);
-        result.init(this, context);
+        result.init(this, context, varCount);
         return result;
 
     }

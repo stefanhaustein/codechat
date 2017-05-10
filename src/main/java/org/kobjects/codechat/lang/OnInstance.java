@@ -11,12 +11,13 @@ public class OnInstance extends Instance implements Property.PropertyListener {
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
     private OnExpression onExpression;
+    private int varCount;
 
     public OnInstance(Environment environment, int id) {
         super(environment, id);
     }
 
-    public void init(OnExpression onStatement, EvaluationContext context) {
+    public void init(OnExpression onStatement, EvaluationContext context, int varCount) {
         detach();
         this.onExpression = onStatement;
         addAll(onStatement.condition, context);
@@ -28,7 +29,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         if (!conditionValue.equals(lastValue)) {
             lastValue = conditionValue;
             if (Boolean.TRUE.equals(conditionValue)) {
-                onExpression.body.eval(new EvaluationContext(environment, 0));
+                onExpression.body.eval(new EvaluationContext(environment, varCount));
             }
         }
     }

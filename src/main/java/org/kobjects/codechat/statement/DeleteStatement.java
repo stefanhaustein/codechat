@@ -3,9 +3,11 @@ package org.kobjects.codechat.statement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.kobjects.codechat.expr.LocalVariableNode;
+import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.lang.RootVariable;
 
 public class DeleteStatement extends AbstractStatement {
     Expression expr;
@@ -32,14 +34,10 @@ public class DeleteStatement extends AbstractStatement {
             // ok
         }
 
-        System.err.println("Variable deletion missing here!");
-
-        if (expr instanceof LocalVariableNode) {
-            LocalVariableNode varNode = (LocalVariableNode) expr;
-            context.variables[varNode.variable.getIndex()] = null;
-            parsingContext.variables.remove(varNode.variable.getName());
+        if (expr instanceof RootVariableNode) {
+            RootVariableNode varNode = (RootVariableNode) expr;
+            context.environment.rootVariables.remove(varNode.name);
         }
-
 /*
         if (expr instanceof Identifier) {
             environment.variables.remove(((Identifier) expr).name);

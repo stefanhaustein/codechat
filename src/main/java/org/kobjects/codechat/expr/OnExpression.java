@@ -11,8 +11,9 @@ public class OnExpression extends AbstractResolved {
     public final Statement body;
 
     private final int id;
+    private int varCount;
 
-    public OnExpression(int id, Expression condition, Statement body) {
+    public OnExpression(int id, Expression condition, Statement body, int varCount) {
         this.id = id;
         this.condition = condition;
         this.body = body;
@@ -22,7 +23,7 @@ public class OnExpression extends AbstractResolved {
     public Object eval(EvaluationContext context) {
         OnInstance result = (OnInstance) context.environment.getInstance(
                 Type.forJavaClass(OnInstance.class), id, true);
-        result.init(this, context);
+        result.init(this, context, varCount);
         return result;
     }
 

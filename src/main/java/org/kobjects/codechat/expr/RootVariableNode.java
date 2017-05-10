@@ -5,7 +5,7 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Type;
 
 public class RootVariableNode extends AbstractResolved {
-    private String name;
+    public String name;
     private Type type;
 
     RootVariableNode(String name, Type type) {

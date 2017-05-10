@@ -69,7 +69,7 @@ public class Parser {
             if (tokenizer.tryConsume(end)) {
                 break;
             }
-            statements.add(parseStatement(tokenizer, parsingContext));
+            statements.add(parseStatement(tokenizer, parsingContext, false));
         }
         return new Block(statements.toArray(new Statement[statements.size()]));
     }
@@ -95,7 +95,7 @@ public class Parser {
 
     Statement parseBody(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
         if (tokenizer.tryConsume(":")) {
-            return parseStatement(tokenizer, parsingContext);
+            return parseStatement(tokenizer, parsingContext, false);
         }
         if (tokenizer.tryConsume("{")) {
             return parseBlock(tokenizer, parsingContext, "}");
@@ -130,21 +130,19 @@ public class Parser {
     }
 
 
-    OnExpression parseOn(ExpressionParser.Tokenizer tokenizer, int id) {
-        final Expression condition = parseExpression(tokenizer, new ParsingContext(environment));
-
-        final Statement body = parseBody(tokenizer, new ParsingContext(environment));
-
-        OnExpression result = new OnExpression(id, condition, body);
+    OnExpression parseOn(ExpressionParser.Tokenizer tokenizer, int id, ParsingContext parsingContext) {
+        final Expression condition = parseExpression(tokenizer, parsingContext);
+        ParsingContext bodyParsingContext = new ParsingContext(environment);
+        final Statement body = parseBody(tokenizer, bodyParsingContext);
+        OnExpression result = new OnExpression(id, condition, body, bodyParsingContext.getVarCount());
         return result;
     }
 
-    OnchangeExpression parseOnchange(ExpressionParser.Tokenizer tokenizer, int id) {
-        final Expression property = parseExpression(tokenizer, new ParsingContext(environment));
-
-        final Statement body = parseBody(tokenizer, new ParsingContext(environment));
-
-        OnchangeExpression result = new OnchangeExpression(id, (PropertyAccess) property, body);
+    OnchangeExpression parseOnchange(ExpressionParser.Tokenizer tokenizer, int id, ParsingContext parsingContext) {
+        final Expression property = parseExpression(tokenizer, parsingContext);
+        ParsingContext bodyParsingContext = new ParsingContext(environment);
+        final Statement body = parseBody(tokenizer, bodyParsingContext);
+        OnchangeExpression result = new OnchangeExpression(id, (PropertyAccess) property, body, bodyParsingContext.getVarCount());
         return result;
     }
 
@@ -164,7 +162,7 @@ public class Parser {
         return new VarStatement(variable, init);
     }
 
-    Statement parseStatement(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
+    Statement parseStatement(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext, boolean interactive) {
         if (tokenizer.tryConsume("count")) {
             return parseCount(tokenizer, parsingContext);
         }
@@ -176,11 +174,11 @@ public class Parser {
         }
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOn(tokenizer, extractId(name)));
+            return new ExpressionStatement(parseOn(tokenizer, extractId(name), parsingContext));
         }
         if (tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOnchange(tokenizer, extractId(name)));
+            return new ExpressionStatement(parseOnchange(tokenizer, extractId(name), parsingContext));
         }
         if (tokenizer.tryConsume("var")) {
             return parseVar(tokenizer, parsingContext);
@@ -191,7 +189,7 @@ public class Parser {
         if (unresolved instanceof RelationalOperator && ((RelationalOperator) unresolved).name == '=') {
             RelationalOperator op = (RelationalOperator) unresolved;
             Expression right = op.right.resolve(parsingContext);
-            if (op.left instanceof Identifier && parsingContext.parent == null) {
+            if (op.left instanceof Identifier && parsingContext.parent == null && interactive) {
                 String name = ((Identifier) op.left).name;
                 if (parsingContext.resolve(name) == null) {
                     environment.ensureRootVariable(name, right.getType());
@@ -224,7 +222,7 @@ public class Parser {
     public Statement parse(String line, ParsingContext parsingContext) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
-        Statement statement = parseStatement(tokenizer, parsingContext);
+        Statement statement = parseStatement(tokenizer, parsingContext, true);
         while (tokenizer.tryConsume(";"))
         tokenizer.consume("");
         return statement;
