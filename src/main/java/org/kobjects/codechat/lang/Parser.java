@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.api.Emoji;
+import org.kobjects.codechat.expr.ArrayIndex;
 import org.kobjects.codechat.expr.ArrayLiteral;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.statement.Assignment;
@@ -243,7 +244,7 @@ public class Parser {
 
 
 
-    public static class Processor extends ExpressionParser.Processor<Expression> {
+    public class Processor extends ExpressionParser.Processor<Expression> {
 
         @Override
         public Expression infixOperator(ExpressionParser.Tokenizer tokenizer, String name, Expression left, Expression right) {
@@ -289,7 +290,8 @@ public class Parser {
 */
         @Override
         public Expression prefixOperator(ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
-            return name.equals("new") ? new UnresolvedInvocation("new", false, argument) : new UnaryOperator(name.charAt(0), argument);
+            return // name.equals("new") ? new UnresolvedInvocation("new", false, argument) :
+                    new UnaryOperator(name.charAt(0), argument);
         }
 
         @Override
@@ -335,12 +337,23 @@ public class Parser {
             return new UnresolvedInvocation(identifier, true, arguments.toArray(new Expression[arguments.size()]));
         }
 
-        /*
+        @Override
+        public Expression apply(ExpressionParser.Tokenizer tokenizer, Expression to, String bracket, List<Expression> parameterList) {
+            if (bracket.equals("[")) {
+                return new ArrayIndex(to, parameterList.get(0));
+            }
+            return super.apply(tokenizer, to, bracket, parameterList);
+        }
+
         @Override
         public Expression primary(ExpressionParser.Tokenizer tokenizer, String name) {
-
+            if (name.equals("new")) {
+                Expression expr = expressionParser.parse(tokenizer);
+                return new UnresolvedInvocation("new", false, expr);
+            }
+            return super.primary(tokenizer, name);
         }
-        */
+
     }
 
     /**
@@ -349,12 +362,16 @@ public class Parser {
     ExpressionParser<Expression> createExpressionParser() {
         ExpressionParser<Expression> parser = new ExpressionParser<>(new Processor());
         parser.addCallBrackets("(", ",", ")");
+
+
         parser.addGroupBrackets("(", null, ")");
         parser.addGroupBrackets("[", ",", "]");
 
-        //     parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_HASH, "#");
-        parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
+        // FIXME: Should be parser.
+        // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
+        parser.addPrimary("new");
 
+        parser.addApplyBrackets(PRECEDENCE_PATH, "[", null, "]");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX_RTL, PRECEDENCE_POWER, "^");

@@ -69,6 +69,11 @@ public class ArrayLiteral extends Expression {
 
     @Override
     public int getChildCount() {
-        return 0;
+        return elements.length;
+    }
+
+    @Override
+    public Expression getChild(int index) {
+        return elements[index];
     }
 }
