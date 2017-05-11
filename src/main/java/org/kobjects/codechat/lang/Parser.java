@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.api.Emoji;
+import org.kobjects.codechat.expr.ArrayLiteral;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.statement.Assignment;
 import org.kobjects.codechat.expr.Identifier;
@@ -317,6 +318,9 @@ public class Parser {
 
         @Override
         public Expression group(ExpressionParser.Tokenizer tokenizer, String paren, List<Expression> elements) {
+            if (paren.equals("[")) {
+                return new ArrayLiteral(elements.toArray(new Expression[elements.size()]));
+            }
             return elements.get(0);
         }
 
@@ -325,10 +329,6 @@ public class Parser {
             return new Literal(ExpressionParser.unquote(value));
         }
 
-        @Override
-        public Expression emoji(ExpressionParser.Tokenizer tokenizer, String value) {
-            return new Literal(new Emoji(value));
-        }
 
         @Override
         public Expression call(ExpressionParser.Tokenizer tokenizer, String identifier, String bracket, List<Expression> arguments) {
@@ -350,8 +350,9 @@ public class Parser {
         ExpressionParser<Expression> parser = new ExpressionParser<>(new Processor());
         parser.addCallBrackets("(", ",", ")");
         parser.addGroupBrackets("(", null, ")");
+        parser.addGroupBrackets("[", ",", "]");
 
-   //     parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_HASH, "#");
+        //     parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_HASH, "#");
         parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
