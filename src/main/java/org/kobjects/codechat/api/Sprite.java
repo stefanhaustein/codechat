@@ -143,7 +143,9 @@ public class Sprite extends Instance implements Ticking, Runnable {
         if (parent instanceof ViewGroup) {
             ((ViewGroup) parent).removeView(view);
         }
-        environment.ticking.remove(this);
+        synchronized (environment.ticking) {
+            environment.ticking.remove(this);
+        }
     }
 
 

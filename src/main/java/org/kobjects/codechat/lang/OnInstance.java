@@ -11,25 +11,28 @@ public class OnInstance extends Instance implements Property.PropertyListener {
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
     private OnExpression onExpression;
-    private int varCount;
+    private Object[] contextTemplate;
 
     public OnInstance(Environment environment, int id) {
         super(environment, id);
     }
 
-    public void init(OnExpression onStatement, EvaluationContext context, int varCount) {
+    public void init(OnExpression onStatement, Object[] contextTemplate) {
         detach();
         this.onExpression = onStatement;
-        addAll(onStatement.condition, context);
+        this.contextTemplate = contextTemplate;
+        EvaluationContext evalContext = new EvaluationContext(environment, contextTemplate);
+        addAll(onStatement.condition, evalContext);
     }
 
     @Override
     public void valueChanged(Property property, Object oldValue, Object newValue) {
-        Object conditionValue = onExpression.condition.eval(new EvaluationContext(environment, 0));
+        EvaluationContext evalContext = new EvaluationContext(environment, contextTemplate);
+        Object conditionValue = onExpression.condition.eval(evalContext);
         if (!conditionValue.equals(lastValue)) {
             lastValue = conditionValue;
             if (Boolean.TRUE.equals(conditionValue)) {
-                onExpression.body.eval(new EvaluationContext(environment, varCount));
+                onExpression.body.eval(evalContext);
             }
         }
     }

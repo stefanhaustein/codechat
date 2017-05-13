@@ -84,7 +84,7 @@ public class Parser {
             throw new RuntimeException("Count expression must be a number.");
         }
 
-        ParsingContext countParsingContext = new ParsingContext(parsingContext);
+        ParsingContext countParsingContext = new ParsingContext(parsingContext, false);
 
         LocalVariable counter = countParsingContext.addVariable(varName, Type.NUMBER);
 
@@ -133,18 +133,18 @@ public class Parser {
 
 
     OnExpression parseOn(ExpressionParser.Tokenizer tokenizer, int id, ParsingContext parsingContext) {
-        final Expression condition = parseExpression(tokenizer, parsingContext);
-        ParsingContext bodyParsingContext = new ParsingContext(environment);
-        final Statement body = parseBody(tokenizer, bodyParsingContext);
-        OnExpression result = new OnExpression(id, condition, body, bodyParsingContext.getVarCount());
+        ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
+        final Expression condition = parseExpression(tokenizer, closureParsingContext);
+        final Statement body = parseBody(tokenizer, closureParsingContext);
+        OnExpression result = new OnExpression(id, condition, body, closureParsingContext.getVarCount(), closureParsingContext.getClosureMap());
         return result;
     }
 
     OnchangeExpression parseOnchange(ExpressionParser.Tokenizer tokenizer, int id, ParsingContext parsingContext) {
-        final Expression property = parseExpression(tokenizer, parsingContext);
-        ParsingContext bodyParsingContext = new ParsingContext(environment);
-        final Statement body = parseBody(tokenizer, bodyParsingContext);
-        OnchangeExpression result = new OnchangeExpression(id, (PropertyAccess) property, body, bodyParsingContext.getVarCount());
+        ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
+        final Expression property = parseExpression(tokenizer, closureParsingContext);
+        final Statement body = parseBody(tokenizer, closureParsingContext);
+        OnchangeExpression result = new OnchangeExpression(id, (PropertyAccess) property, body, closureParsingContext.getVarCount(), closureParsingContext.getClosureMap());
         return result;
     }
 

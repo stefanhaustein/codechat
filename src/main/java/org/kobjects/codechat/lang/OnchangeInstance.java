@@ -5,17 +5,18 @@ import org.kobjects.codechat.expr.OnchangeExpression;
 public class OnchangeInstance extends Instance implements Property.PropertyListener {
     private OnchangeExpression onchangeExpression;
     private Property property;
-    private int varCount;
+    private Object[] contextTemplate;
+
 
     public OnchangeInstance(Environment environment, int id) {
         super(environment, id);
     }
 
-    public void init(OnchangeExpression onchangeExpression, EvaluationContext context, int varCount) {
+    public void init(OnchangeExpression onchangeExpression, Object[] contextTemplate) {
         detach();
         this.onchangeExpression = onchangeExpression;
-        this.varCount = varCount;
-        property = onchangeExpression.propertyExpr.getProperty(context);
+        this.contextTemplate = contextTemplate;
+        property = onchangeExpression.propertyExpr.getProperty(new EvaluationContext(environment, contextTemplate));
         property.addListener(this);
     }
 
@@ -32,7 +33,7 @@ public class OnchangeInstance extends Instance implements Property.PropertyListe
 
     @Override
     public void valueChanged(Property property, Object oldValue, Object newValue) {
-        onchangeExpression.body.eval(new EvaluationContext(environment, varCount));
+        onchangeExpression.body.eval(new EvaluationContext(environment, contextTemplate));
     }
 
     @Override

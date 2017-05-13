@@ -64,7 +64,9 @@ public class Environment implements Runnable {
             Instance instance = (Instance) type.getConstructor(Environment.class, Integer.TYPE).newInstance(this, id);
             everything.put(id, new WeakReference<Instance>(instance));
             if (instance instanceof Ticking) {
-                ticking.add((Ticking) instance);
+                synchronized (ticking) {
+                    ticking.add((Ticking) instance);
+                }
             }
             return instance;
         } catch (InstantiationException e) {
@@ -87,7 +89,13 @@ public class Environment implements Runnable {
         boolean force = newScale != scale;
         scale = newScale;
         if (!paused || force) {
-            for (Ticking t : ticking) {
+            List<Ticking> copy = new ArrayList<>();
+            synchronized (ticking) {
+                for (Ticking t : ticking) {
+                    copy.add(t);
+                }
+            }
+            for (Ticking t : copy) {
                 try {
                     t.tick(force);
                 } catch (Exception e) {
@@ -195,7 +203,9 @@ public class Environment implements Runnable {
     }
 
     public void clearAll() {
-        ticking.clear();
+        synchronized (ticking) {
+            ticking.clear();
+        }
         rootVariables.clear();
         everything.clear();
         lastId = 0;

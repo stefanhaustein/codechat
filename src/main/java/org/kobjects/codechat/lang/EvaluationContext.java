@@ -9,4 +9,9 @@ public class EvaluationContext {
         this.environment = environment;
         this.variables = new Object[varCount];
     }
+
+    EvaluationContext(Environment environment, Object[] template) {
+        this(environment, template.length);
+        System.arraycopy(template, 0, variables, 0, template.length);
+    }
 }

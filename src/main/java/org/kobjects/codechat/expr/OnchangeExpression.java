@@ -11,19 +11,25 @@ public class OnchangeExpression extends AbstractResolved {
     public PropertyAccess propertyExpr;
     public final Statement body;
     private final int varCount;
+    private int[] closureMap;
 
-    public OnchangeExpression(int id, PropertyAccess property, Statement body, int varCount) {
+    public OnchangeExpression(int id, PropertyAccess property, Statement body, int varCount, int[] closureMap) {
         this.id = id;
         this.varCount = varCount;
         this.propertyExpr = property;
         this.body = body;
+        this.closureMap = closureMap;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
         OnchangeInstance result = (OnchangeInstance) context.environment.getInstance(
                 Type.forJavaClass(OnchangeInstance.class), id, true);
-        result.init(this, context, varCount);
+        Object[] template = new Object[varCount];
+        for (int i = 0; i < closureMap.length; i+=2) {
+            template[closureMap[i + 1]] = context.variables[closureMap[i]];
+        }
+        result.init(this, template);
         return result;
 
     }

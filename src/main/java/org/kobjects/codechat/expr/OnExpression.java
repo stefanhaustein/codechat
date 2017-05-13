@@ -12,18 +12,25 @@ public class OnExpression extends AbstractResolved {
 
     private final int id;
     private int varCount;
+    private int[] closureMap;
 
-    public OnExpression(int id, Expression condition, Statement body, int varCount) {
+    public OnExpression(int id, Expression condition, Statement body, int varCount, int[] closureMap) {
         this.id = id;
         this.condition = condition;
         this.body = body;
+        this.varCount = varCount;
+        this.closureMap = closureMap;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
         OnInstance result = (OnInstance) context.environment.getInstance(
                 Type.forJavaClass(OnInstance.class), id, true);
-        result.init(this, context, varCount);
+        Object[] template = new Object[varCount];
+        for (int i = 0; i < closureMap.length; i+=2) {
+            template[closureMap[i + 1]] = context.variables[closureMap[i]];
+        }
+        result.init(this, template);
         return result;
     }
 
