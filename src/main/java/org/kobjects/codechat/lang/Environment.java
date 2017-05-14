@@ -303,11 +303,8 @@ public class Environment implements Runnable {
         if (name.equals("sprite")) {
             return Type.forJavaClass(Sprite.class);
         }
-        if (name.equals("on")) {
+        if (name.equals("on") || name.equals("onchange")) {
             return Type.forJavaClass(OnInstance.class);
-        }
-        if (name.equals("onchange")) {
-            return Type.forJavaClass(OnchangeInstance.class);
         }
         if (name.equals("number")) {
             return Type.NUMBER;

@@ -7,16 +7,17 @@ import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 
 public class OnExpression extends AbstractResolved {
-    public final Expression condition;
-    public final Statement body;
-
+    public final boolean onChange;
     private final int id;
-    private int varCount;
-    private int[] closureMap;
+    public final Expression expression;
+    public final Statement body;
+    private final int varCount;
+    private final int[] closureMap;
 
-    public OnExpression(int id, Expression condition, Statement body, int varCount, int[] closureMap) {
+    public OnExpression(boolean onChange, int id, Expression condition, Statement body, int varCount, int[] closureMap) {
+        this.onChange = onChange;
         this.id = id;
-        this.condition = condition;
+        this.expression = condition;
         this.body = body;
         this.varCount = varCount;
         this.closureMap = closureMap;
@@ -46,11 +47,11 @@ public class OnExpression extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append("on");
+        sb.append(onChange ? "onchange" : "on");
         if (id != -1) {
             sb.append('#').append(id);
         }
-        sb.append(' ').append(condition).append(" {\n");
+        sb.append(' ').append(expression).append(" {\n");
         body.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
         sb.append("}");

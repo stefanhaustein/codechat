@@ -27,7 +27,6 @@ import org.kobjects.codechat.statement.VarStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.IfStatement;
-import org.kobjects.codechat.expr.OnchangeExpression;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -132,21 +131,25 @@ public class Parser {
     }
 
 
-    OnExpression parseOn(ExpressionParser.Tokenizer tokenizer, int id, ParsingContext parsingContext) {
+    OnExpression parseOn(boolean onChange, ExpressionParser.Tokenizer tokenizer, int id, ParsingContext parsingContext) {
         ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
-        final Expression condition = parseExpression(tokenizer, closureParsingContext);
+        final Expression expression = parseExpression(tokenizer, closureParsingContext);
+
+        if (onChange) {
+            if (!(expression instanceof PropertyAccess)) {
+                throw new RuntimeException("Expression is not a property: " + expression);
+            }
+        } else {
+            if (!expression.getType().equals(Type.BOOLEAN)) {
+                throw new RuntimeException("Expression must be boolean: " + expression);
+            }
+        }
+
         final Statement body = parseBody(tokenizer, closureParsingContext);
-        OnExpression result = new OnExpression(id, condition, body, closureParsingContext.getVarCount(), closureParsingContext.getClosureMap());
+        OnExpression result = new OnExpression(onChange, id, expression, body, closureParsingContext.getVarCount(), closureParsingContext.getClosureMap());
         return result;
     }
 
-    OnchangeExpression parseOnchange(ExpressionParser.Tokenizer tokenizer, int id, ParsingContext parsingContext) {
-        ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
-        final Expression property = parseExpression(tokenizer, closureParsingContext);
-        final Statement body = parseBody(tokenizer, closureParsingContext);
-        OnchangeExpression result = new OnchangeExpression(id, (PropertyAccess) property, body, closureParsingContext.getVarCount(), closureParsingContext.getClosureMap());
-        return result;
-    }
 
 
     IfStatement parseIf(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
@@ -174,13 +177,10 @@ public class Parser {
         if (tokenizer.tryConsume("if")) {
             return parseIf(tokenizer, parsingContext);
         }
-        if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
+        if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#") ||
+                tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOn(tokenizer, extractId(name), parsingContext));
-        }
-        if (tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
-            String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOnchange(tokenizer, extractId(name), parsingContext));
+            return new ExpressionStatement(parseOn(name.startsWith("onchange"), tokenizer, extractId(name), parsingContext));
         }
         if (tokenizer.tryConsume("var")) {
             return parseVar(tokenizer, parsingContext);

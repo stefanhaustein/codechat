@@ -17,22 +17,26 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         super(environment, id);
     }
 
-    public void init(OnExpression onStatement, Object[] contextTemplate) {
+    public void init(OnExpression onExpression, Object[] contextTemplate) {
         detach();
-        this.onExpression = onStatement;
+        this.onExpression = onExpression;
         this.contextTemplate = contextTemplate;
         EvaluationContext evalContext = new EvaluationContext(environment, contextTemplate);
-        addAll(onStatement.condition, evalContext);
+        addAll(onExpression.expression, evalContext);
     }
 
     @Override
     public void valueChanged(Property property, Object oldValue, Object newValue) {
         EvaluationContext evalContext = new EvaluationContext(environment, contextTemplate);
-        Object conditionValue = onExpression.condition.eval(evalContext);
-        if (!conditionValue.equals(lastValue)) {
-            lastValue = conditionValue;
-            if (Boolean.TRUE.equals(conditionValue)) {
-                onExpression.body.eval(evalContext);
+        if (onExpression.onChange) {
+            onExpression.body.eval(evalContext);
+        } else {
+            Object conditionValue = onExpression.expression.eval(evalContext);
+            if (!conditionValue.equals(lastValue)) {
+                lastValue = conditionValue;
+                if (Boolean.TRUE.equals(conditionValue)) {
+                    onExpression.body.eval(evalContext);
+                }
             }
         }
     }
@@ -61,8 +65,8 @@ public class OnInstance extends Instance implements Property.PropertyListener {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("on#").append(id);
-        sb.append(' ').append(onExpression.condition).append(" {\n");
+        sb.append(onExpression.onChange ? "onchange#" : "on#").append(id);
+        sb.append(' ').append(onExpression.expression).append(" {\n");
         onExpression.body.toString(sb, 1);
         sb.append("}\n");
         return sb.toString();
