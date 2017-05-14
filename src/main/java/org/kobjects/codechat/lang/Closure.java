@@ -23,6 +23,10 @@ public class Closure {
         return result;
     }
 
+    public int getMappingCount() {
+        return mappings.size();
+    }
+
     public int getVarCount() {
         return varCount;
     }

@@ -65,8 +65,8 @@ public class PropertyAccess extends Expression {
 
     @Override
     public Type getType() {
-        Class propertyType = (Class) ((ParameterizedType) property.getGenericType()).getActualTypeArguments()[0];
-        return Type.forJavaClass(propertyType);
+        java.lang.reflect.Type propertyType = ((ParameterizedType) property.getGenericType()).getActualTypeArguments()[0];
+        return Type.forJavaType(propertyType);
     }
 
     @Override

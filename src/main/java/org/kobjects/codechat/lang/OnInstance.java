@@ -66,7 +66,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        boolean wrap = onExpression.closure.getVarCount() != 0;
+        boolean wrap = onExpression.closure.getMappingCount() != 0;
 
         if (wrap) {
             sb.append("{\n");

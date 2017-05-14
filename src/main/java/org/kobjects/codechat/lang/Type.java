@@ -1,5 +1,9 @@
 package org.kobjects.codechat.lang;
 
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
+import java.util.List;
+
 public class Type {
     public static final Type NUMBER = new Type(Double.class);
     public static final Type STRING = new Type(String.class);
@@ -8,17 +12,31 @@ public class Type {
 
     private final Class javaClass;
 
-    public static Type forJavaClass(Class<?> javaClass) {
-        if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
-            return BOOLEAN;
+    public static Type forJavaType(java.lang.reflect.Type javaType) {
+        if (javaType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) javaType;
+            Class rawType = (Class) parameterizedType.getRawType();
+            if (List.class.isAssignableFrom(rawType)) {
+                return new ArrayType(forJavaType(parameterizedType.getActualTypeArguments()[0]));
+            }
+            javaType = rawType;
         }
-        if (javaClass == Double.class || javaClass == Double.TYPE) {
-            return NUMBER;
+
+        if (javaType instanceof Class) {
+            Class javaClass = (Class) javaType;
+            if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
+                return BOOLEAN;
+            }
+            if (javaClass == Double.class || javaClass == Double.TYPE) {
+                return NUMBER;
+            }
+            if (javaClass == Void.class || javaClass == Void.TYPE) {
+                return VOID;
+            }
+            return new Type(javaClass);
         }
-        if (javaClass == Void.class || javaClass == Void.TYPE) {
-            return VOID;
-        }
-        return new Type(javaClass);
+
+        throw new RuntimeException("Unrecognized Java type: " + javaType);
     }
 
 

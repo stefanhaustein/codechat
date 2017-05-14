@@ -185,6 +185,11 @@ public class Parser {
         if (tokenizer.tryConsume("var")) {
             return parseVar(tokenizer, parsingContext);
         }
+        if (tokenizer.tryConsume("{")) {
+            ParsingContext blockContext = new ParsingContext(parsingContext, false);
+            return parseBlock(tokenizer, blockContext, "}");
+        }
+
 
         Expression unresolved = expressionParser.parse(tokenizer);
 

@@ -27,7 +27,7 @@ public class ArrayLiteral extends Expression {
     public Expression resolve(ParsingContext parsingContext) {
         Type elementType;
         if (elements.length == 0) {
-            elementType = Type.forJavaClass(Object.class);
+            elementType = Type.forJavaType(Object.class);
         } else {
             elements[0] = elements[0].resolve(parsingContext);
             elementType = elements[0].getType();

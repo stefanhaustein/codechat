@@ -1,7 +1,6 @@
 package org.kobjects.codechat.lang;
 
 import android.os.Handler;
-import android.support.annotation.RestrictTo;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -301,10 +300,10 @@ public class Environment implements Runnable {
 
     public Type resolveType(String name) {
         if (name.equals("sprite")) {
-            return Type.forJavaClass(Sprite.class);
+            return Type.forJavaType(Sprite.class);
         }
         if (name.equals("on") || name.equals("onchange")) {
-            return Type.forJavaClass(OnInstance.class);
+            return Type.forJavaType(OnInstance.class);
         }
         if (name.equals("number")) {
             return Type.NUMBER;

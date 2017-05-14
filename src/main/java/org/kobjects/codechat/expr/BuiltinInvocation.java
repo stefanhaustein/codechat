@@ -14,7 +14,7 @@ public class BuiltinInvocation extends AbstractResolved {
     Type type;
 
     public BuiltinInvocation(Method method, boolean parens, Expression... children) {
-        this.type = Type.forJavaClass(method.getReturnType());
+        this.type = Type.forJavaType(method.getGenericReturnType());
         this.method = method;
         this.parens = parens;
         this.children = children;

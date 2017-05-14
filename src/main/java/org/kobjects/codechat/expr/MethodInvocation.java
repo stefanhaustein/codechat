@@ -16,7 +16,7 @@ public class MethodInvocation extends AbstractResolved {
 
     MethodInvocation(Method method, boolean parens, Expression[] children) {
         this.method = method;
-        this.type = Type.forJavaClass(method.getReturnType());
+        this.type = Type.forJavaType(method.getGenericReturnType());
         this.children = children;
     }
 

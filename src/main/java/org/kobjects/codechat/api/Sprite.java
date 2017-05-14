@@ -6,18 +6,43 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.kobjects.codechat.lang.*;
 
 public class Sprite extends Instance implements Ticking, Runnable {
 
     private final ImageView view;
     private boolean syncRequested;
+    private static List<Sprite> allVisibleSprites = new ArrayList();
 
     public VisualProperty<Double> size = new VisualProperty<>(100.0);
     public VisualProperty<Double> x = new VisualProperty<>(0.0);
     public VisualProperty<Double> y = new VisualProperty<>(0.0);
     public VisualProperty<Double> rotation = new VisualProperty<>(0.0);
     public VisualProperty<Emoji> face = new VisualProperty<>(new Emoji(new String(Character.toChars(0x1f603))));
+    public LazyProperty<List<Sprite>> collisions = new LazyProperty<List<Sprite>>() {
+        @Override
+        protected List<Sprite> compute() {
+            ArrayList<Sprite> result = new ArrayList<>();
+            double x = Sprite.this.x.get();
+            double y = Sprite.this.y.get();
+            double size = Sprite.this.size.get();
+            synchronized (allVisibleSprites) {
+                for (Sprite other : allVisibleSprites) {
+                    if (other != Sprite.this) {
+                        double distX = other.x.get() - x;
+                        double distY = other.y.get() - y;
+                        double minDist = (other.size.get() + size) / 2;
+                        if (distX * distX + distY * distY < minDist * minDist) {
+                            result.add(other);
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+    };
 
     public MutableProperty<Double> dx = new MutableProperty<>(0.0);
     public MutableProperty<Double> dy = new MutableProperty<>(0.0);
@@ -58,6 +83,9 @@ public class Sprite extends Instance implements Ticking, Runnable {
             }
         });
         environment.rootView.addView(view);
+        synchronized (allVisibleSprites) {
+            allVisibleSprites.add(this);
+        }
         syncView();
     }
 
@@ -101,6 +129,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public void tick(boolean force) {
         double dxValue = dx.get();
         double dyValue = dy.get();
+        collisions.invalidate();
         if (force || dxValue != 0 || dyValue != 0) {
             Screen screen = environment.screen;
             double xValue = x.get();
@@ -145,6 +174,9 @@ public class Sprite extends Instance implements Ticking, Runnable {
         }
         synchronized (environment.ticking) {
             environment.ticking.remove(this);
+        }
+        synchronized (allVisibleSprites) {
+            allVisibleSprites.remove(this);
         }
     }
 
