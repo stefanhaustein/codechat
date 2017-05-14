@@ -13,7 +13,7 @@ public class ParsingContext {
     /**
      * Set at closure boundaries. Interleaved: original index, local index.
      */
-    ArrayList<Integer> closureMap;
+    Closure closure;
 
 
     public ParsingContext(Environment environment) {
@@ -25,7 +25,7 @@ public class ParsingContext {
         this(parent.environment);
         this.parent = parent;
         if (closureBoundary) {
-            this.closureMap = new ArrayList<>();
+            this.closure = new Closure();
             this.nextIndex = new int[1];
         } else {
             this.nextIndex = parent.nextIndex;
@@ -41,10 +41,10 @@ public class ParsingContext {
             return null;
         }
         result = parent.resolve(name);
-        if (closureMap != null && result != null) {
-            closureMap.add(result.getIndex());
+        if (closure != null && result != null) {
+            int originalIndex = result.getIndex();
             result = addVariable(name, result.getType());
-            closureMap.add(result.getIndex());
+            closure.addMapping(name, originalIndex, result.getIndex());
         }
         return result;
     }
@@ -62,15 +62,15 @@ public class ParsingContext {
         return nextIndex[0];
     }
 
-    public int[] getClosureMap() {
-        int[] result = new int[closureMap.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = closureMap.get(i);
-        }
-        return result;
+    public Closure getClosure() {
+        closure.setVarCount(getVarCount());
+        return closure;
     }
 
     public EvaluationContext createEvaluationContext() {
+        if (parent != null) {
+            throw new RuntimeException("Can create evaluationContext only for root parsing context");
+        }
         return new EvaluationContext(environment, getVarCount());
     }
 }

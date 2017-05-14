@@ -10,8 +10,11 @@ public class EvaluationContext {
         this.variables = new Object[varCount];
     }
 
-    EvaluationContext(Environment environment, Object[] template) {
-        this(environment, template.length);
-        System.arraycopy(template, 0, variables, 0, template.length);
+
+    public EvaluationContext clone() {
+        EvaluationContext result = new EvaluationContext(environment, variables.length);
+        System.arraycopy(variables, 0, result.variables, 0, variables.length);
+        return result;
     }
+
 }

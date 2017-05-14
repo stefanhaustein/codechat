@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.lang.Type;
@@ -11,26 +12,21 @@ public class OnExpression extends AbstractResolved {
     private final int id;
     public final Expression expression;
     public final Statement body;
-    private final int varCount;
-    private final int[] closureMap;
+    private final Closure closure;
 
-    public OnExpression(boolean onChange, int id, Expression condition, Statement body, int varCount, int[] closureMap) {
+    public OnExpression(boolean onChange, int id, Expression condition, Statement body, Closure closure) {
         this.onChange = onChange;
         this.id = id;
         this.expression = condition;
         this.body = body;
-        this.varCount = varCount;
-        this.closureMap = closureMap;
+        this.closure = closure;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
         OnInstance result = (OnInstance) context.environment.getInstance(
                 Type.forJavaClass(OnInstance.class), id, true);
-        Object[] template = new Object[varCount];
-        for (int i = 0; i < closureMap.length; i+=2) {
-            template[closureMap[i + 1]] = context.variables[closureMap[i]];
-        }
+        EvaluationContext template = closure.createEvalContext(context);
         result.init(this, template);
         return result;
     }

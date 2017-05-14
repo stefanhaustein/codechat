@@ -146,7 +146,7 @@ public class Parser {
         }
 
         final Statement body = parseBody(tokenizer, closureParsingContext);
-        OnExpression result = new OnExpression(onChange, id, expression, body, closureParsingContext.getVarCount(), closureParsingContext.getClosureMap());
+        OnExpression result = new OnExpression(onChange, id, expression, body, closureParsingContext.getClosure());
         return result;
     }
 
