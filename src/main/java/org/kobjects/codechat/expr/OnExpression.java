@@ -12,7 +12,7 @@ public class OnExpression extends AbstractResolved {
     private final int id;
     public final Expression expression;
     public final Statement body;
-    private final Closure closure;
+    public final Closure closure;
 
     public OnExpression(boolean onChange, int id, Expression condition, Statement body, Closure closure) {
         this.onChange = onChange;

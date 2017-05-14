@@ -23,6 +23,14 @@ public class Closure {
         return result;
     }
 
+    public int getVarCount() {
+        return varCount;
+    }
+
+    public Iterable<Mapping> getMappings() {
+        return mappings;
+    }
+
 
     public static class Mapping {
         final String name;
