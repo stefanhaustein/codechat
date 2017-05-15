@@ -375,8 +375,13 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         }
     }
 
-    public void print(String s) {
-        chatView.add(false, s);
+    public void print(final String s) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                chatView.add(false, s);
+            }
+        });
     }
 
     void processInput(String line) {

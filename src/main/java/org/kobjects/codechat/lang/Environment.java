@@ -24,7 +24,7 @@ import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment implements Runnable {
-    public Builtins builtins = new Builtins(this);
+    public Builtins builtins;
     public double scale;
     public FrameLayout rootView;
     public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
@@ -43,6 +43,7 @@ public class Environment implements Runnable {
         this.environmentListener = environmentListener;
         this.rootView = rootView;
         this.codeDir = codeDir;
+        this.builtins = new Builtins(this);
 
         System.out.println("ROOT DIR: " + codeDir.getAbsolutePath().toString());
 

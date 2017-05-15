@@ -1,16 +1,16 @@
 package org.kobjects.codechat.api;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
 
 public class Builtins {
     Environment environment;
+    Sensor sensor;
 
     public Builtins(Environment environment) {
         this.environment = environment;
+        this.sensor = new Sensor(environment.rootView.getContext());
     }
 
     public void list() {
@@ -68,6 +68,10 @@ public class Builtins {
 
     public Screen screen() {
         return environment.screen;
+    }
+
+    public Sensor sensor() {
+        return sensor;
     }
 
     public double round(double d) {
