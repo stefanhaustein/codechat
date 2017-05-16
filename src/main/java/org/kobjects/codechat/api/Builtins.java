@@ -6,11 +6,11 @@ import org.kobjects.codechat.lang.Environment;
 
 public class Builtins {
     Environment environment;
-    Sensor sensor;
+    Sensors sensors;
 
     public Builtins(Environment environment) {
         this.environment = environment;
-        this.sensor = new Sensor(environment.rootView.getContext());
+        this.sensors = new Sensors(environment.rootView.getContext());
     }
 
     public void list() {
@@ -70,8 +70,8 @@ public class Builtins {
         return environment.screen;
     }
 
-    public Sensor sensor() {
-        return sensor;
+    public Sensors sensors() {
+        return sensors;
     }
 
     public double round(double d) {
