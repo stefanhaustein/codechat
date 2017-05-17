@@ -1,9 +1,6 @@
 package org.kobjects.codechat.lang;
 
 import android.os.Handler;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,11 +20,10 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.expressionparser.ExpressionParser;
 
-public class Environment implements Runnable {
+public class Environment {
     public Builtins builtins;
     public double scale;
-    public FrameLayout rootView;
-    public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
+
     public boolean paused;
     Handler handler = new Handler();
     int lastId;
@@ -39,16 +35,14 @@ public class Environment implements Runnable {
     public Screen screen = new Screen();
     public boolean autoSave;
 
-    public Environment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
+    public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
-        this.rootView = rootView;
         this.codeDir = codeDir;
         this.builtins = new Builtins(this);
 
         System.out.println("ROOT DIR: " + codeDir.getAbsolutePath().toString());
 
         clearAll();
-        handler.postDelayed(this, 100);
     }
 
     public Instance instantiate(Class type, int id) {
@@ -63,11 +57,6 @@ public class Environment implements Runnable {
             }
             Instance instance = (Instance) type.getConstructor(Environment.class, Integer.TYPE).newInstance(this, id);
             everything.put(id, new WeakReference<Instance>(instance));
-            if (instance instanceof Ticking) {
-                synchronized (ticking) {
-                    ticking.add((Ticking) instance);
-                }
-            }
             return instance;
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
@@ -79,34 +68,6 @@ public class Environment implements Runnable {
             throw new RuntimeException(e.getCause());
         }
     }
-
-    @Override
-    public void run() {
-        int width = rootView.getWidth();
-        int height = rootView.getHeight();
-        screen.update(width, height);
-        float newScale = Math.min(rootView.getWidth(), rootView.getHeight()) / 1000f;
-        boolean force = newScale != scale;
-        scale = newScale;
-        if (!paused || force) {
-            List<Ticking> copy = new ArrayList<>();
-            synchronized (ticking) {
-                for (Ticking t : ticking) {
-                    copy.add(t);
-                }
-            }
-            for (Ticking t : copy) {
-                try {
-                    t.tick(force);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            screen.frame.set(screen.frame.get() + 1);
-        }
-        handler.postDelayed(this, 17);
-    }
-
 
     public void dump(Writer writer) throws IOException {
         System.gc();
@@ -203,18 +164,9 @@ public class Environment implements Runnable {
     }
 
     public void clearAll() {
-        synchronized (ticking) {
-            ticking.clear();
-        }
         rootVariables.clear();
         everything.clear();
         lastId = 0;
-        for (int i = rootView.getChildCount() - 1; i >= 0; i--) {
-            View child = rootView.getChildAt(i);
-            if (child instanceof ImageView) {
-                rootView.removeViewAt(i);
-            }
-        }
     }
 
     public void save(String fileName) {

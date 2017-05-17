@@ -29,6 +29,7 @@ import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.File;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.lang.AndroidEnvironment;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.ParsingContext;
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
         chatView = new ChatView(this);
 
-        environment = new Environment(this, contentLayout, codeDir);
+        environment = new AndroidEnvironment(this, contentLayout, codeDir);
 
         inputRow = new LinearLayout(this);
 

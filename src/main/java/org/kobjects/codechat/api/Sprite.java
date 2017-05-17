@@ -15,6 +15,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
     private final ImageView view;
     private boolean syncRequested;
     private static List<Sprite> allVisibleSprites = new ArrayList();
+    AndroidEnvironment environment;
 
     public VisualProperty<Double> size = new VisualProperty<>(100.0);
     public VisualProperty<Double> x = new VisualProperty<>(0.0);
@@ -65,7 +66,8 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
     public Sprite(Environment environment, int id) {
         super(environment, id);
-        view = new ImageView(environment.rootView.getContext());
+        this.environment = (AndroidEnvironment) environment;
+        view = new ImageView(this.environment.rootView.getContext());
         view.setAdjustViewBounds(true);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
         view.setOnTouchListener(new View.OnTouchListener() {
@@ -82,7 +84,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
                 return false;
             }
         });
-        environment.rootView.addView(view);
+        this.environment.rootView.addView(view);
         synchronized (allVisibleSprites) {
             allVisibleSprites.add(this);
         }
