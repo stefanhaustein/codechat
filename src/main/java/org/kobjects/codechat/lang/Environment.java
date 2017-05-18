@@ -1,6 +1,5 @@
 package org.kobjects.codechat.lang;
 
-import android.os.Handler;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,11 +10,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import org.kobjects.codechat.api.Builtins;
-import org.kobjects.codechat.api.Screen;
-import org.kobjects.codechat.api.Sprite;
-import org.kobjects.codechat.api.Ticking;
+import java.util.Map;
+import java.util.TreeMap;
+import org.kobjects.codechat.android.Sprite;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.expressionparser.ExpressionParser;
@@ -25,15 +22,15 @@ public class Environment {
     public double scale;
 
     public boolean paused;
-    Handler handler = new Handler();
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
     public Map<String,RootVariable> rootVariables = new TreeMap<>();
     public File codeDir;
     public EnvironmentListener environmentListener;
     Parser parser = new Parser(this);
-    public Screen screen = new Screen();
     public boolean autoSave;
+    /** Copied to rootVariables on clearAll */
+    public Map<String,RootVariable> systemVariables = new TreeMap<>();
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
@@ -41,8 +38,16 @@ public class Environment {
         this.builtins = new Builtins(this);
 
         System.out.println("ROOT DIR: " + codeDir.getAbsolutePath().toString());
+    }
 
-        clearAll();
+    public void addSystemVariable(String name, Object value) {
+        RootVariable var = new RootVariable();
+        var.name = name;
+        var.type = Type.forJavaType(value.getClass());
+        var.value = value;
+
+        systemVariables.put(name, var);
+        rootVariables.put(name, var);
     }
 
     public Instance instantiate(Class type, int id) {
@@ -88,7 +93,7 @@ public class Environment {
             }
         }
         for (RootVariable variable : rootVariables.values()) {
-            if (variable.value != null) {
+            if (variable.value != null && !systemVariables.containsKey(variable.name)) {
                 writer.write(variable.name);
                 writer.write(" = ");
                 writer.write(toLiteral(variable.value));
@@ -165,6 +170,7 @@ public class Environment {
 
     public void clearAll() {
         rootVariables.clear();
+        rootVariables.putAll(systemVariables);
         everything.clear();
         lastId = 0;
     }
@@ -281,23 +287,6 @@ public class Environment {
             throw new RuntimeException("Can't assign type " + type + " to variable " + name + " of type " + rootVariable.type);
         }
     }
-
-    /*
-    public EvaluationContext getRootContext() {
-        int varCount = rootParsingContext.getVarCount();
-        if (varCount > 0) {
-            if (rootContext.variables == null) {
-                rootContext.variables = new Object[varCount];
-            } else if (varCount > rootContext.variables.length) {
-                Object[] newVars = new Object[varCount];
-                System.arraycopy(rootContext.variables, 0, newVars, 0, rootContext.variables.length);
-                rootContext.variables = newVars;
-            }
-        }
-        return rootContext;
-    }
-    */
-
 
     public interface EnvironmentListener {
         void paused(boolean paused);

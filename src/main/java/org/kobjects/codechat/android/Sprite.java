@@ -1,4 +1,4 @@
-package org.kobjects.codechat.api;
+package org.kobjects.codechat.android;
 
 import android.view.MotionEvent;
 import android.view.View;

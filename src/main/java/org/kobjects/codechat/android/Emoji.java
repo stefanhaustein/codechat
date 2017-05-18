@@ -1,4 +1,4 @@
-package org.kobjects.codechat.api;
+package org.kobjects.codechat.android;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

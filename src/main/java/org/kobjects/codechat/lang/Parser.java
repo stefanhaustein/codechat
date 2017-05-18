@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import org.kobjects.codechat.api.Emoji;
+import org.kobjects.codechat.android.Emoji;
 import org.kobjects.codechat.expr.ArrayIndex;
 import org.kobjects.codechat.expr.ArrayLiteral;
 import org.kobjects.codechat.expr.OnExpression;

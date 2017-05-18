@@ -1,9 +1,9 @@
-package org.kobjects.codechat.api;
+package org.kobjects.codechat.lang;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.kobjects.codechat.lang.AndroidEnvironment;
+import org.kobjects.codechat.android.Screen;
 import org.kobjects.codechat.lang.Environment;
 
 public class Builtins {
@@ -68,9 +68,6 @@ public class Builtins {
         environment.pause(false);
     }
 
-    public Screen screen() {
-        return environment.screen;
-    }
 
   /*  public Sensors sensors() {
         return sensors;

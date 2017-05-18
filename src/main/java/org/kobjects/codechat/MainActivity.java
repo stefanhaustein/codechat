@@ -1,6 +1,5 @@
 package org.kobjects.codechat;
 
-import android.app.ActionBar;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Point;
@@ -29,7 +28,7 @@ import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.File;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.AndroidEnvironment;
+import org.kobjects.codechat.android.AndroidEnvironment;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.ParsingContext;
@@ -39,7 +38,6 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.ui.ChatView;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
-import static android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener, PopupMenu.OnMenuItemClickListener {
