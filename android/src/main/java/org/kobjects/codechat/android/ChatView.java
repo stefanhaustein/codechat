@@ -1,4 +1,4 @@
-package org.kobjects.codechat.ui;
+package org.kobjects.codechat.android;
 
 import android.content.Context;
 import android.graphics.Canvas;

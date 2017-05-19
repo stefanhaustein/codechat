@@ -1,4 +1,4 @@
-package org.kobjects.codechat;
+package org.kobjects.codechat.android;
 
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -14,7 +14,13 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
-import android.view.*;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -28,14 +34,12 @@ import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.File;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.android.AndroidEnvironment;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.codechat.ui.ChatView;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;

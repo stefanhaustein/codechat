@@ -21,30 +21,3 @@ allprojects {
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
-
-apply plugin: 'com.android.application'
-
-android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
-
-    defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-    }
-}
-
-repositories {
-    jcenter()
-}
-
-dependencies {
-    // compile fileTree(include: ['*.jar'], dir: 'libs')
-    //testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.vanniktech:emoji-one:0.4.0'
-    compile "com.github.stefanhaustein.expressionparser:core:master-SNAPSHOT"
-
-}

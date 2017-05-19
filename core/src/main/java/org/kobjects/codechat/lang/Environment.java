@@ -12,7 +12,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.TreeMap;
-import org.kobjects.codechat.android.Sprite;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.expressionparser.ExpressionParser;
@@ -38,6 +37,14 @@ public class Environment {
         this.builtins = new Builtins(this);
 
         System.out.println("ROOT DIR: " + codeDir.getAbsolutePath().toString());
+
+        addType(Type.BOOLEAN, Type.NUMBER, Type.STRING);
+    }
+
+    public void addType(Type... types) {
+        for (Type type : types) {
+            addSystemVariable(type.toString(), type);
+        }
     }
 
     public void addSystemVariable(String name, Object value) {
@@ -258,22 +265,14 @@ public class Environment {
     }
 
     public Type resolveType(String name) {
-        if (name.equals("sprite")) {
-            return Type.forJavaType(Sprite.class);
-        }
         if (name.equals("on") || name.equals("onchange")) {
             return Type.forJavaType(OnInstance.class);
         }
-        if (name.equals("number")) {
-            return Type.NUMBER;
+        RootVariable var = rootVariables.get(name);
+        if (var.type != Type.META_TYPE) {
+            throw new RuntimeException("Not a type: " + name);
         }
-        if (name.equals("boolean")) {
-            return Type.BOOLEAN;
-        }
-        if (name.equals("string")) {
-            return Type.STRING;
-        }
-        return null;
+        return (Type) var.value;
     }
 
     public void ensureRootVariable(String name, Type type) {

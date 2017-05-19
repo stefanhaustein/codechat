@@ -3,9 +3,6 @@ package org.kobjects.codechat.lang;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.kobjects.codechat.android.Screen;
-import org.kobjects.codechat.lang.Environment;
-
 public class Builtins {
     Environment environment;
    // Sensors sensors;

@@ -21,7 +21,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public VisualProperty<Double> x = new VisualProperty<>(0.0);
     public VisualProperty<Double> y = new VisualProperty<>(0.0);
     public VisualProperty<Double> rotation = new VisualProperty<>(0.0);
-    public VisualProperty<Emoji> face = new VisualProperty<>(new Emoji(new String(Character.toChars(0x1f603))));
+    public VisualProperty<String> face = new VisualProperty<>(new String(Character.toChars(0x1f603)));
     public LazyProperty<List<Sprite>> collisions = new LazyProperty<List<Sprite>>() {
         @Override
         protected List<Sprite> compute() {
@@ -62,7 +62,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
         }
     };
 
-    private Emoji lastFace;
+    private String lastFace;
 
     public Sprite(Environment environment, int id) {
         super(environment, id);
@@ -118,7 +118,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
         }
         if (face.get() != lastFace) {
             lastFace = face.get();
-            view.setImageDrawable(lastFace.getDrawable(view.getContext()));
+            view.setImageDrawable(new Emoji(lastFace).getDrawable(view.getContext()));
         }
     }
 

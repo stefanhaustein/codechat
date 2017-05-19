@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import org.kobjects.codechat.android.Emoji;
 import org.kobjects.codechat.expr.ArrayIndex;
 import org.kobjects.codechat.expr.ArrayLiteral;
 import org.kobjects.codechat.expr.OnExpression;
@@ -308,7 +307,7 @@ public class Parser {
         public Expression identifier(ExpressionParser.Tokenizer tokenizer, String name) {
 
             if (EMOJI_PATTERN.matcher(name).matches()) {
-                return new Literal(new Emoji(name));
+                return new Literal(name);
             }
 
             if (name.equals("true")) {

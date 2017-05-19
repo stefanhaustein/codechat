@@ -13,6 +13,7 @@ import java.util.List;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.RootVariable;
+import org.kobjects.codechat.lang.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
     public FrameLayout rootView;
@@ -27,6 +28,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
         addSystemVariable("screen", screen);
         addSystemVariable("sensors", new Sensors(rootView.getContext()));
+        addType(Type.forJavaType(Sprite.class));
     }
 
     @Override

@@ -9,6 +9,7 @@ public class Type {
     public static final Type STRING = new Type(String.class);
     public static final Type BOOLEAN = new Type(Boolean.class);
     public static final Type VOID = new Type(Void.TYPE);
+    public static final Type META_TYPE = new Type(Type.class);
 
     private final Class javaClass;
 
@@ -24,6 +25,9 @@ public class Type {
 
         if (javaType instanceof Class) {
             Class javaClass = (Class) javaType;
+            if (javaClass == Type.class) {
+                return META_TYPE;
+            }
             if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
                 return BOOLEAN;
             }

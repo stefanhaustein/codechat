@@ -1,2 +1,3 @@
 rootProject.name = 'codechat'
 
+include ':core', ':android'
