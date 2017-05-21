@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.expr.ArrayIndex;
 import org.kobjects.codechat.expr.ArrayLiteral;
+import org.kobjects.codechat.expr.FunctionExpr;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.statement.Assignment;
 import org.kobjects.codechat.expr.Identifier;
@@ -22,6 +23,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.CountStatement;
+import org.kobjects.codechat.statement.ReturnStatement;
 import org.kobjects.codechat.statement.VarStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
 import org.kobjects.codechat.statement.ExpressionStatement;
@@ -54,13 +56,13 @@ public class Parser {
     }
 
     private final Environment environment;
-    private final ExpressionParser<Expression> expressionParser = createExpressionParser();
+    private final ExpressionParser<Expression, ParsingContext> expressionParser = createExpressionParser();
 
     Parser(Environment environment) {
         this.environment = environment;
     }
 
-    Block parseBlock(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext, String end) {
+    Block parseBlock(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String end) {
         ArrayList<Statement> statements = new ArrayList<>();
         while(true) {
             while(tokenizer.tryConsume(";")) {
@@ -69,14 +71,14 @@ public class Parser {
             if (tokenizer.tryConsume(end)) {
                 break;
             }
-            statements.add(parseStatement(tokenizer, parsingContext, false));
+            statements.add(parseStatement(parsingContext, tokenizer, false));
         }
         return new Block(statements.toArray(new Statement[statements.size()]));
     }
 
-    CountStatement parseCount(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
+    CountStatement parseCount(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         String varName = tokenizer.consumeIdentifier();
-        Expression expression = parseExpression(tokenizer, parsingContext);
+        Expression expression = parseExpression(parsingContext, tokenizer);
 
         if (!expression.getType().equals(Type.NUMBER)) {
             throw new RuntimeException("Count expression must be a number.");
@@ -88,17 +90,17 @@ public class Parser {
 
         tokenizer.consume("{");
 
-        Block block = parseBlock(tokenizer, countParsingContext, "}");
+        Block block = parseBlock(countParsingContext, tokenizer, "}");
 
         return new CountStatement(counter, expression, block);
     }
 
-    Statement parseBody(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
+    Statement parseBody(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         if (tokenizer.tryConsume(":")) {
-            return parseStatement(tokenizer, parsingContext, false);
+            return parseStatement(parsingContext, tokenizer, false);
         }
         if (tokenizer.tryConsume("{")) {
-            return parseBlock(tokenizer, parsingContext, "}");
+            return parseBlock(parsingContext, tokenizer, "}");
         }
         throw new RuntimeException("':' or '{' expected for body.");
     }
@@ -129,10 +131,33 @@ public class Parser {
         return environment.instantiate(type.getJavaClass(), instanceId);
     }
 
+    FunctionExpr parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+        tokenizer.consume("(");
+        ParsingContext bodyContext = new ParsingContext(parsingContext, true);
+        FunctionExpr result = new FunctionExpr();
+        if (!tokenizer.tryConsume(")")) {
+            do {
+                String paramName = tokenizer.consumeIdentifier();
+                tokenizer.consume(":");
+                String typeName = tokenizer.consumeIdentifier();
+                Type type = parsingContext.environment.resolveType(typeName);
+                bodyContext.addVariable(paramName, type);
+                result.addParam(paramName, type);
+            } while (tokenizer.tryConsume(","));
+            tokenizer.consume(")");
+        }
+        tokenizer.consume(":");
+        // TODO: parseType();
+        String returnTypeName = tokenizer.consumeIdentifier();
+        Type returnType = environment.resolveType(returnTypeName);
+        Statement body = parseBody(bodyContext, tokenizer);
+        result.init(returnType, bodyContext.getClosure(), body);
+        return result;
+    }
 
-    OnExpression parseOn(boolean onChange, ExpressionParser.Tokenizer tokenizer, int id, ParsingContext parsingContext) {
+    OnExpression parseOn(ParsingContext parsingContext, boolean onChange, ExpressionParser.Tokenizer tokenizer, int id) {
         ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
-        final Expression expression = parseExpression(tokenizer, closureParsingContext);
+        final Expression expression = parseExpression(closureParsingContext, tokenizer);
 
         if (onChange) {
             if (!(expression instanceof PropertyAccess)) {
@@ -144,53 +169,53 @@ public class Parser {
             }
         }
 
-        final Statement body = parseBody(tokenizer, closureParsingContext);
+        final Statement body = parseBody(closureParsingContext, tokenizer);
         OnExpression result = new OnExpression(onChange, id, expression, body, closureParsingContext.getClosure());
         return result;
     }
 
-
-
-    IfStatement parseIf(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
-        final Expression condition = parseExpression(tokenizer, parsingContext);
-        final Statement body = parseBody(tokenizer, parsingContext);
+    IfStatement parseIf(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+        final Expression condition = parseExpression(parsingContext, tokenizer);
+        final Statement body = parseBody(parsingContext, tokenizer);
         return new IfStatement(condition, body);
     }
 
-    VarStatement parseVar(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
+    VarStatement parseVar(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         String varName = tokenizer.consumeIdentifier();
         tokenizer.consume("=");
-        Expression init = parseExpression(tokenizer, parsingContext);
+        Expression init = parseExpression(parsingContext, tokenizer);
 
         LocalVariable variable = parsingContext.addVariable(varName, init.getType());
         return new VarStatement(variable, init);
     }
 
-    Statement parseStatement(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext, boolean interactive) {
+    Statement parseStatement(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean interactive) {
         if (tokenizer.tryConsume("count")) {
-            return parseCount(tokenizer, parsingContext);
+            return parseCount(parsingContext, tokenizer);
         }
         if (tokenizer.tryConsume("delete")) {
-            return new DeleteStatement(parseExpression(tokenizer, parsingContext), parsingContext);
+            return new DeleteStatement(parseExpression(parsingContext, tokenizer), parsingContext);
         }
         if (tokenizer.tryConsume("if")) {
-            return parseIf(tokenizer, parsingContext);
+            return parseIf(parsingContext, tokenizer);
         }
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#") ||
                 tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOn(name.startsWith("onchange"), tokenizer, extractId(name), parsingContext));
+            return new ExpressionStatement(parseOn(parsingContext, name.startsWith("onchange"), tokenizer, extractId(name)));
         }
         if (tokenizer.tryConsume("var")) {
-            return parseVar(tokenizer, parsingContext);
+            return parseVar(parsingContext, tokenizer);
+        }
+        if (tokenizer.tryConsume("return")) {
+            return new ReturnStatement(parseExpression(parsingContext, tokenizer));
         }
         if (tokenizer.tryConsume("{")) {
             ParsingContext blockContext = new ParsingContext(parsingContext, false);
-            return parseBlock(tokenizer, blockContext, "}");
+            return parseBlock(blockContext, tokenizer, "}");
         }
 
-
-        Expression unresolved = expressionParser.parse(tokenizer);
+        Expression unresolved = expressionParser.parse(parsingContext, tokenizer);
 
         if (unresolved instanceof RelationalOperator && ((RelationalOperator) unresolved).name == '=') {
             RelationalOperator op = (RelationalOperator) unresolved;
@@ -207,7 +232,7 @@ public class Parser {
         if (unresolved instanceof Identifier) {
             ArrayList<Expression> params = new ArrayList<>();
             while (!tokenizer.currentValue.equals("") && !tokenizer.currentValue.equals(";")) {
-                Expression param = expressionParser.parse(tokenizer);
+                Expression param = expressionParser.parse(parsingContext, tokenizer);
                 params.add(param);
                 tokenizer.tryConsume(",");
             }
@@ -220,15 +245,15 @@ public class Parser {
         return new ExpressionStatement(resolved);
     }
 
-    Expression parseExpression(ExpressionParser.Tokenizer tokenizer, ParsingContext parsingContext) {
-        Expression unresolved = expressionParser.parse(tokenizer);
+    Expression parseExpression(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+        Expression unresolved = expressionParser.parse(parsingContext, tokenizer);
         return unresolved.resolve(parsingContext);
     }
 
-    public Statement parse(String line, ParsingContext parsingContext) {
+    public Statement parse(ParsingContext parsingContext, String line) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
-        Statement statement = parseStatement(tokenizer, parsingContext, true);
+        Statement statement = parseStatement(parsingContext, tokenizer, true);
         while (tokenizer.tryConsume(";"))
         tokenizer.consume("");
         return statement;
@@ -248,10 +273,10 @@ public class Parser {
 
 
 
-    public class Processor extends ExpressionParser.Processor<Expression> {
+    public class Processor extends ExpressionParser.Processor<Expression, ParsingContext> {
 
         @Override
-        public Expression infixOperator(ExpressionParser.Tokenizer tokenizer, String name, Expression left, Expression right) {
+        public Expression infixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, Expression left, Expression right) {
             switch (name) {
                 case ".":
                 case "'s":
@@ -293,18 +318,18 @@ public class Parser {
         }
 */
         @Override
-        public Expression prefixOperator(ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
+        public Expression prefixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
             return // name.equals("new") ? new UnresolvedInvocation("new", false, argument) :
                     new UnaryOperator(name.charAt(0), argument);
         }
 
         @Override
-        public Expression numberLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
+        public Expression numberLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
             return new Literal(Double.parseDouble(value));
         }
 
         @Override
-        public Expression identifier(ExpressionParser.Tokenizer tokenizer, String name) {
+        public Expression identifier(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
 
             if (EMOJI_PATTERN.matcher(name).matches()) {
                 return new Literal(name);
@@ -323,7 +348,7 @@ public class Parser {
         }
 
         @Override
-        public Expression group(ExpressionParser.Tokenizer tokenizer, String paren, List<Expression> elements) {
+        public Expression group(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String paren, List<Expression> elements) {
             if (paren.equals("[")) {
                 return new ArrayLiteral(elements.toArray(new Expression[elements.size()]));
             }
@@ -331,31 +356,36 @@ public class Parser {
         }
 
         @Override
-        public Expression stringLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
+        public Expression stringLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
             return new Literal(ExpressionParser.unquote(value));
         }
 
 
         @Override
-        public Expression call(ExpressionParser.Tokenizer tokenizer, String identifier, String bracket, List<Expression> arguments) {
+        public Expression call(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String identifier, String bracket, List<Expression> arguments) {
             return new UnresolvedInvocation(identifier, true, arguments.toArray(new Expression[arguments.size()]));
         }
 
         @Override
-        public Expression apply(ExpressionParser.Tokenizer tokenizer, Expression to, String bracket, List<Expression> parameterList) {
+        public Expression apply(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, Expression to, String bracket, List<Expression> parameterList) {
             if (bracket.equals("[")) {
                 return new ArrayIndex(to, parameterList.get(0));
             }
-            return super.apply(tokenizer, to, bracket, parameterList);
+            return super.apply(parsingContext, tokenizer, to, bracket, parameterList);
         }
 
         @Override
-        public Expression primary(ExpressionParser.Tokenizer tokenizer, String name) {
-            if (name.equals("new")) {
-                Expression expr = expressionParser.parse(tokenizer);
-                return new UnresolvedInvocation("new", false, expr);
+        public Expression primary(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
+            switch (name) {
+                case "new": {
+                    Expression expr = expressionParser.parse(parsingContext, tokenizer);
+                    return new UnresolvedInvocation("new", false, expr);
+                }
+                case "function":
+                    return parseFunction(parsingContext, tokenizer);
+                default:
+                    return super.primary(parsingContext, tokenizer, name);
             }
-            return super.primary(tokenizer, name);
         }
 
     }
@@ -363,17 +393,16 @@ public class Parser {
     /**
      * Creates a parser for this processor with matching operations and precedences set up.
      */
-    ExpressionParser<Expression> createExpressionParser() {
-        ExpressionParser<Expression> parser = new ExpressionParser<>(new Processor());
+    ExpressionParser<Expression, ParsingContext> createExpressionParser() {
+        ExpressionParser<Expression, ParsingContext> parser = new ExpressionParser<>(new Processor());
         parser.addCallBrackets("(", ",", ")");
-
 
         parser.addGroupBrackets("(", null, ")");
         parser.addGroupBrackets("[", ",", "]");
 
         // FIXME: Should be parser.
         // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
-        parser.addPrimary("new");
+        parser.addPrimary("new", "function");
 
         parser.addApplyBrackets(PRECEDENCE_PATH, "[", null, "]");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
@@ -393,5 +422,4 @@ public class Parser {
 
         return parser;
     }
-
 }

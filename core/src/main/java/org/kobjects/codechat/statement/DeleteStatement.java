@@ -43,7 +43,7 @@ public class DeleteStatement extends AbstractStatement {
             environment.variables.remove(((Identifier) expr).name);
         }
         */
-        return null;
+        return KEEP_GOING;
     }
 
     @Override

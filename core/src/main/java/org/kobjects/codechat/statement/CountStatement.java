@@ -23,7 +23,7 @@ public class CountStatement extends AbstractStatement {
             body.eval(context);
         }
 
-        return null;
+        return KEEP_GOING;
     }
 
     @Override

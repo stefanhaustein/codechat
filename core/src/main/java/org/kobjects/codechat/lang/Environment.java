@@ -152,8 +152,8 @@ public class Environment {
     }
 
 
-    public Statement parse(String line, ParsingContext parsingContext) {
-        return parser.parse(line, parsingContext);
+    public Statement parse(ParsingContext parsingContext, String line) {
+        return parser.parse(parsingContext, line);
     }
 
 
@@ -232,7 +232,7 @@ public class Environment {
 
                     try {
                         ParsingContext parsingContext = new ParsingContext(this);
-                        Statement e = parse(line, parsingContext);
+                        Statement e = parse(parsingContext, line);
                         if (e != null) {
                             EvaluationContext evaluationContext = parsingContext.createEvaluationContext();
                             e.eval(evaluationContext);

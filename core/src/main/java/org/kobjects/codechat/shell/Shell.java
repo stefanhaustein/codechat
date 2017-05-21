@@ -39,7 +39,7 @@ public class Shell implements Environment.EnvironmentListener {
         ParsingContext parsingContext = new ParsingContext(environment);
         boolean printed = false;
         try {
-            Statement statement = environment.parse(line, parsingContext);
+            Statement statement = environment.parse(parsingContext, line);
 
             if (statement instanceof ExpressionStatement) {
                 Expression expression = ((ExpressionStatement) statement).expression;

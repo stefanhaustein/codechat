@@ -13,9 +13,12 @@ public class Block extends AbstractStatement {
     public Object eval(EvaluationContext context) {
         int count = statements.length;
         for (int i = 0; i < statements.length; i++) {
-            statements[i].eval(context);
+            Object result = statements[i].eval(context);
+            if (result != KEEP_GOING) {
+                return result;
+            }
         }
-        return null;
+        return KEEP_GOING;
     }
 
     @Override

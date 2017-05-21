@@ -2,6 +2,8 @@ package org.kobjects.codechat.statement;
 
 public abstract class AbstractStatement implements Statement {
 
+    final static Object KEEP_GOING = new Object();
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         toString(sb, 0);

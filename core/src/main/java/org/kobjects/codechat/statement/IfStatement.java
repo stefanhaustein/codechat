@@ -19,7 +19,7 @@ public class IfStatement extends AbstractStatement {
         if (Boolean.TRUE.equals(condition.eval(context))) {
             body.eval(context);
         }
-        return null;
+        return KEEP_GOING;
     }
 
     @Override

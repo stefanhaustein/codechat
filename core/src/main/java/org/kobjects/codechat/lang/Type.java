@@ -77,6 +77,6 @@ public class Type {
             return false;
         }
         Type t2 = (Type) other;
-        return javaClass.equals(t2.getJavaClass());
+        return isAssignableFrom(t2) && t2.isAssignableFrom(this);
     }
 }

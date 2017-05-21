@@ -24,7 +24,7 @@ public class Assignment extends AbstractStatement {
     public Object eval(EvaluationContext context) {
         Object value = right.eval(context);
         left.assign(context, value);
-        return value;
+        return KEEP_GOING;
     }
 
     @Override
