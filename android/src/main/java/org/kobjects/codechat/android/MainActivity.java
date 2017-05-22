@@ -416,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 printRight(spannable, update);
             } else {
                 ParsingContext parsingContext = new ParsingContext(environment);
-                Statement statement = environment.parse(pending, parsingContext);
+                Statement statement = environment.parse(parsingContext, pending);
 
                 if (statement instanceof ExpressionStatement) {
                     Expression expression = ((ExpressionStatement) statement).expression;
