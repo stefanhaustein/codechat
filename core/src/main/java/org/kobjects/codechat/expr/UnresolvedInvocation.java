@@ -14,8 +14,8 @@ public class UnresolvedInvocation extends AbstractUnresolved {
         return  parens ? Parser.PRECEDENCE_PATH : Parser.PRECEDENCE_IMPLICIT;
     }
 
-    static void toString(StringBuilder sb, String name, boolean parens, Expression[] children) {
-        sb.append(name);
+    static void toString(StringBuilder sb, Expression base, boolean parens, Expression[] children) {
+        base.toString(sb, 0);
         sb.append(parens ? '(' : ' ');
         if (children.length > 0) {
             children[0].toString(sb, 0, 0);
@@ -30,18 +30,21 @@ public class UnresolvedInvocation extends AbstractUnresolved {
     }
 
 
-    public String name;
+    public Expression base;
     public Expression[] children;
     public boolean parens;
 
-    public UnresolvedInvocation(String name, boolean parens, Expression... children) {
-        this.name = name;
+    public UnresolvedInvocation(Expression base, boolean parens, Expression... children) {
+        this.base = base;
         this.parens = parens;
         this.children = children;
     }
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
+
+        String name = ((Identifier) base).name;
+
         if (("create".equals(name)  || "new".equals(name)) && children[0] instanceof Identifier) {
             String argName = ((Identifier) children[0]).name;
 
@@ -97,7 +100,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        toString(sb, name, parens, children);
+        toString(sb, base, parens, children);
     }
 
     @Override

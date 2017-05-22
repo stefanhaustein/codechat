@@ -237,7 +237,7 @@ public class Parser {
                 tokenizer.tryConsume(",");
             }
             if (params.size() > 0) {
-                unresolved = new UnresolvedInvocation(((Identifier) unresolved).name, false, params.toArray(new Expression[params.size()]));
+                unresolved = new UnresolvedInvocation(unresolved, false, params.toArray(new Expression[params.size()]));
             }
         }
 
@@ -360,14 +360,11 @@ public class Parser {
             return new Literal(ExpressionParser.unquote(value));
         }
 
-
-        @Override
-        public Expression call(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String identifier, String bracket, List<Expression> arguments) {
-            return new UnresolvedInvocation(identifier, true, arguments.toArray(new Expression[arguments.size()]));
-        }
-
         @Override
         public Expression apply(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, Expression to, String bracket, List<Expression> parameterList) {
+            if (bracket.equals("(")) {
+                return new UnresolvedInvocation(to, true, parameterList.toArray(new Expression[parameterList.size()]));
+            }
             if (bracket.equals("[")) {
                 return new ArrayIndex(to, parameterList.get(0));
             }
@@ -379,7 +376,7 @@ public class Parser {
             switch (name) {
                 case "new": {
                     Expression expr = expressionParser.parse(parsingContext, tokenizer);
-                    return new UnresolvedInvocation("new", false, expr);
+                    return new UnresolvedInvocation(new Identifier("new"), false, expr);
                 }
                 case "function":
                     return parseFunction(parsingContext, tokenizer);
@@ -395,7 +392,7 @@ public class Parser {
      */
     ExpressionParser<Expression, ParsingContext> createExpressionParser() {
         ExpressionParser<Expression, ParsingContext> parser = new ExpressionParser<>(new Processor());
-        parser.addCallBrackets("(", ",", ")");
+
 
         parser.addGroupBrackets("(", null, ")");
         parser.addGroupBrackets("[", ",", "]");
@@ -403,7 +400,7 @@ public class Parser {
         // FIXME: Should be parser.
         // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
         parser.addPrimary("new", "function");
-
+        parser.addApplyBrackets(PRECEDENCE_PATH, "(", ",", ")");
         parser.addApplyBrackets(PRECEDENCE_PATH, "[", null, "]");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
 

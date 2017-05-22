@@ -53,7 +53,7 @@ public class MethodInvocation extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        UnresolvedInvocation.toString(sb, method.getName(), parens, children);
+        UnresolvedInvocation.toString(sb, new Identifier(method.getName()), parens, children);
     }
 
     @Override
