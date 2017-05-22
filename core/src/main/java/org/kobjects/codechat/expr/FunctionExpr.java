@@ -14,12 +14,12 @@ public class FunctionExpr extends Expression {
 
     ArrayList<Param> params = new ArrayList<>();
     private Closure closure;
-    private Statement body;
+    public Statement body;
     private FunctionType type;
 
     @Override
     public Object eval(EvaluationContext context) {
-        return new Function(this);
+        return new Function(this, closure.createEvalContext(context));
     }
 
     @Override

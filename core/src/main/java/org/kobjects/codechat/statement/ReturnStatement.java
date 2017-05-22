@@ -12,8 +12,7 @@ public class ReturnStatement extends AbstractStatement {
 
     @Override
     public Object eval(EvaluationContext context) {
-        expression.eval(context);
-        return null;
+        return expression.eval(context);
     }
 
     @Override

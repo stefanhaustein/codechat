@@ -3,8 +3,8 @@ package org.kobjects.codechat.lang;
 
 public class FunctionType extends Type {
 
-    public Type returnType;
-    Type[] parameterTypes;
+    public final Type returnType;
+    public final Type[] parameterTypes;
 
     public FunctionType(Type returnType, Type... parameterTypes) {
         super(Function.class);
