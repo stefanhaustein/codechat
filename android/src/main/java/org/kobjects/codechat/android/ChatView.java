@@ -67,7 +67,7 @@ public class ChatView extends ListView {
 
     public void add(boolean right, CharSequence s) {
         this.right.set(text.size(), right);
-        text.add(s);
+        text.add(s == null ? "" : s);
         chatAdapter.notifyDataSetChanged();
     }
 

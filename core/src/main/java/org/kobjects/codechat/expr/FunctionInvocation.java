@@ -2,6 +2,7 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Function;
+import org.kobjects.codechat.lang.FunctionType;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
@@ -27,7 +28,7 @@ public class FunctionInvocation extends AbstractResolved {
 
     @Override
     public Type getType() {
-        return null;
+        return ((FunctionType) base.getType()).returnType;
     }
 
     @Override
@@ -37,11 +38,25 @@ public class FunctionInvocation extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-
+        base.toString(sb, indent);
+        sb.append("(");
+        if (parameters.length > 0) {
+            parameters[0].toString(sb, indent);
+            for (int i = 1; i < parameters.length; i++) {
+                sb.append(", ");
+                parameters[i].toString(sb, indent);
+            }
+        }
+        sb.append(")");
     }
 
     @Override
     public int getChildCount() {
-        return 0;
+        return parameters.length;
+    }
+
+    @Override
+    public Expression getChild(int index) {
+        return parameters[index];
     }
 }

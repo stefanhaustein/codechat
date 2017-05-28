@@ -18,4 +18,8 @@ public class Function {
     public Object eval(EvaluationContext functionContext) {
         return definition.body.eval(functionContext);
     }
+
+    public String toString() {
+        return  definition.toString();
+    }
 }

@@ -101,10 +101,14 @@ public class Environment {
         }
         for (RootVariable variable : rootVariables.values()) {
             if (variable.value != null && !systemVariables.containsKey(variable.name)) {
-                writer.write(variable.name);
-                writer.write(" = ");
-                writer.write(toLiteral(variable.value));
-                writer.write("\n");
+                if (variable.value instanceof Function && ((Function) variable.value).definition.name != null) {
+                    writer.write(toLiteral(variable.value));
+                } else {
+                    writer.write(variable.name);
+                    writer.write(" = ");
+                    writer.write(toLiteral(variable.value));
+                    writer.write("\n");
+                }
             }
         }
         for (WeakReference<Instance> reference : everything.values()) {

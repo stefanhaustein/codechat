@@ -131,10 +131,10 @@ public class Parser {
         return environment.instantiate(type.getJavaClass(), instanceId);
     }
 
-    FunctionExpr parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+    FunctionExpr parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
         tokenizer.consume("(");
         ParsingContext bodyContext = new ParsingContext(parsingContext, true);
-        FunctionExpr result = new FunctionExpr();
+        FunctionExpr result = new FunctionExpr(name);
         if (!tokenizer.tryConsume(")")) {
             do {
                 String paramName = tokenizer.consumeIdentifier();
@@ -195,6 +195,11 @@ public class Parser {
         }
         if (tokenizer.tryConsume("delete")) {
             return new DeleteStatement(parseExpression(parsingContext, tokenizer), parsingContext);
+        }
+        if (tokenizer.tryConsume("function")) {
+            String name = tokenizer.consumeIdentifier();
+            FunctionExpr functionExpr = parseFunction(parsingContext, tokenizer, name);
+            return new ExpressionStatement(functionExpr);
         }
         if (tokenizer.tryConsume("if")) {
             return parseIf(parsingContext, tokenizer);
@@ -379,7 +384,7 @@ public class Parser {
                     return new UnresolvedInvocation(new Identifier("new"), false, expr);
                 }
                 case "function":
-                    return parseFunction(parsingContext, tokenizer);
+                    return parseFunction(parsingContext, tokenizer, null);
                 default:
                     return super.primary(parsingContext, tokenizer, name);
             }
