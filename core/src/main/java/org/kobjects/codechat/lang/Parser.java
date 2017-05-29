@@ -131,6 +131,12 @@ public class Parser {
         return environment.instantiate(type.getJavaClass(), instanceId);
     }
 
+    Type parseType(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+        String typeName = tokenizer.consumeIdentifier();
+        Type type = parsingContext.environment.resolveType(typeName);
+        return type;
+    }
+
     FunctionExpr parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
         tokenizer.consume("(");
         ParsingContext bodyContext = new ParsingContext(parsingContext, true);
@@ -139,17 +145,14 @@ public class Parser {
             do {
                 String paramName = tokenizer.consumeIdentifier();
                 tokenizer.consume(":");
-                String typeName = tokenizer.consumeIdentifier();
-                Type type = parsingContext.environment.resolveType(typeName);
+                Type type = parseType(parsingContext, tokenizer);
                 bodyContext.addVariable(paramName, type);
                 result.addParam(paramName, type);
             } while (tokenizer.tryConsume(","));
             tokenizer.consume(")");
         }
         tokenizer.consume(":");
-        // TODO: parseType();
-        String returnTypeName = tokenizer.consumeIdentifier();
-        Type returnType = environment.resolveType(returnTypeName);
+        Type returnType = parseType(parsingContext, tokenizer);
         Statement body = parseBody(bodyContext, tokenizer);
         result.init(returnType, bodyContext.getClosure(), body);
         return result;
