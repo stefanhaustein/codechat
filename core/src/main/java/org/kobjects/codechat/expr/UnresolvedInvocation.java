@@ -63,7 +63,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
                 return new ConstructorInvocation(resolvedRef.type, resolvedRef.id);
             }
 
-            Type[] paramTypes = new Type[resolved.length - 1];
+            Type[] paramTypes = new Type[resolved.length];
             for (int i = 0; i < resolved.length; i++) {
                 resolved[i] = children[i].resolve(parsingContext);
                 paramTypes[i] = resolved[i].getType();
