@@ -20,6 +20,12 @@ public class Function {
     }
 
     public String toString() {
-        return  definition.toString();
+        StringBuilder sb = new StringBuilder();
+        boolean wrap = definition.closure.toString(sb, contextTemplate);
+        definition.toString(sb, wrap ? 1 : 0);
+        if (wrap) {
+            sb.append("}\n");
+        }
+        return sb.toString();
     }
 }

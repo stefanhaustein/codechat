@@ -24,7 +24,7 @@ public class FunctionExpr extends Expression {
 
 
     ArrayList<Param> params = new ArrayList<>();
-    private Closure closure;
+    public Closure closure;
     public Statement body;
     private FunctionType type;
     public String name;

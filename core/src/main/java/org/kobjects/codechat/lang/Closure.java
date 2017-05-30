@@ -48,4 +48,18 @@ public class Closure {
         }
     }
 
+
+    public boolean toString(StringBuilder sb, EvaluationContext contextTemplate){
+        if (getMappingCount() == 0) {
+            return false;
+        }
+        sb.append("{\n");
+        for (Closure.Mapping mapping : getMappings()) {
+            sb.append("  var ").append(mapping.name).append(" = ");
+            sb.append(contextTemplate.variables[mapping.closureIndex]).append("\n");
+        }
+        sb.append("  ");
+        return true;
+    }
+
 }

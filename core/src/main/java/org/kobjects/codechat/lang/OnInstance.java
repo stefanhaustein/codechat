@@ -66,16 +66,8 @@ public class OnInstance extends Instance implements Property.PropertyListener {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        boolean wrap = onExpression.closure.getMappingCount() != 0;
+        boolean wrap = onExpression.closure.toString(sb, contextTemplate);
 
-        if (wrap) {
-            sb.append("{\n");
-            for (Closure.Mapping mapping : onExpression.closure.getMappings()) {
-                sb.append("  var ").append(mapping.name).append(" = ");
-                sb.append(contextTemplate.variables[mapping.closureIndex]).append("\n");
-            }
-            sb.append("  ");
-        }
         sb.append(onExpression.onChange ? "onchange#" : "on#").append(id);
         sb.append(' ').append(onExpression.expression).append(" {\n");
         onExpression.body.toString(sb, wrap ? 2 : 1);
