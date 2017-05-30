@@ -61,6 +61,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
     @Override
     public void clearAll() {
+        screen.frame.removeAllListeners();
         if (ticking != null) {
             synchronized (ticking) {
                 ticking.clear();

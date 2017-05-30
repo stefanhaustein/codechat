@@ -32,6 +32,10 @@ public abstract class Property<T> {
         }
     }
 
+    public void removeAllListeners() {
+        listeners = null;
+    }
+
     public interface PropertyListener<T> {
         void valueChanged(Property<T> property, T oldValue, T newValue);
     }
