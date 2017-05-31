@@ -69,35 +69,37 @@ public class UnresolvedInvocation extends AbstractUnresolved {
                 paramTypes[i] = resolved[i].getType();
             }
 
-            Type type = resolved[0].getType();
-            if (Type.NUMBER.equals(type) || Type.BOOLEAN.equals(type) || Type.STRING.equals(type)) {
-                Class[] paramJavaTypes = new Class[resolved.length];
-                for (int i = 0; i < paramTypes.length; i++) {
-                    paramJavaTypes[i] = resolved[i].getType().getJavaClassForSignature();
-                }
-                Method method = null;
-                try {
-                    method = Builtins.class.getMethod(name, paramJavaTypes);
-                } catch (NoSuchMethodException e) {
+            if (resolved.length > 0) {
+                Type type = resolved[0].getType();
+                if (Type.NUMBER.equals(type) || Type.BOOLEAN.equals(type) || Type.STRING.equals(type)) {
+                    Class[] paramJavaTypes = new Class[resolved.length];
+                    for (int i = 0; i < paramTypes.length; i++) {
+                        paramJavaTypes[i] = resolved[i].getType().getJavaClassForSignature();
+                    }
+                    Method method = null;
                     try {
-                        method = Math.class.getMethod(name, paramJavaTypes);
-                    } catch (NoSuchMethodException e2) {
-                        //       throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(Arrays.copyOfRange(paramTypes, 1, paramTypes.length)) + " not found in class " + resolved[0].getType());
+                        method = Builtins.class.getMethod(name, paramJavaTypes);
+                    } catch (NoSuchMethodException e) {
+                        try {
+                            method = Math.class.getMethod(name, paramJavaTypes);
+                        } catch (NoSuchMethodException e2) {
+                            //       throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(Arrays.copyOfRange(paramTypes, 1, paramTypes.length)) + " not found in class " + resolved[0].getType());
+                        }
+                    }
+                    if (method != null) {
+                        return new BuiltinInvocation(method, false, resolved);
                     }
                 }
-                if (method != null) {
-                    return new BuiltinInvocation(method, false, resolved);
+                Class[] paramJavaTypes = new Class[resolved.length - 1];
+                for (int i = 0; i < paramJavaTypes.length; i++) {
+                    paramJavaTypes[i] = paramTypes[i + 1].getJavaClassForSignature();
                 }
-            }
-            Class[] paramJavaTypes = new Class[resolved.length - 1];
-            for (int i = 0; i < paramJavaTypes.length; i++) {
-                paramJavaTypes[i] = paramTypes[i + 1].getJavaClassForSignature();
-            }
-            try {
-                Method method = resolved[0].getType().getJavaClass().getMethod(name, paramJavaTypes);
-                return new MethodInvocation(method, parens, resolved);
-            } catch (NoSuchMethodException e) {
-                // throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(paramTypes) + " not found in class " + resolved[0].getType());
+                try {
+                    Method method = resolved[0].getType().getJavaClass().getMethod(name, paramJavaTypes);
+                    return new MethodInvocation(method, parens, resolved);
+                } catch (NoSuchMethodException e) {
+                    // throw new RuntimeException("Method '" + name + "' with parameter types " + Arrays.toString(paramTypes) + " not found in class " + resolved[0].getType());
+                }
             }
 
             String qualifiedName = FunctionExpr.getQualifiedName(name, paramTypes);

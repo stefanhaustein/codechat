@@ -78,7 +78,7 @@ public class FunctionExpr extends Expression {
         sb.append("): ").append(type.returnType).append(" {\n");
         body.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
-        sb.append("}");
+        sb.append("}\n");
     }
 
     @Override

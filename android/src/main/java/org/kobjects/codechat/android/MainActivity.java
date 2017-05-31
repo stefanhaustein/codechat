@@ -372,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
     void printRight(CharSequence s, boolean update) {
         if (update) {
-            chatView.setValue(chatView.getCount() - 3, s);
+            chatView.setValue(chatView.getCount() - 1, s);
         } else {
             chatView.add(true, s);
         }

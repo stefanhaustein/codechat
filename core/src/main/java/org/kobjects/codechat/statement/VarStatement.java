@@ -16,7 +16,7 @@ public class VarStatement extends AbstractStatement {
     @Override
     public Object eval(EvaluationContext context) {
         context.variables[variable.getIndex()] = initializer.eval(context);
-        return null;
+        return KEEP_GOINGf;
     }
 
     @Override

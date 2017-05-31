@@ -38,7 +38,7 @@ public class Environment {
 
         System.out.println("ROOT DIR: " + codeDir.getAbsolutePath().toString());
 
-        addType(Type.BOOLEAN, Type.NUMBER, Type.STRING);
+        addType(Type.BOOLEAN, Type.NUMBER, Type.STRING, Type.VOID);
     }
 
     public void addType(Type... types) {
@@ -100,8 +100,17 @@ public class Environment {
             }
         }
         for (RootVariable variable : rootVariables.values()) {
-            if (variable.value != null && !systemVariables.containsKey(variable.name)) {
-                if (variable.value instanceof Function && ((Function) variable.value).definition.name != null) {
+            if (variable.value != null && !systemVariables.containsKey(variable.name) && !(variable.value instanceof Function)) {
+                    writer.write(variable.name);
+                    writer.write(" = ");
+                    writer.write(toLiteral(variable.value));
+                    writer.write("\n");
+            }
+        }
+
+        for (RootVariable variable : rootVariables.values()) {
+            if (!systemVariables.containsKey(variable.name) && variable.value instanceof Function) {
+                if (((Function) variable.value).definition.name != null) {
                     writer.write(toLiteral(variable.value));
                 } else {
                     writer.write(variable.name);
@@ -111,6 +120,7 @@ public class Environment {
                 }
             }
         }
+
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null && (instance instanceof StatementInstance || instance instanceof OnInstance)) {

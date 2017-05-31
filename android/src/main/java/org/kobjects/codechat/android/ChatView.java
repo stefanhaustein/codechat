@@ -141,12 +141,12 @@ public class ChatView extends ListView {
                 params.leftMargin = r ? wideHorizontalMarign : narrowHorizontalMarign;
                 params.rightMargin = r ? narrowHorizontalMarign : wideHorizontalMarign;
             }
-            String text = (String) getItem(i);
-            int cut = text.length();
-            while (cut > 0 && text.charAt(cut-1) == '\n') {
+            CharSequence cs = (CharSequence) getItem(i);
+            int cut = cs.length();
+            while (cut > 0 && cs.charAt(cut-1) == '\n') {
                 cut--;
             }
-            textView.setText(text.substring(0, cut));
+            textView.setText(cs.subSequence(0, cut));
             return result;
         }
 
