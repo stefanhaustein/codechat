@@ -23,6 +23,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.CountStatement;
+import org.kobjects.codechat.statement.ForeachStatement;
 import org.kobjects.codechat.statement.ReturnStatement;
 import org.kobjects.codechat.statement.VarStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
@@ -78,6 +79,9 @@ public class Parser {
 
     CountStatement parseCount(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         String varName = tokenizer.consumeIdentifier();
+
+        tokenizer.consume("to");
+
         Expression expression = parseExpression(parsingContext, tokenizer);
 
         if (!expression.getType().equals(Type.NUMBER)) {
@@ -88,11 +92,29 @@ public class Parser {
 
         LocalVariable counter = countParsingContext.addVariable(varName, Type.NUMBER);
 
-        tokenizer.consume("{");
+        Statement body = parseBody(countParsingContext, tokenizer);
 
-        Block block = parseBlock(countParsingContext, tokenizer, "}");
+        return new CountStatement(counter, expression, body);
+    }
 
-        return new CountStatement(counter, expression, block);
+    ForeachStatement parseForeach(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+        String varName = tokenizer.consumeIdentifier();
+
+        tokenizer.consume("in");
+
+        Expression expression = parseExpression(parsingContext, tokenizer);
+
+        if (!(expression.getType() instanceof ArrayType)) {
+            throw new RuntimeException("Foreach expression must be a list.");
+        }
+        Type elementType = ((ArrayType) expression.getType()).elementType;
+
+        ParsingContext foreachParsingContext = new ParsingContext(parsingContext, false);
+
+        LocalVariable counter = foreachParsingContext.addVariable(varName, elementType);
+
+        Statement body = parseBody(foreachParsingContext, tokenizer);
+        return new ForeachStatement(counter, expression, body);
     }
 
     Statement parseBody(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
