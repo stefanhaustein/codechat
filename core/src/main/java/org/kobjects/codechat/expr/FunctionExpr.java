@@ -62,8 +62,7 @@ public class FunctionExpr extends Expression {
         return 0;
     }
 
-    @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void serializeSignature(StringBuilder sb) {
         sb.append("function ");
         if (name != null) {
             sb.append(name);
@@ -75,7 +74,13 @@ public class FunctionExpr extends Expression {
             }
             sb.append(params.get(i).name).append(": ").append(params.get(i).type);
         }
-        sb.append("): ").append(type.returnType).append(" {\n");
+        sb.append("): ").append(type.returnType);
+    }
+
+    @Override
+    public void toString(StringBuilder sb, int indent) {
+        serializeSignature(sb);
+        sb.append(" {\n");
         body.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
         sb.append("}\n");

@@ -175,7 +175,13 @@ public class Parser {
         }
         tokenizer.consume(":");
         Type returnType = parseType(parsingContext, tokenizer);
-        Statement body = parseBody(bodyContext, tokenizer);
+
+        Statement body;
+        if (tokenizer.tryConsume(";")) {
+            body = null;
+        } else {
+            body = parseBody(bodyContext, tokenizer);
+        }
         result.init(returnType, bodyContext.getClosure(), body);
         return result;
     }

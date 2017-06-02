@@ -36,8 +36,6 @@ public class Environment {
         this.codeDir = codeDir;
         this.builtins = new Builtins(this);
 
-        System.out.println("ROOT DIR: " + codeDir.getAbsolutePath().toString());
-
         addType(Type.BOOLEAN, Type.NUMBER, Type.STRING, Type.VOID);
     }
 
@@ -100,11 +98,21 @@ public class Environment {
             }
         }
         for (RootVariable variable : rootVariables.values()) {
-            if (variable.value != null && !systemVariables.containsKey(variable.name) && !(variable.value instanceof Function)) {
+            if (variable.value != null && !systemVariables.containsKey(variable.name)) {
+                if (variable.value instanceof Function)  {
+                    Function function = (Function) variable.value;
+                    if (function.definition.name != null) {
+                        StringBuilder sb = new StringBuilder();
+                        function.definition.serializeSignature(sb);
+                        sb.append(";\n");
+                        writer.write(sb.toString());
+                    }
+                } else {
                     writer.write(variable.name);
                     writer.write(" = ");
                     writer.write(toLiteral(variable.value));
                     writer.write("\n");
+                }
             }
         }
 
