@@ -2,6 +2,7 @@ package org.kobjects.codechat.lang;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.List;
 
 public class Builtins {
     Environment environment;
@@ -77,5 +78,10 @@ public class Builtins {
 
     public double random() {
         return Math.random();
+    }
+
+
+    public double size(List list) {
+        return list.size();
     }
 }

@@ -8,6 +8,8 @@ import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.lang.RootVariable;
 
 public class Identifier extends AbstractUnresolved {
+    private static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
+    private static final Expression[] EMPTY_EXPRESSION_ARRAY = new Expression[0];
     public final String name;
 
     public Identifier(String name) {
@@ -25,12 +27,16 @@ public class Identifier extends AbstractUnresolved {
             return new RootVariableNode(name, rootVariable.type);
         }
 
-        try {
-            Method method = Builtins.class.getMethod(name.equals("continue") ? "unpause" : name);
-            return new BuiltinInvocation(method, false);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Undefined identifier: " + name);
+        String methodName = name.equals("continue") ? "unpause" : name;
+        for (Object builtins : parsingContext.environment.builtins) {
+            Class<?> builtinClass = builtins instanceof Class ? (Class) builtins : builtins.getClass();
+            try {
+                Method method = builtinClass.getMethod(methodName, EMPTY_CLASS_ARRAY);
+                return new BuiltinInvocation(builtins instanceof Class ? null : builtins, method, false, EMPTY_EXPRESSION_ARRAY);
+            } catch (NoSuchMethodException e) {
+            }
         }
+        throw new RuntimeException("Undefined identifier: " + name);
     }
 
     @Override

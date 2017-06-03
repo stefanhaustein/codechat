@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import org.kobjects.codechat.statement.Statement;
@@ -17,7 +18,8 @@ import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment {
-    public Builtins builtins;
+
+    public ArrayList<Object> builtins = new ArrayList<>();
     public double scale;
 
     public boolean paused;
@@ -34,7 +36,8 @@ public class Environment {
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
         this.codeDir = codeDir;
-        this.builtins = new Builtins(this);
+        this.builtins.add(new Builtins(this));
+        this.builtins.add(Math.class);
 
         addType(Type.BOOLEAN, Type.NUMBER, Type.STRING, Type.VOID);
     }

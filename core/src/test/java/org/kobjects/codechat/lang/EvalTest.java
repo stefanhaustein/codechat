@@ -19,6 +19,11 @@ public class EvalTest {
         assertEquals("Hello World", shell.output.get(0));
     }
 
+    @Test
+    public void testArrays() {
+        assertEquals(Double.valueOf(3), shell.eval("size([1,2,3])"));
+        assertEquals(Double.valueOf(2), shell.eval("[1,2,3][1]"));
+    }
 
         @Test
     public void testExpressions() {

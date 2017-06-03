@@ -9,12 +9,14 @@ public class BuiltinInvocation extends AbstractResolved {
     static final Object[] EMPTY_ARRAY = new Object[0];
 
     boolean parens;
+    Object base;
     Method method;
     Expression[] children;
     Type type;
 
-    public BuiltinInvocation(Method method, boolean parens, Expression... children) {
+    public BuiltinInvocation(Object base, Method method, boolean parens, Expression... children) {
         this.type = Type.forJavaType(method.getGenericReturnType());
+        this.base = base;
         this.method = method;
         this.parens = parens;
         this.children = children;
@@ -32,7 +34,7 @@ public class BuiltinInvocation extends AbstractResolved {
             }
         }
         try {
-            return method.invoke(context.environment.builtins, params);
+            return method.invoke(base, params);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {

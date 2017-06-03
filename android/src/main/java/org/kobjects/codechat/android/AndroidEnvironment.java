@@ -26,6 +26,8 @@ public class AndroidEnvironment extends Environment implements Runnable {
         this.rootView = rootView;
         handler.postDelayed(this, 100);
 
+        builtins.add(new AndroidBuiltins(this));
+
         addSystemVariable("screen", screen);
         addSystemVariable("sensors", new Sensors(rootView.getContext()));
         addType(Type.forJavaType(Sprite.class));
