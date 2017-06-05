@@ -2,7 +2,7 @@ package org.kobjects.codechat.expr;
 
 
 import java.util.List;
-import org.kobjects.codechat.lang.ArrayType;
+import org.kobjects.codechat.lang.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
@@ -27,7 +27,7 @@ public class ArrayIndex extends Expression {
     @Override
     public Expression resolve(ParsingContext parsingContext) {
         base = base.resolve(parsingContext);
-        if (!(base.getType() instanceof ArrayType)) {
+        if (!(base.getType() instanceof CollectionType)) {
             throw new RuntimeException("Array expected for index access");
         }
         index = index.resolve(parsingContext);
@@ -39,7 +39,7 @@ public class ArrayIndex extends Expression {
 
     @Override
     public Type getType() {
-        return ((ArrayType) base.getType()).elementType;
+        return ((CollectionType) base.getType()).elementType;
     }
 
     @Override

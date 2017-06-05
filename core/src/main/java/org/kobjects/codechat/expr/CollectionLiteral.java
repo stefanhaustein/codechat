@@ -1,22 +1,38 @@
 package org.kobjects.codechat.expr;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.TreeSet;
+
 import org.kobjects.codechat.lang.ArrayType;
+import org.kobjects.codechat.lang.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.lang.SetType;
 import org.kobjects.codechat.lang.Type;
 
-public class ArrayLiteral extends Expression {
+public class CollectionLiteral extends Expression {
     Expression[] elements;
-    ArrayType type;
+    CollectionType type;
+    boolean set;
 
-    public ArrayLiteral(Expression... elements) {
+    public CollectionLiteral(boolean set, Expression... elements) {
+        this.set = set;
         this.elements = elements;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
-        ArrayList<Object> result = new  ArrayList(elements.length);
+        Collection<Object> result;
+        if (type instanceof ArrayType) {
+            result = new ArrayList<>(elements.length);
+        } else if (Comparable.class.isAssignableFrom(type.elementType.getJavaClass())) {
+            result = new TreeSet<>();
+        } else {
+            result = new LinkedHashSet<>();
+        }
         for (int i = 0; i < elements.length; i++) {
             result.add(elements[i].eval(context));
         }
@@ -40,7 +56,7 @@ public class ArrayLiteral extends Expression {
                 }
             }
         }
-        type = new ArrayType(elementType);
+        type = set ? new SetType(elementType) : new ArrayType(elementType);
         return this;
     }
 
@@ -56,7 +72,7 @@ public class ArrayLiteral extends Expression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append('[');
+        sb.append(set ? '{' : '[');
         if (elements.length > 0) {
             elements[0].toString(sb, indent);
             for (int i = 1; i < elements.length; i++) {
@@ -64,7 +80,7 @@ public class ArrayLiteral extends Expression {
                 elements[i].toString(sb, indent);
             }
         }
-        sb.append(']');
+        sb.append(set ? '}' : ']');
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.expr.ArrayIndex;
-import org.kobjects.codechat.expr.ArrayLiteral;
+import org.kobjects.codechat.expr.CollectionLiteral;
 import org.kobjects.codechat.expr.FunctionExpr;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.statement.Assignment;
@@ -104,10 +104,10 @@ public class Parser {
 
         Expression expression = parseExpression(parsingContext, tokenizer);
 
-        if (!(expression.getType() instanceof ArrayType)) {
+        if (!(expression.getType() instanceof CollectionType)) {
             throw new RuntimeException("Foreach expression must be a list.");
         }
-        Type elementType = ((ArrayType) expression.getType()).elementType;
+        Type elementType = ((CollectionType) expression.getType()).elementType;
 
         ParsingContext foreachParsingContext = new ParsingContext(parsingContext, false);
 
@@ -220,6 +220,8 @@ public class Parser {
         return new VarStatement(variable, init);
     }
 
+
+
     Statement parseStatement(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean interactive) {
         if (tokenizer.tryConsume("count")) {
             return parseCount(parsingContext, tokenizer);
@@ -279,6 +281,17 @@ public class Parser {
 
         Expression resolved = unresolved.resolve(parsingContext);
         return new ExpressionStatement(resolved);
+    }
+
+    CollectionLiteral parseSetLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+        ArrayList<Expression> elements = new ArrayList<>();
+        if (!tokenizer.tryConsume("}")) {
+            do {
+                elements.add(expressionParser.parse(parsingContext, tokenizer));
+            } while(tokenizer.tryConsume(","));
+            tokenizer.consume("}");
+        }
+        return new CollectionLiteral(true, elements.toArray(new Expression[elements.size()]));
     }
 
     Expression parseExpression(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -386,7 +399,7 @@ public class Parser {
         @Override
         public Expression group(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String paren, List<Expression> elements) {
             if (paren.equals("[")) {
-                return new ArrayLiteral(elements.toArray(new Expression[elements.size()]));
+                return new CollectionLiteral(false, elements.toArray(new Expression[elements.size()]));
             }
             return elements.get(0);
         }
@@ -416,6 +429,8 @@ public class Parser {
                 }
                 case "function":
                     return parseFunction(parsingContext, tokenizer, null);
+                case "{":
+                    return parseSetLiteral(parsingContext, tokenizer);
                 default:
                     return super.primary(parsingContext, tokenizer, name);
             }
@@ -435,7 +450,7 @@ public class Parser {
 
         // FIXME: Should be parser.
         // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
-        parser.addPrimary("new", "function");
+        parser.addPrimary("new", "function", "{");
         parser.addApplyBrackets(PRECEDENCE_PATH, "(", ",", ")");
         parser.addApplyBrackets(PRECEDENCE_PATH, "[", null, "]");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");

@@ -20,7 +20,6 @@ import org.kobjects.expressionparser.ExpressionParser;
 public class Environment {
 
     public ArrayList<Object> builtins = new ArrayList<>();
-    public double scale;
 
     public boolean paused;
     int lastId;

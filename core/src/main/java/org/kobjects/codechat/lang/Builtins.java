@@ -2,7 +2,9 @@ package org.kobjects.codechat.lang;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class Builtins {
     Environment environment;
@@ -81,7 +83,11 @@ public class Builtins {
     }
 
 
-    public double size(List list) {
-        return list.size();
+    public double size(Set collection) {
+        return collection.size();
+    }
+
+    public double size(List collection) {
+        return collection.size();
     }
 }

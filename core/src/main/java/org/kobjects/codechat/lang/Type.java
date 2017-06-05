@@ -1,7 +1,6 @@
 package org.kobjects.codechat.lang;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
 import java.util.List;
 
 public class Type {

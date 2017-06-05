@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import org.kobjects.codechat.android.Ticking;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.lang.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
@@ -20,6 +18,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
     public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
     Handler handler = new Handler();
     public Screen screen = new Screen();
+    public double scale;
 
     public AndroidEnvironment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
         super(environmentListener, codeDir);
