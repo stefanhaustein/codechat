@@ -34,15 +34,17 @@ import org.kobjects.expressionparser.ExpressionParser;
 
 public class Parser {
     // public static final int PRECEDENCE_HASH = 8;
-    public static final int PRECEDENCE_PREFIX = 8;
-    public static final int PRECEDENCE_PATH = 7;
-    public static final int PRECEDENCE_POWER = 6;
-    public static final int PRECEDENCE_SIGN = 5;
-    public static final int PRECEDENCE_MULTIPLICATIVE = 4;
-    public static final int PRECEDENCE_ADDITIVE = 3;
-    public static final int PRECEDENCE_IMPLICIT = 2;
-    public static final int PRECEDENCE_RELATIONAL = 1;
-    public static final int PRECEDENCE_EQUALITY = 0;
+    public static final int PRECEDENCE_PREFIX = 10;
+    public static final int PRECEDENCE_PATH = 9;
+    public static final int PRECEDENCE_POWER = 8;
+    public static final int PRECEDENCE_SIGN = 7;
+    public static final int PRECEDENCE_MULTIPLICATIVE = 6;
+    public static final int PRECEDENCE_ADDITIVE = 5;
+    public static final int PRECEDENCE_IMPLICIT = 4;
+    public static final int PRECEDENCE_RELATIONAL = 3;
+    public static final int PRECEDENCE_EQUALITY = 2;
+    public static final int PRECEDENCE_AND = 1;
+    public static final int PRECEDENCE_OR = 0;
 
     private static String EMOJI_REGEX =
             "[\\u20a0-\\u32ff\\x{1f000}-\\x{1ffff}][\\x{1F1E6}-\\x{1f1ff}\\x{1f3fe}-\\x{1f3fe}]?";
@@ -328,6 +330,12 @@ public class Parser {
         @Override
         public Expression infixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, Expression left, Expression right) {
             switch (name) {
+                case "and":
+                case "\u2227":
+                    return new BinaryOperator('\u2227', left, right);
+                case "or":
+                case "\u2228":
+                    return new BinaryOperator('\u2228', left, right);
                 case ".":
                 case "'s":
                     return new PropertyAccess(left, right);
@@ -369,8 +377,7 @@ public class Parser {
 */
         @Override
         public Expression prefixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
-            return // name.equals("new") ? new UnresolvedInvocation("new", false, argument) :
-                    new UnaryOperator(name.charAt(0), argument);
+            return new UnaryOperator(name.equals("not") ? '\u00ac' : name.charAt(0), argument);
         }
 
         @Override
@@ -459,7 +466,7 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX_RTL, PRECEDENCE_POWER, "^");
-        parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-", "\u221a");
+        parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-", "\u221a", "\u00ac", "not");
 
        // parser.setImplicitOperatorPrecedence(true, 2);
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/");
@@ -468,6 +475,8 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_RELATIONAL, "<", "<=", ">", ">=", "\u2264", "\u2265");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_EQUALITY, "=", "==", "!=", "\u2260", "\u2261");
 
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
         // FIXME
         // parser.addPrimary("on", "onchange");
 

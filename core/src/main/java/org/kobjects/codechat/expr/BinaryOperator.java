@@ -18,8 +18,13 @@ public class BinaryOperator extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        if (name == '$') {
-            return (String) left.eval(context) + (String) right.eval(context);
+        switch(name) {
+            case '$':
+                return (String) left.eval(context) + (String) right.eval(context);
+            case '\u2227':
+                return Boolean.TRUE.equals(left.eval(context)) ? right.eval(context) : Boolean.FALSE;
+            case '\u2228':
+                return Boolean.FALSE.equals(left.eval(context)) ? right.eval(context) : Boolean.TRUE;
         }
         double l = ((Number) left.eval(context)).doubleValue();
         double r = ((Number) right.eval(context)).doubleValue();
@@ -37,6 +42,10 @@ public class BinaryOperator extends Expression {
 
     public int getPrecedence() {
         switch (name) {
+            case '\u2227':
+                return Parser.PRECEDENCE_AND;
+            case '\u2228':
+                return Parser.PRECEDENCE_OR;
             case '^':
                 return Parser.PRECEDENCE_POWER;
             case '*':
@@ -66,6 +75,10 @@ public class BinaryOperator extends Expression {
                 throw new RuntimeException("Operator '" + name + "' not defined for strings");
             }
             name = '$';
+        } else if (name == '\u2227' || name == '\u2228') {
+            if (!left.getType().equals(Type.BOOLEAN)) {
+                throw new RuntimeException("Arguments must be boolean for operator " + name);
+            }
         } else if (!left.getType().equals(Type.NUMBER)) {
             throw new RuntimeException("Arguments must be numbers" + (name == '+' ? " or strings" : "") + " for operator '" + name + "'");
         }

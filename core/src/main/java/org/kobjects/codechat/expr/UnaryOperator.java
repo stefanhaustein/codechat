@@ -6,7 +6,6 @@ import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public class UnaryOperator extends Expression {
-
     char name;
     Expression operand;
 
@@ -17,8 +16,13 @@ public class UnaryOperator extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
+        if (name == '\u00ac') {
+            return Boolean.FALSE.equals(operand.eval(context));
+        }
         double value = ((Number) operand.eval(context)).doubleValue();
         switch (name) {
+            case '\u00ac':
+
             case '\u221a':
                 return Math.sqrt(value);
             case '+':
@@ -33,15 +37,15 @@ public class UnaryOperator extends Expression {
     @Override
     public Expression resolve(ParsingContext parsingContext) {
         operand = operand.resolve(parsingContext);
-        if (!operand.getType().equals(Type.NUMBER)) {
-            throw new RuntimeException("Operand must be number.");
+        if (!operand.getType().equals(getType())) {
+            throw new RuntimeException("Operand must be " + getType());
         }
         return this;
     }
 
     @Override
     public Type getType() {
-        return Type.NUMBER;
+        return name == '\u00ac' ? Type.BOOLEAN : Type.NUMBER;
     }
 
     @Override
