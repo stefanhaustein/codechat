@@ -283,15 +283,16 @@ public class Parser {
         return new ExpressionStatement(resolved);
     }
 
-    CollectionLiteral parseSetLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+    CollectionLiteral parseCollectionLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, Class collectionType) {
         ArrayList<Expression> elements = new ArrayList<>();
-        if (!tokenizer.tryConsume("}")) {
+        tokenizer.consume("[");
+        if (!tokenizer.tryConsume("]")) {
             do {
                 elements.add(expressionParser.parse(parsingContext, tokenizer));
             } while(tokenizer.tryConsume(","));
-            tokenizer.consume("}");
+            tokenizer.consume("]");
         }
-        return new CollectionLiteral(true, elements.toArray(new Expression[elements.size()]));
+        return new CollectionLiteral(collectionType, elements.toArray(new Expression[elements.size()]));
     }
 
     Expression parseExpression(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -398,9 +399,6 @@ public class Parser {
 
         @Override
         public Expression group(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String paren, List<Expression> elements) {
-            if (paren.equals("[")) {
-                return new CollectionLiteral(false, elements.toArray(new Expression[elements.size()]));
-            }
             return elements.get(0);
         }
 
@@ -423,14 +421,19 @@ public class Parser {
         @Override
         public Expression primary(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
             switch (name) {
+                case "function":
+                    return parseFunction(parsingContext, tokenizer, null);
+                case "list":
+                    return parseCollectionLiteral(parsingContext, tokenizer, ListType.class);
+
                 case "new": {
                     Expression expr = expressionParser.parse(parsingContext, tokenizer);
                     return new UnresolvedInvocation(new Identifier("new"), false, expr);
                 }
-                case "function":
-                    return parseFunction(parsingContext, tokenizer, null);
-                case "{":
-                    return parseSetLiteral(parsingContext, tokenizer);
+                case "set":
+                    return parseCollectionLiteral(parsingContext, tokenizer, SetType.class);
+
+
                 default:
                     return super.primary(parsingContext, tokenizer, name);
             }
@@ -446,11 +449,11 @@ public class Parser {
 
 
         parser.addGroupBrackets("(", null, ")");
-        parser.addGroupBrackets("[", ",", "]");
+        // parser.addGroupBrackets("[", ",", "]");
 
         // FIXME: Should be parser.
         // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
-        parser.addPrimary("new", "function", "{");
+        parser.addPrimary("new", "function", "set", "list", "{");
         parser.addApplyBrackets(PRECEDENCE_PATH, "(", ",", ")");
         parser.addApplyBrackets(PRECEDENCE_PATH, "[", null, "]");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");

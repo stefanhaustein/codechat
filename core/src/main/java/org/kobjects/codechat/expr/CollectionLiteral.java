@@ -2,11 +2,10 @@ package org.kobjects.codechat.expr;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.TreeSet;
 
-import org.kobjects.codechat.lang.ArrayType;
+import org.kobjects.codechat.lang.ListType;
 import org.kobjects.codechat.lang.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.ParsingContext;
@@ -16,17 +15,17 @@ import org.kobjects.codechat.lang.Type;
 public class CollectionLiteral extends Expression {
     Expression[] elements;
     CollectionType type;
-    boolean set;
+    Class collectionTypeClass;
 
-    public CollectionLiteral(boolean set, Expression... elements) {
-        this.set = set;
+    public CollectionLiteral(Class collectionTypeClass, Expression... elements) {
+        this.collectionTypeClass = collectionTypeClass;
         this.elements = elements;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
         Collection<Object> result;
-        if (type instanceof ArrayType) {
+        if (type instanceof ListType) {
             result = new ArrayList<>(elements.length);
         } else if (Comparable.class.isAssignableFrom(type.elementType.getJavaClass())) {
             result = new TreeSet<>();
@@ -56,7 +55,7 @@ public class CollectionLiteral extends Expression {
                 }
             }
         }
-        type = set ? new SetType(elementType) : new ArrayType(elementType);
+        type = collectionTypeClass == SetType.class ? new SetType(elementType) : new ListType(elementType);
         return this;
     }
 
@@ -72,7 +71,7 @@ public class CollectionLiteral extends Expression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append(set ? '{' : '[');
+        sb.append(collectionTypeClass == SetType.class ? "set[" : "list[");
         if (elements.length > 0) {
             elements[0].toString(sb, indent);
             for (int i = 1; i < elements.length; i++) {
@@ -80,7 +79,7 @@ public class CollectionLiteral extends Expression {
                 elements[i].toString(sb, indent);
             }
         }
-        sb.append(set ? '}' : ']');
+        sb.append(']');
     }
 
     @Override
