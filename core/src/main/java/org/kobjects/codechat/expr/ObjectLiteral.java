@@ -1,11 +1,16 @@
 package org.kobjects.codechat.expr;
 
+import java.util.LinkedHashMap;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
 public class ObjectLiteral extends Expression {
 
+
+    public ObjectLiteral(Expression base, LinkedHashMap<String, Expression> elements) {
+        throw new RuntimeException("NYI");
+    }
 
     @Override
     public Object eval(EvaluationContext context) {

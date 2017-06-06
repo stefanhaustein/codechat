@@ -12,7 +12,9 @@ import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.SetType;
 import org.kobjects.codechat.lang.Type;
 
-public class CollectionLiteral extends Expression {
+import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
+
+public class CollectionLiteral extends AbstractResolved {
     Expression[] elements;
     CollectionType type;
     Class collectionTypeClass;
@@ -20,6 +22,20 @@ public class CollectionLiteral extends Expression {
     public CollectionLiteral(Class collectionTypeClass, Expression... elements) {
         this.collectionTypeClass = collectionTypeClass;
         this.elements = elements;
+        Type elementType;
+        if (elements.length == 0) {
+            elementType = Type.forJavaType(Object.class);
+        } else {
+            elementType = elements[0].getType();
+            for (int i = 1; i < elements.length; i++) {
+                if (!elementType.equals(elements[i].getType())) {
+                    throw new RuntimeException(
+                            "Type mismatch for list element " + i + " (" + elements[i] + "): " + elements[i].getType()
+                                    + " expected: " + elementType);
+                }
+            }
+        }
+        type = collectionTypeClass == SetType.class ? new SetType(elementType) : new ListType(elementType);
     }
 
     @Override
@@ -39,34 +55,13 @@ public class CollectionLiteral extends Expression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
-        Type elementType;
-        if (elements.length == 0) {
-            elementType = Type.forJavaType(Object.class);
-        } else {
-            elements[0] = elements[0].resolve(parsingContext);
-            elementType = elements[0].getType();
-            for (int i = 1; i < elements.length; i++) {
-                elements[i] = elements[i].resolve(parsingContext);
-                if (!elementType.equals(elements[i].getType())) {
-                    throw new RuntimeException(
-                            "Type mismatch for list element " + i + " (" + elements[i] + "): " + elements[i].getType()
-                                    + " expected: " + elementType);
-                }
-            }
-        }
-        type = collectionTypeClass == SetType.class ? new SetType(elementType) : new ListType(elementType);
-        return this;
-    }
-
-    @Override
     public Type getType() {
         return type;
     }
 
     @Override
     public int getPrecedence() {
-        return 0;
+        return PRECEDENCE_PATH;
     }
 
     @Override

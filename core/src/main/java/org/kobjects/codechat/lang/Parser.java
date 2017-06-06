@@ -4,10 +4,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import org.kobjects.codechat.expr.ArrayIndex;
+import org.kobjects.codechat.expr.ObjectLiteral;
+import org.kobjects.codechat.expr.UnresolvedArrayExpression;
 import org.kobjects.codechat.expr.CollectionLiteral;
 import org.kobjects.codechat.expr.FunctionExpr;
 import org.kobjects.codechat.expr.OnExpression;
@@ -285,16 +287,18 @@ public class Parser {
         return new ExpressionStatement(resolved);
     }
 
-    CollectionLiteral parseCollectionLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, Class collectionType) {
-        ArrayList<Expression> elements = new ArrayList<>();
-        tokenizer.consume("[");
-        if (!tokenizer.tryConsume("]")) {
+    ObjectLiteral parseObjectLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, Expression base) {
+        LinkedHashMap<String, Expression> elements = new LinkedHashMap<>();
+        tokenizer.consume("{");
+        if (!tokenizer.tryConsume("}")) {
             do {
-                elements.add(expressionParser.parse(parsingContext, tokenizer));
+                String name = tokenizer.consumeIdentifier();
+                tokenizer.consume(":");
+                elements.put(name, expressionParser.parse(parsingContext, tokenizer));
             } while(tokenizer.tryConsume(","));
-            tokenizer.consume("]");
+            tokenizer.consume("}");
         }
-        return new CollectionLiteral(collectionType, elements.toArray(new Expression[elements.size()]));
+        return new ObjectLiteral(base, elements);
     }
 
     Expression parseExpression(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -381,6 +385,12 @@ public class Parser {
         }
 
         @Override
+        public Expression suffixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
+            return parseObjectLiteral(parsingContext, tokenizer, argument);
+        }
+
+
+        @Override
         public Expression numberLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
             return new Literal(Double.parseDouble(value));
         }
@@ -420,7 +430,7 @@ public class Parser {
                 return new UnresolvedInvocation(to, true, parameterList.toArray(new Expression[parameterList.size()]));
             }
             if (bracket.equals("[")) {
-                return new ArrayIndex(to, parameterList.get(0));
+                return new UnresolvedArrayExpression(to, parameterList.toArray(new Expression[parameterList.size()]));
             }
             return super.apply(parsingContext, tokenizer, to, bracket, parameterList);
         }
@@ -430,16 +440,11 @@ public class Parser {
             switch (name) {
                 case "function":
                     return parseFunction(parsingContext, tokenizer, null);
-                case "list":
-                    return parseCollectionLiteral(parsingContext, tokenizer, ListType.class);
 
                 case "new": {
                     Expression expr = expressionParser.parse(parsingContext, tokenizer);
                     return new UnresolvedInvocation(new Identifier("new"), false, expr);
                 }
-                case "set":
-                    return parseCollectionLiteral(parsingContext, tokenizer, SetType.class);
-
 
                 default:
                     return super.primary(parsingContext, tokenizer, name);
@@ -460,9 +465,9 @@ public class Parser {
 
         // FIXME: Should be parser.
         // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
-        parser.addPrimary("new", "function", "set", "list", "{");
+        parser.addPrimary("new", "function");
         parser.addApplyBrackets(PRECEDENCE_PATH, "(", ",", ")");
-        parser.addApplyBrackets(PRECEDENCE_PATH, "[", null, "]");
+        parser.addApplyBrackets(PRECEDENCE_PATH, "[", ",", "]");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX_RTL, PRECEDENCE_POWER, "^");
@@ -477,6 +482,8 @@ public class Parser {
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
+
+        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_PATH, "{");
         // FIXME
         // parser.addPrimary("on", "onchange");
 
