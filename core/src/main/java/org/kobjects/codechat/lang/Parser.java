@@ -483,7 +483,8 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
 
-        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_PATH, "{");
+        // FIXME: Use regular braces for struct literals
+        // parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_PATH, "{");
         // FIXME
         // parser.addPrimary("on", "onchange");
 

@@ -24,7 +24,7 @@ public class Type {
 
         if (javaType instanceof Class) {
             Class javaClass = (Class) javaType;
-            if (javaClass == Type.class) {
+            if (Type.class.isAssignableFrom(javaClass)) {
                 return META_TYPE;
             }
             if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
@@ -35,6 +35,9 @@ public class Type {
             }
             if (javaClass == Void.class || javaClass == Void.TYPE) {
                 return VOID;
+            }
+            if (Instance.class.isAssignableFrom(javaClass)) {
+                return new InstanceType(javaClass);
             }
             return new Type(javaClass);
         }
