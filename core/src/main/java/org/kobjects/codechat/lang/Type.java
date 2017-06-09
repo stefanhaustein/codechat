@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
 import java.util.List;
 
 public class Type {
@@ -10,7 +11,9 @@ public class Type {
     public static final Type VOID = new Type(Void.TYPE);
     public static final Type META_TYPE = new Type(Type.class);
 
-    private final Class javaClass;
+    private static final HashMap<Class, Type> cache = new HashMap<>();
+
+    final Class javaClass;
 
     public static Type forJavaType(java.lang.reflect.Type javaType) {
         if (javaType instanceof ParameterizedType) {
@@ -24,22 +27,25 @@ public class Type {
 
         if (javaType instanceof Class) {
             Class javaClass = (Class) javaType;
+            Type result = cache.get(javaClass);
+            if (result != null) {
+                return result;
+            }
             if (Type.class.isAssignableFrom(javaClass)) {
-                return META_TYPE;
+                result = META_TYPE;
+            } else if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
+                result = BOOLEAN;
+            } else if (javaClass == Double.class || javaClass == Double.TYPE) {
+                result = NUMBER;
+            } else if (javaClass == Void.class || javaClass == Void.TYPE) {
+                result = VOID;
+            } else if (Instance.class.isAssignableFrom(javaClass)) {
+                result = new InstanceType(javaClass);
+            } else {
+                result = new Type(javaClass);
             }
-            if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
-                return BOOLEAN;
-            }
-            if (javaClass == Double.class || javaClass == Double.TYPE) {
-                return NUMBER;
-            }
-            if (javaClass == Void.class || javaClass == Void.TYPE) {
-                return VOID;
-            }
-            if (Instance.class.isAssignableFrom(javaClass)) {
-                return new InstanceType(javaClass);
-            }
-            return new Type(javaClass);
+            cache.put(javaClass, result);
+            return result;
         }
 
         throw new RuntimeException("Unrecognized Java type: " + javaType);

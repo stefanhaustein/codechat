@@ -6,33 +6,38 @@ import java.util.TreeMap;
 
 public class InstanceType extends Type {
 
-    TreeMap<String, Property> properties = new TreeMap<>();
+    TreeMap<String, Property> propertyMap;
 
     protected InstanceType(Class javaClass) {
         super(javaClass);
+    }
 
-        for (Field field : javaClass.getFields()) {
-            if (Property.class.isAssignableFrom(field.getType())) {
+    public TreeMap<String, Property> getPropertyMap() {
+        if (propertyMap == null) {
+            propertyMap = new TreeMap<>();
+            for (Field field : javaClass.getFields()) {
+                if (org.kobjects.codechat.lang.Property.class.isAssignableFrom(field.getType())) {
 
-                java.lang.reflect.Type javaType = field.getGenericType();
-                while (javaType instanceof Class) {
-                    javaType = ((Class) javaType).getGenericSuperclass();
+                    java.lang.reflect.Type javaType = field.getGenericType();
+                    while (javaType instanceof Class) {
+                        javaType = ((Class) javaType).getGenericSuperclass();
+                    }
+                    java.lang.reflect.Type propertyType = ((ParameterizedType) javaType).getActualTypeArguments()[0];
+                    Type type = Type.forJavaType(propertyType);
+
+                    propertyMap.put(field.getName(), new Property(field.getName(), type, field));
                 }
-                java.lang.reflect.Type propertyType = ((ParameterizedType) javaType).getActualTypeArguments()[0];
-                Type type = Type.forJavaType(propertyType);
-
-                properties.put(field.getName(), new Property(field.getName(), type, field));
             }
         }
-
+        return propertyMap;
     }
 
     public Iterable<Property> properties() {
-        return properties.values();
+        return getPropertyMap().values();
     }
 
     public Property getProperty(String name) {
-        Property result = properties.get(name);
+        Property result = getPropertyMap().get(name);
         if (result == null) {
             throw new RuntimeException("Property '" + name + "' does not exist in " + this);
         }
@@ -50,9 +55,9 @@ public class InstanceType extends Type {
             this.field = field;
         }
 
-        public void set(Instance instance, Object eval) {
+        public void set(Instance instance, Object value) {
             try {
-                ((Property) field.get(instance)).set(instance, eval);
+                ((org.kobjects.codechat.lang.MutableProperty) field.get(instance)).set(value);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
