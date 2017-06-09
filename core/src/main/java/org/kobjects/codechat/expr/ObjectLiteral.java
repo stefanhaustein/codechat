@@ -48,6 +48,9 @@ public class ObjectLiteral extends Expression {
 
             InstanceType.Property property = type.getProperty(key);
 
+            if (!property.isMutable()) {
+                throw new RuntimeException("Can't set read-only property " + key);
+            }
             if (!property.type.isAssignableFrom(resolved.getType())) {
                 throw new RuntimeException(key + " can't be assigned to type " + resolved.getType());
             }

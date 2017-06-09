@@ -55,9 +55,29 @@ public class InstanceType extends Type {
             this.field = field;
         }
 
+        public boolean isMutable() {
+            return MutableProperty.class.isAssignableFrom(field.getType());
+        }
+
+        public Object get(Instance instance) {
+            try {
+                return ((org.kobjects.codechat.lang.Property) field.get(instance)).get();
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         public void set(Instance instance, Object value) {
             try {
                 ((org.kobjects.codechat.lang.MutableProperty) field.get(instance)).set(value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public org.kobjects.codechat.lang.Property getProperty(Instance instance) {
+            try {
+                return (org.kobjects.codechat.lang.MutableProperty) field.get(instance);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }

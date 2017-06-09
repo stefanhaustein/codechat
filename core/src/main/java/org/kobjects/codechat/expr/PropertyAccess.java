@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 
 import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.InstanceType;
 import org.kobjects.codechat.lang.MutableProperty;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Property;
@@ -13,7 +15,7 @@ import org.kobjects.codechat.lang.Type;
 public class PropertyAccess extends Expression {
     String name;
     Expression base;
-    Field property;
+    InstanceType.Property property;
 
     public PropertyAccess(Expression left, Expression right) {
         if (!(right instanceof Identifier)) {
@@ -25,52 +27,34 @@ public class PropertyAccess extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        return getProperty(context).get();
+        return property.get((Instance) base.eval(context));
+    }
+
+    public Property getProperty(EvaluationContext context) {
+        return property.getProperty((Instance) base.eval(context));
     }
 
     public boolean isAssignable() {
-        return MutableProperty.class.isAssignableFrom(property.getType());
+        return property.isMutable();
     }
 
-
-    public Property getProperty(EvaluationContext context) {
-        Object baseValue = base.eval(context);
-        try {
-            return (Property) property.get(baseValue);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public void assign(EvaluationContext context, Object value) {
-        MutableProperty p = (MutableProperty) getProperty(context);
-        p.set(value);
+        property.set((Instance) base.eval(context), value);
     }
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
         base = base.resolve(parsingContext);
-        Class c = base.getType().getJavaClass();
-        try {
-            property = c.getField(name);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-        if (!Property.class.isAssignableFrom(property.getType())) {
-            throw new RuntimeException("Property " + name + " not found (not of type Property but: " + property.getType());
-        }
+        InstanceType instanceType = (InstanceType) base.getType();
+        property = instanceType.getProperty(name);
         return this;
     }
 
     @Override
     public Type getType() {
-        java.lang.reflect.Type javaType = property.getGenericType();
-        while (javaType instanceof Class) {
-            javaType = ((Class) javaType).getGenericSuperclass();
-        }
-        java.lang.reflect.Type propertyType = ((ParameterizedType) javaType).getActualTypeArguments()[0];
-        return Type.forJavaType(propertyType);
+        return property.type;
     }
 
     @Override
