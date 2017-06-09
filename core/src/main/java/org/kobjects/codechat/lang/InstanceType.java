@@ -77,7 +77,7 @@ public class InstanceType extends Type {
 
         public org.kobjects.codechat.lang.Property getProperty(Instance instance) {
             try {
-                return (org.kobjects.codechat.lang.MutableProperty) field.get(instance);
+                return (org.kobjects.codechat.lang.Property) field.get(instance);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
