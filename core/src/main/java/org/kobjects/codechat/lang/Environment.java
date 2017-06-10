@@ -88,15 +88,13 @@ public class Environment {
             Instance instance = reference.get();
             if (instance != null && !(instance instanceof StatementInstance) &&
                     !(instance instanceof OnInstance)) {
-                writer.write("new ");
-                writer.write(instance.toString());
-                writer.write("\n");
+                instance.dump(writer, true);
             }
         }
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                instance.dump(writer);
+                instance.dump(writer, false);
             }
         }
         for (RootVariable variable : rootVariables.values()) {

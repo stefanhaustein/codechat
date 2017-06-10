@@ -22,7 +22,13 @@ public class Instance {
         return name.toLowerCase() + "#" + id;
     }
 
-    public void dump(Writer writer) throws IOException {
+    public void dump(Writer writer, boolean ctor) throws IOException {
+        if (ctor) {
+            writer.write(toString());
+            writer.write("(");
+        }
+        boolean first = true;
+
         for (Field field : getClass().getFields()) {
             if (MutableProperty.class.isAssignableFrom(field.getType())) {
                 try {
@@ -30,12 +36,27 @@ public class Instance {
                     if (property.modified()) {
                         Object value = property.get();
                         if (value != null) {
-                            writer.write(toString());
-                            writer.write('.');
-                            writer.write(field.getName());
-                            writer.write(" = ");
-                            writer.write(Formatting.toLiteral(value));
-                            writer.write(";\n");
+                            if (value instanceof String || value instanceof Boolean || value instanceof Number) {
+                                if (ctor) {
+                                    if (first) {
+                                        first = false;
+                                    } else {
+                                        writer.write(", ");
+                                    }
+                                    writer.write(field.getName());
+                                    writer.write(": ");
+                                    writer.write(Formatting.toLiteral(value));
+                                }
+                            } else {
+                                if (!ctor) {
+                                    writer.write(toString());
+                                    writer.write('.');
+                                    writer.write(field.getName());
+                                    writer.write(" = ");
+                                    writer.write(Formatting.toLiteral(value));
+                                    writer.write(";\n");
+                                }
+                            }
                         }
                     }
                 } catch (IllegalAccessException e) {
@@ -44,6 +65,11 @@ public class Instance {
             }
         }
 
+        if (ctor) {
+            writer.write(")\n");
+        }
+
+        /*
         for (Method method: getClass().getMethods()) {
             if (method.getName().startsWith("get") && method.getParameterTypes().length == 0 && !method.getName().equals("getClass")) {
                 try {
@@ -58,6 +84,7 @@ public class Instance {
 
             }
         }
+        */
 
     }
 }
