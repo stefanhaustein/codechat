@@ -7,9 +7,7 @@ import java.lang.reflect.Method;
 
 public class Instance {
     protected int id;
-    protected Environment environment;
     protected Instance(Environment environment, int id) {
-        this.environment = environment;
         this.id = id;
     }
 
