@@ -29,7 +29,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
         addSystemVariable("screen", screen);
         addSystemVariable("sensors", new Sensors(rootView.getContext()));
-        addType(Type.forJavaType(Sprite.class));
+        addType(Sprite.TYPE);
     }
 
     @Override

@@ -20,7 +20,7 @@ public class Literal extends Expression {
 
     @Override
     public Type getType() {
-        return Type.forJavaType(value.getClass());
+        return Type.of(value);
     }
 
     @Override

@@ -25,7 +25,7 @@ public class OnExpression extends AbstractResolved {
     @Override
     public Object eval(EvaluationContext context) {
         OnInstance result = (OnInstance) context.environment.getInstance(
-                Type.forJavaType(OnInstance.class), id, true);
+                onChange ? OnInstance.ONCHANGE_TYPE : OnInstance.ON_TYPE, id, true);
         EvaluationContext template = closure.createEvalContext(context);
         result.init(this, template);
         return result;
@@ -33,7 +33,7 @@ public class OnExpression extends AbstractResolved {
 
     @Override
     public Type getType() {
-        return Type.forJavaType(OnInstance.class);
+        return onChange ? OnInstance.ONCHANGE_TYPE : OnInstance.ON_TYPE;
     }
 
     @Override

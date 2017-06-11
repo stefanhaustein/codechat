@@ -51,7 +51,7 @@ public class Environment {
     public void addSystemVariable(String name, Object value) {
         RootVariable var = new RootVariable();
         var.name = name;
-        var.type = Type.forJavaType(value.getClass());
+        var.type = Type.of(value);
         var.value = value;
 
         systemVariables.put(name, var);
@@ -288,8 +288,11 @@ public class Environment {
     }
 
     public Type resolveType(String name) {
-        if (name.equals("on") || name.equals("onchange")) {
-            return Type.forJavaType(OnInstance.class);
+        if (name.equals("on")) {
+            return OnInstance.ON_TYPE;
+        }
+        if (name.equals("onchange")) {
+            return OnInstance.ONCHANGE_TYPE;
         }
         RootVariable var = rootVariables.get(name);
         if (var.type != Type.META_TYPE) {

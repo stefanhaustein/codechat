@@ -9,8 +9,8 @@ import java.util.List;
 import org.kobjects.codechat.type.TupleType;
 
 public class OnInstance extends Instance implements Property.PropertyListener {
-    private static final TupleType ON_TYPE = new TupleType("on", OnInstance.class);
-    private static final TupleType ONCHANGE_TYPE = new TupleType("onchange", OnInstance.class);
+    public static final TupleType ON_TYPE = new TupleType("on", OnInstance.class);
+    public static final TupleType ONCHANGE_TYPE = new TupleType("onchange", OnInstance.class);
 
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;

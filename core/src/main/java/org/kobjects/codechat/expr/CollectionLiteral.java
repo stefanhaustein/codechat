@@ -23,7 +23,7 @@ public class CollectionLiteral extends AbstractResolved {
         this.elements = elements;
         Type elementType;
         if (elements.length == 0) {
-            elementType = Type.forJavaType(Object.class);
+            elementType = Type.ANY;
         } else {
             elementType = elements[0].getType();
             for (int i = 1; i < elements.length; i++) {

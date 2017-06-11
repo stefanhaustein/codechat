@@ -9,10 +9,15 @@ public abstract class Type {
     public static final Type BOOLEAN = new SimpleType("boolean", Boolean.class);
     public static final Type VOID = new SimpleType("void", Void.TYPE);
     public static final Type META_TYPE = new SimpleType("metatype", Type.class);  // FIXME
+    public static final Type ANY = new SimpleType("any", Object.class);
 
     public static Class<?> getJavaClassForSignature(Type type) {
         Class javaClass = type.getJavaClass();
         return javaClass == Double.class ? Double.TYPE : javaClass == Boolean.class ? Boolean.TYPE : javaClass;
+    }
+
+    public static Type of(Object o) {
+        return o == null ? VOID : forJavaType(o.getClass());
     }
 
     public static Type forJavaType(java.lang.reflect.Type javaType) {
