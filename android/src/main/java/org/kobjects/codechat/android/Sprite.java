@@ -72,12 +72,12 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public SettableProperty<Double> direction = new SettableProperty<Double>() {
         @Override
         public Double get() {
-            return Math.atan2(dy.get(), dx.get()) * Math.PI / 180;
+            return Math.atan2(dy.get(), dx.get()) * 180 / Math.PI;
         }
 
         @Override
         public void set(Double value) {
-            move(speed.get(), this.get());
+            move(speed.get(), value);
         }
     };
 
@@ -91,7 +91,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
         @Override
         public void set(Double value) {
-            move(this.get(), direction.get());
+            move(value, direction.get());
         }
     };
 
