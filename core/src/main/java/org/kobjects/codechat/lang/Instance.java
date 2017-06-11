@@ -37,7 +37,7 @@ public class Instance {
                         Object value = property.get();
                         if (value != null) {
                             if (value instanceof String || value instanceof Boolean || value instanceof Number) {
-                                if (ctor) {
+                                if (ctor) { //  && !field.getName().equals("rotationSpeed")) {
                                     if (first) {
                                         first = false;
                                     } else {

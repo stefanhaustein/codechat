@@ -20,7 +20,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(100.0);
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
-    public VisualMaterialProperty<Double> rotation = new VisualMaterialProperty<>(0.0);
+    public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
     public LazyProperty<List<Sprite>> collisions = new LazyProperty<List<Sprite>>() {
         @Override
@@ -47,10 +47,11 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
     public MaterialProperty<Double> dx = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> dy = new MaterialProperty<>(0.0);
-    public MaterialProperty<Double> rotationSpeed = new MaterialProperty<>(0.0);
+    public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
+    public MaterialProperty<Double> rotationSpeed = rotation;
     public MaterialProperty<Boolean> touched = new MaterialProperty<>(false);
 
-    public SettableProperty<Double> angle = new SettableProperty<Double>() {
+    public SettableProperty<Double> direction = new SettableProperty<Double>() {
         @Override
         public Double get() {
             return Math.atan2(dy.get(), dx.get()) * Math.PI / 180;
@@ -67,12 +68,12 @@ public class Sprite extends Instance implements Ticking, Runnable {
         public Double get() {
             double dX = dx.get();
             double dY = dy.get();
-            return dX * dX + dY * dY;
+            return Math.sqrt(dX * dX + dY * dY);
         }
 
         @Override
         public void set(Double value) {
-            move(this.get(), angle.get());
+            move(this.get(), direction.get());
         }
     };
 
@@ -135,7 +136,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
         double size = this.size.get();
         view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - size / 2)));
         view.setY(environment.rootView.getMeasuredHeight()/2 - (float) (environment.scale * (y.get() + size / 2)));
-        view.setRotation(-rotation.get().floatValue());
+        view.setRotation(-angle.get().floatValue());
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = Math.round((float) (environment.scale * size));
         if (params.height != params.width) {
@@ -182,16 +183,16 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
             visible.invalidate();
         }
-        double rotationSpeedVaue = rotationSpeed.get();
+        double rotationSpeedVaue = rotation.get();
         if (rotationSpeedVaue != 0) {
-            double rotationValue = rotation.get() + rotationSpeedVaue;
+            double rotationValue = angle.get() + rotationSpeedVaue;
             while (rotationValue > 360) {
                 rotationValue -= 360;
             }
             while (rotationValue < -360) {
                 rotationValue += 360;
             }
-            rotation.set(rotationValue);
+            angle.set(rotationValue);
         }
     }
 
