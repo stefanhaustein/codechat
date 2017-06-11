@@ -3,11 +3,16 @@ package org.kobjects.codechat.expr;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
+import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
+import org.kobjects.codechat.type.ListType;
+import org.kobjects.codechat.type.MetaType;
+import org.kobjects.codechat.type.SetType;
+import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class UnresolvedInvocation extends AbstractUnresolved {
@@ -68,6 +73,13 @@ public class UnresolvedInvocation extends AbstractUnresolved {
                 paramTypes[i] = resolved[i].getType();
             }
 
+            if ("set".equals(name)) {
+                return new CollectionLiteral(SetType.class, resolved);
+            }
+            if ("list".equals(name)) {
+                return new CollectionLiteral(ListType.class, resolved);
+            }
+
             for (Object builtins : parsingContext.environment.builtins) {
                 Class<?> builtinClass = builtins instanceof Class ? (Class) builtins : builtins.getClass();
                 Class[] paramJavaTypes = new Class[resolved.length];
@@ -96,8 +108,11 @@ public class UnresolvedInvocation extends AbstractUnresolved {
 
         Expression resolvedBase = base.resolve(parsingContext);
 
-        if (resolvedBase.getType() == Type.META_TYPE) {
-            return new ObjectLiteral(base, new LinkedHashMap<String, Expression>()).resolve(parsingContext);
+        if (resolvedBase.getType() instanceof MetaType) {
+            Type baseType = ((MetaType)resolvedBase.getType()).getType();
+            if (baseType instanceof TupleType && resolved.length == 0) {
+                return new ObjectLiteral(base, new LinkedHashMap<String, Expression>()).resolve(parsingContext);
+            }
         }
 
         if (!(resolvedBase.getType() instanceof FunctionType)) {

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
+import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -295,7 +296,7 @@ public class Environment {
             return OnInstance.ONCHANGE_TYPE;
         }
         RootVariable var = rootVariables.get(name);
-        if (var.type != Type.META_TYPE) {
+        if (!(var.type instanceof MetaType)) {
             throw new RuntimeException("Not a type: " + name);
         }
         return (Type) var.value;

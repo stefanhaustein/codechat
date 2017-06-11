@@ -24,14 +24,6 @@ public class UnresolvedArrayExpression extends AbstractUnresolved {
             resolvedArguments[i] = arguments[i].resolve(parsingContext);
         }
 
-        String baseStr = base.toString();
-        if (baseStr.equals("set")) {
-            return new CollectionLiteral(SetType.class, resolvedArguments);
-        }
-        if (baseStr.equals("list")) {
-            return new CollectionLiteral(ListType.class, resolvedArguments);
-        }
-
         if (resolvedArguments.length != 1) {
             throw new RuntimeException("Exactly one array index expected");
         }
