@@ -17,11 +17,11 @@ public class Sprite extends Instance implements Ticking, Runnable {
     private static List<Sprite> allVisibleSprites = new ArrayList();
     AndroidEnvironment environment;
 
-    public VisualProperty<Double> size = new VisualProperty<>(100.0);
-    public VisualProperty<Double> x = new VisualProperty<>(0.0);
-    public VisualProperty<Double> y = new VisualProperty<>(0.0);
-    public VisualProperty<Double> rotation = new VisualProperty<>(0.0);
-    public VisualProperty<String> face = new VisualProperty<>(new String(Character.toChars(0x1f603)));
+    public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(100.0);
+    public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
+    public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
+    public VisualMaterialProperty<Double> rotation = new VisualMaterialProperty<>(0.0);
+    public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
     public LazyProperty<List<Sprite>> collisions = new LazyProperty<List<Sprite>>() {
         @Override
         protected List<Sprite> compute() {
@@ -45,10 +45,36 @@ public class Sprite extends Instance implements Ticking, Runnable {
         }
     };
 
-    public MutableProperty<Double> dx = new MutableProperty<>(0.0);
-    public MutableProperty<Double> dy = new MutableProperty<>(0.0);
-    public MutableProperty<Double> rotationSpeed = new MutableProperty<>(0.0);
-    public MaterialProperty<Boolean> touched = new MutableProperty<>(false);
+    public MaterialProperty<Double> dx = new MaterialProperty<>(0.0);
+    public MaterialProperty<Double> dy = new MaterialProperty<>(0.0);
+    public MaterialProperty<Double> rotationSpeed = new MaterialProperty<>(0.0);
+    public MaterialProperty<Boolean> touched = new MaterialProperty<>(false);
+
+    public SettableProperty<Double> angle = new SettableProperty<Double>() {
+        @Override
+        public Double get() {
+            return Math.atan2(dy.get(), dx.get()) * Math.PI / 180;
+        }
+
+        @Override
+        public void set(Double value) {
+            move(speed.get(), this.get());
+        }
+    };
+
+    public SettableProperty<Double> speed = new SettableProperty<Double>() {
+        @Override
+        public Double get() {
+            double dX = dx.get();
+            double dY = dy.get();
+            return dX * dX + dY * dY;
+        }
+
+        @Override
+        public void set(Double value) {
+            move(this.get(), angle.get());
+        }
+    };
 
     public LazyProperty<Boolean> visible = new LazyProperty<Boolean>() {
         @Override
@@ -183,9 +209,13 @@ public class Sprite extends Instance implements Ticking, Runnable {
     }
 
 
-    class VisualProperty<T> extends MutableProperty<T> {
+    abstract class SettableProperty<T> extends Property<T> implements Settable<T> {
 
-        public VisualProperty(T value) {
+    }
+
+    class VisualMaterialProperty<T> extends MaterialProperty<T> {
+
+        public VisualMaterialProperty(T value) {
             super(value);
         }
 

@@ -2,10 +2,10 @@ package org.kobjects.codechat.expr;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.kobjects.codechat.lang.Environment;
+
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.InstanceType;
+import org.kobjects.codechat.lang.JavaType;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Type;
 
@@ -14,7 +14,7 @@ import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 public class ObjectLiteral extends Expression {
 
     String typeName;
-    InstanceType type;
+    JavaType type;
     int id;
     LinkedHashMap<String, Expression> elements;
 
@@ -42,11 +42,11 @@ public class ObjectLiteral extends Expression {
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
-        type = (InstanceType) parsingContext.environment.resolveType(typeName);
+        type = (JavaType) parsingContext.environment.resolveType(typeName);
         for (String key: elements.keySet()) {
             Expression resolved = elements.get(key).resolve(parsingContext);
 
-            InstanceType.Property property = type.getProperty(key);
+            JavaType.Property property = type.getProperty(key);
 
             if (!property.isMutable()) {
                 throw new RuntimeException("Can't set read-only property " + key);

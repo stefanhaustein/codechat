@@ -1,13 +1,10 @@
 package org.kobjects.codechat.expr;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
-import org.kobjects.codechat.lang.Builtins;
-import org.kobjects.codechat.lang.Function;
+
 import org.kobjects.codechat.lang.FunctionType;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.InstanceType;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;

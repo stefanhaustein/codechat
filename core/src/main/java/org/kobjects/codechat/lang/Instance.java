@@ -30,9 +30,9 @@ public class Instance {
         boolean first = true;
 
         for (Field field : getClass().getFields()) {
-            if (MutableProperty.class.isAssignableFrom(field.getType())) {
+            if (MaterialProperty.class.isAssignableFrom(field.getType())) {
                 try {
-                    MutableProperty property = (MutableProperty) field.get(this);
+                    MaterialProperty property = (MaterialProperty) field.get(this);
                     if (property.modified()) {
                         Object value = property.get();
                         if (value != null) {

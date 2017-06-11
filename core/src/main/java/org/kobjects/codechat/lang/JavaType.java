@@ -4,11 +4,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.TreeMap;
 
-public class InstanceType extends Type {
+public class JavaType extends Type {
 
     TreeMap<String, Property> propertyMap;
 
-    protected InstanceType(Class javaClass) {
+    protected JavaType(Class javaClass) {
         super(javaClass);
     }
 
@@ -56,10 +56,10 @@ public class InstanceType extends Type {
         }
 
         public boolean isMutable() {
-            return MutableProperty.class.isAssignableFrom(field.getType());
+            return Settable.class.isAssignableFrom(field.getType());
         }
 
-        public Object get(Instance instance) {
+        public Object get(Object instance) {
             try {
                 return ((org.kobjects.codechat.lang.Property) field.get(instance)).get();
             } catch (IllegalAccessException e) {
@@ -67,15 +67,15 @@ public class InstanceType extends Type {
             }
         }
 
-        public void set(Instance instance, Object value) {
+        public void set(Object instance, Object value) {
             try {
-                ((org.kobjects.codechat.lang.MutableProperty) field.get(instance)).set(value);
+                ((org.kobjects.codechat.lang.Settable) field.get(instance)).set(value);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public org.kobjects.codechat.lang.Property getProperty(Instance instance) {
+        public org.kobjects.codechat.lang.Property getProperty(Object instance) {
             try {
                 return (org.kobjects.codechat.lang.Property) field.get(instance);
             } catch (IllegalAccessException e) {

@@ -3,11 +3,12 @@ package org.kobjects.codechat.lang;
 /**
  * Property backed by a stored value
  */
-public class MaterialProperty<T> extends Property<T> {
+public class MaterialProperty<T> extends Property<T> implements Settable<T> {
     protected T value;
+    private final T initialValue;
 
     public MaterialProperty(T value) {
-        this.value = value;
+        this.initialValue = this.value = value;
     }
 
     public void set(T newValue) {
@@ -23,9 +24,9 @@ public class MaterialProperty<T> extends Property<T> {
         return value;
     }
 
-    public boolean isAssignable() {
-        return false;
-    }
 
+    public boolean modified() {
+        return value != initialValue;
+    }
 
 }

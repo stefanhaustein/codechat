@@ -39,10 +39,8 @@ public class Type {
                 result = NUMBER;
             } else if (javaClass == Void.class || javaClass == Void.TYPE) {
                 result = VOID;
-            } else if (Instance.class.isAssignableFrom(javaClass)) {
-                result = new InstanceType(javaClass);
             } else {
-                result = new Type(javaClass);
+                result = new JavaType(javaClass);
             }
             cache.put(javaClass, result);
             return result;

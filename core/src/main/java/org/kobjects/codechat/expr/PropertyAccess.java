@@ -1,12 +1,7 @@
 package org.kobjects.codechat.expr;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.InstanceType;
-import org.kobjects.codechat.lang.MutableProperty;
+import org.kobjects.codechat.lang.JavaType;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.ParsingContext;
@@ -15,7 +10,7 @@ import org.kobjects.codechat.lang.Type;
 public class PropertyAccess extends Expression {
     String name;
     Expression base;
-    InstanceType.Property property;
+    JavaType.Property property;
 
     public PropertyAccess(Expression left, Expression right) {
         if (!(right instanceof Identifier)) {
@@ -27,11 +22,11 @@ public class PropertyAccess extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        return property.get((Instance) base.eval(context));
+        return property.get(base.eval(context));
     }
 
     public Property getProperty(EvaluationContext context) {
-        return property.getProperty((Instance) base.eval(context));
+        return property.getProperty(base.eval(context));
     }
 
     public boolean isAssignable() {
@@ -41,13 +36,13 @@ public class PropertyAccess extends Expression {
 
     @Override
     public void assign(EvaluationContext context, Object value) {
-        property.set((Instance) base.eval(context), value);
+        property.set(base.eval(context), value);
     }
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
         base = base.resolve(parsingContext);
-        InstanceType instanceType = (InstanceType) base.getType();
+        JavaType instanceType = (JavaType) base.getType();
         property = instanceType.getProperty(name);
         return this;
     }
