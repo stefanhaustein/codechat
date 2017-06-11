@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.type.JavaType;
 import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
@@ -14,7 +14,7 @@ import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 public class ObjectLiteral extends Expression {
 
     String typeName;
-    JavaType type;
+    TupleType type;
     int id;
     LinkedHashMap<String, Expression> elements;
 
@@ -42,13 +42,13 @@ public class ObjectLiteral extends Expression {
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
-        type = (JavaType) parsingContext.environment.resolveType(typeName);
+        type = (TupleType) parsingContext.environment.resolveType(typeName);
         for (String key: elements.keySet()) {
             Expression resolved = elements.get(key).resolve(parsingContext);
 
-            JavaType.Property property = type.getProperty(key);
+            TupleType.PropertyDescriptor property = type.getProperty(key);
 
-            if (!property.isMutable()) {
+            if (!property.writable) {
                 throw new RuntimeException("Can't set read-only property " + key);
             }
             if (!property.type.isAssignableFrom(resolved.getType())) {

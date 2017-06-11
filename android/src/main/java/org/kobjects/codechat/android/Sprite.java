@@ -9,8 +9,27 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 import org.kobjects.codechat.lang.*;
+import org.kobjects.codechat.type.ListType;
+import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.Type;
 
 public class Sprite extends Instance implements Ticking, Runnable {
+    public final static TupleType TYPE = new TupleType("sprite", Sprite.class);
+    static {
+        TYPE.addProperty(0, "size", Type.NUMBER, true);
+        TYPE.addProperty(1, "x", Type.NUMBER, true);
+        TYPE.addProperty(2, "y", Type.NUMBER, true);
+        TYPE.addProperty(3, "angle", Type.NUMBER, true);
+        TYPE.addProperty(4, "face", Type.STRING, true);
+        TYPE.addProperty(5, "collisions", new ListType(Type.NUMBER), true);
+        TYPE.addProperty(6, "dx", Type.NUMBER, true);
+        TYPE.addProperty(7, "dy", Type.NUMBER, true);
+        TYPE.addProperty(8, "rotation", Type.NUMBER, true);
+        TYPE.addProperty(9, "touched", Type.BOOLEAN, false);
+        TYPE.addProperty(10, "direction", Type.NUMBER, true);
+        TYPE.addProperty(11, "speed", Type.NUMBER, true);
+        TYPE.addProperty(12, "visible", Type.BOOLEAN, false);
+    }
 
     private final ImageView view;
     private boolean syncRequested;
@@ -48,7 +67,6 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public MaterialProperty<Double> dx = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> dy = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
-    public MaterialProperty<Double> rotationSpeed = rotation;
     public MaterialProperty<Boolean> touched = new MaterialProperty<>(false);
 
     public SettableProperty<Double> direction = new SettableProperty<Double>() {
@@ -206,6 +224,32 @@ public class Sprite extends Instance implements Ticking, Runnable {
         }
         synchronized (allVisibleSprites) {
             allVisibleSprites.remove(this);
+        }
+    }
+
+    @Override
+    public TupleType getType() {
+        return null;
+    }
+
+    @Override
+    public Property getProperty(int index) {
+        switch (index) {
+            case 0: return size;
+            case 1: return x;
+            case 2: return y;
+            case 3: return angle;
+            case 4: return face;
+            case 5: return collisions;
+            case 6: return dx;
+            case 7: return dy;
+            case 8: return rotation;
+            case 9: return touched;
+            case 10: return direction;
+            case 11: return speed;
+            case 12: return visible;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 

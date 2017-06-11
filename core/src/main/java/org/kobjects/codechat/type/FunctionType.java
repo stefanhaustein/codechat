@@ -9,8 +9,27 @@ public class FunctionType extends Type {
     public final Type[] parameterTypes;
 
     public FunctionType(Type returnType, Type... parameterTypes) {
-        super(Function.class);
         this.returnType = returnType;
         this.parameterTypes = parameterTypes;
+    }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("function(");
+        if (parameterTypes.length > 0) {
+            sb.append(parameterTypes[0]);
+            for (int i = 1; i < parameterTypes.length; i++) {
+                sb.append(", ");
+                sb.append(parameterTypes[i]);
+            }
+        }
+        sb.append(":").append(returnType);
+        return sb.toString();
+    }
+
+    @Override
+    public Class<?> getJavaClass() {
+        return Function.class;
     }
 }

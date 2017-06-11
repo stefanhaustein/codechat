@@ -1,16 +1,17 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.type.JavaType;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.lang.Tuple;
+import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class PropertyAccess extends Expression {
     String name;
     Expression base;
-    JavaType.Property property;
+    TupleType.PropertyDescriptor property;
 
     public PropertyAccess(Expression left, Expression right) {
         if (!(right instanceof Identifier)) {
@@ -22,27 +23,27 @@ public class PropertyAccess extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        return property.get(base.eval(context));
+        return property.get((Tuple) base.eval(context));
     }
 
     public Property getProperty(EvaluationContext context) {
-        return property.getProperty(base.eval(context));
+        return property.getProperty((Tuple) base.eval(context));
     }
 
     public boolean isAssignable() {
-        return property.isMutable();
+        return property.writable;
     }
 
 
     @Override
     public void assign(EvaluationContext context, Object value) {
-        property.set(base.eval(context), value);
+        property.set((Tuple) base.eval(context), value);
     }
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
         base = base.resolve(parsingContext);
-        JavaType instanceType = (JavaType) base.getType();
+        TupleType instanceType = (TupleType) base.getType();
         property = instanceType.getProperty(name);
         return this;
     }

@@ -1,8 +1,22 @@
 package org.kobjects.codechat.android;
 
 import org.kobjects.codechat.lang.MaterialProperty;
+import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.lang.Tuple;
+import org.kobjects.codechat.type.TupleType;
 
-public class Screen {
+public class Screen extends Tuple {
+
+    public static final TupleType TYPE = new TupleType("screenType", Screen.class);
+    static {
+        TYPE.addProperty(0, "width", TYPE.NUMBER, false);
+        TYPE.addProperty(1, "height", TYPE.NUMBER, false);
+        TYPE.addProperty(2, "top", TYPE.NUMBER, false);
+        TYPE.addProperty(3, "bottom", TYPE.NUMBER, false);
+        TYPE.addProperty(4, "left", TYPE.NUMBER, false);
+        TYPE.addProperty(5, "right", TYPE.NUMBER, false);
+        TYPE.addProperty(6, "frame", TYPE.NUMBER, false);
+    }
 
     MaterialProperty<Double> width = new MaterialProperty<>(1000.0);
     MaterialProperty<Double> height = new MaterialProperty<>(1000.0);
@@ -17,6 +31,26 @@ public class Screen {
 
     int oldNativeHeight;
     int oldNativeWidth;
+
+    @Override
+    public TupleType getType() {
+        return TYPE;
+    }
+
+    @Override
+    public Property getProperty(int index) {
+        switch (index) {
+            case 0: return width;
+            case 1: return height;
+            case 2: return top;
+            case 3: return bottom;
+            case 4: return left;
+            case 5: return right;
+            case 6: return frame;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
 
     public void update(int nativeWidth, int nativeHeight) {
         if (nativeWidth != oldNativeWidth || nativeHeight != oldNativeHeight) {
@@ -47,4 +81,5 @@ public class Screen {
     public String toString() {
         return "screen";
     }
+
 }

@@ -6,8 +6,12 @@ import org.kobjects.codechat.expr.PropertyAccess;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.kobjects.codechat.type.TupleType;
 
 public class OnInstance extends Instance implements Property.PropertyListener {
+    private static final TupleType ON_TYPE = new TupleType("on", OnInstance.class);
+    private static final TupleType ONCHANGE_TYPE = new TupleType("onchange", OnInstance.class);
+
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
     private OnExpression onExpression;
@@ -78,4 +82,13 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         return sb.toString();
     }
 
+    @Override
+    public TupleType getType() {
+        return onExpression.onChange ? ONCHANGE_TYPE : ON_TYPE;
+    }
+
+    @Override
+    public Property getProperty(int index) {
+        throw new IllegalArgumentException();
+    }
 }

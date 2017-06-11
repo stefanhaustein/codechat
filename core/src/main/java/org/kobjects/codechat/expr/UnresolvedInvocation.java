@@ -72,7 +72,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
                 Class<?> builtinClass = builtins instanceof Class ? (Class) builtins : builtins.getClass();
                 Class[] paramJavaTypes = new Class[resolved.length];
                 for (int i = 0; i < paramTypes.length; i++) {
-                    paramJavaTypes[i] = resolved[i].getType().getJavaClassForSignature();
+                    paramJavaTypes[i] = Type.getJavaClassForSignature(resolved[i].getType());
                 }
                 try {
                     Method method = builtinClass.getMethod(name, paramJavaTypes);

@@ -3,9 +3,8 @@ package org.kobjects.codechat.lang;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
-public class Instance {
+public abstract class Instance extends Tuple {
     protected int id;
     protected Instance(Environment environment, int id) {
         this.id = id;

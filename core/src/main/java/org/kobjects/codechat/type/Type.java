@@ -1,19 +1,19 @@
 package org.kobjects.codechat.type;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
 import java.util.List;
 
-public class Type {
-    public static final Type NUMBER = new Type(Double.class);
-    public static final Type STRING = new Type(String.class);
-    public static final Type BOOLEAN = new Type(Boolean.class);
-    public static final Type VOID = new Type(Void.TYPE);
-    public static final Type META_TYPE = new Type(Type.class);
+public abstract class Type {
+    public static final Type NUMBER = new SimpleType("number", Double.class);
+    public static final Type STRING = new SimpleType("string", String.class);
+    public static final Type BOOLEAN = new SimpleType("boolean", Boolean.class);
+    public static final Type VOID = new SimpleType("void", Void.TYPE);
+    public static final Type META_TYPE = new SimpleType("metatype", Type.class);  // FIXME
 
-    private static final HashMap<Class, Type> cache = new HashMap<>();
-
-    final Class javaClass;
+    public static Class<?> getJavaClassForSignature(Type type) {
+        Class javaClass = type.getJavaClass();
+        return javaClass == Double.class ? Double.TYPE : javaClass == Boolean.class ? Boolean.TYPE : javaClass;
+    }
 
     public static Type forJavaType(java.lang.reflect.Type javaType) {
         if (javaType instanceof ParameterizedType) {
@@ -27,51 +27,40 @@ public class Type {
 
         if (javaType instanceof Class) {
             Class javaClass = (Class) javaType;
-            Type result = cache.get(javaClass);
-            if (result != null) {
-                return result;
-            }
             if (Type.class.isAssignableFrom(javaClass)) {
-                result = META_TYPE;
-            } else if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
-                result = BOOLEAN;
-            } else if (javaClass == Double.class || javaClass == Double.TYPE) {
-                result = NUMBER;
-            } else if (javaClass == Void.class || javaClass == Void.TYPE) {
-                result = VOID;
-            } else {
-                result = new JavaType(javaClass);
+                return META_TYPE;
             }
-            cache.put(javaClass, result);
-            return result;
+            if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
+                return BOOLEAN;
+            }
+            if (javaClass == Double.class || javaClass == Double.TYPE) {
+                return NUMBER;
+            }
+            if (javaClass == Void.class || javaClass == Void.TYPE) {
+                return VOID;
+            }
+            try {
+                return (TupleType) javaClass.getField("TYPE").get(null);
+            } catch (Exception e) {}
+            return new SimpleType(javaClass.getSimpleName().toLowerCase(), javaClass);
         }
-
         throw new RuntimeException("Unrecognized Java type: " + javaType);
     }
 
 
-    protected Type(Class javaClass) {
-        this.javaClass = javaClass;
-    }
-
+    // FIXME: Abstract
     public boolean isAssignableFrom(Type other) {
-        return javaClass.isAssignableFrom(other.javaClass);
+        return getJavaClass().isAssignableFrom(other.getJavaClass());
     }
 
-    public Class<?> getJavaClass() {
-        return javaClass;
-    }
+    public abstract String getName();
 
+    // FIXME: Remove
+    public abstract Class<?> getJavaClass();
 
-    public Class<?> getJavaClassForSignature() {
-        return javaClass == Double.class ? Double.TYPE : javaClass == Boolean.class ? Boolean.TYPE : javaClass;
-    }
-
-    public String toString() {
-        if (javaClass == Double.class) {
-            return "number";
-        }
-        return javaClass.getSimpleName().toLowerCase();
+    @Override
+    public final String toString() {
+        return getName();
     }
 
     @Override
