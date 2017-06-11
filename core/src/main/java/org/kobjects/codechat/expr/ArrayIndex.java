@@ -2,10 +2,10 @@ package org.kobjects.codechat.expr;
 
 
 import java.util.List;
-import org.kobjects.codechat.lang.CollectionType;
+import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.Type;
+import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 

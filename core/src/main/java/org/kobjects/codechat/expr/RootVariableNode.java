@@ -2,7 +2,7 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.Type;
+import org.kobjects.codechat.type.Type;
 
 public class RootVariableNode extends AbstractResolved {
     public String name;

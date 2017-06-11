@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Function;
-import org.kobjects.codechat.lang.FunctionType;
+import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.lang.Type;
+import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 

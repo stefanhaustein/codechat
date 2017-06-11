@@ -1,4 +1,4 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.type;
 
 public abstract class CollectionType extends Type {
 

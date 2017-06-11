@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.JavaType;
+import org.kobjects.codechat.type.JavaType;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.Type;
+import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 

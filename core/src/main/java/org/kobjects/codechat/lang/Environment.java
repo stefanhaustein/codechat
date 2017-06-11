@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
+import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment {

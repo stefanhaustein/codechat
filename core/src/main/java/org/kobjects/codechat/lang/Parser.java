@@ -10,7 +10,6 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.expr.ObjectLiteral;
 import org.kobjects.codechat.expr.UnresolvedArrayExpression;
-import org.kobjects.codechat.expr.CollectionLiteral;
 import org.kobjects.codechat.expr.FunctionExpr;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.statement.Assignment;
@@ -32,6 +31,8 @@ import org.kobjects.codechat.statement.DeleteStatement;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.IfStatement;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.type.CollectionType;
+import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Parser {

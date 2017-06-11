@@ -1,5 +1,7 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.type;
 
+
+import org.kobjects.codechat.lang.Function;
 
 public class FunctionType extends Type {
 

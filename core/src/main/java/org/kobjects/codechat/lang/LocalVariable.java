@@ -1,5 +1,7 @@
 package org.kobjects.codechat.lang;
 
+import org.kobjects.codechat.type.Type;
+
 public class LocalVariable {
     private final String name;
     private final int index;

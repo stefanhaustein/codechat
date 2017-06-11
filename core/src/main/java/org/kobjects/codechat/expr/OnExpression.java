@@ -3,7 +3,7 @@ package org.kobjects.codechat.expr;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.OnInstance;
-import org.kobjects.codechat.lang.Type;
+import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 

@@ -1,11 +1,11 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.JavaType;
+import org.kobjects.codechat.type.JavaType;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.Type;
+import org.kobjects.codechat.type.Type;
 
 public class PropertyAccess extends Expression {
     String name;

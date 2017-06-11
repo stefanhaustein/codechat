@@ -1,8 +1,9 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.type;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.TreeMap;
+import org.kobjects.codechat.lang.Settable;
 
 public class JavaType extends Type {
 

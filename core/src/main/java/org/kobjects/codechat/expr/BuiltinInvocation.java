@@ -3,7 +3,7 @@ package org.kobjects.codechat.expr;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Type;
+import org.kobjects.codechat.type.Type;
 
 public class BuiltinInvocation extends AbstractResolved {
     static final Object[] EMPTY_ARRAY = new Object[0];

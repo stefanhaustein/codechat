@@ -1,4 +1,4 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.type;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
