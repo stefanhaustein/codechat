@@ -10,7 +10,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.expr.ObjectLiteral;
 import org.kobjects.codechat.expr.UnresolvedArrayExpression;
-import org.kobjects.codechat.expr.FunctionExpr;
+import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.statement.Assignment;
 import org.kobjects.codechat.expr.Identifier;
@@ -164,10 +164,10 @@ public class Parser {
         return type;
     }
 
-    FunctionExpr parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
+    FunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
         tokenizer.consume("(");
         ParsingContext bodyContext = new ParsingContext(parsingContext, true);
-        FunctionExpr result = new FunctionExpr(name);
+        FunctionExpression result = new FunctionExpression(name);
         if (!tokenizer.tryConsume(")")) {
             do {
                 String paramName = tokenizer.consumeIdentifier();
@@ -236,7 +236,7 @@ public class Parser {
         }
         if (tokenizer.tryConsume("function")) {
             String name = tokenizer.consumeIdentifier();
-            FunctionExpr functionExpr = parseFunction(parsingContext, tokenizer, name);
+            FunctionExpression functionExpr = parseFunction(parsingContext, tokenizer, name);
             return new ExpressionStatement(functionExpr);
         }
         if (tokenizer.tryConsume("if")) {

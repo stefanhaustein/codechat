@@ -3,7 +3,6 @@ package org.kobjects.codechat.expr;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
-import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Parser;
@@ -93,7 +92,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
                 }
             }
 
-            String qualifiedName = FunctionExpr.getQualifiedName(name, paramTypes);
+            String qualifiedName = FunctionExpression.getQualifiedName(name, paramTypes);
             RootVariable fVar = parsingContext.environment.rootVariables.get(qualifiedName);
             if (fVar != null && fVar.type instanceof FunctionType) {
                 return new FunctionInvocation(new RootVariableNode(qualifiedName, fVar.type), resolved);
@@ -122,7 +121,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
         FunctionType functionType = (FunctionType) resolvedBase.getType();
 
         if (functionType.parameterTypes.length != resolved.length) {
-            throw new RuntimeException("Function argument count mismatch.");
+            throw new RuntimeException("UserFunction argument count mismatch.");
         }
 
         for (int i = 0; i < resolved.length; i++) {

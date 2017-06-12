@@ -3,7 +3,7 @@ package org.kobjects.codechat.expr;
 import java.util.ArrayList;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Function;
+import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
@@ -11,7 +11,7 @@ import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 
-public class FunctionExpr extends Expression {
+public class FunctionExpression extends Expression {
 
     public static String getQualifiedName(String name, Type... types) {
         StringBuilder sb = new StringBuilder(name);
@@ -29,13 +29,13 @@ public class FunctionExpr extends Expression {
     private FunctionType type;
     public String name;
 
-    public FunctionExpr(String name) {
+    public FunctionExpression(String name) {
         this.name = name;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
-        Function result = new Function(this, closure.createEvalContext(context));
+        UserFunction result = new UserFunction(this, closure.createEvalContext(context));
         if (name != null) {
             String qualifiedName = getQualifiedName(name, type.parameterTypes);
             RootVariable var = new RootVariable();

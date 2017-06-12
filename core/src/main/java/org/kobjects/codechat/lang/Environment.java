@@ -101,11 +101,11 @@ public class Environment {
         }
         for (RootVariable variable : rootVariables.values()) {
             if (variable.value != null && !systemVariables.containsKey(variable.name)) {
-                if (variable.value instanceof Function)  {
-                    Function function = (Function) variable.value;
-                    if (function.definition.name != null) {
+                if (variable.value instanceof UserFunction)  {
+                    UserFunction function = (UserFunction) variable.value;
+                    if (function.isNamed()) {
                         StringBuilder sb = new StringBuilder();
-                        function.definition.serializeSignature(sb);
+                        function.serializeSignature(sb);
                         sb.append(";\n");
                         writer.write(sb.toString());
                     }
@@ -119,8 +119,8 @@ public class Environment {
         }
 
         for (RootVariable variable : rootVariables.values()) {
-            if (!systemVariables.containsKey(variable.name) && variable.value instanceof Function) {
-                if (((Function) variable.value).definition.name != null) {
+            if (!systemVariables.containsKey(variable.name) && variable.value instanceof UserFunction) {
+                if (((UserFunction) variable.value).isNamed()) {
                     writer.write(toLiteral(variable.value));
                 } else {
                     writer.write(variable.name);

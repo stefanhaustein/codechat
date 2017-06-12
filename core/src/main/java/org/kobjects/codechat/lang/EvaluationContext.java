@@ -10,7 +10,6 @@ public class EvaluationContext {
         this.variables = new Object[varCount];
     }
 
-
     public EvaluationContext clone() {
         EvaluationContext result = new EvaluationContext(environment, variables.length);
         System.arraycopy(variables, 0, result.variables, 0, variables.length);

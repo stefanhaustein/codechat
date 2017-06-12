@@ -1,7 +1,7 @@
 package org.kobjects.codechat.type;
 
 
-import org.kobjects.codechat.lang.Function;
+import org.kobjects.codechat.lang.UserFunction;
 
 public class FunctionType extends Type {
 
@@ -30,6 +30,6 @@ public class FunctionType extends Type {
 
     @Override
     public Class<?> getJavaClass() {
-        return Function.class;
+        return UserFunction.class;
     }
 }
