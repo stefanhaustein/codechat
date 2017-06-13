@@ -37,12 +37,7 @@ public class FunctionExpression extends Expression {
     public Object eval(EvaluationContext context) {
         UserFunction result = new UserFunction(this, closure.createEvalContext(context));
         if (name != null) {
-            String qualifiedName = getQualifiedName(name, type.parameterTypes);
-            RootVariable var = new RootVariable();
-            var.name = qualifiedName;
-            var.type = getType();
-            var.value = result;
-            context.environment.rootVariables.put(qualifiedName, var);
+            context.environment.addFunction(name, result);
         }
         return result;
     }
@@ -53,7 +48,7 @@ public class FunctionExpression extends Expression {
     }
 
     @Override
-    public Type getType() {
+    public FunctionType getType() {
         return type;
     }
 

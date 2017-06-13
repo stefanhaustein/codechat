@@ -1,13 +1,13 @@
 package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.type.FunctionType;
+import org.kobjects.codechat.type.Type;
 
 public abstract class NativeFunction implements Function {
+    private final FunctionType type;
 
-    FunctionType type;
-
-    public NativeFunction(FunctionType functionType) {
-        this.type = type;
+    public NativeFunction(Type returnType, Type... parameterTypes) {
+        this.type = new FunctionType(returnType, parameterTypes);
     }
 
     @Override
@@ -21,4 +21,9 @@ public abstract class NativeFunction implements Function {
     }
 
     protected abstract Object eval(Object[] params);
+
+    @Override
+    public FunctionType getType() {
+        return type;
+    }
 }

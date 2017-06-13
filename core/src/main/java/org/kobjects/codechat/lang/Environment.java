@@ -13,8 +13,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
+import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
+import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
@@ -34,13 +36,44 @@ public class Environment {
     /** Copied to rootVariables on clearAll */
     public Map<String,RootVariable> systemVariables = new TreeMap<>();
 
+    enum MathFnType {COS, ROUND, ACOS, ATAN, ASIN, ABS, TAN, SIN};
+
+    static class MathFn extends NativeFunction {
+        MathFnType type;
+        MathFn(MathFnType type) {
+            super(Type.NUMBER, Type.NUMBER);
+            this.type = type;
+        }
+
+        @Override
+        protected Object eval(Object[] params) {
+            double arg = (Double) params[0];
+            switch (type) {
+                case ABS: return Math.abs(arg);
+                case ACOS: return Math.acos(arg);
+                case ATAN: return Math.atan(arg);
+                case ASIN: return Math.asin(arg);
+                case COS: return Math.cos(arg);
+                case ROUND: return Math.round(arg);
+                case SIN: return Math.sin(arg);
+                case TAN: return Math.tan(arg);
+                default:
+                    throw new RuntimeException();
+            }
+        }
+    }
+
+
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
         this.codeDir = codeDir;
         this.builtins.add(new Builtins(this));
-        this.builtins.add(Math.class);
 
         addType(Type.BOOLEAN, Type.NUMBER, Type.STRING, Type.VOID);
+
+        for (MathFnType mathFnType : MathFnType.values()) {
+            addFunction(mathFnType.name().toLowerCase(), new MathFn(mathFnType));
+        }
     }
 
     public void addType(Type... types) {
@@ -312,6 +345,21 @@ public class Environment {
         } else if (!rootVariable.type.isAssignableFrom(type)) {
             throw new RuntimeException("Can't assign type " + type + " to variable " + name + " of type " + rootVariable.type);
         }
+    }
+
+    public void addFunction(String name, Function function) {
+        FunctionType type = function.getType();
+        String qualifiedName = FunctionExpression.getQualifiedName(name, type.parameterTypes);
+        RootVariable var = new RootVariable();
+        var.name = qualifiedName;
+        var.type = type;
+        var.value = function;
+        rootVariables.put(qualifiedName, var);
+        if (function instanceof NativeFunction) {
+            systemVariables.put(qualifiedName, var);
+        }
+
+
     }
 
     public interface EnvironmentListener {

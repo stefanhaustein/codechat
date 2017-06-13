@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.expr.FunctionExpression;
+import org.kobjects.codechat.type.FunctionType;
 
 public class UserFunction implements Function {
     private FunctionExpression definition;
@@ -21,6 +22,11 @@ public class UserFunction implements Function {
 
     public Object eval(EvaluationContext functionContext) {
         return definition.body.eval(functionContext);
+    }
+
+    @Override
+    public FunctionType getType() {
+        return definition.getType();
     }
 
     public String toString() {

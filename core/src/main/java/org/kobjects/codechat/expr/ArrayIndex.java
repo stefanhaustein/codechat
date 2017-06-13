@@ -9,7 +9,7 @@ import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 
-public class ArrayIndex extends Expression {
+public class ArrayIndex extends AbstractResolved {
 
     Expression base;
     Expression index;
@@ -22,19 +22,6 @@ public class ArrayIndex extends Expression {
     @Override
     public Object eval(EvaluationContext context) {
         return ((List) base.eval(context)).get(((Number) index.eval(context)).intValue());
-    }
-
-    @Override
-    public Expression resolve(ParsingContext parsingContext) {
-        base = base.resolve(parsingContext);
-        if (!(base.getType() instanceof CollectionType)) {
-            throw new RuntimeException("Array expected for index access");
-        }
-        index = index.resolve(parsingContext);
-        if (!index.getType().equals(Type.NUMBER)) {
-            throw new RuntimeException("Array index must be a number.");
-        }
-        return this;
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import org.kobjects.codechat.type.Type;
 
 public class Builtins {
     Environment environment;
