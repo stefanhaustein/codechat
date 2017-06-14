@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
@@ -18,13 +19,11 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.MetaType;
+import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment {
-
-    public ArrayList<Object> builtins = new ArrayList<>();
-
     public boolean paused;
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
@@ -36,44 +35,89 @@ public class Environment {
     /** Copied to rootVariables on clearAll */
     public Map<String,RootVariable> systemVariables = new TreeMap<>();
 
-    enum MathFnType {COS, ROUND, ACOS, ATAN, ASIN, ABS, TAN, SIN};
-
-    static class MathFn extends NativeFunction {
-        MathFnType type;
-        MathFn(MathFnType type) {
-            super(Type.NUMBER, Type.NUMBER);
-            this.type = type;
-        }
-
-        @Override
-        protected Object eval(Object[] params) {
-            double arg = (Double) params[0];
-            switch (type) {
-                case ABS: return Math.abs(arg);
-                case ACOS: return Math.acos(arg);
-                case ATAN: return Math.atan(arg);
-                case ASIN: return Math.asin(arg);
-                case COS: return Math.cos(arg);
-                case ROUND: return Math.round(arg);
-                case SIN: return Math.sin(arg);
-                case TAN: return Math.tan(arg);
-                default:
-                    throw new RuntimeException();
-            }
-        }
-    }
-
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
         this.codeDir = codeDir;
-        this.builtins.add(new Builtins(this));
 
         addType(Type.BOOLEAN, Type.NUMBER, Type.STRING, Type.VOID);
 
+        addBuiltins();
+    }
+
+    private void addBuiltins() {
         for (MathFnType mathFnType : MathFnType.values()) {
             addFunction(mathFnType.name().toLowerCase(), new MathFn(mathFnType));
         }
+
+        addFunction("print", new PrintFunction(Type.STRING));
+        addFunction("print", new PrintFunction(Type.BOOLEAN));
+        addFunction("print", new PrintFunction(Type.NUMBER));
+
+        addFunction("atan2", new NativeFunction(Type.NUMBER, Type.NUMBER, Type.NUMBER) {
+            @Override
+            protected Object eval(Object[] params) {
+                return Math.atan2((Double) params[0], (Double) params[1]);
+            }
+        });
+        addFunction("clearAll", new NativeFunction(Type.VOID) {
+            @Override
+            protected Object eval(Object[] params) {
+                clearAll();
+                environmentListener.setName("CodeChat");
+                return null;
+            }
+        });
+        addFunction("continue", new NativeFunction(Type.VOID) {
+            @Override
+            protected Object eval(Object[] params) {
+                pause(false);
+                return null;
+            }
+        });
+        addFunction("list", new NativeFunction(Type.VOID) {
+            @Override
+            protected Object eval(Object[] params) {
+                list();
+                return null;
+            }
+        });
+        addFunction("pause", new NativeFunction(Type.VOID) {
+            @Override
+            protected Object eval(Object[] params) {
+                pause(true);
+                return null;
+            }
+        });
+        addFunction("save", new NativeFunction(Type.VOID, Type.STRING) {
+            @Override
+            protected Object eval(Object[] params) {
+                save((String) params[0]);
+                return null;
+            }
+        });
+        addFunction("random", new NativeFunction(Type.NUMBER) {
+            @Override
+            protected Object eval(Object[] params) {
+                return Math.random();
+            }
+        });
+
+    }
+
+
+    private void list() {
+        StringWriter sw = new StringWriter();
+        try {
+            dump(sw);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String list = sw.toString();
+        while (list.endsWith("\n")) {
+            list = list.substring(0, list.length() - 1);
+        }
+        environmentListener.print(list);
     }
 
     public void addType(Type... types) {
@@ -367,4 +411,54 @@ public class Environment {
         void setName(String name);
         void print(String s);
     }
+
+
+    enum MathFnType {ABS, ACOS, ASIN, ATAN, CEIL, COS, COSH, EXP, FLOOR, LOG, LOG10, ROUND, SIGNUM, SIN, SINH, TAN, TANH};
+
+    static class MathFn extends NativeFunction {
+        MathFnType type;
+        MathFn(MathFnType type) {
+            super(Type.NUMBER, Type.NUMBER);
+            this.type = type;
+        }
+
+        @Override
+        protected Object eval(Object[] params) {
+            double arg = (Double) params[0];
+            switch (type) {
+                case ABS: return Math.abs(arg);
+                case ACOS: return Math.acos(arg);
+                case ATAN: return Math.atan(arg);
+                case ASIN: return Math.asin(arg);
+                case CEIL: return Math.ceil(arg);
+                case COS: return Math.cos(arg);
+                case COSH: return Math.cosh(arg);
+                case EXP: return Math.exp(arg);
+                case FLOOR: return Math.floor(arg);
+                case LOG: return Math.log(arg);
+                case LOG10: return Math.log10(arg);
+                case ROUND: return Math.round(arg);
+                case SIGNUM: return Math.signum(arg);
+                case SIN: return Math.sin(arg);
+                case SINH: return Math.sinh(arg);
+                case TAN: return Math.tan(arg);
+                case TANH: return Math.tanh(arg);
+                default:
+                    throw new RuntimeException();
+            }
+        }
+    }
+
+    class PrintFunction extends NativeFunction {
+        PrintFunction(Type type) {
+            super(Type.VOID, type);
+        }
+
+        @Override
+        protected Object eval(Object[] params) {
+            environmentListener.print(String.valueOf(params[0]));
+            return null;
+        }
+    }
+
 }

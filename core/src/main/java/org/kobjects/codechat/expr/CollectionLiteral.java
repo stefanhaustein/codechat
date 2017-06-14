@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.TreeSet;
 
-import org.kobjects.codechat.type.ListType;
+import org.kobjects.codechat.type.ArrayType;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.type.SetType;
@@ -34,13 +34,13 @@ public class CollectionLiteral extends AbstractResolved {
                 }
             }
         }
-        type = collectionTypeClass == SetType.class ? new SetType(elementType) : new ListType(elementType);
+        type = collectionTypeClass == SetType.class ? new SetType(elementType) : new ArrayType(elementType);
     }
 
     @Override
     public Object eval(EvaluationContext context) {
         Collection<Object> result;
-        if (type instanceof ListType) {
+        if (type instanceof ArrayType) {
             result = new ArrayList<>(elements.length);
         } else if (Comparable.class.isAssignableFrom(type.elementType.getJavaClass())) {
             result = new TreeSet<>();
@@ -65,7 +65,7 @@ public class CollectionLiteral extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append(collectionTypeClass == SetType.class ? "set[" : "list[");
+        sb.append(collectionTypeClass == SetType.class ? "set(" : "array(");
         if (elements.length > 0) {
             elements[0].toString(sb, indent);
             for (int i = 1; i < elements.length; i++) {
@@ -73,7 +73,7 @@ public class CollectionLiteral extends AbstractResolved {
                 elements[i].toString(sb, indent);
             }
         }
-        sb.append(']');
+        sb.append(')');
     }
 
     @Override

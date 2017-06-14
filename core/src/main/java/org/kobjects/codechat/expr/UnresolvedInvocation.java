@@ -8,7 +8,7 @@ import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.type.ListType;
+import org.kobjects.codechat.type.ArrayType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.TupleType;
@@ -75,27 +75,14 @@ public class UnresolvedInvocation extends AbstractUnresolved {
             if ("set".equals(name)) {
                 return new CollectionLiteral(SetType.class, resolved);
             }
-            if ("list".equals(name)) {
-                return new CollectionLiteral(ListType.class, resolved);
-            }
-
-            for (Object builtins : parsingContext.environment.builtins) {
-                Class<?> builtinClass = builtins instanceof Class ? (Class) builtins : builtins.getClass();
-                Class[] paramJavaTypes = new Class[resolved.length];
-                for (int i = 0; i < paramTypes.length; i++) {
-                    paramJavaTypes[i] = Type.getJavaClassForSignature(resolved[i].getType());
-                }
-                try {
-                    Method method = builtinClass.getMethod(name, paramJavaTypes);
-                    return new BuiltinInvocation(builtins instanceof Class ? null : builtins, method, parens, resolved);
-                } catch (NoSuchMethodException e) {
-                }
+            if ("array".equals(name)) {
+                return new CollectionLiteral(ArrayType.class, resolved);
             }
 
             String qualifiedName = FunctionExpression.getQualifiedName(name, paramTypes);
             RootVariable fVar = parsingContext.environment.rootVariables.get(qualifiedName);
             if (fVar != null && fVar.type instanceof FunctionType) {
-                return new FunctionInvocation(new RootVariableNode(qualifiedName, fVar.type), resolved);
+                return new FunctionInvocation(new RootVariableNode(qualifiedName, fVar.type), parens, resolved);
             }
 
         } else {
@@ -130,7 +117,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
             }
         }
 
-        return new FunctionInvocation(resolvedBase, resolved);
+        return new FunctionInvocation(resolvedBase, parens, resolved);
     }
 
     @Override

@@ -1,8 +1,6 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;

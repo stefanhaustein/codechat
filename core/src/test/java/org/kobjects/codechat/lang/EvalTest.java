@@ -21,8 +21,8 @@ public class EvalTest {
 
     @Test
     public void testArrays() {
-        assertEquals(Double.valueOf(3), shell.eval("size(list(1,2,3))"));
-        assertEquals(Double.valueOf(2), shell.eval("list(1,2,3)[1]"));
+        // assertEquals(Double.valueOf(3), shell.eval("size(array(1,2,3))"));
+        assertEquals(Double.valueOf(2), shell.eval("array(1,2,3)[1]"));
     }
 
         @Test

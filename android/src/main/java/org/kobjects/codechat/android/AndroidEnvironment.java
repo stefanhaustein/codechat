@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.NativeFunction;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
@@ -25,11 +26,17 @@ public class AndroidEnvironment extends Environment implements Runnable {
         this.rootView = rootView;
         handler.postDelayed(this, 100);
 
-        builtins.add(new AndroidBuiltins(this));
-
         addSystemVariable("screen", screen);
         addSystemVariable("sensors", new Sensors(rootView.getContext()));
         addType(Sprite.TYPE);
+
+        addFunction("move", new NativeFunction(Type.VOID, Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
+            @Override
+            protected Object eval(Object[] params) {
+                ((Sprite) params[0]).move((Double) params[1], (Double) params[2]);
+                return null;
+            }
+        });
     }
 
     @Override

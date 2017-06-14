@@ -2,17 +2,18 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Function;
-import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
 public class FunctionInvocation extends AbstractResolved {
 
     Expression base;
+    boolean parens;
     Expression[] parameters;
 
-    public FunctionInvocation(Expression base, Expression[] parameters) {
+    public FunctionInvocation(Expression base, boolean parens, Expression... parameters) {
         this.base = base;
+        this.parens = parens;
         this.parameters = parameters;
     }
 
@@ -39,7 +40,7 @@ public class FunctionInvocation extends AbstractResolved {
     @Override
     public void toString(StringBuilder sb, int indent) {
         base.toString(sb, indent);
-        sb.append("(");
+        sb.append(parens ? '(' : ' ');
         if (parameters.length > 0) {
             parameters[0].toString(sb, indent);
             for (int i = 1; i < parameters.length; i++) {
@@ -47,7 +48,9 @@ public class FunctionInvocation extends AbstractResolved {
                 parameters[i].toString(sb, indent);
             }
         }
-        sb.append(")");
+        if (parens) {
+            sb.append(")");
+        }
     }
 
     @Override

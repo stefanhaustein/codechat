@@ -10,7 +10,7 @@ public class SetType extends CollectionType {
 
     @Override
     public String getName() {
-        return "set<" + elementType + ">";
+        return "set[" + elementType + "]";
     }
 
     @Override

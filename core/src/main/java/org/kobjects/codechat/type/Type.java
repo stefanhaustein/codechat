@@ -34,7 +34,7 @@ public abstract class Type {
             ParameterizedType parameterizedType = (ParameterizedType) javaType;
             Class rawType = (Class) parameterizedType.getRawType();
             if (List.class.isAssignableFrom(rawType)) {
-                return new ListType(forJavaType(parameterizedType.getActualTypeArguments()[0]));
+                return new ArrayType(forJavaType(parameterizedType.getActualTypeArguments()[0]));
             }
             javaType = rawType;
         }

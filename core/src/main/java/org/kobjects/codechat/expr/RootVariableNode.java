@@ -30,7 +30,8 @@ public class RootVariableNode extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append(name);
+        int cut = name.indexOf(':');
+        sb.append(cut == -1 ? name : name.substring(0, cut));
     }
 
     @Override
