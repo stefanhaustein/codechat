@@ -17,6 +17,7 @@ public abstract class Type {
     }
 
     public static Type of(Object o) {
+        // Fixme: Add "typed" interface.
         if (o == null) {
             return VOID;
         }
@@ -26,39 +27,19 @@ public abstract class Type {
         if (o instanceof Tuple) {
             return ((Tuple) o).getType();
         }
-        return forJavaType(o.getClass());
-    }
-
-    public static Type forJavaType(java.lang.reflect.Type javaType) {
-        if (javaType instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) javaType;
-            Class rawType = (Class) parameterizedType.getRawType();
-            if (List.class.isAssignableFrom(rawType)) {
-                return new ArrayType(forJavaType(parameterizedType.getActualTypeArguments()[0]));
-            }
-            javaType = rawType;
+        if (o instanceof Boolean) {
+            return Type.BOOLEAN;
         }
-
-        if (javaType instanceof Class) {
-            Class javaClass = (Class) javaType;
-            if (Type.class.isAssignableFrom(javaClass)) {
-                return new MetaType(Type.ANY);
-            }
-            if (javaClass == Boolean.class || javaClass == Boolean.TYPE) {
-                return BOOLEAN;
-            }
-            if (javaClass == Double.class || javaClass == Double.TYPE) {
-                return NUMBER;
-            }
-            if (javaClass == Void.class || javaClass == Void.TYPE) {
-                return VOID;
-            }
-            try {
-                return (TupleType) javaClass.getField("TYPE").get(null);
-            } catch (Exception e) {}
-            return new SimpleType(javaClass.getSimpleName().toLowerCase(), javaClass);
+        if (o instanceof Double) {
+            return Type.NUMBER;
         }
-        throw new RuntimeException("Unrecognized Java type: " + javaType);
+        if (o instanceof String) {
+            return Type.STRING;
+        }
+        if (o instanceof Type) {
+            return new MetaType((Type) o);
+        }
+        return Type.ANY;
     }
 
 
