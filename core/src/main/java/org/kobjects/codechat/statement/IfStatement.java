@@ -7,17 +7,21 @@ import org.kobjects.codechat.lang.Environment;
 public class IfStatement extends AbstractStatement {
     Environment environment;
     public Expression condition;
-    public Statement body;
+    public Statement ifBody;
+    public Statement elseBody;
 
-    public IfStatement(Expression condition, Statement body) {
+    public IfStatement(Expression condition, Statement ifBody, Statement elseBody) {
         this.condition = condition;
-        this.body = body;
+        this.ifBody = ifBody;
+        this.elseBody = elseBody;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
         if (Boolean.TRUE.equals(condition.eval(context))) {
-            body.eval(context);
+            ifBody.eval(context);
+        } else if (elseBody != null) {
+            elseBody.eval(context);
         }
         return KEEP_GOING;
     }
@@ -26,8 +30,13 @@ public class IfStatement extends AbstractStatement {
     public void toString(StringBuilder sb, int indent) {
         AbstractStatement.indent(sb, indent);
         sb.append("if ").append(condition).append(" {\n");
-        body.toString(sb, indent + 1);
+        ifBody.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
+        if (elseBody != null) {
+            sb.append("} else {\n");
+            elseBody.toString(sb, indent + 1);
+            AbstractStatement.indent(sb, indent);
+        }
         sb.append("}\n");
     }
 }

@@ -211,9 +211,19 @@ public class Parser {
     }
 
     IfStatement parseIf(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
-        final Expression condition = parseExpression(parsingContext, tokenizer);
-        final Statement body = parseBody(parsingContext, tokenizer);
-        return new IfStatement(condition, body);
+        Expression condition = parseExpression(parsingContext, tokenizer);
+        Statement ifBody = parseBody(parsingContext, tokenizer);
+
+        Statement elseBody = null;
+        if (tokenizer.tryConsume("else")) {
+            if (tokenizer.tryConsume("{")) {
+                elseBody = parseBlock(parsingContext, tokenizer, "}");
+            } else {
+                tokenizer.tryConsume(":");
+                elseBody = parseStatement(parsingContext, tokenizer, false);
+            } 
+        }
+        return new IfStatement(condition, ifBody, elseBody);
     }
 
     VarStatement parseVar(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -274,7 +284,11 @@ public class Parser {
 
         if (unresolved instanceof Identifier) {
             ArrayList<Expression> params = new ArrayList<>();
-            while (!tokenizer.currentValue.equals("") && !tokenizer.currentValue.equals(";")) {
+            while (!tokenizer.currentValue.equals("")
+                    && !tokenizer.currentValue.equals(";")
+                    && !tokenizer.currentValue.equals("}")
+                    && !tokenizer.currentValue.equals("{")
+                    && !tokenizer.currentValue.equals("else")) {
                 Expression param = expressionParser.parse(parsingContext, tokenizer);
                 params.add(param);
                 tokenizer.tryConsume(",");
@@ -337,7 +351,7 @@ public class Parser {
     public ExpressionParser.Tokenizer createTokenizer(Reader reader) {
         ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
                 new Scanner(reader),
-                expressionParser.getSymbols(), ":", "{", "}");
+                expressionParser.getSymbols() , ":", "{", "}");
         tokenizer.identifierPattern = IDENTIFIER_PATTERN;
         return tokenizer;
     }
@@ -473,7 +487,6 @@ public class Parser {
      */
     ExpressionParser<Expression, ParsingContext> createExpressionParser() {
         ExpressionParser<Expression, ParsingContext> parser = new ExpressionParser<>(new Processor());
-
 
         parser.addGroupBrackets("(", null, ")");
         // parser.addGroupBrackets("[", ",", "]");
