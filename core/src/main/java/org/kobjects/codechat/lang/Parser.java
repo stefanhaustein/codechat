@@ -221,7 +221,7 @@ public class Parser {
             } else {
                 tokenizer.tryConsume(":");
                 elseBody = parseStatement(parsingContext, tokenizer, false);
-            } 
+            }
         }
         return new IfStatement(condition, ifBody, elseBody);
     }
