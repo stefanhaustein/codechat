@@ -1,10 +1,7 @@
 package org.kobjects.codechat.type;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.List;
-import org.kobjects.codechat.lang.Tuple;
 
-public abstract class Type {
+public abstract class Type implements Typed {
     public static final Type NUMBER = new SimpleType("number", Double.class);
     public static final Type STRING = new SimpleType("string", String.class);
     public static final Type BOOLEAN = new SimpleType("boolean", Boolean.class);
@@ -24,8 +21,8 @@ public abstract class Type {
         if (o instanceof Type) {
             return new MetaType((Type) o);
         }
-        if (o instanceof Tuple) {
-            return ((Tuple) o).getType();
+        if (o instanceof Typed) {
+            return ((Typed) o).getType();
         }
         if (o instanceof Boolean) {
             return Type.BOOLEAN;
@@ -68,5 +65,10 @@ public abstract class Type {
         }
         Type t2 = (Type) other;
         return isAssignableFrom(t2) && t2.isAssignableFrom(this);
+    }
+
+    @Override
+    public Type getType() {
+        return new MetaType(this);
     }
 }
