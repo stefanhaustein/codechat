@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.TreeSet;
 
-import org.kobjects.codechat.type.ArrayType;
+import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.type.SetType;
@@ -34,13 +34,13 @@ public class CollectionLiteral extends AbstractResolved {
                 }
             }
         }
-        type = collectionTypeClass == SetType.class ? new SetType(elementType) : new ArrayType(elementType);
+        type = collectionTypeClass == SetType.class ? new SetType(elementType) : new ListType(elementType);
     }
 
     @Override
     public Object eval(EvaluationContext context) {
         Collection<Object> result;
-        if (type instanceof ArrayType) {
+        if (type instanceof ListType) {
             result = new ArrayList<>(elements.length);
         } else if (Comparable.class.isAssignableFrom(type.elementType.getJavaClass())) {
             result = new TreeSet<>();
@@ -65,7 +65,7 @@ public class CollectionLiteral extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append(collectionTypeClass == SetType.class ? "set(" : "array(");
+        sb.append(collectionTypeClass == SetType.class ? "set(" : "list(");
         if (elements.length > 0) {
             elements[0].toString(sb, indent);
             for (int i = 1; i < elements.length; i++) {

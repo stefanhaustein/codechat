@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 import org.kobjects.codechat.lang.*;
-import org.kobjects.codechat.type.ArrayType;
+import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
@@ -21,7 +21,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
         TYPE.addProperty(2, "y", Type.NUMBER, true);
         TYPE.addProperty(3, "angle", Type.NUMBER, true);
         TYPE.addProperty(4, "face", Type.STRING, true);
-        TYPE.addProperty(5, "collisions", new ArrayType(Type.NUMBER), true);
+        TYPE.addProperty(5, "collisions", new ListType(Type.NUMBER), true);
         TYPE.addProperty(6, "dx", Type.NUMBER, true);
         TYPE.addProperty(7, "dy", Type.NUMBER, true);
         TYPE.addProperty(8, "rotation", Type.NUMBER, true);

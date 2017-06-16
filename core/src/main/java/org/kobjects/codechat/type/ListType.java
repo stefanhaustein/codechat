@@ -2,14 +2,14 @@ package org.kobjects.codechat.type;
 
 import java.util.List;
 
-public class ArrayType extends CollectionType {
-    public ArrayType(Type elementType) {
+public class ListType extends CollectionType {
+    public ListType(Type elementType) {
         super(elementType);
     }
 
     @Override
     public String getName() {
-        return "array[" + elementType + "]";
+        return "list[" + elementType + "]";
     }
 
     @Override

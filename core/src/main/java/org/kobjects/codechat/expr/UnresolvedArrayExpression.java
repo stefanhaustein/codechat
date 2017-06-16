@@ -26,7 +26,7 @@ public class UnresolvedArrayExpression extends AbstractUnresolved {
             throw new RuntimeException("Exactly one array index expected");
         }
         if (resolvedArguments[0].getType() != Type.NUMBER) {
-            throw new RuntimeException("Array index must be number");
+            throw new RuntimeException("List index must be number");
         }
         return new ArrayIndex(base.resolve(parsingContext), resolvedArguments[0]);
     }

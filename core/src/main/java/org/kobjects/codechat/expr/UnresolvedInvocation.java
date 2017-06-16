@@ -1,6 +1,5 @@
 package org.kobjects.codechat.expr;
 
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
 import org.kobjects.codechat.type.FunctionType;
@@ -8,7 +7,7 @@ import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.type.ArrayType;
+import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.TupleType;
@@ -75,8 +74,8 @@ public class UnresolvedInvocation extends AbstractUnresolved {
             if ("set".equals(name)) {
                 return new CollectionLiteral(SetType.class, resolved);
             }
-            if ("array".equals(name)) {
-                return new CollectionLiteral(ArrayType.class, resolved);
+            if ("list".equals(name)) {
+                return new CollectionLiteral(ListType.class, resolved);
             }
 
             String qualifiedName = FunctionExpression.getQualifiedName(name, paramTypes);

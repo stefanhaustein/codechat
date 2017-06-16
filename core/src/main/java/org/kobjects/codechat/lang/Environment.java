@@ -75,7 +75,7 @@ public class Environment {
                 return null;
             }
         });
-        addFunction("list", new NativeFunction(Type.VOID) {
+        addFunction("dump", new NativeFunction(Type.VOID) {
             @Override
             protected Object eval(Object[] params) {
                 list();
