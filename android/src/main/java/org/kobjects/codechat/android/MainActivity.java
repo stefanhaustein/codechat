@@ -8,9 +8,11 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
@@ -27,6 +29,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
@@ -42,6 +45,7 @@ import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
+import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener, PopupMenu.OnMenuItemClickListener {
@@ -58,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     FrameLayout rootLayout;
     FrameLayout contentLayout;
     LinearLayout inputRow;
+    LinearLayout inputButtons;
     ChatView chatView;
     Environment environment;
     Toolbar toolbar;
@@ -73,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
     private float pixelPerDp;
     boolean windowMode;
     Point displaySize = new Point();
+    private boolean fullScreenEditMode;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -102,12 +108,6 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
 
         inputRow = new LinearLayout(this);
 
-        final ImageButton emojiInputButton = new ImageButton(this);
-        inputRow.addView(emojiInputButton);
-        emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
-//        emojiInputButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
-        emojiInputButton.setBackgroundColor(0);
-
         input = new EmojiEditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE); // TYPE_TEXT_FLAG_NO_SUGGESTIONS);//|
         input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
@@ -128,8 +128,60 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 return true;
             }
         });
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length() == 0) {
+                    inputButtons.setOrientation(LinearLayout.HORIZONTAL);
+                    if (fullScreenEditMode) {
+                        fullScreenEditMode = false;
+                        arrangeUi();
+                    }
+                }
+            }
+        });
         inputRow.addView(input);
         ((LinearLayout.LayoutParams) input.getLayoutParams()).weight = 1;
+        ((LinearLayout.LayoutParams) input.getLayoutParams()).gravity = Gravity.BOTTOM;
+
+        input.setVerticalScrollBarEnabled(true);
+
+        inputRow.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View view, int newLeft, int newTop, int newRight, int newBottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                // System.out.println("Input layout old: " + oldLeft + "/" + oldTop + " - " + oldRight + "/" + oldBottom);
+                // System.out.println("Input layout new: " + newLeft + "/" + newTop + " - " + newRight + "/" + newBottom);
+
+                final int oldHeight = oldBottom - oldTop;
+                final int newHeight = newBottom - newTop;
+
+                if (newHeight > oldHeight && oldHeight != 0) {
+                    inputRow.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (inputButtons.getOrientation() == LinearLayout.HORIZONTAL) {
+                                inputButtons.setOrientation(LinearLayout.VERTICAL);
+                                //              ((LinearLayout.LayoutParams) input.getLayoutParams()).weight = 0;
+                            }
+                            if (newHeight > chatView.getHeight() && !fullScreenEditMode) {
+                                fullScreenEditMode = true;
+                                arrangeUi();
+                            }
+                        }
+                    });
+                }
+            }
+        });
 
         chatView.setSelectionCallback(new ChatView.SelectionCallback() {
             @Override
@@ -151,6 +203,20 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         });
 
 
+        inputButtons = new LinearLayout(this);
+       // inputButtons.setOrientation(LinearLayout.VERTICAL);
+
+        inputRow.addView(inputButtons);
+        ((LinearLayout.LayoutParams) inputButtons.getLayoutParams()).gravity = Gravity.BOTTOM;
+
+        final ImageButton emojiInputButton = new ImageButton(this);
+        inputButtons.addView(emojiInputButton);
+
+        ((LinearLayout.LayoutParams) emojiInputButton.getLayoutParams()).gravity = Gravity.BOTTOM;
+
+        emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
+//        emojiInputButton.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
+        emojiInputButton.setBackgroundColor(0);
         emojiInputButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,7 +243,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 input.setText("");
             }
         });
-        inputRow.addView(enterButton);
+        inputButtons.addView(enterButton);
+
 
         menuButton = new ImageButton(this);
         menuButton.setImageResource(R.drawable.ic_more_vert_black_24dp);
@@ -191,7 +258,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 popup.show();
             }
         });
-        inputRow.addView(menuButton);
+        inputButtons.addView(menuButton);
+        ((LinearLayout.LayoutParams) menuButton.getLayoutParams()).gravity = Gravity.BOTTOM;
 
 
         chatView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -231,12 +299,11 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             emojiPopup.dismiss();
             emojiPopup = null;
         }
-        rootLayout.removeAllViews();
-
         detach(chatView);
         detach(inputRow);
         detach(toolbar);
         detach(contentLayout);
+        rootLayout.removeAllViews();
 
         getWindowManager().getDefaultDisplay().getSize(displaySize);
 
@@ -253,10 +320,12 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             rows.setOrientation(LinearLayout.VERTICAL);
 
             rows.addView(toolbar);
-            rows.addView(chatView);
-            ((LinearLayout.LayoutParams) chatView.getLayoutParams()).weight = 1;
-
+            if (!fullScreenEditMode) {
+                rows.addView(chatView);
+                ((LinearLayout.LayoutParams) chatView.getLayoutParams()).weight = 1;
+            }
             rows.addView(inputRow);
+            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenEditMode ? 1: 0;
 
             columns.addView(rows);
             LinearLayout.LayoutParams rowsParams = (LinearLayout.LayoutParams) rows.getLayoutParams();
@@ -271,38 +340,40 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             contentParams.height = MATCH_PARENT;
             contentLayout.setBackgroundColor(0xff888888);
         } else {
-            FrameLayout overlay = new FrameLayout(this);
-            overlay.addView(chatView);
-            FrameLayout.LayoutParams chatParams = (FrameLayout.LayoutParams) chatView.getLayoutParams();
-            chatParams.width = MATCH_PARENT;
-            chatParams.height = MATCH_PARENT;
-
             LinearLayout rows = new LinearLayout(this);
             rows.setOrientation(LinearLayout.VERTICAL);
 
             rows.addView(toolbar);
-            rows.addView(overlay);
-            ((LinearLayout.LayoutParams) overlay.getLayoutParams()).weight = 1;
+
+            if (!fullScreenEditMode) {
+                FrameLayout overlay = new FrameLayout(this);
+                overlay.addView(chatView);
+                FrameLayout.LayoutParams chatParams = (FrameLayout.LayoutParams) chatView.getLayoutParams();
+                chatParams.width = MATCH_PARENT;
+                chatParams.height = MATCH_PARENT;
+
+                rows.addView(overlay);
+                ((LinearLayout.LayoutParams) overlay.getLayoutParams()).weight = 1;
+                overlay.addView(contentLayout);
+                FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) contentLayout.getLayoutParams();
+                if (windowMode) {
+                    contentLayout.setBackgroundColor(0x0ff888888);
+                    contentParams.gravity = Gravity.RIGHT | Gravity.TOP;
+                    contentParams.width = displaySize.x / 2;
+                    contentParams.height = displaySize.x * 3 / 8;
+                } else {
+                    contentLayout.setBackgroundColor(0);
+                    contentParams.width = MATCH_PARENT;
+                    contentParams.height = MATCH_PARENT;
+                }
+            }
             rows.addView(inputRow);
+            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenEditMode ? 1: 0;
 
             rootLayout.addView(rows);
             FrameLayout.LayoutParams rowsParams = (FrameLayout.LayoutParams) rows.getLayoutParams();
             rowsParams.height = MATCH_PARENT;
             rowsParams.width = MATCH_PARENT;
-
-            overlay.addView(contentLayout);
-            FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) contentLayout.getLayoutParams();
-
-            if (windowMode) {
-                contentLayout.setBackgroundColor(0x0ff888888);
-                contentParams.gravity = Gravity.RIGHT | Gravity.TOP;
-                contentParams.width = displaySize.x / 2;
-                contentParams.height = displaySize.x * 3 / 8;
-            } else {
-                contentLayout.setBackgroundColor(0);
-                contentParams.width = MATCH_PARENT;
-                contentParams.height = MATCH_PARENT;
-            }
         }
 
         float displayHightDp = displaySize.y / pixelPerDp;
