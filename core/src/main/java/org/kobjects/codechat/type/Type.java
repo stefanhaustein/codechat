@@ -22,7 +22,11 @@ public abstract class Type implements Typed {
             return new MetaType((Type) o);
         }
         if (o instanceof Typed) {
-            return ((Typed) o).getType();
+            Type result = ((Typed) o).getType();
+            if (result == null) {
+                throw  new RuntimeException("Typed.getType null for" + o + " class " + o.getClass());
+            }
+            return result;
         }
         if (o instanceof Boolean) {
             return Type.BOOLEAN;

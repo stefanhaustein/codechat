@@ -229,7 +229,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
     @Override
     public TupleType getType() {
-        return null;
+        return TYPE;
     }
 
     @Override

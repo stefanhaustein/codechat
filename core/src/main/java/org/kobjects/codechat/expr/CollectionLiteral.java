@@ -9,6 +9,7 @@ import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.type.SetType;
+import org.kobjects.codechat.type.SimpleType;
 import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
@@ -42,7 +43,7 @@ public class CollectionLiteral extends AbstractResolved {
         Collection<Object> result;
         if (type instanceof ListType) {
             result = new ArrayList<>(elements.length);
-        } else if (Comparable.class.isAssignableFrom(type.elementType.getJavaClass())) {
+        } else if (type.elementType instanceof SimpleType) {
             result = new TreeSet<>();
         } else {
             result = new LinkedHashSet<>();

@@ -250,8 +250,8 @@ public class Environment {
             Class<?> c = type.getJavaClass();
             result = instantiate(c, id);
         } else {
-            if (!result.getClass().getSimpleName().equalsIgnoreCase(type.toString())) {
-                throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + result.getClass().getSimpleName().toLowerCase());
+            if (!Type.of(result).equals(type)) {
+                throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + Type.of(result));
             }
             lastId = Math.max(lastId, id);
         }
