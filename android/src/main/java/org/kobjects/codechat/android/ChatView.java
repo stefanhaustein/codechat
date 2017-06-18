@@ -6,6 +6,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -110,7 +111,7 @@ public class ChatView extends ListView {
                 return result;
             }
 
-            LinearLayout result;
+            final LinearLayout result;
             final EmojiTextView textView;
             if (view instanceof LinearLayout) {
                 result = (LinearLayout) view;
@@ -130,6 +131,13 @@ public class ChatView extends ListView {
                     }
                 });
                 textView.setTextIsSelectable(true);
+                textView.setFocusableInTouchMode(true);
+                textView.setOnFocusChangeListener(new OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View view, boolean b) {
+                       result.setBackgroundColor(b ? 0x011000000 : 0);
+                    }
+                });
                 //  textView.setFocusableInTouchMode(false);
                 result.setOrientation(LinearLayout.VERTICAL);
                 result.addView(textView);
