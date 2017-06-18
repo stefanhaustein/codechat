@@ -8,6 +8,14 @@ public class MetaType extends Type {
     }
 
     @Override
+    public boolean isAssignableFrom(Type other) {
+        if (!(other instanceof MetaType)) {
+            return false;
+        }
+        return type.equals(((MetaType) other).type);
+    }
+
+    @Override
     public String getName() {
         return "metatype[" + type + "]";
     }

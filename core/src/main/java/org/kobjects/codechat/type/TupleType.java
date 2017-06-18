@@ -31,6 +31,11 @@ public class TupleType extends Type {
     }
 
     @Override
+    public boolean isAssignableFrom(Type other) {
+        return other instanceof TupleType && ((TupleType) other).name.equals(name);
+    }
+
+    @Override
     public String getName() {
         return name;
     }

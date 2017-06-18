@@ -28,6 +28,23 @@ public class FunctionType extends Type {
         return sb.toString();
     }
 
+    public boolean isAssignableFrom(Type other) {
+        if (!(other instanceof FunctionType)) {
+            return false;
+        }
+        FunctionType otherType = (FunctionType) other;
+        if (!returnType.isAssignableFrom(otherType.returnType) ||
+                parameterTypes.length != otherType.parameterTypes.length) {
+            return false;
+        }
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (!otherType.parameterTypes[i].isAssignableFrom(parameterTypes[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public Class<?> getJavaClass() {
         return UserFunction.class;

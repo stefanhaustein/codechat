@@ -8,11 +8,6 @@ public abstract class Type implements Typed {
     public static final Type VOID = new SimpleType("void", Void.TYPE);
     public static final Type ANY = new SimpleType("any", Object.class);
 
-    public static Class<?> getJavaClassForSignature(Type type) {
-        Class javaClass = type.getJavaClass();
-        return javaClass == Double.class ? Double.TYPE : javaClass == Boolean.class ? Boolean.TYPE : javaClass;
-    }
-
     public static Type of(Object o) {
         // Fixme: Add "typed" interface.
         if (o == null) {
@@ -44,10 +39,7 @@ public abstract class Type implements Typed {
     }
 
 
-    // FIXME: Abstract
-    public boolean isAssignableFrom(Type other) {
-        return getJavaClass().isAssignableFrom(other.getJavaClass());
-    }
+    public abstract boolean isAssignableFrom(Type other);
 
     public abstract String getName();
 
