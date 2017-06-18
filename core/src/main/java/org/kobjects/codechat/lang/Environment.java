@@ -27,7 +27,7 @@ public class Environment {
     public boolean paused;
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
-    public Map<String,RootVariable> rootVariables = new TreeMap<>();
+    public TreeMap<String,RootVariable> rootVariables = new TreeMap<>();
     public File codeDir;
     public EnvironmentListener environmentListener;
     Parser parser = new Parser(this);
@@ -178,33 +178,15 @@ public class Environment {
         }
         for (RootVariable variable : rootVariables.values()) {
             if (variable.value != null && !systemVariables.containsKey(variable.name)) {
-                if (variable.value instanceof UserFunction)  {
-                    UserFunction function = (UserFunction) variable.value;
-                    if (function.isNamed()) {
-                        StringBuilder sb = new StringBuilder();
-                        function.serializeSignature(sb);
-                        sb.append(";\n");
-                        writer.write(sb.toString());
-                    }
-                } else {
-                    writer.write(variable.name);
-                    writer.write(" = ");
-                    writer.write(toLiteral(variable.value));
-                    writer.write("\n");
+                if (variable.value instanceof UserFunction ? ((UserFunction) variable.value).isNamed() : true)  {
+                    writer.write(variable.dump(false));
                 }
             }
         }
 
         for (RootVariable variable : rootVariables.values()) {
             if (!systemVariables.containsKey(variable.name) && variable.value instanceof UserFunction) {
-                if (((UserFunction) variable.value).isNamed()) {
-                    writer.write(toLiteral(variable.value));
-                } else {
-                    writer.write(variable.name);
-                    writer.write(" = ");
-                    writer.write(toLiteral(variable.value));
-                    writer.write("\n");
-                }
+                writer.write(variable.dump(true));
             }
         }
 
@@ -221,7 +203,7 @@ public class Environment {
     }
 
 
-    public String toLiteral(Object o) {
+    public static String toLiteral(Object o) {
         if (o instanceof Number) {
             Number n = (Number) o;
             if (n.longValue() == n.doubleValue()) {

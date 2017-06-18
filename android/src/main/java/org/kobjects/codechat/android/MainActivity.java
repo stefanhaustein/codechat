@@ -36,10 +36,13 @@ import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.File;
+import java.util.Map;
+import java.util.SortedMap;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
@@ -112,9 +115,13 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE); // TYPE_TEXT_FLAG_NO_SUGGESTIONS);//|
         input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 //        input.setPrivateImeOptions("nm");
+
+        /*
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+s                System.out.println("onEditorAction id: " + actionId + "KeyEvent: " + event);
                 if (v.getText().length() == 0) {
                     return false;
                 }
@@ -123,11 +130,13 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 }
                 String line = v.getText().toString();
                 // print(line);
-                processInput(line);
                 v.setText("");
+                processInput(line);
                 return true;
             }
         });
+*/
+
         input.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -239,8 +248,8 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
             @Override
             public void onClick(View view) {
                 String line = input.getText().toString();
-                processInput(line);
                 input.setText("");
+                processInput(line);
             }
         });
         inputButtons.addView(enterButton);
@@ -485,6 +494,26 @@ public class MainActivity extends AppCompatActivity implements Environment.Envir
                 spannable.setSpan(new ForegroundColorSpan(0x088000000), pending.length(), spannable.length(), 0);
                 spannable.setSpan(new RelativeSizeSpan(0.8f), pending.length(), spannable.length(), 0);
                 printRight(spannable, update);
+            } else if (pending.equals("edit") || pending.startsWith("edit ")) {
+                String key = pending.substring(4).trim();
+                SortedMap<String,RootVariable> matches = environment.rootVariables.subMap(key, key + "ZZZZ");
+
+                printRight(pending, update);
+                printed = true;
+                if (matches.size() == 0) {
+                    print("not found: " + key);
+                } else if (matches.size() == 1) {
+                    RootVariable var = matches.get(matches.firstKey());
+                    input.setText(var.dump(true));
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    for (String s: matches.keySet()) {
+                        sb.append(s);
+                        sb.append("\n");
+                    }
+                    print(sb.toString());
+                }
+                pending = "";
             } else {
                 ParsingContext parsingContext = new ParsingContext(environment);
                 Statement statement = environment.parse(parsingContext, pending);
