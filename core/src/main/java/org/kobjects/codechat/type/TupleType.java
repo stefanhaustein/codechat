@@ -30,6 +30,10 @@ public class TupleType extends Type {
         return propertyDescriptor;
     }
 
+    public Iterable<PropertyDescriptor> properties() {
+        return propertyMap.values();
+    }
+
     @Override
     public boolean isAssignableFrom(Type other) {
         return other instanceof TupleType && ((TupleType) other).name.equals(name);

@@ -6,7 +6,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
 
-public class TestShell implements Environment.EnvironmentListener {
+public class TestShell implements EnvironmentListener {
 
     Environment environment = new Environment(this, null);
     List<String> output = new ArrayList<>();

@@ -7,11 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.kobjects.codechat.expr.FunctionExpression;
@@ -19,7 +19,6 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.MetaType;
-import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -105,19 +104,20 @@ public class Environment {
 
     }
 
-
     private void list() {
-        StringWriter sw = new StringWriter();
+        StringBuilder sb = new StringBuilder();
+        List<Annotation> annotations = new ArrayList<>();
         try {
-            dump(sw);
+            dump(sb, annotations);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String list = sw.toString();
+        String list = sb.toString();
         while (list.endsWith("\n")) {
             list = list.substring(0, list.length() - 1);
         }
-        environmentListener.print(list);
+
+        environmentListener.print(list, annotations);
     }
 
     public void addType(Type... types) {
@@ -160,33 +160,33 @@ public class Environment {
         }
     }
 
-    public void dump(Writer writer) throws IOException {
+    public void dump(StringBuilder sb, List<Annotation> annotations) throws IOException {
         System.gc();
 
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null && !(instance instanceof StatementInstance) &&
                     !(instance instanceof OnInstance)) {
-                instance.dump(writer, true);
+                instance.serializeConstructor(sb, annotations);
             }
         }
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                instance.dump(writer, false);
+                instance.serializeLinks(sb, false);
             }
         }
         for (RootVariable variable : rootVariables.values()) {
             if (variable.value != null && !systemVariables.containsKey(variable.name)) {
                 if (variable.value instanceof UserFunction ? ((UserFunction) variable.value).isNamed() : true)  {
-                    writer.write(variable.dump(false));
+                    sb.append(variable.dump(false));
                 }
             }
         }
 
         for (RootVariable variable : rootVariables.values()) {
             if (!systemVariables.containsKey(variable.name) && variable.value instanceof UserFunction) {
-                writer.write(variable.dump(true));
+                sb.append(variable.dump(true));
             }
         }
 
@@ -194,9 +194,9 @@ public class Environment {
             Instance instance = reference.get();
             if (instance != null && (instance instanceof StatementInstance || instance instanceof OnInstance)) {
                 String s = instance.toString();
-                writer.write(s);
+                sb.append(s);
                 if (!s.endsWith("\n")) {
-                    writer.write("\n");
+                    sb.append("\n");
                 }
             }
         }
@@ -267,8 +267,10 @@ public class Environment {
 
     public void save(String fileName) {
         try {
+            StringBuilder sb = new StringBuilder();
+            dump(sb, null);
             Writer writer = new OutputStreamWriter(new FileOutputStream(new File(codeDir, fileName)), "utf-8");
-            dump(writer);
+            writer.write(sb.toString());
             writer.close();
             autoSave = true;
             environmentListener.setName(fileName);
@@ -388,12 +390,6 @@ public class Environment {
 
     }
 
-    public interface EnvironmentListener {
-        void paused(boolean paused);
-        void setName(String name);
-        void print(String s);
-    }
-
 
     enum MathFnType {ABS, ACOS, ASIN, ATAN, CEIL, COS, COSH, EXP, FLOOR, LOG, LOG10, ROUND, SIGNUM, SIN, SINH, TAN, TANH};
 
@@ -438,7 +434,7 @@ public class Environment {
 
         @Override
         protected Object eval(Object[] params) {
-            environmentListener.print(String.valueOf(params[0]));
+            environmentListener.print(String.valueOf(params[0]), null);
             return null;
         }
     }

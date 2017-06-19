@@ -4,15 +4,18 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.lang.Annotation;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
 
-public class Shell implements Environment.EnvironmentListener {
+public class Shell implements EnvironmentListener {
     Environment environment;
 
     Shell() {
@@ -73,8 +76,12 @@ public class Shell implements Environment.EnvironmentListener {
         print("Name set to: '" + name + "'");
     }
 
-    @Override
     public void print(String s) {
+        print(s, null);
+    }
+
+    @Override
+    public void print(String s, List<Annotation> annotations) {
         System.out.println(s);
     }
 }

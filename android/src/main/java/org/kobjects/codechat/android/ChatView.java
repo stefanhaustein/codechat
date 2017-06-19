@@ -11,6 +11,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.view.Gravity;
 import android.view.OrientationEventListener;
 import android.view.View;
@@ -122,16 +124,17 @@ public class ChatView extends ListView {
                 textView.setBackground(new BubbleDrawable(arrowSize, cornerBox, r));
                 textView.setPadding(r ? sidePadding : sidePadding + arrowSize, topPadding, r ? sidePadding + arrowSize : sidePadding, bottomPadding);
                 textView.setTextColor(0x0ff000000);
+                textView.setTextIsSelectable(true);
+                textView.setMovementMethod(LinkMovementMethod.getInstance());
               //  textView.setGravity(r ? Gravity.RIGHT : Gravity.LEFT);
                 result = new LinearLayout(viewGroup.getContext());
-                textView.setOnClickListener(new OnClickListener() {
+             /*   textView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         selectionCallback.selected(r, textView.getText().toString());
                     }
-                });
-                textView.setTextIsSelectable(true);
-                textView.setFocusableInTouchMode(true);
+                }); */
+            //    textView.setFocusableInTouchMode(true);
                 textView.setOnFocusChangeListener(new OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View view, boolean b) {

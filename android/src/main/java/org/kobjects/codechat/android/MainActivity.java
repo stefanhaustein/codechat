@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -13,11 +14,11 @@ import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -25,22 +26,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.File;
-import java.util.Map;
+import java.util.List;
 import java.util.SortedMap;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.lang.Annotation;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
@@ -48,10 +49,9 @@ import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
-import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-public class MainActivity extends AppCompatActivity implements Environment.EnvironmentListener, PopupMenu.OnMenuItemClickListener {
+public class MainActivity extends AppCompatActivity implements EnvironmentListener, PopupMenu.OnMenuItemClickListener {
     static final String SETTINGS_FILE_NAME = "fileName";
     static final String SETTINGS_FILE_NAME_DEFAULT = "CodeChat";
 
@@ -459,10 +459,32 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     public void print(final String s) {
+        print(s, null);
+    }
+
+    public void print(final String s, final List<Annotation> annotations) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                chatView.add(false, s);
+
+                if (annotations != null) {  // FIXME
+                    SpannableString spannable = new SpannableString(s);
+                    for (final Annotation annotation : annotations) {
+                        spannable.setSpan(new ClickableSpan() {
+                            @Override
+                            public void onClick(View view) {
+                                if (annotation.link instanceof Instance) {
+                                    StringBuilder sb = new StringBuilder();
+                                    ((Instance) annotation.link).serializeLinks(sb, true);
+                                    input.setText(sb);
+                                }
+                            }
+                        }, annotation.start, annotation.end, 0);
+                    }
+                    chatView.add(false, spannable);
+                } else {
+                    chatView.add(false, s);
+                }
             }
         });
     }
