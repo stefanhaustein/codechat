@@ -7,7 +7,7 @@ import java.util.List;
 import org.kobjects.codechat.type.SimpleType;
 import org.kobjects.codechat.type.TupleType;
 
-public abstract class Instance extends Tuple {
+public abstract class Instance implements Tuple {
     protected int id;
     protected Instance(Environment environment, int id) {
         this.id = id;

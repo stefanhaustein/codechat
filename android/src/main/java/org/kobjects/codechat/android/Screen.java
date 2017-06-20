@@ -5,7 +5,7 @@ import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Tuple;
 import org.kobjects.codechat.type.TupleType;
 
-public class Screen extends Tuple {
+public class Screen implements Tuple {
 
     public static final TupleType TYPE = new TupleType("screenType", Screen.class);
     static {
