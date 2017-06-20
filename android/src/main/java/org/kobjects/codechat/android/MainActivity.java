@@ -5,7 +5,6 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -475,7 +474,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                             public void onClick(View view) {
                                 if (annotation.link instanceof Instance) {
                                     StringBuilder sb = new StringBuilder();
-                                    ((Instance) annotation.link).serializeLinks(sb, true);
+                                    ((Instance) annotation.link).serializeDefinition(sb, true);
                                     input.setText(sb);
                                 }
                             }

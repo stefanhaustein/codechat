@@ -167,13 +167,13 @@ public class Environment {
             Instance instance = reference.get();
             if (instance != null && !(instance instanceof StatementInstance) &&
                     !(instance instanceof OnInstance)) {
-                instance.serializeConstructor(sb, annotations);
+                instance.serializeDeclaration(sb, annotations);
             }
         }
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                instance.serializeLinks(sb, false);
+                instance.serializeDefinition(sb, false);
             }
         }
         for (RootVariable variable : rootVariables.values()) {

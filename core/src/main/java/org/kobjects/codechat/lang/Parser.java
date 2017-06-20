@@ -132,32 +132,6 @@ public class Parser {
         throw new RuntimeException("':' or '{' expected for body.");
     }
 
-    Object resolveOrCreate(String reference) {
-        int cut = reference.indexOf('#');
-        int instanceId;
-        Type type;
-        if (cut == -1) {
-            instanceId = -1;
-            type = environment.resolveType(reference);
-        } else {
-            instanceId = Integer.parseInt(reference.substring(cut + 1));
-            String typeName = reference.substring(0, cut);
-            type = environment.resolveType(typeName);
-            if (type == null) {
-                throw new RuntimeException("Unknown type: " + typeName);
-            }
-            WeakReference<Instance> weakReference = environment.everything.get(instanceId);
-            Object o = weakReference == null ? null : weakReference.get();
-            if (o != null) {
-                if (o.getClass() != type.getJavaClass()) {
-                    throw new RuntimeException("Object type mismatch with " + o);
-                }
-                return o;
-            }
-        }
-        return environment.instantiate(type.getJavaClass(), instanceId);
-    }
-
     Type parseType(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         String typeName = tokenizer.consumeIdentifier();
         Type type = parsingContext.environment.resolveType(typeName);
