@@ -469,16 +469,19 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 if (annotations != null) {  // FIXME
                     SpannableString spannable = new SpannableString(s);
                     for (final Annotation annotation : annotations) {
-                        spannable.setSpan(new ClickableSpan() {
-                            @Override
-                            public void onClick(View view) {
-                                if (annotation.link instanceof TupleInstance) {
-                                    StringBuilder sb = new StringBuilder();
-                                    ((TupleInstance) annotation.link).serializeDefinition(sb, true);
-                                    input.setText(sb);
+                        if (annotation.getLink() != null) {
+                            spannable.setSpan(new ClickableSpan() {
+                                @Override
+                                public void onClick(View view) {
+                                    Object link = annotation.getLink();
+                                    if (link instanceof TupleInstance) {
+                                        StringBuilder sb = new StringBuilder();
+                                        ((TupleInstance) link).serializeDefinition(sb, true);
+                                        input.setText(sb);
+                                    }
                                 }
-                            }
-                        }, annotation.start, annotation.end, 0);
+                            }, annotation.getStart(), annotation.getEnd(), 0);
+                        }
                     }
                     chatView.add(false, spannable);
                 } else {

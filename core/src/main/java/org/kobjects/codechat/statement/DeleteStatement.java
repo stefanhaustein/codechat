@@ -6,6 +6,7 @@ import org.kobjects.codechat.expr.LocalVariableNode;
 import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 
@@ -21,19 +22,9 @@ public class DeleteStatement extends AbstractStatement {
     @Override
     public Object eval(EvaluationContext context) {
         Object o = expr.eval(context);
-        try {
-            Method delete = o.getClass().getMethod("delete");
-            try {
-                delete.invoke(o);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e.getCause());
-            }
-        } catch (NoSuchMethodException e) {
-            // ok
+        if (o instanceof Instance) {
+            ((Instance) o).delete();
         }
-
         if (expr instanceof RootVariableNode) {
             RootVariableNode varNode = (RootVariableNode) expr;
             context.environment.rootVariables.remove(varNode.name);

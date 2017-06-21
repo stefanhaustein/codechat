@@ -6,19 +6,21 @@ import org.kobjects.codechat.expr.PropertyAccess;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.Type;
+import org.kobjects.codechat.type.Instantiable;
 
-public class OnInstance extends TupleInstance implements Property.PropertyListener {
-    public static final TupleType ON_TYPE = new TupleType("on", OnInstance.class);
-    public static final TupleType ONCHANGE_TYPE = new TupleType("onchange", OnInstance.class);
+public class OnInstance implements Instance, Property.PropertyListener {
+    public static final OnInstanceType ON_TYPE = new OnInstanceType("on");
+    public static final OnInstanceType ONCHANGE_TYPE = new OnInstanceType("onchange");
 
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
     private OnExpression onExpression;
     private EvaluationContext contextTemplate;
+    private int id;
 
     public OnInstance(Environment environment, int id) {
-        super(environment, id);
+        this.id = id;
     }
 
     public void init(OnExpression onExpression, EvaluationContext contextTemplate) {
@@ -62,14 +64,18 @@ public class OnInstance extends TupleInstance implements Property.PropertyListen
         }
     }
 
-    public void delete() {
-        detach();
+    @Override
+    public int getId() {
+        return id;
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
+    public void serializeDeclaration(StringBuilder sb, List<Annotation> annotations) {
 
+    }
+
+    @Override
+    public void serializeDefinition(StringBuilder sb, boolean all) {
         boolean wrap = onExpression.closure.toString(sb, contextTemplate);
 
         sb.append(onExpression.onChange ? "onchange#" : "on#").append(getId());
@@ -79,16 +85,44 @@ public class OnInstance extends TupleInstance implements Property.PropertyListen
             sb.append("  }\n");
         }
         sb.append("}\n");
-        return sb.toString();
     }
 
+    public void delete() {
+        detach();
+    }
+
+
     @Override
-    public TupleType getType() {
+    public OnInstanceType getType() {
         return onExpression.onChange ? ONCHANGE_TYPE : ON_TYPE;
     }
 
-    @Override
-    public Property getProperty(int index) {
-        throw new IllegalArgumentException();
+    public static class OnInstanceType extends Type implements Instantiable<OnInstance> {
+        private final String name;
+
+        OnInstanceType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public OnInstance createInstance(Environment environment, int id) {
+            return new OnInstance(environment, id);
+        }
+
+        @Override
+        public boolean isAssignableFrom(Type other) {
+            return false;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public Class<?> getJavaClass() {
+            return OnInstance.class;
+        }
     }
+
 }

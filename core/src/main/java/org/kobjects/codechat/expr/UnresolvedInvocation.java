@@ -2,6 +2,7 @@ package org.kobjects.codechat.expr;
 
 import java.util.LinkedHashMap;
 
+import org.kobjects.codechat.lang.Tuple;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.Parser;
@@ -56,9 +57,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
                 String argName = ((Identifier) children[0]).name;
 
                 Type type = parsingContext.environment.resolveType(argName);
-                if (type != null && TupleInstance.class.isAssignableFrom(type.getJavaClass())) {
-                    return new ConstructorInvocation(type, -1);
-                }
+                return new ConstructorInvocation(type, -1);
             }
             if ("new".equals(name) && children[0] instanceof InstanceReference) {
                 InstanceReference resolvedRef = (InstanceReference) children[0].resolve(parsingContext);

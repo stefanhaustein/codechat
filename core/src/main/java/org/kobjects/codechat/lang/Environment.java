@@ -9,15 +9,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.codechat.statement.StatementInstance;
 import org.kobjects.codechat.type.FunctionType;
+import org.kobjects.codechat.type.Instantiable;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
@@ -81,6 +80,13 @@ public class Environment {
                 return null;
             }
         });
+        addFunction("load", new NativeFunction(Type.VOID, Type.STRING) {
+            @Override
+            protected Object eval(Object[] params) {
+                load(String.valueOf(params[0]));
+                return null;
+            }
+        });
         addFunction("pause", new NativeFunction(Type.VOID) {
             @Override
             protected Object eval(Object[] params) {
@@ -137,28 +143,17 @@ public class Environment {
     }
 
     public Instance instantiate(Type type, int id) {
-        try {
-            if (id == -1) {
-                id = ++lastId;
-            } else {
-                lastId = Math.max(id, lastId);
-                if (everything.get(id) != null) {
-                    throw new RuntimeException("instance with id " + id + " exists already.");
-                }
+        if (id == -1) {
+            id = ++lastId;
+        } else {
+            lastId = Math.max(id, lastId);
+            if (everything.get(id) != null) {
+                throw new RuntimeException("instance with id " + id + " exists already.");
             }
-            Class javaClass = type.getJavaClass();
-            Instance instance = (Instance) javaClass.getConstructor(Environment.class, Integer.TYPE).newInstance(this, id);
-            everything.put(id, new WeakReference<Instance>(instance));
-            return instance;
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getCause());
         }
+        Instance instance = ((Instantiable<?>) type).createInstance(this, id);
+        everything.put(id, new WeakReference<Instance>(instance));
+        return instance;
     }
 
     public void dump(StringBuilder sb, List<Annotation> annotations) throws IOException {
@@ -166,15 +161,8 @@ public class Environment {
 
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
-            if (instance != null && !(instance instanceof StatementInstance) &&
-                    !(instance instanceof OnInstance)) {
-                instance.serializeDeclaration(sb, annotations);
-            }
-        }
-        for (WeakReference<Instance> reference : everything.values()) {
-            Instance instance = reference.get();
             if (instance != null) {
-                instance.serializeDefinition(sb, false);
+                instance.serializeDeclaration(sb, annotations);
             }
         }
         for (RootVariable variable : rootVariables.values()) {
@@ -184,21 +172,15 @@ public class Environment {
                 }
             }
         }
-
         for (RootVariable variable : rootVariables.values()) {
             if (!systemVariables.containsKey(variable.name) && variable.value instanceof UserFunction) {
                 sb.append(variable.dump(true));
             }
         }
-
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
-            if (instance != null && (instance instanceof StatementInstance || instance instanceof OnInstance)) {
-                String s = instance.toString();
-                sb.append(s);
-                if (!s.endsWith("\n")) {
-                    sb.append("\n");
-                }
+            if (instance != null) {
+                instance.serializeDefinition(sb, false);
             }
         }
     }

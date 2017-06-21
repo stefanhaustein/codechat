@@ -1,6 +1,7 @@
 package org.kobjects.codechat.type;
 
 import java.util.TreeMap;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Settable;
 import org.kobjects.codechat.lang.Tuple;
@@ -48,6 +49,7 @@ public class TupleType extends Type {
     public Class<?> getJavaClass() {
         return javaClass;
     }
+
 
     public class PropertyDescriptor {
         public final String name;
