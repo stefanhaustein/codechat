@@ -43,9 +43,6 @@ public abstract class Type implements Typed {
 
     public abstract String getName();
 
-    // FIXME: Remove
-    public abstract Class<?> getJavaClass();
-
     @Override
     public final String toString() {
         return getName();

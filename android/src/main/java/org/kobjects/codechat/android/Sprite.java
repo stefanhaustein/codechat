@@ -15,7 +15,7 @@ import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class Sprite extends TupleInstance implements Ticking, Runnable {
-    public final static InstantiableTupleType<Sprite> TYPE = new InstantiableTupleType<Sprite>("sprite", Sprite.class) {
+    public final static InstantiableTupleType<Sprite> TYPE = new InstantiableTupleType<Sprite>("sprite") {
         @Override
         public Sprite createInstance(Environment environment, int id) {
             return new Sprite(environment, id);

@@ -20,11 +20,6 @@ public class MetaType extends Type {
         return "metatype[" + type + "]";
     }
 
-    @Override
-    public Class<?> getJavaClass() {
-        return Type.class;
-    }
-
     public Type getType() {
         return type;
     }

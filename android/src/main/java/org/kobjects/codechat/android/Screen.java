@@ -7,7 +7,7 @@ import org.kobjects.codechat.type.TupleType;
 
 public class Screen implements Tuple {
 
-    public static final TupleType TYPE = new TupleType("screenType", Screen.class);
+    public static final TupleType TYPE = new TupleType("screenType");
     static {
         TYPE.addProperty(0, "width", TYPE.NUMBER, false);
         TYPE.addProperty(1, "height", TYPE.NUMBER, false);

@@ -8,12 +8,10 @@ import org.kobjects.codechat.lang.Tuple;
 
 public class TupleType extends Type {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
-    private final Class<? extends Tuple> javaClass;
     private final String name;
 
-    public TupleType(String name, Class<? extends Tuple> javaClass) {
+    public TupleType(String name) {
         this.name = name;
-        this.javaClass = javaClass;
     }
 
     public void addProperty(int index, String name, Type type, boolean writable) {
@@ -44,12 +42,6 @@ public class TupleType extends Type {
     public String getName() {
         return name;
     }
-
-    @Override
-    public Class<?> getJavaClass() {
-        return javaClass;
-    }
-
 
     public class PropertyDescriptor {
         public final String name;

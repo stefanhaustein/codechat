@@ -12,9 +12,4 @@ public class SetType extends CollectionType {
     public String getName() {
         return "set[" + elementType + "]";
     }
-
-    @Override
-    public Class<?> getJavaClass() {
-        return Set.class;
-    }
 }

@@ -118,11 +118,6 @@ public class OnInstance implements Instance, Property.PropertyListener {
         public String getName() {
             return name;
         }
-
-        @Override
-        public Class<?> getJavaClass() {
-            return OnInstance.class;
-        }
     }
 
 }

@@ -12,8 +12,4 @@ public class ListType extends CollectionType {
         return "list[" + elementType + "]";
     }
 
-    @Override
-    public Class<?> getJavaClass() {
-        return List.class;
-    }
 }

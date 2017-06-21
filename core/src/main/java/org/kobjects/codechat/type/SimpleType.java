@@ -10,11 +10,6 @@ public class SimpleType extends Type {
     }
 
     @Override
-    public Class<?> getJavaClass() {
-        return javaClass;
-    }
-
-    @Override
     public boolean isAssignableFrom(Type other) {
         return javaClass == Object.class || ((other instanceof SimpleType) && ((SimpleType) other).javaClass == javaClass);
     }

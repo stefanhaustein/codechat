@@ -45,10 +45,4 @@ public class FunctionType extends Type {
         }
         return true;
     }
-
-    @Override
-    public Class<?> getJavaClass() {
-        return UserFunction.class;
-    }
-
 }
