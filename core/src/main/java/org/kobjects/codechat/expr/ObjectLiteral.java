@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
@@ -33,7 +33,7 @@ public class ObjectLiteral extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        Instance instance = context.environment.instantiate(type.getJavaClass(), id);
+        TupleInstance instance = (TupleInstance) context.environment.instantiate(type, id);
         for (Map.Entry<String,Expression> entry : elements.entrySet()) {
             type.getProperty(entry.getKey()).set(instance, entry.getValue().eval(context));
         }

@@ -40,7 +40,7 @@ import org.kobjects.codechat.lang.Annotation;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
@@ -472,9 +472,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         spannable.setSpan(new ClickableSpan() {
                             @Override
                             public void onClick(View view) {
-                                if (annotation.link instanceof Instance) {
+                                if (annotation.link instanceof TupleInstance) {
                                     StringBuilder sb = new StringBuilder();
-                                    ((Instance) annotation.link).serializeDefinition(sb, true);
+                                    ((TupleInstance) annotation.link).serializeDefinition(sb, true);
                                     input.setText(sb);
                                 }
                             }

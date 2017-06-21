@@ -13,7 +13,7 @@ import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
-public class Sprite extends Instance implements Ticking, Runnable {
+public class Sprite extends TupleInstance implements Ticking, Runnable {
     public final static TupleType TYPE = new TupleType("sprite", Sprite.class);
     static {
         TYPE.addProperty(0, "size", Type.NUMBER, true);

@@ -16,7 +16,7 @@ class ConstructorInvocation extends AbstractResolved {
 
     @Override
     public Object eval(EvaluationContext context) {
-        return context.environment.instantiate(type.getJavaClass(), id);
+        return context.environment.instantiate(type, id);
     }
 
     @Override

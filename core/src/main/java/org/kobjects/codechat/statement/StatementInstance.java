@@ -1,9 +1,9 @@
 package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.TupleInstance;
 
-public abstract class StatementInstance extends Instance implements Statement {
+public abstract class StatementInstance extends TupleInstance implements Statement {
 
     protected StatementInstance(Environment environment, int id) {
         super(environment, id);

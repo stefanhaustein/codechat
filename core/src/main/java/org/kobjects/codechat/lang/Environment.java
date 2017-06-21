@@ -136,7 +136,7 @@ public class Environment {
         rootVariables.put(name, var);
     }
 
-    public Instance instantiate(Class type, int id) {
+    public Instance instantiate(Type type, int id) {
         try {
             if (id == -1) {
                 id = ++lastId;
@@ -146,7 +146,8 @@ public class Environment {
                     throw new RuntimeException("instance with id " + id + " exists already.");
                 }
             }
-            Instance instance = (Instance) type.getConstructor(Environment.class, Integer.TYPE).newInstance(this, id);
+            Class javaClass = type.getJavaClass();
+            Instance instance = (Instance) javaClass.getConstructor(Environment.class, Integer.TYPE).newInstance(this, id);
             everything.put(id, new WeakReference<Instance>(instance));
             return instance;
         } catch (InstantiationException e) {
@@ -247,8 +248,7 @@ public class Environment {
             if (!force) {
                 throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
             }
-            Class<?> c = type.getJavaClass();
-            result = instantiate(c, id);
+            result = instantiate(type, id);
         } else {
             if (!Type.of(result).equals(type)) {
                 throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + Type.of(result));

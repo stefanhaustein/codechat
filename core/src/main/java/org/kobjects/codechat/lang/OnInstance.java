@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.kobjects.codechat.type.TupleType;
 
-public class OnInstance extends Instance implements Property.PropertyListener {
+public class OnInstance extends TupleInstance implements Property.PropertyListener {
     public static final TupleType ON_TYPE = new TupleType("on", OnInstance.class);
     public static final TupleType ONCHANGE_TYPE = new TupleType("onchange", OnInstance.class);
 
@@ -72,7 +72,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
 
         boolean wrap = onExpression.closure.toString(sb, contextTemplate);
 
-        sb.append(onExpression.onChange ? "onchange#" : "on#").append(id);
+        sb.append(onExpression.onChange ? "onchange#" : "on#").append(getId());
         sb.append(' ').append(onExpression.expression).append(" {\n");
         onExpression.body.toString(sb, wrap ? 2 : 1);
         if (wrap) {

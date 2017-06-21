@@ -12,6 +12,7 @@ import java.util.List;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.NativeFunction;
 import org.kobjects.codechat.type.Type;
 
@@ -87,7 +88,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
         }
     }
 
-    public Instance instantiate(Class type, int id) {
+    public Instance instantiate(Type type, int id) {
         Instance instance = super.instantiate(type, id);
         if (instance instanceof Ticking) {
             synchronized (ticking) {
