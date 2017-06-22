@@ -16,7 +16,6 @@ import java.util.TreeMap;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.type.Instantiable;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
@@ -151,7 +150,7 @@ public class Environment {
                 throw new RuntimeException("instance with id " + id + " exists already.");
             }
         }
-        Instance instance = ((Instantiable<?>) type).createInstance(this, id);
+        Instance instance = type.createInstance(this, id);
         everything.put(id, new WeakReference<Instance>(instance));
         return instance;
     }

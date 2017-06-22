@@ -8,14 +8,19 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.kobjects.codechat.lang.*;
-import org.kobjects.codechat.type.InstantiableTupleType;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.LazyProperty;
+import org.kobjects.codechat.lang.MaterialProperty;
+import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.lang.Settable;
+import org.kobjects.codechat.lang.TupleInstance;
+import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class Sprite extends TupleInstance implements Ticking, Runnable {
-    public final static InstantiableTupleType<Sprite> TYPE = new InstantiableTupleType<Sprite>("sprite") {
+    public final static TupleType TYPE = new TupleType("sprite") {
         @Override
         public Sprite createInstance(Environment environment, int id) {
             return new Sprite(environment, id);

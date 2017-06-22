@@ -7,7 +7,6 @@ import org.kobjects.codechat.expr.PropertyAccess;
 import java.util.ArrayList;
 import java.util.List;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.codechat.type.Instantiable;
 
 public class OnInstance implements Instance, Property.PropertyListener {
     public static final OnInstanceType ON_TYPE = new OnInstanceType("on");
@@ -97,7 +96,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
         return onExpression.onChange ? ONCHANGE_TYPE : ON_TYPE;
     }
 
-    public static class OnInstanceType extends Type implements Instantiable<OnInstance> {
+    public static class OnInstanceType extends Type {
         private final String name;
 
         OnInstanceType(String name) {
