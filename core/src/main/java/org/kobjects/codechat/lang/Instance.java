@@ -7,8 +7,10 @@ import org.kobjects.codechat.type.Typed;
  * Note that instances are not necessarily (constructor-) instantiable
  */
 public interface Instance extends Typed {
+
+    public enum Detail {DECLARATION, DEFINITION, FULL}
+
     int getId();
-    void serializeDeclaration(StringBuilder sb, List<Annotation> annotations);
-    void serializeDefinition(StringBuilder sb, boolean all);
+    void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations);
     void delete();
 }

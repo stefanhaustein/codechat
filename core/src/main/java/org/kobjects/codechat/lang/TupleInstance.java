@@ -17,7 +17,16 @@ public abstract class TupleInstance implements Tuple, Instance {
         return getType() + "#" + id;
     }
 
-    public void serializeDeclaration(StringBuilder sb, List<Annotation> annotations) {
+
+    public void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations) {
+        if (detail == Detail.DECLARATION) {
+            serializeDeclaration(sb, annotations);
+        } else {
+            serializeDefinition(sb, detail == Detail.FULL);
+        }
+    }
+
+    private void serializeDeclaration(StringBuilder sb, List<Annotation> annotations) {
         Annotation.append(sb, toString(), this, annotations);
         sb.append("(");
         boolean first = true;
@@ -43,7 +52,7 @@ public abstract class TupleInstance implements Tuple, Instance {
         sb.append(");\n");
     }
 
-    public void serializeDefinition(StringBuilder sb, boolean all) {
+    private void serializeDefinition(StringBuilder sb, boolean all) {
         for (TupleType.PropertyDescriptor propertyDescriptor : getType().properties()) {
             Property property = getProperty(propertyDescriptor.index);
             if (property instanceof MaterialProperty && (all || !(propertyDescriptor.type instanceof SimpleType))) {

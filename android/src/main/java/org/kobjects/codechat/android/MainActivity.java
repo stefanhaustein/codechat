@@ -40,6 +40,7 @@ import org.kobjects.codechat.lang.Annotation;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
@@ -476,7 +477,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                     Object link = annotation.getLink();
                                     if (link instanceof TupleInstance) {
                                         StringBuilder sb = new StringBuilder();
-                                        ((TupleInstance) link).serializeDefinition(sb, true);
+                                        ((TupleInstance) link).serialize(sb, Instance.Detail.FULL, null);
                                         input.setText(sb);
                                     }
                                 }

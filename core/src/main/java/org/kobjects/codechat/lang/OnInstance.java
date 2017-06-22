@@ -68,22 +68,20 @@ public class OnInstance implements Instance, Property.PropertyListener {
         return id;
     }
 
-    @Override
-    public void serializeDeclaration(StringBuilder sb, List<Annotation> annotations) {
-
-    }
 
     @Override
-    public void serializeDefinition(StringBuilder sb, boolean all) {
-        boolean wrap = onExpression.closure.toString(sb, contextTemplate);
+    public void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations) {
+        if (detail != Detail.DECLARATION) {
+            boolean wrap = onExpression.closure.toString(sb, contextTemplate);
 
-        sb.append(onExpression.onChange ? "onchange#" : "on#").append(getId());
-        sb.append(' ').append(onExpression.expression).append(" {\n");
-        onExpression.body.toString(sb, wrap ? 2 : 1);
-        if (wrap) {
-            sb.append("  }\n");
+            sb.append(onExpression.onChange ? "onchange#" : "on#").append(getId());
+            sb.append(' ').append(onExpression.expression).append(" {\n");
+            onExpression.body.toString(sb, wrap ? 2 : 1);
+            if (wrap) {
+                sb.append("  }\n");
+            }
+            sb.append("}\n");
         }
-        sb.append("}\n");
     }
 
     public void delete() {

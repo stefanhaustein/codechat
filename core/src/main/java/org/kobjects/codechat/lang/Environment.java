@@ -161,7 +161,7 @@ public class Environment {
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                instance.serializeDeclaration(sb, annotations);
+                instance.serialize(sb, Instance.Detail.DECLARATION, annotations);
             }
         }
         for (RootVariable variable : rootVariables.values()) {
@@ -179,7 +179,7 @@ public class Environment {
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                instance.serializeDefinition(sb, false);
+                instance.serialize(sb, Instance.Detail.DEFINITION, annotations);
             }
         }
     }
