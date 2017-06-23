@@ -6,7 +6,6 @@ import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
@@ -23,14 +22,20 @@ public class FunctionExpression extends Expression {
     }
 
 
-    ArrayList<Param> params = new ArrayList<>();
     public Closure closure;
     public Statement body;
-    private FunctionType type;
+    private FunctionType functionType;
+    private String[] parameterNames;
     public String name;
+    int id;
 
-    public FunctionExpression(String name) {
+    public FunctionExpression(int id, String name, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
+        this.id = id;
         this.name = name;
+        this.functionType = functionType;
+        this.parameterNames = parameterNames;
+        this.closure = closure;
+        this.body = body;
     }
 
     @Override
@@ -49,7 +54,7 @@ public class FunctionExpression extends Expression {
 
     @Override
     public FunctionType getType() {
-        return type;
+        return functionType;
     }
 
     @Override
@@ -63,13 +68,13 @@ public class FunctionExpression extends Expression {
             sb.append(name);
         }
         sb.append("(");
-        for (int i = 0; i < params.size(); i++) {
+        for (int i = 0; i < parameterNames.length; i++) {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(params.get(i).name).append(": ").append(params.get(i).type);
+            sb.append(parameterNames[i]).append(": ").append(functionType.parameterTypes[i]);
         }
-        sb.append("): ").append(type.returnType);
+        sb.append("): ").append(functionType.returnType);
     }
 
     @Override
@@ -84,31 +89,5 @@ public class FunctionExpression extends Expression {
     @Override
     public int getChildCount() {
         return 0;
-    }
-
-    public void addParam(String name, Type type) {
-        params.add(new Param(name, type));
-    }
-
-    public void init(Type returnType, Closure closure, Statement body) {
-        this.closure = closure;
-        this.body = body;
-
-        Type[] paramTypes = new Type[params.size()];
-        for (int i = 0; i < paramTypes.length; i++) {
-            paramTypes[i] = params.get(i).type;
-        }
-        this.type = new FunctionType(returnType, paramTypes);
-    }
-
-
-
-    static class Param {
-        final String name;
-        final Type type;
-        Param(String name, Type type) {
-            this.name = name;
-            this.type = type;
-        }
     }
 }

@@ -32,6 +32,7 @@ import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.IfStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.CollectionType;
+import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -138,22 +139,27 @@ public class Parser {
         return type;
     }
 
-    FunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
+    FunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id, String name) {
         tokenizer.consume("(");
         ParsingContext bodyContext = new ParsingContext(parsingContext, true);
-        FunctionExpression result = new FunctionExpression(name);
+        ArrayList<String> parameterNames = new ArrayList<String>();
+        ArrayList<Type> parameterTypes = new ArrayList<Type>();
         if (!tokenizer.tryConsume(")")) {
             do {
                 String paramName = tokenizer.consumeIdentifier();
                 tokenizer.consume(":");
                 Type type = parseType(parsingContext, tokenizer);
                 bodyContext.addVariable(paramName, type);
-                result.addParam(paramName, type);
+                parameterNames.add(paramName);
+                parameterTypes.add(type);
             } while (tokenizer.tryConsume(","));
             tokenizer.consume(")");
         }
+
         tokenizer.consume(":");
         Type returnType = parseType(parsingContext, tokenizer);
+
+        FunctionType functionType = new FunctionType(returnType, parameterTypes.toArray(new Type[parameterTypes.size()]));
 
         Statement body;
         if (tokenizer.tryConsume(";")) {
@@ -161,8 +167,7 @@ public class Parser {
         } else {
             body = parseBody(bodyContext, tokenizer);
         }
-        result.init(returnType, bodyContext.getClosure(), body);
-        return result;
+        return new FunctionExpression(id, name, functionType, parameterNames.toArray(new String[parameterNames.size()]), bodyContext.getClosure(), body);
     }
 
     OnExpression parseOn(ParsingContext parsingContext, boolean onChange, ExpressionParser.Tokenizer tokenizer, int id) {
@@ -218,9 +223,10 @@ public class Parser {
         if (tokenizer.tryConsume("delete")) {
             return new DeleteStatement(parseExpression(parsingContext, tokenizer), parsingContext);
         }
-        if (tokenizer.tryConsume("function")) {
+        if (tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#")) {
+            int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();
-            FunctionExpression functionExpr = parseFunction(parsingContext, tokenizer, name);
+            FunctionExpression functionExpr = parseFunction(parsingContext, tokenizer, id, name);
             return new ExpressionStatement(functionExpr);
         }
         if (tokenizer.tryConsume("if")) {
@@ -411,6 +417,9 @@ public class Parser {
             if (name.equals("false")) {
                 return new Literal(Boolean.FALSE);
             }
+            if ("function".equals(name) || name.startsWith("function#")) {
+                return parseFunction(parsingContext, tokenizer, extractId(name), null);
+            }
             if (name.indexOf('#') != -1) {
                 return new InstanceReference(name);
             }
@@ -441,8 +450,6 @@ public class Parser {
         @Override
         public Expression primary(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
             switch (name) {
-                case "function":
-                    return parseFunction(parsingContext, tokenizer, null);
 
                 case "new": {
                     Expression expr = expressionParser.parse(parsingContext, tokenizer);
@@ -467,7 +474,7 @@ public class Parser {
 
         // FIXME: Should be parser.
         // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
-        parser.addPrimary("new", "function");
+        parser.addPrimary("new");
 //        parser.addApplyBrackets(PRECEDENCE_PATH, "(", ",", ")");
         parser.addApplyBrackets(PRECEDENCE_PATH, "[", ",", "]");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
