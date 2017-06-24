@@ -45,4 +45,24 @@ public class FunctionType extends Type {
         }
         return true;
     }
+
+
+    public void serializeSignature(StringBuilder sb, int id, String name, String[] parameterNames) {
+        sb.append("function");
+        if (id != -1) {
+            sb.append('#').append(id);
+        }
+        sb.append(' ');
+        if (name != null) {
+            sb.append(name);
+        }
+        sb.append("(");
+        for (int i = 0; i < parameterNames.length; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(parameterNames[i]).append(": ").append(parameterTypes[i]);
+        }
+        sb.append("): ").append(returnType);
+    }
 }

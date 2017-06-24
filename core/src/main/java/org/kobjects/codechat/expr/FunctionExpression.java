@@ -25,7 +25,7 @@ public class FunctionExpression extends Expression {
     public Closure closure;
     public Statement body;
     private FunctionType functionType;
-    private String[] parameterNames;
+    public String[] parameterNames;
     public String name;
     int id;
 
@@ -40,7 +40,8 @@ public class FunctionExpression extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        UserFunction result = new UserFunction(this, closure.createEvalContext(context));
+        UserFunction result = new UserFunction(functionType, id);
+        result.init(this, closure.createEvalContext(context));
         if (name != null) {
             context.environment.addFunction(name, result);
         }
@@ -62,24 +63,10 @@ public class FunctionExpression extends Expression {
         return 0;
     }
 
-    public void serializeSignature(StringBuilder sb) {
-        sb.append("function ");
-        if (name != null) {
-            sb.append(name);
-        }
-        sb.append("(");
-        for (int i = 0; i < parameterNames.length; i++) {
-            if (i > 0) {
-                sb.append(", ");
-            }
-            sb.append(parameterNames[i]).append(": ").append(functionType.parameterTypes[i]);
-        }
-        sb.append("): ").append(functionType.returnType);
-    }
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        serializeSignature(sb);
+        functionType.serializeSignature(sb, id, name, parameterNames);
         sb.append(" {\n");
         body.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
