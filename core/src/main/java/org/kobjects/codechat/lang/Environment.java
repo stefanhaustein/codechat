@@ -128,6 +128,7 @@ public class Environment {
     public void addType(Type... types) {
         for (Type type : types) {
             addSystemVariable(type.toString(), type);
+            addSystemVariable(type.toString().toLowerCase(), type);
         }
     }
 

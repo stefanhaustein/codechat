@@ -5,11 +5,11 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 
 public abstract class Type implements Typed {
-    public static final Type NUMBER = new SimpleType("number", Double.class);
-    public static final Type STRING = new SimpleType("string", String.class);
-    public static final Type BOOLEAN = new SimpleType("boolean", Boolean.class);
-    public static final Type VOID = new SimpleType("void", Void.TYPE);
-    public static final Type ANY = new SimpleType("any", Object.class);
+    public static final Type NUMBER = new SimpleType("Number", Double.class);
+    public static final Type STRING = new SimpleType("String", String.class);
+    public static final Type BOOLEAN = new SimpleType("Boolean", Boolean.class);
+    public static final Type VOID = new SimpleType("Void", Void.TYPE);
+    public static final Type ANY = new SimpleType("Any", Object.class);
 
     public static Type of(Object o) {
         // Fixme: Add "typed" interface.
