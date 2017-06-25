@@ -26,7 +26,7 @@ class ConstructorInvocation extends AbstractResolved {
 
     @Override
     public int getPrecedence() {
-        return Parser.PRECEDENCE_IMPLICIT;
+        return Parser.PRECEDENCE_PATH;
     }
 
     @Override

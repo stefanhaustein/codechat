@@ -17,10 +17,6 @@ import org.kobjects.codechat.type.Type;
 
 public class UnresolvedInvocation extends AbstractUnresolved {
 
-    static int getPrecedence(boolean parens) {
-        return  parens ? Parser.PRECEDENCE_PATH : Parser.PRECEDENCE_IMPLICIT;
-    }
-
     static void toString(StringBuilder sb, Expression base, boolean parens, Expression[] children) {
         base.toString(sb, 0);
         sb.append(parens ? '(' : ' ');
@@ -105,7 +101,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
         }
 
         if (!(resolvedBase.getType() instanceof FunctionType)) {
-            throw new RuntimeException("Not a function: " + resolvedBase + ": " + resolvedBase.getType() + " / " + resolvedBase.getType().getClass());
+            throw new RuntimeException("Not a function: " + resolvedBase + ": " + resolvedBase.getType() + " / " + resolvedBase.getClass());
         }
 
         FunctionType functionType = (FunctionType) resolvedBase.getType();
@@ -125,7 +121,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
 
     @Override
     public int getPrecedence() {
-        return getPrecedence(parens);
+        return Parser.PRECEDENCE_PATH;
     }
 
     @Override

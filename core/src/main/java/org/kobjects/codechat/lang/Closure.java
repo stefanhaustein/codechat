@@ -53,7 +53,7 @@ public class Closure {
         if (getMappingCount() == 0) {
             return false;
         }
-        sb.append("{\n");
+        sb.append("begin\n");
         for (Closure.Mapping mapping : getMappings()) {
             sb.append("  var ").append(mapping.name).append(" = ");
             sb.append(contextTemplate.variables[mapping.closureIndex]).append("\n");

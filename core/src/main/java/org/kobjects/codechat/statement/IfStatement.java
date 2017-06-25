@@ -29,14 +29,14 @@ public class IfStatement extends AbstractStatement {
     @Override
     public void toString(StringBuilder sb, int indent) {
         AbstractStatement.indent(sb, indent);
-        sb.append("if ").append(condition).append(" {\n");
+        sb.append("if ").append(condition).append(":\n");
         ifBody.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
         if (elseBody != null) {
-            sb.append("} else {\n");
+            sb.append("else\n");
             elseBody.toString(sb, indent + 1);
             AbstractStatement.indent(sb, indent);
         }
-        sb.append("}\n");
+        sb.append("end;\n");
     }
 }

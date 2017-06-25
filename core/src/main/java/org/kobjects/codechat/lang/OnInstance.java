@@ -75,12 +75,12 @@ public class OnInstance implements Instance, Property.PropertyListener {
             boolean wrap = onExpression.closure.toString(sb, contextTemplate);
 
             sb.append(onExpression.onChange ? "onchange#" : "on#").append(getId());
-            sb.append(' ').append(onExpression.expression).append(" {\n");
+            sb.append(' ').append(onExpression.expression).append(":\n");
             onExpression.body.toString(sb, wrap ? 2 : 1);
             if (wrap) {
-                sb.append("  }\n");
+                sb.append("  end;\n");
             }
-            sb.append("}\n");
+            sb.append("end;\n");
         }
     }
 

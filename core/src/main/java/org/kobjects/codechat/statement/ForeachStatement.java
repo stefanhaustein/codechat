@@ -38,11 +38,11 @@ public class ForeachStatement extends AbstractStatement {
         indent(sb, indent);
         sb.append("foreach ").append(variable.getName()).append(' ');
         expression.toString(sb, 0);
-        sb.append(" {\n");
+        sb.append(":\n");
 
         body.toString(sb, indent + 1);
 
         indent(sb, indent);
-        sb.append("}\n");
+        sb.append("end;\n");
     }
 }

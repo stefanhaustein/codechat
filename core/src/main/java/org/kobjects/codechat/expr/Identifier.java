@@ -26,7 +26,7 @@ public class Identifier extends AbstractUnresolved {
             return new RootVariableNode(rootVariable);
         }
 
-        throw new RuntimeException("Undefined identifier: " + name + " in " + parsingContext.environment.rootVariables);
+        throw new RuntimeException("Undefined identifier: " + name);
     }
 
     @Override

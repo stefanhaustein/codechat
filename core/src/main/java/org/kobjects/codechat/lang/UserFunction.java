@@ -61,13 +61,13 @@ public class UserFunction implements Function, Instance {
 
             functionType.serializeSignature(sb, id, name, parameterNames);
 
-            sb.append(" {\n");
+            sb.append(":\n");
             body.toString(sb, indent + 1);
             AbstractStatement.indent(sb, indent);
-            sb.append("}\n");
+            sb.append("end;\n");
 
             if (wrap) {
-                sb.append("}\n");
+                sb.append("end;\n");
             }
         }
     }

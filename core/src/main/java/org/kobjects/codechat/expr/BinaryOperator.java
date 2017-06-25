@@ -35,6 +35,7 @@ public class BinaryOperator extends Expression {
             case '*': return l * r;
             case '/': return l / r;
             case '^': return Math.pow(l, r);
+            case '\u221a': return l == 2 ? Math.sqrt(r) : Math.pow(r, 1/l);
             default:
                 throw new RuntimeException("Impossible");
         }
@@ -47,6 +48,7 @@ public class BinaryOperator extends Expression {
             case '\u2228':
                 return Parser.PRECEDENCE_OR;
             case '^':
+            case '\u221a':
                 return Parser.PRECEDENCE_POWER;
             case '*':
             case '/':

@@ -47,6 +47,12 @@ public class Environment {
             addFunction(mathFnType.name().toLowerCase(), new MathFn(mathFnType));
         }
 
+        addSystemVariable("PI", Math.PI);
+        addSystemVariable("\u03c0", Math.PI);
+        addSystemVariable("TAU", 2 * Math.PI);
+        addSystemVariable("\u03c4", 2 * Math.PI);
+
+
         addFunction("print", new PrintFunction(Type.STRING));
         addFunction("print", new PrintFunction(Type.BOOLEAN));
         addFunction("print", new PrintFunction(Type.NUMBER));
