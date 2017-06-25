@@ -2,34 +2,33 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Function;
-import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
-public class FunctionInvocation extends AbstractResolved {
-
-    Expression base;
+public class NamedFunctionInvocation extends AbstractResolved {
+    String name;
+    Function function;
     boolean parens;
     Expression[] parameters;
 
-    public FunctionInvocation(Expression base, boolean parens, Expression... parameters) {
-        this.base = base;
+    public NamedFunctionInvocation(String name, Function funciton, boolean parens, Expression... parameters) {
+        this.name = name;
+        this.function = funciton;
         this.parens = parens;
         this.parameters = parameters;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
-        Function f = (Function) base.eval(context);
-        EvaluationContext functionContext = f.createContext();
+        EvaluationContext functionContext = function.createContext();
         for (int i = 0; i < parameters.length; i++) {
             functionContext.variables[i] = parameters[i].eval(context);
         }
-        return f.eval(functionContext);
+        return function.eval(functionContext);
     }
 
     @Override
     public Type getType() {
-        return ((FunctionType) base.getType()).returnType;
+        return function.getType().returnType;
     }
 
     @Override
@@ -39,7 +38,7 @@ public class FunctionInvocation extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        base.toString(sb, indent);
+        sb.append(name);
         sb.append(parens ? '(' : ' ');
         if (parameters.length > 0) {
             parameters[0].toString(sb, indent);
@@ -55,11 +54,11 @@ public class FunctionInvocation extends AbstractResolved {
 
     @Override
     public int getChildCount() {
-        return parameters.length + 1;
+        return parameters.length;
     }
 
     @Override
     public Expression getChild(int index) {
-        return index == 0 ? base : parameters[index - 1];
+        return parameters[index];
     }
 }

@@ -1,11 +1,12 @@
 package org.kobjects.codechat.lang;
 
+import java.util.List;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 
-public class UserFunction implements Function {
+public class UserFunction implements Function, Instance {
     private EvaluationContext contextTemplate;
     private int id;
     private FunctionType functionType;
@@ -44,25 +45,35 @@ public class UserFunction implements Function {
         return functionType;
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        boolean wrap = closure.toString(sb, contextTemplate);
-        int indent = wrap ? 1 : 0;
-
-        functionType.serializeSignature(sb, id, name, parameterNames);
-        sb.append(" {\n");
-        body.toString(sb, indent + 1);
-        AbstractStatement.indent(sb, indent);
-        sb.append("}\n");
-
-        if (wrap) {
-            sb.append("}\n");
-        }
-        return sb.toString();
+    @Override
+    public int getId() {
+        return id;
     }
 
-    public void serializeSignature(StringBuilder sb) {
-        functionType.serializeSignature(sb, id, name, parameterNames);
+    @Override
+    public void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations) {
+        if (detail == Detail.DECLARATION) {
+            functionType.serializeSignature(sb, id, name, parameterNames);
+            sb.append(";\n");
+        } else if (body != null) {
+            boolean wrap = closure.toString(sb, contextTemplate);
+            int indent = wrap ? 1 : 0;
+
+            functionType.serializeSignature(sb, id, name, parameterNames);
+
+            sb.append(" {\n");
+            body.toString(sb, indent + 1);
+            AbstractStatement.indent(sb, indent);
+            sb.append("}\n");
+
+            if (wrap) {
+                sb.append("}\n");
+            }
+        }
+    }
+
+    @Override
+    public void delete() {
+
     }
 }

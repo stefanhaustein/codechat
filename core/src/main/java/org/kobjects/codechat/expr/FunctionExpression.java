@@ -11,17 +11,6 @@ import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 
 public class FunctionExpression extends Expression {
-
-    public static String getQualifiedName(String name, Type... types) {
-        StringBuilder sb = new StringBuilder(name);
-        for (Type type: types) {
-            sb.append(':');
-            sb.append(type.toString());
-        }
-        return sb.toString();
-    }
-
-
     public Closure closure;
     public Statement body;
     private FunctionType functionType;
@@ -40,7 +29,12 @@ public class FunctionExpression extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        UserFunction result = new UserFunction(functionType, id);
+        UserFunction result;
+        if (body == null) {
+            result = (UserFunction) context.environment.instantiate(functionType, id);
+        } else {
+            result = (UserFunction) context.environment.getInstance(functionType, id, false);
+        }
         result.init(this, closure.createEvalContext(context));
         if (name != null) {
             context.environment.addFunction(name, result);

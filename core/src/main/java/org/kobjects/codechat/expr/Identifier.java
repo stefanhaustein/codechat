@@ -21,17 +21,12 @@ public class Identifier extends AbstractUnresolved {
         if (variable != null) {
             return new LocalVariableNode(variable);
         }
-
         RootVariable rootVariable = parsingContext.environment.rootVariables.get(name);
         if (rootVariable != null) {
-            RootVariableNode node = new RootVariableNode(name, rootVariable.type);
-            if (rootVariable.type instanceof FunctionType) {
-                return new FunctionInvocation(node, false);
-            }
-            return node;
+            return new RootVariableNode(rootVariable);
         }
 
-        throw new RuntimeException("Undefined identifier: " + name);
+        throw new RuntimeException("Undefined identifier: " + name + " in " + parsingContext.environment.rootVariables);
     }
 
     @Override

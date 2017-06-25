@@ -529,7 +529,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     print("not found: " + key);
                 } else if (matches.size() == 1) {
                     RootVariable var = matches.get(matches.firstKey());
-                    input.setText(var.dump(true));
+                    StringBuilder sb = new StringBuilder();
+                    var.dump(sb);
+                    input.setText(sb.toString());
                 } else {
                     StringBuilder sb = new StringBuilder();
                     for (String s: matches.keySet()) {

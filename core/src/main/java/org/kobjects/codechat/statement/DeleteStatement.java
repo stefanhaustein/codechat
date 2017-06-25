@@ -27,7 +27,7 @@ public class DeleteStatement extends AbstractStatement {
         }
         if (expr instanceof RootVariableNode) {
             RootVariableNode varNode = (RootVariableNode) expr;
-            context.environment.rootVariables.remove(varNode.name);
+            varNode.rootVariable.value = null;
         }
 /*
         if (expr instanceof Identifier) {

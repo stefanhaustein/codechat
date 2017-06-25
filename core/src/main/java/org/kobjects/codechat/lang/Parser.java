@@ -125,7 +125,7 @@ public class Parser {
 
     Statement parseBody(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         if (tokenizer.tryConsume(":")) {
-            return parseStatement(parsingContext, tokenizer, false);
+            return parseBlock(parsingContext, tokenizer, "end");
         }
         if (tokenizer.tryConsume("{")) {
             return parseBlock(parsingContext, tokenizer, "}");
@@ -162,7 +162,7 @@ public class Parser {
         FunctionType functionType = new FunctionType(returnType, parameterTypes.toArray(new Type[parameterTypes.size()]));
 
         Statement body;
-        if (tokenizer.tryConsume(";")) {
+        if (tokenizer.tryConsume(";") || tokenizer.tryConsume("")) {
             body = null;
         } else {
             body = parseBody(bodyContext, tokenizer);
@@ -268,7 +268,8 @@ public class Parser {
                     && !tokenizer.currentValue.equals(";")
                     && !tokenizer.currentValue.equals("}")
                     && !tokenizer.currentValue.equals("{")
-                    && !tokenizer.currentValue.equals("else")) {
+                    && !tokenizer.currentValue.equals("else")
+                    && !tokenizer.currentValue.equals("end")) {
                 Expression param = expressionParser.parse(parsingContext, tokenizer);
                 params.add(param);
                 tokenizer.tryConsume(",");
@@ -331,7 +332,7 @@ public class Parser {
     public ExpressionParser.Tokenizer createTokenizer(Reader reader) {
         ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
                 new Scanner(reader),
-                expressionParser.getSymbols() , ":", "{", "}");
+                expressionParser.getSymbols() , ":", "{", "}", "end");
         tokenizer.identifierPattern = IDENTIFIER_PATTERN;
         return tokenizer;
     }

@@ -2,6 +2,7 @@ package org.kobjects.codechat.expr;
 
 import java.util.LinkedHashMap;
 
+import org.kobjects.codechat.lang.Function;
 import org.kobjects.codechat.lang.Tuple;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.TupleInstance;
@@ -48,8 +49,6 @@ public class UnresolvedInvocation extends AbstractUnresolved {
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
-
-        Expression[] resolved = new Expression[children.length];
         if (base instanceof Identifier) {
             String name = ((Identifier) base).name;
 
@@ -63,34 +62,40 @@ public class UnresolvedInvocation extends AbstractUnresolved {
                 InstanceReference resolvedRef = (InstanceReference) children[0].resolve(parsingContext);
                 return new ConstructorInvocation(resolvedRef.type, resolvedRef.id);
             }
+        }
 
-            Type[] paramTypes = new Type[resolved.length];
-            for (int i = 0; i < resolved.length; i++) {
-                resolved[i] = children[i].resolve(parsingContext);
-                paramTypes[i] = resolved[i].getType();
-            }
+        Expression[] resolved = new Expression[children.length];
+        Type[] paramTypes = new Type[resolved.length];
+        for (int i = 0; i < resolved.length; i++) {
+            resolved[i] = children[i].resolve(parsingContext);
+            paramTypes[i] = resolved[i].getType();
+        }
 
+        if (base instanceof Identifier) {
+            String name = ((Identifier) base).name;
             if ("set".equals(name)) {
                 return new CollectionLiteral(SetType.class, resolved);
             }
             if ("list".equals(name)) {
                 return new CollectionLiteral(ListType.class, resolved);
             }
-
-            String qualifiedName = FunctionExpression.getQualifiedName(name, paramTypes);
-            RootVariable fVar = parsingContext.environment.rootVariables.get(qualifiedName);
-            if (fVar != null && fVar.type instanceof FunctionType) {
-                return new FunctionInvocation(new RootVariableNode(qualifiedName, fVar.type), parens, resolved);
-            }
-
-        } else {
-            for (int i = 0; i < resolved.length; i++) {
-                resolved[i] = children[i].resolve(parsingContext);
-            }
         }
 
-
         Expression resolvedBase = base.resolve(parsingContext);
+
+        if (resolvedBase instanceof RootVariableNode) {
+            int best = 0;
+            Function result = null;
+            for (Function candidate: ((RootVariableNode) resolvedBase).rootVariable.functions()) {
+                double match = candidate.getType().callScore(paramTypes);
+                if (match > best) {
+                    result = candidate;
+                }
+            }
+            if (result != null) {
+                return new NamedFunctionInvocation(((RootVariableNode) resolvedBase).rootVariable.name, result, parens, resolved);
+            }
+        }
 
         if (resolvedBase.getType() instanceof MetaType) {
             Type baseType = ((MetaType)resolvedBase.getType()).getType();

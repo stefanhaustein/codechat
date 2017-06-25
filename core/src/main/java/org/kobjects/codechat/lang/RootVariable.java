@@ -1,29 +1,40 @@
 package org.kobjects.codechat.lang;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.kobjects.codechat.type.Type;
 
 public class RootVariable {
     public String name;
     public Type type;
     public Object value;
+    List<Function> functions;
 
-    public String dump(boolean detailed) {
-        StringBuilder sb = new StringBuilder();
+    public void dump(StringBuilder sb) {
+        sb.append(name);
+        sb.append(" = ");
+        sb.append(Environment.toLiteral(value));
+        sb.append(";\n");
+    }
 
-        boolean namedFunction = value instanceof UserFunction && ((UserFunction) value).isNamed();
-        if (!namedFunction) {
-            sb.append(name);
-            sb.append(" = ");
+    public Iterable<Function> functions() {
+        return functions == null ? Collections.<Function>emptyList() : functions;
+    }
+
+    public void addFunction(Function function) {
+        if (functions == null) {
+            functions = new ArrayList<>();
         }
 
-        if (namedFunction && !detailed) {
-            ((UserFunction) value).serializeSignature(sb);
-        } else {
-            sb.append(Environment.toLiteral(value));
+        for (int i = 0; i < functions.size(); i++) {
+            Function candidate = functions.get(i);
+            if (candidate.getType().callScore(function.getType().parameterTypes) == 1.0) {
+                // TODO: Should be identical!
+                functions.set(i, function);
+                return;
+            }
         }
-        if (!namedFunction || !detailed) {
-            sb.append(";\n");
-        }
-        return sb.toString();
+        functions.add(function);
     }
 }

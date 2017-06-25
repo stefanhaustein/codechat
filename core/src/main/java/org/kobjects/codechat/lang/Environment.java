@@ -167,14 +167,9 @@ public class Environment {
         }
         for (RootVariable variable : rootVariables.values()) {
             if (variable.value != null && !systemVariables.containsKey(variable.name)) {
-                if (variable.value instanceof UserFunction ? ((UserFunction) variable.value).isNamed() : true)  {
-                    sb.append(variable.dump(false));
+                if (!(variable.value instanceof UserFunction) || !((UserFunction) variable.value).isNamed()) {
+                    variable.dump(sb);
                 }
-            }
-        }
-        for (RootVariable variable : rootVariables.values()) {
-            if (!systemVariables.containsKey(variable.name) && variable.value instanceof UserFunction) {
-                sb.append(variable.dump(true));
             }
         }
         for (WeakReference<Instance> reference : everything.values()) {
@@ -276,43 +271,35 @@ public class Environment {
             clearAll();
 
             StringBuilder pending = new StringBuilder();
-            int balance = 0;
             int lineNumber = 0;
 
             while (true) {
-                String line = reader.readLine();
                 lineNumber++;
+
+                String line = reader.readLine();
+
+                if (line == null || (!line.startsWith(" ") && !line.equals("}") && !line.equals("end") && !line.equals("end;"))) {
+                    String statement = pending.toString();
+                    if (!statement.isEmpty()) {
+                        try {
+                            ParsingContext parsingContext = new ParsingContext(this);
+                            Statement e = parse(parsingContext, statement);
+                            if (e != null) {
+                                EvaluationContext evaluationContext = parsingContext.createEvaluationContext();
+                                e.eval(evaluationContext);
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Error parsing line: " + statement);
+                            e.printStackTrace();
+                            success = false;
+                        }
+                        pending.setLength(0);
+                    }
+                }
                 if (line == null) {
                     break;
                 }
-
                 pending.append(line).append('\n');
-                balance += getBalance(line);
-
-                if (balance < 0) {
-                    throw new RuntimeException("Too many } in line " + lineNumber);
-                }
-
-                if (balance == 0) {
-                    line = pending.toString();
-                    pending.setLength(0);
-
-                    try {
-                        ParsingContext parsingContext = new ParsingContext(this);
-                        Statement e = parse(parsingContext, line);
-                        if (e != null) {
-                            EvaluationContext evaluationContext = parsingContext.createEvaluationContext();
-                            e.eval(evaluationContext);
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Error parsing line: " + line);
-                        e.printStackTrace();
-                        success = false;
-                    }
-                }
-            }
-            if (balance != 0) {
-                throw new RuntimeException("Unbalanced input!");
             }
             if (!success) {
                 throw new RuntimeException("Parsing error(s)");
@@ -358,18 +345,17 @@ public class Environment {
     }
 
     public void addFunction(String name, Function function) {
-        FunctionType type = function.getType();
-        String qualifiedName = FunctionExpression.getQualifiedName(name, type.parameterTypes);
-        RootVariable var = new RootVariable();
-        var.name = qualifiedName;
-        var.type = type;
-        var.value = function;
-        rootVariables.put(qualifiedName, var);
-        if (function instanceof NativeFunction) {
-            systemVariables.put(qualifiedName, var);
+        RootVariable var = rootVariables.get(name);
+        if (var == null) {
+            var = new RootVariable();
+            var.name = name;
+            rootVariables.put(name, var);
+            // FIXME!!
+            if (function instanceof NativeFunction) {
+                systemVariables.put(name, var);
+            }
         }
-
-
+        var.addFunction(function);
     }
 
 

@@ -2,25 +2,24 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 
 public class RootVariableNode extends AbstractResolved {
-    public String name;
-    private Type type;
+    public final RootVariable rootVariable;
 
-    RootVariableNode(String name, Type type) {
-        this.name = name;
-        this.type = type;
+    RootVariableNode(RootVariable rootVariable) {
+        this.rootVariable = rootVariable;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
-        return context.environment.rootVariables.get(name).value;
+        return rootVariable.value;
     }
 
     @Override
     public Type getType() {
-        return type;
+        return rootVariable.type;
     }
 
     @Override
@@ -30,8 +29,7 @@ public class RootVariableNode extends AbstractResolved {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        int cut = name.indexOf(':');
-        sb.append(cut == -1 ? name : name.substring(0, cut));
+        sb.append(rootVariable.name);
     }
 
     @Override
@@ -42,11 +40,12 @@ public class RootVariableNode extends AbstractResolved {
 
     @Override
     public void assign(EvaluationContext context, Object value) {
-        context.environment.rootVariables.get(name).value = value;
+        rootVariable.value = value;
     }
 
 
     public boolean isAssignable() {
         return true;
     }
+
 }

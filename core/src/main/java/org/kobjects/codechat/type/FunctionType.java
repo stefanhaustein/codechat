@@ -1,6 +1,8 @@
 package org.kobjects.codechat.type;
 
 
+import java.lang.annotation.Inherited;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.UserFunction;
 
@@ -46,6 +48,15 @@ public class FunctionType extends Type {
         return true;
     }
 
+    @Override
+    public boolean isInstantiable() {
+        return true;
+    }
+
+    @Override
+    public UserFunction createInstance(Environment environment, int id) {
+        return new UserFunction(this, id);
+    }
 
     public void serializeSignature(StringBuilder sb, int id, String name, String[] parameterNames) {
         sb.append("function");
@@ -64,5 +75,23 @@ public class FunctionType extends Type {
             sb.append(parameterNames[i]).append(": ").append(parameterTypes[i]);
         }
         sb.append("): ").append(returnType);
+    }
+
+    public double callScore(Type[] parameterTypes) {
+        if (parameterTypes.length != this.parameterTypes.length) {
+            return 0;
+        }
+        int result = 0;
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (parameterTypes[i].equals(this.parameterTypes[i])) {
+                result += 2;
+            } else if (this.parameterTypes[i].isAssignableFrom(parameterTypes[i])) {
+                result += 1;
+            } else {
+                return 0;
+            }
+        }
+        // First case makes sure 1 is exact and that the 0 parameter case is handled.
+        return result == parameterTypes.length * 2 ? 1 : (result / parameterTypes.length);
     }
 }
