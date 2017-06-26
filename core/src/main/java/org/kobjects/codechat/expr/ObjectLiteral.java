@@ -3,6 +3,7 @@ package org.kobjects.codechat.expr;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.ParsingContext;
@@ -13,22 +14,14 @@ import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 
 public class ObjectLiteral extends Expression {
 
-    String typeName;
-    TupleType type;
-    int id;
-    LinkedHashMap<String, Expression> elements;
+    final TupleType type;
+    final int id;
+    final LinkedHashMap<String, Expression> elements;
 
-    public ObjectLiteral(Expression base, LinkedHashMap<String, Expression> elements) {
+    public ObjectLiteral(TupleType type, int id, LinkedHashMap<String, Expression> elements) {
+        this.type = type;
+        this.id = id;
         this.elements = elements;
-        if (base instanceof Identifier) {
-            typeName = ((Identifier) base).name;
-            id = -1;
-        } else if (base instanceof InstanceReference) {
-            typeName = ((InstanceReference) base).typeName;
-            id = ((InstanceReference) base).id;
-        } else {
-            throw new RuntimeException("Object literal base must be a type or instance reference.");
-        }
     }
 
     @Override
@@ -38,26 +31,6 @@ public class ObjectLiteral extends Expression {
             type.getProperty(entry.getKey()).set(instance, entry.getValue().eval(context));
         }
         return instance;
-    }
-
-    @Override
-    public Expression resolve(ParsingContext parsingContext) {
-        type = (TupleType) parsingContext.environment.resolveType(typeName);
-        for (String key: elements.keySet()) {
-            Expression resolved = elements.get(key).resolve(parsingContext);
-
-            TupleType.PropertyDescriptor property = type.getProperty(key);
-
-            if (!property.writable) {
-                throw new RuntimeException("Can't set read-only property " + key);
-            }
-            if (!property.type.isAssignableFrom(resolved.getType())) {
-                throw new RuntimeException(key + " can't be assigned to type " + resolved.getType());
-            }
-
-            elements.put(key, resolved);
-        }
-        return this;
     }
 
     @Override
@@ -72,7 +45,7 @@ public class ObjectLiteral extends Expression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append(typeName);
+        sb.append(type.getName());
         if (id != -1) {
             sb.append('#').append(id);
         }

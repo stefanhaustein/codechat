@@ -1,23 +1,29 @@
-package org.kobjects.codechat.expr;
+package org.kobjects.codechat.expr.unresolved;
 
 import java.util.LinkedHashMap;
 
+import org.kobjects.codechat.expr.CollectionLiteral;
+import org.kobjects.codechat.expr.ConstructorInvocation;
+import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.expr.FunctionInvocation;
+import org.kobjects.codechat.expr.InstanceReference;
+import org.kobjects.codechat.expr.NamedFunctionInvocation;
+import org.kobjects.codechat.expr.ObjectLiteral;
+import org.kobjects.codechat.expr.RootVariableNode;
+import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
 import org.kobjects.codechat.lang.Function;
-import org.kobjects.codechat.lang.Tuple;
 import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
-public class UnresolvedInvocation extends AbstractUnresolved {
+public class UnresolvedInvocation extends UnresolvedExpression {
 
-    static void toString(StringBuilder sb, Expression base, boolean parens, Expression[] children) {
+    static void toString(StringBuilder sb, UnresolvedExpression base, boolean parens, UnresolvedExpression[] children) {
         base.toString(sb, 0);
         sb.append(parens ? '(' : ' ');
         if (children.length > 0) {
@@ -33,11 +39,11 @@ public class UnresolvedInvocation extends AbstractUnresolved {
     }
 
 
-    public Expression base;
-    public Expression[] children;
+    public UnresolvedExpression base;
+    public UnresolvedExpression[] children;
     public boolean parens;
 
-    public UnresolvedInvocation(Expression base, boolean parens, Expression... children) {
+    public UnresolvedInvocation(UnresolvedExpression base, boolean parens, UnresolvedExpression... children) {
         this.base = base;
         this.parens = parens;
         this.children = children;
@@ -45,16 +51,16 @@ public class UnresolvedInvocation extends AbstractUnresolved {
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
-        if (base instanceof Identifier) {
-            String name = ((Identifier) base).name;
+        if (base instanceof UnresolvedIdentifier) {
+            String name = ((UnresolvedIdentifier) base).name;
 
-            if (("create".equals(name) || "new".equals(name)) && children[0] instanceof Identifier) {
-                String argName = ((Identifier) children[0]).name;
+            if (("create".equals(name) || "new".equals(name)) && children[0] instanceof UnresolvedIdentifier) {
+                String argName = ((UnresolvedIdentifier) children[0]).name;
 
                 Type type = parsingContext.environment.resolveType(argName);
                 return new ConstructorInvocation(type, -1);
             }
-            if ("new".equals(name) && children[0] instanceof InstanceReference) {
+            if ("new".equals(name) && children[0] instanceof UnresolvedInstanceReference) {
                 InstanceReference resolvedRef = (InstanceReference) children[0].resolve(parsingContext);
                 return new ConstructorInvocation(resolvedRef.type, resolvedRef.id);
             }
@@ -67,8 +73,8 @@ public class UnresolvedInvocation extends AbstractUnresolved {
             paramTypes[i] = resolved[i].getType();
         }
 
-        if (base instanceof Identifier) {
-            String name = ((Identifier) base).name;
+        if (base instanceof UnresolvedIdentifier) {
+            String name = ((UnresolvedIdentifier) base).name;
             if ("set".equals(name)) {
                 return new CollectionLiteral(SetType.class, resolved);
             }
@@ -96,7 +102,7 @@ public class UnresolvedInvocation extends AbstractUnresolved {
         if (resolvedBase.getType() instanceof MetaType) {
             Type baseType = ((MetaType)resolvedBase.getType()).getType();
             if (baseType instanceof TupleType && resolved.length == 0) {
-                return new ObjectLiteral(base, new LinkedHashMap<String, Expression>()).resolve(parsingContext);
+                return new ObjectLiteral((TupleType) baseType, -1, new LinkedHashMap<String, Expression>());
             }
         }
 
@@ -129,13 +135,4 @@ public class UnresolvedInvocation extends AbstractUnresolved {
         toString(sb, base, parens, children);
     }
 
-    @Override
-    public int getChildCount() {
-        return children.length;
-    }
-
-    @Override
-    public Expression getChild(int index) {
-        return children[index];
-    }
 }

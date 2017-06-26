@@ -1,16 +1,16 @@
-package org.kobjects.codechat.expr;
+package org.kobjects.codechat.expr.unresolved;
 
-import java.util.ArrayList;
+import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.UserFunction;
-import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.type.Type;
+import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.type.FunctionType;
 
-public class FunctionExpression extends Expression {
+public class UnresolvedFunctionExpression extends UnresolvedExpression {
     public Closure closure;
     public Statement body;
     private FunctionType functionType;
@@ -18,7 +18,7 @@ public class FunctionExpression extends Expression {
     public String name;
     int id;
 
-    public FunctionExpression(int id, String name, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
+    public UnresolvedFunctionExpression(int id, String name, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
         this.id = id;
         this.name = name;
         this.functionType = functionType;
@@ -28,23 +28,8 @@ public class FunctionExpression extends Expression {
     }
 
     @Override
-    public Object eval(EvaluationContext context) {
-        UserFunction result;
-        if (body == null) {
-            result = (UserFunction) context.environment.instantiate(functionType, id);
-        } else {
-            result = (UserFunction) context.environment.getInstance(functionType, id, false);
-        }
-        result.init(this, closure.createEvalContext(context));
-        if (name != null) {
-            context.environment.addFunction(name, result);
-        }
-        return result;
-    }
-
-    @Override
-    public FunctionType getType() {
-        return functionType;
+    public Expression resolve(ParsingContext parsingContext) {
+        return new FunctionExpression(id, name, functionType, parameterNames, closure, body);
     }
 
     @Override
@@ -64,10 +49,5 @@ public class FunctionExpression extends Expression {
             AbstractStatement.indent(sb, indent);
             sb.append("end\n");
         }
-    }
-
-    @Override
-    public int getChildCount() {
-        return 0;
     }
 }

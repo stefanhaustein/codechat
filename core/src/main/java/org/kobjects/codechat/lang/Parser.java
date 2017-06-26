@@ -2,21 +2,29 @@ package org.kobjects.codechat.lang;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.kobjects.codechat.expr.ObjectLiteral;
-import org.kobjects.codechat.expr.UnresolvedArrayExpression;
+import org.kobjects.codechat.expr.unresolved.UnresolvedArrayExpression;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.expr.OnExpression;
+import org.kobjects.codechat.expr.unresolved.UnresolvedBinaryOperator;
+import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
+import org.kobjects.codechat.expr.unresolved.UnresolvedFunctionExpression;
+import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
+import org.kobjects.codechat.expr.unresolved.UnresolvedInstanceReference;
+import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
+import org.kobjects.codechat.expr.unresolved.UnresolvedObjectLiteral;
+import org.kobjects.codechat.expr.unresolved.UnresolvedPropertyAccess;
+import org.kobjects.codechat.expr.unresolved.UnresolvedRelationalOperator;
+import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
 import org.kobjects.codechat.statement.Assignment;
-import org.kobjects.codechat.expr.Identifier;
 import org.kobjects.codechat.expr.RelationalOperator;
 import org.kobjects.codechat.expr.UnaryOperator;
-import org.kobjects.codechat.expr.UnresolvedInvocation;
+import org.kobjects.codechat.expr.unresolved.UnresolvedInvocation;
 import org.kobjects.codechat.expr.BinaryOperator;
 import org.kobjects.codechat.expr.InstanceReference;
 import org.kobjects.codechat.expr.Literal;
@@ -62,7 +70,7 @@ public class Parser {
     }
 
     private final Environment environment;
-    private final ExpressionParser<Expression, ParsingContext> expressionParser = createExpressionParser();
+    private final ExpressionParser<UnresolvedExpression, ParsingContext> expressionParser = createExpressionParser();
 
     Parser(Environment environment) {
         this.environment = environment;
@@ -147,7 +155,7 @@ public class Parser {
         return type;
     }
 
-    FunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id, String name) {
+    UnresolvedFunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id, String name) {
         tokenizer.consume("(");
         ParsingContext bodyContext = new ParsingContext(parsingContext, true);
         ArrayList<String> parameterNames = new ArrayList<String>();
@@ -175,7 +183,7 @@ public class Parser {
         } else {
             body = parseBody(bodyContext, tokenizer);
         }
-        return new FunctionExpression(id, name, functionType, parameterNames.toArray(new String[parameterNames.size()]), bodyContext.getClosure(), body);
+        return new UnresolvedFunctionExpression(id, name, functionType, parameterNames.toArray(new String[parameterNames.size()]), bodyContext.getClosure(), body);
     }
 
     OnExpression parseOn(ParsingContext parsingContext, boolean onChange, ExpressionParser.Tokenizer tokenizer, int id) {
@@ -239,8 +247,8 @@ public class Parser {
         if (tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#")) {
             int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();
-            FunctionExpression functionExpr = parseFunction(parsingContext, tokenizer, id, name);
-            return new ExpressionStatement(functionExpr);
+            UnresolvedFunctionExpression functionExpr = parseFunction(parsingContext, tokenizer, id, name);
+            return new ExpressionStatement(functionExpr.resolve(parsingContext));
         }
         if (tokenizer.tryConsume("if")) {
             return parseIf(parsingContext, tokenizer);
@@ -265,13 +273,13 @@ public class Parser {
             return parseBlock(blockContext, tokenizer, "end");
         }
 
-        Expression unresolved = expressionParser.parse(parsingContext, tokenizer);
+        UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
 
-        if (unresolved instanceof RelationalOperator && ((RelationalOperator) unresolved).name == '=') {
-            RelationalOperator op = (RelationalOperator) unresolved;
+        if (unresolved instanceof UnresolvedRelationalOperator && ((UnresolvedRelationalOperator) unresolved).name == '=') {
+            UnresolvedRelationalOperator op = (UnresolvedRelationalOperator) unresolved;
             Expression right = op.right.resolve(parsingContext);
-            if (op.left instanceof Identifier && parsingContext.parent == null && interactive) {
-                String name = ((Identifier) op.left).name;
+            if (op.left instanceof UnresolvedIdentifier && parsingContext.parent == null && interactive) {
+                String name = ((UnresolvedIdentifier) op.left).name;
                 if (parsingContext.resolve(name) == null) {
                     environment.ensureRootVariable(name, right.getType());
                 }
@@ -292,22 +300,22 @@ public class Parser {
             }
         }*/
 
-        if (unresolved instanceof Identifier) {
-            RootVariable var = parsingContext.environment.rootVariables.get(((Identifier) unresolved).name);
+        if (unresolved instanceof UnresolvedIdentifier) {
+            RootVariable var = parsingContext.environment.rootVariables.get(((UnresolvedIdentifier) unresolved).name);
             if (var != null && var.functions().iterator().hasNext()) {
-                ArrayList<Expression> params = new ArrayList<>();
+                ArrayList<UnresolvedExpression> params = new ArrayList<>();
                 while (!tokenizer.currentValue.equals("")
                         && !tokenizer.currentValue.equals(";")
                         && !tokenizer.currentValue.equals("}")
                         && !tokenizer.currentValue.equals("{")
                         && !tokenizer.currentValue.equals("else")
                         && !tokenizer.currentValue.equals("end")) {
-                    Expression param = expressionParser.parse(parsingContext, tokenizer);
+                    UnresolvedExpression param = expressionParser.parse(parsingContext, tokenizer);
                     params.add(param);
                     tokenizer.tryConsume(",");
                 }
                 if (params.size() > 0 || var.value == null) {
-                    unresolved = new UnresolvedInvocation(unresolved, false, params.toArray(new Expression[params.size()]));
+                    unresolved = new UnresolvedInvocation(unresolved, false, params.toArray(new UnresolvedExpression[params.size()]));
                 }
             }
         }
@@ -316,35 +324,35 @@ public class Parser {
         return new ExpressionStatement(resolved);
     }
 
-    Expression parseInvocation(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, Expression base) {
+    UnresolvedExpression parseInvocation(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, UnresolvedExpression base) {
         // tokenizer.consume("(");
         if (tokenizer.tryConsume(")")) {
             return new UnresolvedInvocation(base, true);
         }
-        Expression first = expressionParser.parse(parsingContext, tokenizer);
-        if (first instanceof Identifier && tokenizer.tryConsume(":")) {
-            LinkedHashMap<String, Expression> elements = new LinkedHashMap<>();
-            Expression firstValue = expressionParser.parse(parsingContext, tokenizer);
-            elements.put(((Identifier) first).name, firstValue);
+        UnresolvedExpression first = expressionParser.parse(parsingContext, tokenizer);
+        if (first instanceof UnresolvedIdentifier && tokenizer.tryConsume(":")) {
+            LinkedHashMap<String, UnresolvedExpression> elements = new LinkedHashMap<>();
+            UnresolvedExpression firstValue = expressionParser.parse(parsingContext, tokenizer);
+            elements.put(((UnresolvedIdentifier) first).name, firstValue);
             while (tokenizer.tryConsume(",")) {
                 String name = tokenizer.consumeIdentifier();
                 tokenizer.consume(":");
                 elements.put(name, expressionParser.parse(parsingContext, tokenizer));
             }
             tokenizer.consume(")");
-            return new ObjectLiteral(base, elements);
+            return new UnresolvedObjectLiteral(base, elements);
         }
-        ArrayList<Expression> args = new ArrayList<>();
+        ArrayList<UnresolvedExpression> args = new ArrayList<>();
         args.add(first);
         while (tokenizer.tryConsume(",")) {
             args.add(expressionParser.parse(parsingContext, tokenizer));
         }
         tokenizer.consume(")");
-        return new UnresolvedInvocation(base, true, args.toArray(new Expression[args.size()]));
+        return new UnresolvedInvocation(base, true, args.toArray(new UnresolvedExpression[args.size()]));
     }
 
     Expression parseExpression(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
-        Expression unresolved = expressionParser.parse(parsingContext, tokenizer);
+        UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
         return unresolved.resolve(parsingContext);
     }
 
@@ -371,107 +379,106 @@ public class Parser {
 
 
 
-    public class Processor extends ExpressionParser.Processor<Expression, ParsingContext> {
+    public class Processor extends ExpressionParser.Processor<UnresolvedExpression, ParsingContext> {
 
         @Override
-        public Expression infixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, Expression left, Expression right) {
+        public UnresolvedExpression infixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression left, UnresolvedExpression right) {
             switch (name) {
                 case "and":
                 case "\u2227":
-                    return new BinaryOperator('\u2227', left, right);
+                    return new UnresolvedBinaryOperator('\u2227', left, right);
                 case "or":
                 case "\u2228":
-                    return new BinaryOperator('\u2228', left, right);
+                    return new UnresolvedBinaryOperator('\u2228', left, right);
                 case ".":
                 case "'s":
-                    return new PropertyAccess(left, right);
+                    return new UnresolvedPropertyAccess(left, right);
                 case "\u2261":
                 case "==":
-                    return new RelationalOperator('\u2261', left, right);
+                    return new UnresolvedRelationalOperator('\u2261', left, right);
                 case "!=":
                 case "\u2260":
-                    return new RelationalOperator('\u2260', left, right);
+                    return new UnresolvedRelationalOperator('\u2260', left, right);
                 case "<=":
                 case "\u2264":
-                    return new RelationalOperator('\u2264', left, right);
+                    return new UnresolvedRelationalOperator('\u2264', left, right);
                 case ">=":
                 case "\u2265":
-                    return new RelationalOperator('\u2264', left, right);
+                    return new UnresolvedRelationalOperator('\u2264', left, right);
                 case "=":
                 case "<":
                 case ">":
-                    return new RelationalOperator(name.charAt(0), left, right);
+                    return new UnresolvedRelationalOperator(name.charAt(0), left, right);
                 default:
-                    return new BinaryOperator(name.charAt(0), left, right);
+                    return new UnresolvedBinaryOperator(name.charAt(0), left, right);
             }
         }
 
         @Override
-        public Expression prefixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
-            return new UnaryOperator(name.equals("not") ? '\u00ac' : name.charAt(0), argument);
+        public UnresolvedExpression prefixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
+            return new UnresolvedUnaryOperator(name.equals("not") ? '\u00ac' : name.charAt(0), argument);
         }
 
         @Override
-        public Expression suffixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, Expression argument) {
+        public UnresolvedExpression suffixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
             return parseInvocation(parsingContext, tokenizer, argument);
         }
 
 
         @Override
-        public Expression numberLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
-            return new Literal(Double.parseDouble(value));
+        public UnresolvedExpression numberLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
+            return new UnresolvedLiteral(Double.parseDouble(value));
         }
 
         @Override
-        public Expression identifier(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
+        public UnresolvedExpression identifier(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
 
             if (EMOJI_PATTERN.matcher(name).matches()) {
-                return new Literal(name);
+                return new UnresolvedLiteral(name);
             }
-
             if (name.equals("true")) {
-                return new Literal(Boolean.TRUE);
+                return new UnresolvedLiteral(Boolean.TRUE);
             }
             if (name.equals("false")) {
-                return new Literal(Boolean.FALSE);
+                return new UnresolvedLiteral(Boolean.FALSE);
             }
             if ("function".equals(name) || name.startsWith("function#")) {
                 return parseFunction(parsingContext, tokenizer, extractId(name), null);
             }
             if (name.indexOf('#') != -1) {
-                return new InstanceReference(name);
+                return new UnresolvedInstanceReference(name);
             }
-            return new Identifier(name);
+            return new UnresolvedIdentifier(name);
         }
 
         @Override
-        public Expression group(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String paren, List<Expression> elements) {
+        public UnresolvedExpression group(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String paren, List<UnresolvedExpression> elements) {
             return elements.get(0);
         }
 
         @Override
-        public Expression stringLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
-            return new Literal(ExpressionParser.unquote(value));
+        public UnresolvedExpression stringLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
+            return new UnresolvedLiteral(ExpressionParser.unquote(value));
         }
 
         @Override
-        public Expression apply(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, Expression to, String bracket, List<Expression> parameterList) {
+        public UnresolvedExpression apply(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, UnresolvedExpression to, String bracket, List<UnresolvedExpression> parameterList) {
             if (bracket.equals("(")) {
-                return new UnresolvedInvocation(to, true, parameterList.toArray(new Expression[parameterList.size()]));
+                return new UnresolvedInvocation(to, true, parameterList.toArray(new UnresolvedExpression[parameterList.size()]));
             }
             if (bracket.equals("[")) {
-                return new UnresolvedArrayExpression(to, parameterList.toArray(new Expression[parameterList.size()]));
+                return new UnresolvedArrayExpression(to, parameterList.toArray(new UnresolvedExpression[parameterList.size()]));
             }
             return super.apply(parsingContext, tokenizer, to, bracket, parameterList);
         }
 
         @Override
-        public Expression primary(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
+        public UnresolvedExpression primary(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
             switch (name) {
 
                 case "new": {
-                    Expression expr = expressionParser.parse(parsingContext, tokenizer);
-                    return new UnresolvedInvocation(new Identifier("new"), false, expr);
+                    UnresolvedExpression expr = expressionParser.parse(parsingContext, tokenizer);
+                    return new UnresolvedInvocation(new UnresolvedIdentifier("new"), false, expr);
                 }
 
                 default:
@@ -484,8 +491,8 @@ public class Parser {
     /**
      * Creates a parser for this processor with matching operations and precedences set up.
      */
-    ExpressionParser<Expression, ParsingContext> createExpressionParser() {
-        ExpressionParser<Expression, ParsingContext> parser = new ExpressionParser<>(new Processor());
+    ExpressionParser<UnresolvedExpression, ParsingContext> createExpressionParser() {
+        ExpressionParser<UnresolvedExpression, ParsingContext> parser = new ExpressionParser<>(new Processor());
 
         parser.addGroupBrackets("(", null, ")");
         // parser.addGroupBrackets("[", ",", "]");

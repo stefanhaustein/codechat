@@ -9,7 +9,7 @@ import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 
-public class ArrayIndex extends AbstractResolved {
+public class ArrayIndex extends Expression {
 
     Expression base;
     Expression index;

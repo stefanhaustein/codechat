@@ -1,18 +1,21 @@
-package org.kobjects.codechat.expr;
+package org.kobjects.codechat.expr.unresolved;
 
 import java.lang.reflect.Method;
+import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.expr.LocalVariableNode;
+import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.FunctionType;
 
-public class Identifier extends AbstractUnresolved {
+public class UnresolvedIdentifier extends UnresolvedExpression {
     private static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
     private static final Expression[] EMPTY_EXPRESSION_ARRAY = new Expression[0];
     public final String name;
 
-    public Identifier(String name) {
+    public UnresolvedIdentifier(String name) {
         this.name = name;
     }
 
@@ -38,8 +41,5 @@ public class Identifier extends AbstractUnresolved {
         sb.append(name);
     }
 
-    @Override
-    public int getChildCount() {
-        return 0;
-    }
+
 }

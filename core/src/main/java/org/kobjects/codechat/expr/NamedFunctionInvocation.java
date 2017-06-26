@@ -4,7 +4,7 @@ import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Function;
 import org.kobjects.codechat.type.Type;
 
-public class NamedFunctionInvocation extends AbstractResolved {
+public class NamedFunctionInvocation extends Expression {
     String name;
     Function function;
     boolean parens;

@@ -18,8 +18,6 @@ public abstract class Expression {
         return sb.toString();
     }
 
-    public abstract Expression resolve(ParsingContext parsingContext);
-
     public abstract Type getType();
 
     public abstract int getPrecedence();

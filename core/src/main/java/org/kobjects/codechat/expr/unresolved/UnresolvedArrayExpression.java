@@ -1,16 +1,18 @@
-package org.kobjects.codechat.expr;
+package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.expr.ArrayIndex;
+import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 
-public class UnresolvedArrayExpression extends AbstractUnresolved {
+public class UnresolvedArrayExpression extends UnresolvedExpression {
 
-    Expression base;
-    Expression[] arguments;
+    UnresolvedExpression base;
+    UnresolvedExpression[] arguments;
 
-    public UnresolvedArrayExpression(Expression base, Expression[] arguments) {
+    public UnresolvedArrayExpression(UnresolvedExpression base, UnresolvedExpression[] arguments) {
         this.base = base;
         this.arguments = arguments;
     }
@@ -48,15 +50,5 @@ public class UnresolvedArrayExpression extends AbstractUnresolved {
             }
         }
         sb.append(']');
-    }
-
-    @Override
-    public int getChildCount() {
-        return arguments.length + 1;
-    }
-
-    @Override
-    public Expression getChild(int index) {
-        return  index == 0 ? base : arguments[index - 1];
     }
 }

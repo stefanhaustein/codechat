@@ -5,7 +5,7 @@ import org.kobjects.codechat.lang.Function;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
-public class FunctionInvocation extends AbstractResolved {
+public class FunctionInvocation extends Expression {
 
     Expression base;
     boolean parens;

@@ -47,13 +47,6 @@ public class RelationalOperator extends Expression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
-        left = left.resolve(parsingContext);
-        right = right.resolve(parsingContext);
-        return this;
-    }
-
-    @Override
     public Type getType() {
         return Type.BOOLEAN;
     }

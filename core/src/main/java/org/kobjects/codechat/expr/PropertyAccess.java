@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.Property;
@@ -9,16 +10,12 @@ import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class PropertyAccess extends Expression {
-    String name;
     Expression base;
     TupleType.PropertyDescriptor property;
 
-    public PropertyAccess(Expression left, Expression right) {
-        if (!(right instanceof Identifier)) {
-            throw new IllegalArgumentException("Right node must be identifier");
-        }
+    public PropertyAccess(Expression left, TupleType.PropertyDescriptor property) {
         this.base = left;
-        this.name = ((Identifier) right).name;
+        this.property = property;
     }
 
     @Override
@@ -41,14 +38,6 @@ public class PropertyAccess extends Expression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
-        base = base.resolve(parsingContext);
-        TupleType instanceType = (TupleType) base.getType();
-        property = instanceType.getProperty(name);
-        return this;
-    }
-
-    @Override
     public Type getType() {
         return property.type;
     }
@@ -61,7 +50,7 @@ public class PropertyAccess extends Expression {
     public void toString(StringBuilder sb, int indent) {
         base.toString(sb, 0, Parser.PRECEDENCE_PATH);
         sb.append('.');
-        sb.append(name);
+        sb.append(property.name);
     }
 
     @Override

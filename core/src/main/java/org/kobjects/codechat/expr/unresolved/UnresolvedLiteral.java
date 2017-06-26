@@ -1,21 +1,23 @@
-package org.kobjects.codechat.expr;
+package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.Type;
 
-public class Literal extends Expression {
+public class UnresolvedLiteral extends UnresolvedExpression {
     final Object value;
 
-    public Literal(Object value) {
+    public UnresolvedLiteral(Object value) {
         this.value = value;
     }
 
     @Override
-    public Type getType() {
-        return Type.of(value);
+    public Expression resolve(ParsingContext parsingContext) {
+        return new Literal(value);
     }
 
     @Override
@@ -28,13 +30,4 @@ public class Literal extends Expression {
         sb.append(Formatting.toLiteral(value));
     }
 
-    @Override
-    public int getChildCount() {
-        return 0;
-    }
-
-    @Override
-    public Object eval(EvaluationContext context) {
-        return value;
-    }
 }

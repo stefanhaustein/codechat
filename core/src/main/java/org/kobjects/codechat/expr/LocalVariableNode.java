@@ -5,7 +5,7 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.lang.LocalVariable;
 
-public class LocalVariableNode extends AbstractResolved {
+public class LocalVariableNode extends Expression {
     public LocalVariable variable;
 
     public LocalVariableNode(LocalVariable variable) {

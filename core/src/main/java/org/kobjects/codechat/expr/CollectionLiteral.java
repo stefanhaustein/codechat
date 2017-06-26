@@ -14,7 +14,7 @@ import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 
-public class CollectionLiteral extends AbstractResolved {
+public class CollectionLiteral extends Expression {
     Expression[] elements;
     CollectionType type;
     Class collectionTypeClass;

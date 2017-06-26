@@ -35,15 +35,6 @@ public class UnaryOperator extends Expression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
-        operand = operand.resolve(parsingContext);
-        if (!operand.getType().equals(getType())) {
-            throw new RuntimeException("Operand must be " + getType());
-        }
-        return this;
-    }
-
-    @Override
     public Type getType() {
         return name == '\u00ac' ? Type.BOOLEAN : Type.NUMBER;
     }

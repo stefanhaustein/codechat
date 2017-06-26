@@ -7,7 +7,7 @@ import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 
-public class OnExpression extends AbstractResolved {
+public class OnExpression extends Expression {
     public final boolean onChange;
     private final int id;
     public final Expression expression;

@@ -41,7 +41,7 @@ public class BinaryOperator extends Expression {
         }
     }
 
-    public int getPrecedence() {
+    public static int getPrecedence(char name) {
         switch (name) {
             case '\u2227':
                 return Parser.PRECEDENCE_AND;
@@ -65,26 +65,8 @@ public class BinaryOperator extends Expression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
-        left = left.resolve(parsingContext);
-        right = right.resolve(parsingContext);
-        if (!left.getType().equals(right.getType())) {
-            throw new RuntimeException("Argument types must match for operator '" + name + "'");
-        }
-
-        if (left.getType().equals(Type.STRING)) {
-            if (name != '+') {
-                throw new RuntimeException("Operator '" + name + "' not defined for strings");
-            }
-            name = '$';
-        } else if (name == '\u2227' || name == '\u2228') {
-            if (!left.getType().equals(Type.BOOLEAN)) {
-                throw new RuntimeException("Arguments must be boolean for operator " + name);
-            }
-        } else if (!left.getType().equals(Type.NUMBER)) {
-            throw new RuntimeException("Arguments must be numbers" + (name == '+' ? " or strings" : "") + " for operator '" + name + "'");
-        }
-        return this;
+    public int getPrecedence() {
+        return getPrecedence(name);
     }
 
     @Override

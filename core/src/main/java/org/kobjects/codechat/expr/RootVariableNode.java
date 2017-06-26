@@ -5,10 +5,10 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 
-public class RootVariableNode extends AbstractResolved {
+public class RootVariableNode extends Expression {
     public final RootVariable rootVariable;
 
-    RootVariableNode(RootVariable rootVariable) {
+    public RootVariableNode(RootVariable rootVariable) {
         this.rootVariable = rootVariable;
     }
 
