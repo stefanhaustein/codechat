@@ -33,7 +33,8 @@ public class TestShell implements EnvironmentListener {
     }
 
     @Override
-    public void print(String s) {
+    public void print(String s, List<Annotation> annotations) {
         output.add(s);
     }
+
 }

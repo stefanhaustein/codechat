@@ -6,17 +6,10 @@ import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.Type;
 
-public class RelationalOperator extends Expression {
-
-    public char name;
-
-    public Expression left;
-    public Expression right;
+public class RelationalOperator extends AbstractBinaryOperator {
 
     public RelationalOperator(char name, Expression left, Expression right) {
-        this.name = name;
-        this.left = left;
-        this.right = right;
+        super(name, left, right);
     }
 
     @Override
@@ -49,29 +42,5 @@ public class RelationalOperator extends Expression {
     @Override
     public Type getType() {
         return Type.BOOLEAN;
-    }
-
-    @Override
-    public int getPrecedence() {
-        return Parser.PRECEDENCE_RELATIONAL;
-    }
-
-    @Override
-    public void toString(StringBuilder sb, int indent) {
-        left.toString(sb, 0, Parser.PRECEDENCE_RELATIONAL);
-        sb.append(' ');
-        sb.append(name);
-        sb.append(' ');
-        right.toString(sb, 0, Parser.PRECEDENCE_RELATIONAL);
-    }
-
-    @Override
-    public int getChildCount() {
-        return 2;
-    }
-
-    @Override
-    public Expression getChild(int index) {
-        return index == 0 ? left : right;
     }
 }

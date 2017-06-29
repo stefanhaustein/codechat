@@ -187,19 +187,6 @@ public class Environment {
     }
 
 
-    public static String toLiteral(Object o) {
-        if (o instanceof Number) {
-            Number n = (Number) o;
-            if (n.longValue() == n.doubleValue()) {
-                return String.valueOf(n.longValue());
-            }
-        }
-        if (o instanceof String) {
-            return Formatting.quote((String) o);
-        }
-        return String.valueOf(o);
-    }
-
     public int getBalance(String line) {
         ExpressionParser.Tokenizer tokenizer = parser.createTokenizer(line);
         int balance = 0;

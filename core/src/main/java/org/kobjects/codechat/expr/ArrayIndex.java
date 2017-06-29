@@ -2,6 +2,7 @@ package org.kobjects.codechat.expr;
 
 
 import java.util.List;
+import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.ParsingContext;
@@ -21,7 +22,7 @@ public class ArrayIndex extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        return ((List) base.eval(context)).get(((Number) index.eval(context)).intValue());
+        return ((Collection) base.eval(context)).get(((Number) index.eval(context)).intValue());
     }
 
     @Override

@@ -1,15 +1,11 @@
 package org.kobjects.codechat.expr;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.TreeSet;
 
+import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.type.SetType;
-import org.kobjects.codechat.type.SimpleType;
 import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
@@ -40,22 +36,15 @@ public class CollectionLiteral extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        Collection<Object> result;
-        if (type instanceof ListType) {
-            result = new ArrayList<>(elements.length);
-        } else if (type.elementType instanceof SimpleType) {
-            result = new TreeSet<>();
-        } else {
-            result = new LinkedHashSet<>();
-        }
+        Object[] data = new Object[elements.length];
         for (int i = 0; i < elements.length; i++) {
-            result.add(elements[i].eval(context));
+            data[i] = elements[i].eval(context);
         }
-        return result;
+        return new Collection(type, data);
     }
 
     @Override
-    public Type getType() {
+    public CollectionType getType() {
         return type;
     }
 

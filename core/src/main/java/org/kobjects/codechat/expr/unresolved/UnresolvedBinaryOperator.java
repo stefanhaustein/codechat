@@ -1,9 +1,14 @@
 package org.kobjects.codechat.expr.unresolved;
 
-import org.kobjects.codechat.expr.BinaryOperator;
+import org.kobjects.codechat.expr.AbstractBinaryOperator;
+import org.kobjects.codechat.expr.BinaryLogicalOperator;
+import org.kobjects.codechat.expr.BinaryMathOperator;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.expr.PropertyAccess;
+import org.kobjects.codechat.expr.RelationalOperator;
+import org.kobjects.codechat.expr.StringConcatenation;
 import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class UnresolvedBinaryOperator extends UnresolvedExpression {
@@ -18,30 +23,48 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
     }
 
     public int getPrecedence() {
-        return BinaryOperator.getPrecedence(name);
+        return AbstractBinaryOperator.getPrecedence(name);
     }
 
     @Override
     public Expression resolve(ParsingContext parsingContext) {
         Expression left = this.left.resolve(parsingContext);
+        if (name == '.') {
+            if (!(right instanceof UnresolvedIdentifier)) {
+                throw new RuntimeException("Identifer expected for property access operator");
+            }
+            TupleType instanceType = (TupleType) left.getType();
+            TupleType.PropertyDescriptor property = instanceType.getProperty(((UnresolvedIdentifier) right).name);
+            return new PropertyAccess(left, property);
+        }
         Expression right = this.right.resolve(parsingContext);
-        if (!left.getType().equals(right.getType())) {
-            throw new RuntimeException("Argument types must match for operator '" + name + "'");
+
+        if (left.getType() == Type.STRING && name == '+') {
+            return new StringConcatenation(left, right);
         }
 
-        if (left.getType().equals(Type.STRING)) {
-            if (name != '+') {
-                throw new RuntimeException("Operator '" + name + "' not defined for strings");
-            }
-            name = '$';
-        } else if (name == '\u2227' || name == '\u2228') {
-            if (!left.getType().equals(Type.BOOLEAN)) {
-                throw new RuntimeException("Arguments must be boolean for operator " + name);
-            }
-        } else if (!left.getType().equals(Type.NUMBER)) {
-            throw new RuntimeException("Arguments must be numbers" + (name == '+' ? " or strings" : "") + " for operator '" + name + "'");
+        switch (name) {
+            case '\u2227':
+            case '\u2228':
+                return new BinaryLogicalOperator(name, left, right);
+
+            case '=':
+            case '<':
+            case '>':
+            case '\u2260':
+            case '\u2264':
+            case '\u2266':
+                return new RelationalOperator(name, left, right);
+
+            case '+':
+                if (left.getType() == Type.STRING) {
+                    return new StringConcatenation(left, right);
+                }
+                // Fallthrough intended
+            default:
+                return new BinaryMathOperator(name, left, right);
         }
-        return new org.kobjects.codechat.expr.BinaryOperator(name, left, right);
+
     }
 
 

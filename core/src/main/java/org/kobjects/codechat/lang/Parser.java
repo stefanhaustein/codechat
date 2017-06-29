@@ -7,9 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import org.kobjects.codechat.expr.ObjectLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedArrayExpression;
-import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedBinaryOperator;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
@@ -18,16 +16,9 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
 import org.kobjects.codechat.expr.unresolved.UnresolvedInstanceReference;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedObjectLiteral;
-import org.kobjects.codechat.expr.unresolved.UnresolvedPropertyAccess;
-import org.kobjects.codechat.expr.unresolved.UnresolvedRelationalOperator;
 import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
 import org.kobjects.codechat.statement.Assignment;
-import org.kobjects.codechat.expr.RelationalOperator;
-import org.kobjects.codechat.expr.UnaryOperator;
 import org.kobjects.codechat.expr.unresolved.UnresolvedInvocation;
-import org.kobjects.codechat.expr.BinaryOperator;
-import org.kobjects.codechat.expr.InstanceReference;
-import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.statement.Block;
@@ -47,6 +38,7 @@ import org.kobjects.expressionparser.ExpressionParser;
 public class Parser {
     // public static final int PRECEDENCE_HASH = 8;
     public static final int PRECEDENCE_PREFIX = 10;
+    public static final int PRECEDENCE_APPLY = 9;
     public static final int PRECEDENCE_PATH = 8;
     public static final int PRECEDENCE_POWER = 7;
     public static final int PRECEDENCE_SIGN = 6;
@@ -76,13 +68,13 @@ public class Parser {
         this.environment = environment;
     }
 
-    Block parseBlock(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String... end) {
-        Block block = parseBlockLeaveEnd(parsingContext, tokenizer, end);
+    Statement parseBlock(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean interactive, String... end) {
+        Statement block = parseBlockLeaveEnd(parsingContext, tokenizer, interactive, end);
         tokenizer.nextToken();
         return block;
     }
 
-    Block parseBlockLeaveEnd(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String... end) {
+    Statement parseBlockLeaveEnd(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean interactive, String... end) {
         ArrayList<Statement> statements = new ArrayList<>();
         outer:
         while(true) {
@@ -94,9 +86,9 @@ public class Parser {
                     break outer;
                 }
             }
-            statements.add(parseStatement(parsingContext, tokenizer, false));
+            statements.add(parseStatement(parsingContext, tokenizer, interactive));
         }
-        return new Block(statements.toArray(new Statement[statements.size()]));
+        return statements.size() == 1 ? statements.get(0) : new Block(statements.toArray(new Statement[statements.size()]));
     }
 
     CountStatement parseCount(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -141,10 +133,10 @@ public class Parser {
 
     Statement parseBody(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         if (tokenizer.tryConsume(":") || tokenizer.tryConsume("begin")) {   // TODO remove begin
-            return parseBlock(parsingContext, tokenizer, "end", "}");
+            return parseBlock(parsingContext, tokenizer, false, "end", "}");
         }
         if (tokenizer.tryConsume("{")) {
-            return parseBlock(parsingContext, tokenizer, "}", "end");
+            return parseBlock(parsingContext, tokenizer,false, "}", "end");
         }
         throw new RuntimeException("':' or '{' expected for body.");
     }
@@ -210,15 +202,18 @@ public class Parser {
 
         tokenizer.consume(":");
 
-        Statement ifBody = parseBlockLeaveEnd(parsingContext, tokenizer, "end", "}", "else");
+        Statement ifBody = parseBlockLeaveEnd(parsingContext, tokenizer, false, "end", "}", "else", "elseif");
 
         Statement elseBody = null;
-        if (tokenizer.tryConsume("else")) {
+
+        if (tokenizer.tryConsume("elseif")) {
+            elseBody = parseIf(parsingContext, tokenizer);
+        } else if (tokenizer.tryConsume("else")) {
             if (tokenizer.tryConsume("{")) {
-                elseBody = parseBlock(parsingContext, tokenizer, "}", "end");
+                elseBody = parseBlock(parsingContext, tokenizer, false, "}", "end");
             } else {
                 tokenizer.tryConsume(":");
-                elseBody = parseBlock(parsingContext, tokenizer, "end");
+                elseBody = parseBlock(parsingContext, tokenizer, false, "end");
             }
         } else {
             tokenizer.nextToken();
@@ -266,17 +261,17 @@ public class Parser {
         }
         if (tokenizer.tryConsume("{")) {
             ParsingContext blockContext = new ParsingContext(parsingContext, false);
-            return parseBlock(blockContext, tokenizer, "}");
+            return parseBlock(blockContext, tokenizer, false, "}");
         }
         if (tokenizer.tryConsume("begin")) {
             ParsingContext blockContext = new ParsingContext(parsingContext, false);
-            return parseBlock(blockContext, tokenizer, "end");
+            return parseBlock(blockContext, tokenizer, false, "end");
         }
 
         UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
 
-        if (unresolved instanceof UnresolvedRelationalOperator && ((UnresolvedRelationalOperator) unresolved).name == '=') {
-            UnresolvedRelationalOperator op = (UnresolvedRelationalOperator) unresolved;
+        if (unresolved instanceof UnresolvedBinaryOperator && ((UnresolvedBinaryOperator) unresolved).name == '=') {
+            UnresolvedBinaryOperator op = (UnresolvedBinaryOperator) unresolved;
             Expression right = op.right.resolve(parsingContext);
             if (op.left instanceof UnresolvedIdentifier && parsingContext.parent == null && interactive) {
                 String name = ((UnresolvedIdentifier) op.left).name;
@@ -359,7 +354,7 @@ public class Parser {
     public Statement parse(ParsingContext parsingContext, String line) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
         tokenizer.nextToken();
-        Statement statement = parseStatement(parsingContext, tokenizer, true);
+        Statement statement = parseBlock(parsingContext, tokenizer, true, "");
         while (tokenizer.tryConsume(";"))
         tokenizer.consume("");
         return statement;
@@ -383,35 +378,40 @@ public class Parser {
 
         @Override
         public UnresolvedExpression infixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression left, UnresolvedExpression right) {
+            char c;
             switch (name) {
                 case "and":
-                case "\u2227":
-                    return new UnresolvedBinaryOperator('\u2227', left, right);
+                    c = '\u2227';
+                    break;
                 case "or":
-                case "\u2228":
-                    return new UnresolvedBinaryOperator('\u2228', left, right);
-                case ".":
-                case "'s":
-                    return new UnresolvedPropertyAccess(left, right);
-                case "\u2261":
+                    c = '\u2228';
+                    break;
                 case "==":
-                    return new UnresolvedRelationalOperator('\u2261', left, right);
+                    c ='\u2261';
+                    break;
                 case "!=":
-                case "\u2260":
-                    return new UnresolvedRelationalOperator('\u2260', left, right);
+                    c = '\u2260';
+                    break;
                 case "<=":
-                case "\u2264":
-                    return new UnresolvedRelationalOperator('\u2264', left, right);
+                    c = '\u2264';
+                    break;
                 case ">=":
-                case "\u2265":
-                    return new UnresolvedRelationalOperator('\u2264', left, right);
-                case "=":
-                case "<":
-                case ">":
-                    return new UnresolvedRelationalOperator(name.charAt(0), left, right);
+                    c = '\u2265';
+                    break;
+                case "\u00F7":
+                    c = '/';
+                    break;
+                case "\u22C5":
+                case "*":
+                    c = '\u00d7';
+                    break;
                 default:
-                    return new UnresolvedBinaryOperator(name.charAt(0), left, right);
+                    if (name.length() != 1) {
+                        throw new IllegalArgumentException("Unrecognized operator: '" + name + "'");
+                    }
+                    c = name.charAt(0);
             }
+            return new UnresolvedBinaryOperator(c, left, right);
         }
 
         @Override
@@ -507,7 +507,7 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX_RTL, PRECEDENCE_POWER, "^", "\u221a");
         parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-", "\u221a", "\u00ac", "not");
 
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/", "%");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/", "\u00d7", "\u22C5", "%");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ADDITIVE, "+", "-");
 
 
@@ -517,7 +517,7 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
 
-        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_PATH, "(");
+        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_APPLY, "(");
         // FIXME
         // parser.addPrimary("on", "onchange");
 

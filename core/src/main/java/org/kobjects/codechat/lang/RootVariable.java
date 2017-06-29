@@ -14,7 +14,7 @@ public class RootVariable {
     public void dump(StringBuilder sb) {
         sb.append(name);
         sb.append(" = ");
-        sb.append(Environment.toLiteral(value));
+        sb.append(Formatting.toLiteral(value));
         sb.append(";\n");
     }
 

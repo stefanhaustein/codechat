@@ -75,10 +75,10 @@ public class UnresolvedInvocation extends UnresolvedExpression {
 
         if (base instanceof UnresolvedIdentifier) {
             String name = ((UnresolvedIdentifier) base).name;
-            if ("set".equals(name)) {
+            if ("Set".equals(name)) {
                 return new CollectionLiteral(SetType.class, resolved);
             }
-            if ("list".equals(name)) {
+            if ("List".equals(name)) {
                 return new CollectionLiteral(ListType.class, resolved);
             }
         }

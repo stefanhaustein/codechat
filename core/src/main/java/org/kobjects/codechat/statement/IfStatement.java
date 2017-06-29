@@ -28,12 +28,23 @@ public class IfStatement extends AbstractStatement {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        sb.append("if ").append(condition).append(":\n");
+        toString(sb, indent, false);
+    }
+
+    public void toString(StringBuilder sb, int indent, boolean elseif) {
+        if (elseif) {
+            sb.append("elseif ");
+        } else {
+            AbstractStatement.indent(sb, indent);
+            sb.append("if ");
+        }
+        sb.append(condition).append(":\n");
         ifBody.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
-        if (elseBody != null) {
-            sb.append("else\n");
+        if (elseBody instanceof IfStatement) {
+            ((IfStatement) elseBody).toString(sb, indent, true);
+        } else if (elseBody != null) {
+            sb.append("else:\n");
             elseBody.toString(sb, indent + 1);
             AbstractStatement.indent(sb, indent);
         }

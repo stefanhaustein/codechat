@@ -1,11 +1,13 @@
 package org.kobjects.codechat.type;
 
-public abstract class CollectionType extends Type {
+public abstract class CollectionType extends TupleType {
 
     public final Type elementType;
 
-    public CollectionType(Type elementType) {
+    public CollectionType(String name, Type elementType) {
+        super(name + "[" + elementType + "]");
         this.elementType = elementType;
+        addProperty(0, "size", Type.NUMBER, false);
     }
 
     public boolean isAssignableFrom(Type other) {
