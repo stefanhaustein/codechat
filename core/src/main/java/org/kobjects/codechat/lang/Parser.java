@@ -132,13 +132,13 @@ public class Parser {
     }
 
     Statement parseBody(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
-        if (tokenizer.tryConsume(":") || tokenizer.tryConsume("begin")) {   // TODO remove begin
-            return parseBlock(parsingContext, tokenizer, false, "end", "}");
+        if (tokenizer.tryConsume(":")) {   // TODO remove begin
+            return parseBlock(parsingContext, tokenizer, false, "end");
         }
-        if (tokenizer.tryConsume("{")) {
+/*        if (tokenizer.tryConsume("{")) {
             return parseBlock(parsingContext, tokenizer,false, "}", "end");
-        }
-        throw new RuntimeException("':' or '{' expected for body.");
+        } */
+        throw new RuntimeException("':' expected for body.");
     }
 
     Type parseType(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -202,19 +202,19 @@ public class Parser {
 
         tokenizer.consume(":");
 
-        Statement ifBody = parseBlockLeaveEnd(parsingContext, tokenizer, false, "end", "}", "else", "elseif");
+        Statement ifBody = parseBlockLeaveEnd(parsingContext, tokenizer, false, "end", /*"}",*/ "else", "elseif");
 
         Statement elseBody = null;
 
         if (tokenizer.tryConsume("elseif")) {
             elseBody = parseIf(parsingContext, tokenizer);
         } else if (tokenizer.tryConsume("else")) {
-            if (tokenizer.tryConsume("{")) {
+          /*  if (tokenizer.tryConsume("{")) {
                 elseBody = parseBlock(parsingContext, tokenizer, false, "}", "end");
-            } else {
+            } else { */
                 tokenizer.tryConsume(":");
                 elseBody = parseBlock(parsingContext, tokenizer, false, "end");
-            }
+            //}
         } else {
             tokenizer.nextToken();
         }
@@ -259,10 +259,10 @@ public class Parser {
         if (tokenizer.tryConsume("return")) {
             return new ReturnStatement(parseExpression(parsingContext, tokenizer));
         }
-        if (tokenizer.tryConsume("{")) {
+        /*     if (tokenizer.tryConsume("{")) {
             ParsingContext blockContext = new ParsingContext(parsingContext, false);
             return parseBlock(blockContext, tokenizer, false, "}");
-        }
+        }*/
         if (tokenizer.tryConsume("begin")) {
             ParsingContext blockContext = new ParsingContext(parsingContext, false);
             return parseBlock(blockContext, tokenizer, false, "end");
@@ -301,8 +301,8 @@ public class Parser {
                 ArrayList<UnresolvedExpression> params = new ArrayList<>();
                 while (!tokenizer.currentValue.equals("")
                         && !tokenizer.currentValue.equals(";")
-                        && !tokenizer.currentValue.equals("}")
-                        && !tokenizer.currentValue.equals("{")
+                  //      && !tokenizer.currentValue.equals("}")
+                 //       && !tokenizer.currentValue.equals("{")
                         && !tokenizer.currentValue.equals("else")
                         && !tokenizer.currentValue.equals("end")) {
                     UnresolvedExpression param = expressionParser.parse(parsingContext, tokenizer);
@@ -367,7 +367,7 @@ public class Parser {
     public ExpressionParser.Tokenizer createTokenizer(Reader reader) {
         ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
                 new Scanner(reader),
-                expressionParser.getSymbols() , ":", "{", "}", "end", "else");
+                expressionParser.getSymbols() , ":", "end", "else", ";");
         tokenizer.identifierPattern = IDENTIFIER_PATTERN;
         return tokenizer;
     }

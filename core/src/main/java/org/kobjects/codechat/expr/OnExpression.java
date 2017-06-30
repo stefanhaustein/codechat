@@ -47,10 +47,10 @@ public class OnExpression extends Expression {
         if (id != -1) {
             sb.append('#').append(id);
         }
-        sb.append(' ').append(expression).append(" {\n");
+        sb.append(' ').append(expression).append(":\n");
         body.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
-        sb.append("}");
+        sb.append("end");
     }
 
     @Override
