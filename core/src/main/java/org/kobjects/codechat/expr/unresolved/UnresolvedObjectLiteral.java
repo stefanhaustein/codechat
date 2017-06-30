@@ -67,7 +67,7 @@ public class UnresolvedObjectLiteral extends UnresolvedExpression {
         if (id != -1) {
             sb.append('#').append(id);
         }
-        sb.append('(');
+        sb.append('{');
         boolean first = true;
         for (Map.Entry<String,UnresolvedExpression> entry : elements.entrySet()) {
             if (first) {
@@ -78,6 +78,6 @@ public class UnresolvedObjectLiteral extends UnresolvedExpression {
             sb.append(entry.getKey()).append(": ");
             entry.getValue().toString(sb, indent + 1);
         }
-        sb.append(')');
+        sb.append('}');
     }
 }

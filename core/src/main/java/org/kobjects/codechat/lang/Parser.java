@@ -319,35 +319,18 @@ public class Parser {
         return new ExpressionStatement(resolved);
     }
 
-    UnresolvedExpression parseInvocation(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, UnresolvedExpression base) {
+    UnresolvedObjectLiteral parseObjectLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, UnresolvedExpression base) {
         // tokenizer.consume("(");
-        if (tokenizer.tryConsume(")") || tokenizer.tryConsume("}")) {
-            return new UnresolvedInvocation(base, true);
-        }
-        UnresolvedExpression first = expressionParser.parse(parsingContext, tokenizer);
-        if (first instanceof UnresolvedIdentifier && tokenizer.tryConsume(":")) {
-            LinkedHashMap<String, UnresolvedExpression> elements = new LinkedHashMap<>();
-            UnresolvedExpression firstValue = expressionParser.parse(parsingContext, tokenizer);
-            elements.put(((UnresolvedIdentifier) first).name, firstValue);
-            while (tokenizer.tryConsume(",")) {
-                String name = tokenizer.consumeIdentifier();
+        LinkedHashMap<String, UnresolvedExpression> elements = new LinkedHashMap<>();
+        if (!tokenizer.tryConsume("}")) {
+            do {
+                String key = tokenizer.consumeIdentifier();
                 tokenizer.consume(":");
-                elements.put(name, expressionParser.parse(parsingContext, tokenizer));
-            }
-            if (!tokenizer.tryConsume(")") && !tokenizer.tryConsume("}")) {
-                throw new RuntimeException(tokenizer.currentValue);
-            }
-            return new UnresolvedObjectLiteral(base, elements);
+                elements.put(key, expressionParser.parse(parsingContext, tokenizer));
+            } while (tokenizer.tryConsume(","));
+            tokenizer.consume("}");
         }
-        ArrayList<UnresolvedExpression> args = new ArrayList<>();
-        args.add(first);
-        while (tokenizer.tryConsume(",")) {
-            args.add(expressionParser.parse(parsingContext, tokenizer));
-        }
-        if (!tokenizer.tryConsume(")") && !tokenizer.tryConsume("}")) {
-            throw new RuntimeException();
-        }
-        return new UnresolvedInvocation(base, true, args.toArray(new UnresolvedExpression[args.size()]));
+        return new UnresolvedObjectLiteral(base, elements);
     }
 
     Expression parseExpression(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -425,7 +408,12 @@ public class Parser {
 
         @Override
         public UnresolvedExpression suffixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
-            return parseInvocation(parsingContext, tokenizer, argument);
+            switch (name) {
+                case "{": return parseObjectLiteral(parsingContext, tokenizer, argument);
+                case "°": return new UnresolvedUnaryOperator('°', argument);
+                default:
+                    return super.suffixOperator(parsingContext, tokenizer, name, argument);
+            }
         }
 
 
@@ -505,11 +493,15 @@ public class Parser {
         // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
         parser.addPrimary("new");
 //        parser.addApplyBrackets(PRECEDENCE_PATH, "(", ",", ")");
-        parser.addApplyBrackets(PRECEDENCE_PATH, "[", ",", "]");
+        parser.addApplyBrackets(PRECEDENCE_APPLY, "[", ",", "]");
+        parser.addApplyBrackets(PRECEDENCE_APPLY, "(", ",", ")");
+        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_APPLY, "{");
+
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX_RTL, PRECEDENCE_POWER, "^", "\u221a");
         parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-", "\u221a", "\u00ac", "not");
+        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_SIGN, "°");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/", "\u00d7", "\u22C5", "%");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ADDITIVE, "+", "-");
@@ -521,7 +513,6 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
 
-        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_APPLY, "(", "{");
         // FIXME
         // parser.addPrimary("on", "onchange");
 

@@ -29,6 +29,8 @@ public class UnaryOperator extends Expression {
                 return value;
             case '-':
                 return -value;
+            case '°':
+                return value * Math.PI / 180;
             default:
                 throw new RuntimeException("impossible");
         }
@@ -46,8 +48,13 @@ public class UnaryOperator extends Expression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append(name);
+        if (name != '°') {
+            sb.append(name);
+        }
         operand.toString(sb, 0, getPrecedence());
+        if (name == '°') {
+            sb.append(name);
+        }
     }
 
     @Override

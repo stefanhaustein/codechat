@@ -36,8 +36,13 @@ public class UnresolvedUnaryOperator extends UnresolvedExpression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        sb.append(name);
+        if (name != '°') {
+            sb.append(name);
+        }
         operand.toString(sb, 0, getPrecedence());
+        if (name == '°') {
+            sb.append(name);
+        }
     }
 
 }
