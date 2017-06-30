@@ -49,7 +49,7 @@ public class ObjectLiteral extends Expression {
         if (id != -1) {
             sb.append('#').append(id);
         }
-        sb.append('(');
+        sb.append('{');
         boolean first = true;
         for (Map.Entry<String,Expression> entry : elements.entrySet()) {
             if (first) {
@@ -60,7 +60,7 @@ public class ObjectLiteral extends Expression {
             sb.append(entry.getKey()).append(": ");
             entry.getValue().toString(sb, indent + 1);
         }
-        sb.append(')');
+        sb.append('}');
     }
 
     @Override

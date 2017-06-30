@@ -28,7 +28,7 @@ public abstract class TupleInstance implements Tuple, Instance {
 
     private void serializeDeclaration(StringBuilder sb, List<Annotation> annotations) {
         Annotation.append(sb, toString(), this, annotations);
-        sb.append("(");
+        sb.append('{');
         boolean first = true;
         for (TupleType.PropertyDescriptor propertyDescriptor: getType().properties()) {
             Property property = getProperty(propertyDescriptor.index);
@@ -49,7 +49,7 @@ public abstract class TupleInstance implements Tuple, Instance {
                 }
             }
         }
-        sb.append(");\n");
+        sb.append("};\n");
     }
 
     private void serializeDefinition(StringBuilder sb, boolean all) {

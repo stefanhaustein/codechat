@@ -321,7 +321,7 @@ public class Parser {
 
     UnresolvedExpression parseInvocation(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, UnresolvedExpression base) {
         // tokenizer.consume("(");
-        if (tokenizer.tryConsume(")")) {
+        if (tokenizer.tryConsume(")") || tokenizer.tryConsume("}")) {
             return new UnresolvedInvocation(base, true);
         }
         UnresolvedExpression first = expressionParser.parse(parsingContext, tokenizer);
@@ -334,7 +334,9 @@ public class Parser {
                 tokenizer.consume(":");
                 elements.put(name, expressionParser.parse(parsingContext, tokenizer));
             }
-            tokenizer.consume(")");
+            if (!tokenizer.tryConsume(")") && !tokenizer.tryConsume("}")) {
+                throw new RuntimeException(tokenizer.currentValue);
+            }
             return new UnresolvedObjectLiteral(base, elements);
         }
         ArrayList<UnresolvedExpression> args = new ArrayList<>();
@@ -342,7 +344,9 @@ public class Parser {
         while (tokenizer.tryConsume(",")) {
             args.add(expressionParser.parse(parsingContext, tokenizer));
         }
-        tokenizer.consume(")");
+        if (!tokenizer.tryConsume(")") && !tokenizer.tryConsume("}")) {
+            throw new RuntimeException();
+        }
         return new UnresolvedInvocation(base, true, args.toArray(new UnresolvedExpression[args.size()]));
     }
 
@@ -367,7 +371,7 @@ public class Parser {
     public ExpressionParser.Tokenizer createTokenizer(Reader reader) {
         ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
                 new Scanner(reader),
-                expressionParser.getSymbols() , ":", "end", "else", ";");
+                expressionParser.getSymbols() , ":", "end", "else", ";", "}");
         tokenizer.identifierPattern = IDENTIFIER_PATTERN;
         return tokenizer;
     }
@@ -517,7 +521,7 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
 
-        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_APPLY, "(");
+        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_APPLY, "(", "{");
         // FIXME
         // parser.addPrimary("on", "onchange");
 
