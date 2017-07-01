@@ -56,7 +56,7 @@ public class Closure {
         sb.append("begin\n");
         for (Closure.Mapping mapping : getMappings()) {
             sb.append("  var ").append(mapping.name).append(" = ");
-            sb.append(contextTemplate.variables[mapping.closureIndex]).append("\n");
+            sb.append(contextTemplate.variables[mapping.closureIndex]).append(";\n");
         }
         sb.append("  ");
         return true;
