@@ -23,7 +23,13 @@ public class Collection implements Tuple {
         }
     };
 
-    public Collection(CollectionType type, Object... values) {
+    public Collection(SetType type, LinkedHashSet<Object> data) {
+        this.type = type;
+        this.data = data;
+    }
+
+
+    public Collection(CollectionType type, Object[] values) {
         this.type = type;
 
         if (type instanceof SetType) {

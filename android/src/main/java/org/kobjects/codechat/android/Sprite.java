@@ -7,13 +7,17 @@ import android.view.ViewParent;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.LazyProperty;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Settable;
 import org.kobjects.codechat.lang.TupleInstance;
+import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.TupleType;
@@ -32,7 +36,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         TYPE.addProperty(2, "y", Type.NUMBER, true);
         TYPE.addProperty(3, "angle", Type.NUMBER, true);
         TYPE.addProperty(4, "face", Type.STRING, true);
-        TYPE.addProperty(5, "collisions", new ListType(Type.NUMBER), true);
+        TYPE.addProperty(5, "collisions", new SetType(Sprite.TYPE), true);
         TYPE.addProperty(6, "dx", Type.NUMBER, true);
         TYPE.addProperty(7, "dy", Type.NUMBER, true);
         TYPE.addProperty(8, "rotation", Type.NUMBER, true);
@@ -52,10 +56,10 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
-    public LazyProperty<List<Sprite>> collisions = new LazyProperty<List<Sprite>>() {
+    public LazyProperty<Collection> collisions = new LazyProperty<Collection>() {
         @Override
-        protected List<Sprite> compute() {
-            ArrayList<Sprite> result = new ArrayList<>();
+        protected Collection compute() {
+            LinkedHashSet<Object> result = new LinkedHashSet<>();
             double x = Sprite.this.x.get();
             double y = Sprite.this.y.get();
             double size = Sprite.this.size.get();
@@ -71,7 +75,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                     }
                 }
             }
-            return result;
+            return new Collection(new SetType(Sprite.TYPE), result);
         }
     };
 
