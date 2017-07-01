@@ -7,11 +7,7 @@ import org.kobjects.codechat.expr.ConstructorInvocation;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.FunctionInvocation;
 import org.kobjects.codechat.expr.InstanceReference;
-import org.kobjects.codechat.expr.NamedFunctionInvocation;
 import org.kobjects.codechat.expr.ObjectLiteral;
-import org.kobjects.codechat.expr.RootVariableNode;
-import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
-import org.kobjects.codechat.lang.Function;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
@@ -85,6 +81,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
 
         Expression resolvedBase = base.resolve(parsingContext);
 
+        /*
         if (resolvedBase instanceof RootVariableNode) {
             int best = 0;
             Function result = null;
@@ -98,6 +95,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
                 return new NamedFunctionInvocation(((RootVariableNode) resolvedBase).rootVariable.name, result, parens, resolved);
             }
         }
+        */
 
         if (resolvedBase.getType() instanceof MetaType) {
             Type baseType = ((MetaType)resolvedBase.getType()).getType();

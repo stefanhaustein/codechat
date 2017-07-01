@@ -86,7 +86,15 @@ public class Parser {
                     break outer;
                 }
             }
+
             statements.add(parseStatement(parsingContext, tokenizer, interactive));
+
+            for (String endToken : end) {
+                if (tokenizer.currentValue.equals(endToken)) {
+                    break outer;
+                }
+            }
+            tokenizer.consume(";");
         }
         return statements.size() == 1 ? statements.get(0) : new Block(statements.toArray(new Statement[statements.size()]));
     }
@@ -268,7 +276,14 @@ public class Parser {
             return parseBlock(blockContext, tokenizer, false, "end");
         }
 
+
+        if (tokenizer.currentValue.equals("move")) {
+            System.out.println("******************* move ************************************");
+        }
+
         UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
+
+        System.out.println("cp0: " + tokenizer.currentValue);
 
         if (unresolved instanceof UnresolvedBinaryOperator && ((UnresolvedBinaryOperator) unresolved).name == '=') {
             UnresolvedBinaryOperator op = (UnresolvedBinaryOperator) unresolved;
@@ -281,6 +296,8 @@ public class Parser {
             }
             return new Assignment(op.left.resolve(parsingContext), right);
         }
+
+        System.out.println("cp1: " + tokenizer.currentValue);
 
         /*
         if (unresolved instanceof UnresolvedInvocation) {
@@ -297,7 +314,7 @@ public class Parser {
 
         if (unresolved instanceof UnresolvedIdentifier) {
             RootVariable var = parsingContext.environment.rootVariables.get(((UnresolvedIdentifier) unresolved).name);
-            if (var != null && var.functions().iterator().hasNext()) {
+            if (var != null && var.type instanceof FunctionType) {
                 ArrayList<UnresolvedExpression> params = new ArrayList<>();
                 while (!tokenizer.currentValue.equals("")
                         && !tokenizer.currentValue.equals(";")

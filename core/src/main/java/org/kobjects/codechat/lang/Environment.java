@@ -53,9 +53,7 @@ public class Environment {
         addSystemVariable("\u03c4", 2 * Math.PI);
 
 
-        addFunction("print", new PrintFunction(Type.STRING));
-        addFunction("print", new PrintFunction(Type.BOOLEAN));
-        addFunction("print", new PrintFunction(Type.NUMBER));
+        addFunction("print", new PrintFunction(Type.ANY));
 
         addFunction("atan2", new NativeFunction(Type.NUMBER, Type.NUMBER, Type.NUMBER) {
             @Override
@@ -143,6 +141,10 @@ public class Environment {
         var.name = name;
         var.type = Type.of(value);
         var.value = value;
+
+        if (rootVariables.containsKey(name)) {
+            throw new RuntimeException("Already declared: " + name);
+        }
 
         systemVariables.put(name, var);
         rootVariables.put(name, var);
@@ -338,17 +340,15 @@ public class Environment {
     }
 
     public void addFunction(String name, Function function) {
-        RootVariable var = rootVariables.get(name);
-        if (var == null) {
-            var = new RootVariable();
+        if (function instanceof NativeFunction) {
+            addSystemVariable(name, function);
+        } else {
+            RootVariable var = new RootVariable();
             var.name = name;
+            var.type = function.getType();
+            var.value = function;
             rootVariables.put(name, var);
-            // FIXME!!
-            if (function instanceof NativeFunction) {
-                systemVariables.put(name, var);
-            }
         }
-        var.addFunction(function);
     }
 
 
