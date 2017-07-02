@@ -475,9 +475,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                 @Override
                                 public void onClick(View view) {
                                     Object link = annotation.getLink();
-                                    if (link instanceof TupleInstance) {
+                                    if (link instanceof Instance) {
                                         StringBuilder sb = new StringBuilder();
-                                        ((TupleInstance) link).serialize(sb, Instance.Detail.FULL, null);
+                                        ((Instance) link).serialize(sb, Instance.Detail.FULL, null);
                                         input.setText(sb);
                                     }
                                 }

@@ -1,5 +1,6 @@
 package org.kobjects.codechat.lang;
 
+import java.util.Iterator;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.SetType;
@@ -12,7 +13,7 @@ import java.util.LinkedHashSet;
 import static org.kobjects.codechat.lang.Formatting.toLiteral;
 
 
-public class Collection implements Tuple {
+public class Collection implements Tuple, Iterable {
 
     final CollectionType type;
     final java.util.Collection<Object> data;
@@ -74,5 +75,10 @@ public class Collection implements Tuple {
         }
         sb.append(')');
         return sb.toString();
+    }
+
+    @Override
+    public Iterator iterator() {
+        return data.iterator();
     }
 }

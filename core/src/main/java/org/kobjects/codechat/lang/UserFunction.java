@@ -52,14 +52,17 @@ public class UserFunction implements Function, Instance {
 
     @Override
     public void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations) {
+        int start = sb.length();
+        int nameEnd = -1;
         if (detail == Detail.DECLARATION) {
-            functionType.serializeSignature(sb, id, name, parameterNames);
+            nameEnd = functionType.serializeSignature(sb, id, name, parameterNames);
             sb.append(";\n");
         } else if (body != null) {
             boolean wrap = closure.toString(sb, contextTemplate);
             int indent = wrap ? 1 : 0;
 
-            functionType.serializeSignature(sb, id, name, parameterNames);
+            start = sb.length();
+            nameEnd = functionType.serializeSignature(sb, id, name, parameterNames);
 
             sb.append(":\n");
             body.toString(sb, indent + 1);
@@ -69,6 +72,9 @@ public class UserFunction implements Function, Instance {
             if (wrap) {
                 sb.append("end;\n");
             }
+        }
+        if (nameEnd != -1 && annotations != null) {
+            annotations.add(new Annotation(start, nameEnd, this));
         }
     }
 

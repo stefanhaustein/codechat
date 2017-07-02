@@ -2,6 +2,8 @@ package org.kobjects.codechat.type;
 
 
 import java.lang.annotation.Inherited;
+import java.util.List;
+import org.kobjects.codechat.lang.Annotation;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.UserFunction;
@@ -58,14 +60,18 @@ public class FunctionType extends Type {
         return new UserFunction(this, id);
     }
 
-    public void serializeSignature(StringBuilder sb, int id, String name, String[] parameterNames) {
+    public int serializeSignature(StringBuilder sb, int id, String name, String[] parameterNames) {
         sb.append("function");
         if (id != -1) {
             sb.append('#').append(id);
         }
-        sb.append(' ');
         if (name != null) {
+            sb.append(' ');
             sb.append(name);
+        }
+        int nameEnd = sb.length();
+        if (name == null) {
+            sb.append(' ');
         }
         sb.append("(");
         for (int i = 0; i < parameterNames.length; i++) {
@@ -75,6 +81,7 @@ public class FunctionType extends Type {
             sb.append(parameterNames[i]).append(": ").append(parameterTypes[i]);
         }
         sb.append("): ").append(returnType);
+        return nameEnd;
     }
 
     public double callScore(Type[] parameterTypes) {

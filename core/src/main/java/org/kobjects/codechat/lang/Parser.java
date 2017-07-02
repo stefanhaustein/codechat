@@ -23,7 +23,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.CountStatement;
-import org.kobjects.codechat.statement.ForeachStatement;
+import org.kobjects.codechat.statement.ForStatement;
 import org.kobjects.codechat.statement.ReturnStatement;
 import org.kobjects.codechat.statement.VarStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
@@ -119,7 +119,7 @@ public class Parser {
         return new CountStatement(counter, expression, body);
     }
 
-    ForeachStatement parseForeach(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+    ForStatement parseFor(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         String varName = tokenizer.consumeIdentifier();
 
         tokenizer.consume("in");
@@ -127,7 +127,7 @@ public class Parser {
         Expression expression = parseExpression(parsingContext, tokenizer);
 
         if (!(expression.getType() instanceof CollectionType)) {
-            throw new RuntimeException("Foreach expression must be a list.");
+            throw new RuntimeException("For expression must be a list.");
         }
         Type elementType = ((CollectionType) expression.getType()).elementType;
 
@@ -136,7 +136,7 @@ public class Parser {
         LocalVariable counter = foreachParsingContext.addVariable(varName, elementType);
 
         Statement body = parseBody(foreachParsingContext, tokenizer);
-        return new ForeachStatement(counter, expression, body);
+        return new ForStatement(counter, expression, body);
     }
 
     Statement parseBody(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -253,6 +253,9 @@ public class Parser {
             UnresolvedFunctionExpression functionExpr = parseFunction(parsingContext, tokenizer, id, name);
             return new ExpressionStatement(functionExpr.resolve(parsingContext));
         }
+        if (tokenizer.tryConsume("for")) {
+            return parseFor(parsingContext, tokenizer);
+        }
         if (tokenizer.tryConsume("if")) {
             return parseIf(parsingContext, tokenizer);
         }
@@ -276,14 +279,7 @@ public class Parser {
             return parseBlock(blockContext, tokenizer, false, "end");
         }
 
-
-        if (tokenizer.currentValue.equals("move")) {
-            System.out.println("******************* move ************************************");
-        }
-
         UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
-
-        System.out.println("cp0: " + tokenizer.currentValue);
 
         if (unresolved instanceof UnresolvedBinaryOperator && ((UnresolvedBinaryOperator) unresolved).name == '=') {
             UnresolvedBinaryOperator op = (UnresolvedBinaryOperator) unresolved;
@@ -296,8 +292,6 @@ public class Parser {
             }
             return new Assignment(op.left.resolve(parsingContext), right);
         }
-
-        System.out.println("cp1: " + tokenizer.currentValue);
 
         /*
         if (unresolved instanceof UnresolvedInvocation) {

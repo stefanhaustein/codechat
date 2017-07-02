@@ -5,12 +5,12 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.LocalVariable;
 
-public class ForeachStatement extends AbstractStatement {
+public class ForStatement extends AbstractStatement {
     LocalVariable variable;
     Expression expression;
     Statement body;
 
-    public ForeachStatement(LocalVariable var, Expression expression, Statement body) {
+    public ForStatement(LocalVariable var, Expression expression, Statement body) {
         this.variable = var;
         this.expression = expression;
         this.body = body;
@@ -36,7 +36,7 @@ public class ForeachStatement extends AbstractStatement {
     @Override
     public void toString(StringBuilder sb, int indent) {
         indent(sb, indent);
-        sb.append("foreach ").append(variable.getName()).append(' ');
+        sb.append("for ").append(variable.getName()).append(" in ");
         expression.toString(sb, 0);
         sb.append(":\n");
 

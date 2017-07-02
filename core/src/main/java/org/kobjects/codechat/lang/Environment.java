@@ -97,6 +97,12 @@ public class Environment {
                 return null;
             }
         });
+        addFunction("random", new NativeFunction(Type.NUMBER) {
+            @Override
+            protected Object eval(Object[] params) {
+                return Math.random();
+            }
+        });
         addFunction("save", new NativeFunction(Type.VOID, Type.STRING) {
             @Override
             protected Object eval(Object[] params) {
@@ -104,10 +110,15 @@ public class Environment {
                 return null;
             }
         });
-        addFunction("random", new NativeFunction(Type.NUMBER) {
+        addFunction("wait", new NativeFunction(Type.VOID, Type.NUMBER) {
             @Override
             protected Object eval(Object[] params) {
-                return Math.random();
+                try {
+                    Thread.sleep((long) (((Double) params[0]) * 1000));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                return null;
             }
         });
 
