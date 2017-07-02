@@ -21,4 +21,8 @@ public class EnumLiteral implements Typed {
     public String toString() {
         return type.getName() + "." + name;
     }
+
+    public String getName() {
+        return name;
+    }
 }

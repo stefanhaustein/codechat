@@ -14,6 +14,7 @@ import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.NativeFunction;
+import org.kobjects.codechat.type.EnumType;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
@@ -31,6 +32,8 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addSystemVariable("screen", screen);
         addSystemVariable("sensors", new Sensors(rootView.getContext()));
         addType(Sprite.TYPE);
+        addType(new EnumType("VerticalAlignment", "TOP", "CENTER", "BOTTOM"));
+        addType(new EnumType("HorizontalAlignment", "LEFT", "CENTER", "RIGHT"));
 
         addFunction("move", new NativeFunction(Type.VOID, Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
             @Override

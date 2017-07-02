@@ -27,4 +27,13 @@ public class EnumType extends Type {
     EnumLiteral[] getValues() {
         return values;
     }
+
+    public EnumLiteral getValue(String name) {
+        for (EnumLiteral literal: values) {
+            if (literal.getName().equals(name)) {
+                return literal;
+            }
+        }
+        throw new RuntimeException("Literal '" + name + "' not found in " + this.name);
+    }
 }

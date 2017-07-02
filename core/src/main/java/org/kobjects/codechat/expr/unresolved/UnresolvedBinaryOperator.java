@@ -4,10 +4,13 @@ import org.kobjects.codechat.expr.AbstractBinaryOperator;
 import org.kobjects.codechat.expr.BinaryLogicalOperator;
 import org.kobjects.codechat.expr.BinaryMathOperator;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.expr.RelationalOperator;
 import org.kobjects.codechat.expr.StringConcatenation;
 import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.type.EnumType;
+import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
@@ -31,11 +34,19 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
         Expression left = this.left.resolve(parsingContext);
         if (name == '.') {
             if (!(right instanceof UnresolvedIdentifier)) {
+                throw new RuntimeException("Identifer expected for dot operator");
+            }
+            String propertyName = ((UnresolvedIdentifier) right).name;
+            Type type = left.getType();
+            if (type.getType() instanceof EnumType) {
+                return new Literal(((EnumType) type.getType()).getValue(propertyName));
+            } else if (type instanceof TupleType) {
+                TupleType instanceType = (TupleType) left.getType();
+                TupleType.PropertyDescriptor property = instanceType.getProperty(propertyName);
+                return new PropertyAccess(left, property);
+            } else {
                 throw new RuntimeException("Identifer expected for property access operator");
             }
-            TupleType instanceType = (TupleType) left.getType();
-            TupleType.PropertyDescriptor property = instanceType.getProperty(((UnresolvedIdentifier) right).name);
-            return new PropertyAccess(left, property);
         }
         Expression right = this.right.resolve(parsingContext);
 
