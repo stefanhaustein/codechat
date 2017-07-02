@@ -326,9 +326,7 @@ public class Parser {
                     params.add(param);
                     tokenizer.tryConsume(",");
                 }
-                if (params.size() > 0 || var.value == null) {
-                    unresolved = new UnresolvedInvocation(unresolved, false, params.toArray(new UnresolvedExpression[params.size()]));
-                }
+                unresolved = new UnresolvedInvocation(unresolved, false, params.toArray(new UnresolvedExpression[params.size()]));
             }
         }
 

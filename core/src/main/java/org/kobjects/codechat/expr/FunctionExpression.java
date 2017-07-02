@@ -30,7 +30,7 @@ public class FunctionExpression extends Expression {
     @Override
     public Object eval(EvaluationContext context) {
         UserFunction result;
-        if (body == null) {
+        if (body == null || id == -1) {
             result = (UserFunction) context.environment.instantiate(functionType, id);
         } else {
             result = (UserFunction) context.environment.getInstance(functionType, id, false);
