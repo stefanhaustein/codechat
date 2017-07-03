@@ -45,7 +45,7 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
                 TupleType.PropertyDescriptor property = instanceType.getProperty(propertyName);
                 return new PropertyAccess(left, property);
             } else {
-                throw new RuntimeException("Identifer expected for property access operator");
+                throw new RuntimeException("Base type must be tuple type or Enum metatype, but was: " + type);
             }
         }
         Expression right = this.right.resolve(parsingContext);

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import org.kobjects.codechat.lang.Collection;
+import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.LazyProperty;
 import org.kobjects.codechat.lang.MaterialProperty;
@@ -44,6 +45,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         TYPE.addProperty(10, "direction", Type.NUMBER, true);
         TYPE.addProperty(11, "speed", Type.NUMBER, true);
         TYPE.addProperty(12, "visible", Type.BOOLEAN, false);
+        TYPE.addProperty(13, "horizontalAlignment", AndroidEnvironment.HorizontalAlignment, true);
+        TYPE.addProperty(14, "verticalAlignment", AndroidEnvironment.VerticalAlignment, true);
     }
 
     private final ImageView view;
@@ -55,6 +58,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
+    public VisualMaterialProperty<EnumLiteral> horizonalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.HorizontalAlignment.getValue("CENTER"));
+    public VisualMaterialProperty<EnumLiteral> verticalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.HorizontalAlignment.getValue("CENTER"));
     public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
     public LazyProperty<Collection> collisions = new LazyProperty<Collection>() {
         @Override
@@ -167,8 +172,30 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public void run() {
         syncRequested = false;
         double size = this.size.get();
-        view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - size / 2)));
-        view.setY(environment.rootView.getMeasuredHeight()/2 - (float) (environment.scale * (y.get() + size / 2)));
+        switch (horizonalAlignment.get().getName()) {
+            case "LEFT":
+                view.setX((float) (environment.scale * (x.get())));
+                break;
+            case "CENTER":
+                view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - size / 2)));
+                break;
+            case "RIGHT":
+                view.setX((float) (environment.rootView.getMeasuredWidth() - environment.scale * (x.get() + size)));
+                break;
+        }
+
+        switch (verticalAlignment.get().getName()) {
+            case "TOP":
+                view.setY((float) (environment.scale * (y.get())));
+                break;
+            case "CENTER":
+                view.setY(environment.rootView.getMeasuredHeight() / 2 - (float) (environment.scale * (y.get() + size / 2)));
+                break;
+            case "BOTTOM":
+                view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y.get() + size)));
+                break;
+        }
+
         view.setRotation(-angle.get().floatValue());
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = Math.round((float) (environment.scale * size));
@@ -263,6 +290,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             case 10: return direction;
             case 11: return speed;
             case 12: return visible;
+            case 13: return horizonalAlignment;
+            case 14: return verticalAlignment;
             default:
                 throw new IllegalArgumentException();
         }

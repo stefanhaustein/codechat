@@ -23,6 +23,8 @@ public class AndroidEnvironment extends Environment implements Runnable {
     Handler handler = new Handler();
     public Screen screen = new Screen();
     public double scale;
+    public static EnumType VerticalAlignment = new EnumType("VerticalAlignment", "TOP", "CENTER", "BOTTOM");
+    public static EnumType HorizontalAlignment = new EnumType("HorizontalAlignment", "LEFT", "CENTER", "RIGHT");
 
     public AndroidEnvironment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
         super(environmentListener, codeDir);
@@ -32,8 +34,8 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addSystemVariable("screen", screen);
         addSystemVariable("sensors", new Sensors(rootView.getContext()));
         addType(Sprite.TYPE);
-        addType(new EnumType("VerticalAlignment", "TOP", "CENTER", "BOTTOM"));
-        addType(new EnumType("HorizontalAlignment", "LEFT", "CENTER", "RIGHT"));
+        addType(HorizontalAlignment);
+        addType(VerticalAlignment);
 
         addFunction("move", new NativeFunction(Type.VOID, Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
             @Override
