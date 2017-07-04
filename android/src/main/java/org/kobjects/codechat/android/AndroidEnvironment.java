@@ -63,7 +63,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
             }
             for (Ticking t : copy) {
                 try {
-                    t.tick(force);
+                    t.tick(0.017, force);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

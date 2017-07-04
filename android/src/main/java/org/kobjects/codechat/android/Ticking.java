@@ -1,5 +1,5 @@
 package org.kobjects.codechat.android;
 
 public interface Ticking {
-    public void tick(boolean force);
+    public void tick(double s, boolean force);
 }

@@ -59,7 +59,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<EnumLiteral> horizonalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.HorizontalAlignment.getValue("CENTER"));
-    public VisualMaterialProperty<EnumLiteral> verticalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.HorizontalAlignment.getValue("CENTER"));
+    public VisualMaterialProperty<EnumLiteral> verticalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.VerticalAlignment.getValue("CENTER"));
     public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
     public LazyProperty<Collection> collisions = new LazyProperty<Collection>() {
         @Override
@@ -92,7 +92,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public SettableProperty<Double> direction = new SettableProperty<Double>() {
         @Override
         public Double get() {
-            return Math.atan2(dy.get(), dx.get()) * 180 / Math.PI;
+            return Math.atan2(dy.get(), dx.get());
         }
 
         @Override
@@ -157,8 +157,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     }
 
     public void move(double speed, double angle) {
-        this.dx.set(speed * Math.cos(angle * Math.PI / 180));
-        this.dy.set(speed * Math.sin(angle * Math.PI / 180));
+        this.dx.set(speed * Math.cos(angle));
+        this.dy.set(speed * Math.sin(angle));
     }
 
 
@@ -196,7 +196,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 break;
         }
 
-        view.setRotation(-angle.get().floatValue());
+        view.setRotation((float) (-angle.get() * 180 / Math.PI));
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = Math.round((float) (environment.scale * size));
         if (params.height != params.width) {
@@ -215,9 +215,10 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     }
 */
     @Override
-    public void tick(boolean force) {
-        double dxValue = dx.get();
-        double dyValue = dy.get();
+    public void tick(double s, boolean force) {
+        double dxValue = dx.get() * s;
+        double dyValue = dy.get() * s;
+
         collisions.invalidate();
         if (force || dxValue != 0 || dyValue != 0) {
             Screen screen = environment.screen;
@@ -225,32 +226,62 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             double yValue = y.get();
             double sizeValue = size.get();
 
-            if (dxValue > 0 && xValue > screen.right.get() + sizeValue) {
-                x.set(screen.left.get() - sizeValue);
-            } else if (dxValue < 0 && xValue < screen.left.get() - sizeValue) {
-                x.set(screen.right.get() + sizeValue);
-            } else {
-                x.set(xValue + dxValue);
+            if (dxValue != 0 || force) {
+                double xMin;
+                double xMax;
+                switch (horizonalAlignment.get().toString()) {
+                    case "LEFT":
+                    case "RIGHT":
+                        xMin = -sizeValue;
+                        xMax = screen.width.get() + sizeValue;
+                        break;
+                    default:
+                        xMin = screen.left.get() - sizeValue;
+                        xMax = screen.right.get() + sizeValue;
+                        break;
+                }
+                if (dxValue > 0 && xValue > xMax) {
+                    x.set(xMin);
+                } else if (dxValue < 0 && xValue < xMin) {
+                    x.set(xMax);
+                } else {
+                    x.set(xValue + dxValue);
+                }
             }
 
-            if (dyValue > 0 && yValue > screen.top.get() + sizeValue) {
-                y.set(screen.bottom.get() - sizeValue);
-            } else if (dyValue < 0 && yValue < screen.bottom.get() - sizeValue) {
-                y.set(screen.top.get() + sizeValue);
-            } else {
-                y.set(yValue + dyValue);
+            if (dyValue != 0 || force) {
+                double yMin;
+                double yMax;
+                switch (verticalAlignment.get().toString()) {
+                    case "TOP":
+                    case "BOTTOM":
+                        yMin = -sizeValue;
+                        yMax = screen.height.get() + sizeValue;
+                        break;
+                    default:
+                        yMin = screen.bottom.get() - sizeValue;
+                        yMax = screen.top.get() + sizeValue;
+                        break;
+                }
+                if (dyValue > 0 && yValue > yMax) {
+                    y.set(yMin);
+                } else if (dyValue < 0 && yValue < yMin) {
+                    y.set(yMax);
+                } else {
+                    y.set(yValue + dyValue);
+                }
             }
 
             visible.invalidate();
         }
         double rotationSpeedVaue = rotation.get();
         if (rotationSpeedVaue != 0) {
-            double rotationValue = angle.get() + rotationSpeedVaue;
-            while (rotationValue > 360) {
-                rotationValue -= 360;
+            double rotationValue = angle.get() + rotationSpeedVaue * s;
+            while (rotationValue > 2 * Math.PI) {
+                rotationValue -= 2 * Math.PI;
             }
-            while (rotationValue < -360) {
-                rotationValue += 360;
+            while (rotationValue < -2 * Math.PI) {
+                rotationValue += 2 * Math.PI;
             }
             angle.set(rotationValue);
         }
