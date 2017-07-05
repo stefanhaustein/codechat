@@ -34,6 +34,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addSystemVariable("screen", screen);
         addSystemVariable("sensors", new Sensors(rootView.getContext()));
         addType(Sprite.TYPE);
+        addType(Text.TYPE);
         addType(HorizontalAlignment);
         addType(VerticalAlignment);
 
