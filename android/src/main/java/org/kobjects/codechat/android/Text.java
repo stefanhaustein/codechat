@@ -1,5 +1,9 @@
 package org.kobjects.codechat.android;
 
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
@@ -32,7 +36,7 @@ public class Text extends TupleInstance implements Runnable {
     private boolean syncRequested;
     AndroidEnvironment environment;
 
-    public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(100.0);
+    public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<String> text = new VisualMaterialProperty<>("");
@@ -59,15 +63,31 @@ public class Text extends TupleInstance implements Runnable {
     public void run() {
         syncRequested = false;
         double size = this.size.get();
+        view.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) (size / environment.scale));
+        if (!text.get().equals(view.getText())) {
+            view.setText(text.get());
+        }
+        /*
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        double width = view.getMeasuredWidth() / environment.scale;
+        double height = view.getMeasuredHeight() / environment.scale;
+        */
+
+        Rect bounds = new Rect();
+        Paint textPaint = view.getPaint();
+        textPaint.getTextBounds(text.get(),0,text.get().length(),bounds);
+        double height = bounds.height() / environment.scale;
+        double width = bounds.width() / environment.scale;
+
         switch (horizonalAlignment.get().getName()) {
             case "LEFT":
                 view.setX((float) (environment.scale * (x.get())));
                 break;
             case "CENTER":
-                view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - size / 2)));
+                view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - width / 2)));
                 break;
             case "RIGHT":
-                view.setX((float) (environment.rootView.getMeasuredWidth() - environment.scale * (x.get() + size)));
+                view.setX((float) (environment.rootView.getMeasuredWidth() - environment.scale * (x.get() + width)));
                 break;
         }
 
@@ -76,10 +96,10 @@ public class Text extends TupleInstance implements Runnable {
                 view.setY((float) (environment.scale * (y.get())));
                 break;
             case "CENTER":
-                view.setY(environment.rootView.getMeasuredHeight() / 2 - (float) (environment.scale * (y.get() + size / 2)));
+                view.setY(environment.rootView.getMeasuredHeight() / 2 - (float) (environment.scale * (y.get() + height / 2)));
                 break;
             case "BOTTOM":
-                view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y.get() + size)));
+                view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y.get() + height)));
                 break;
         }
 
@@ -90,9 +110,6 @@ public class Text extends TupleInstance implements Runnable {
             params.height = params.width;
             view.requestLayout();
         }*/
-        if (!text.get().equals(view.getText())) {
-            view.setText(text.get());
-        }
     }
 
     public void delete() {
