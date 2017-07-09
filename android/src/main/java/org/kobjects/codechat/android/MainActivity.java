@@ -557,7 +557,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     } else if (result instanceof Instance) {
                         String literal = Formatting.toLiteral(result);
                         Annotation annotation = new Annotation(0, literal.length(), result);
-                        print(literal, Collections.singletonList(annotationlis));
+                        print(literal, Collections.singletonList(annotation));
                     } else {
                         print(Formatting.toLiteral(result));
                     }
