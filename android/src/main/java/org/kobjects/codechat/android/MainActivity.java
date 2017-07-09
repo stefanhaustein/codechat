@@ -33,6 +33,7 @@ import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import org.kobjects.codechat.expr.Expression;
@@ -553,6 +554,10 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     Object result = expression.eval(parsingContext.createEvaluationContext());
                     if (Type.VOID.equals(expression.getType())) {
                         print("ok");
+                    } else if (result instanceof Instance) {
+                        String literal = Formatting.toLiteral(result);
+                        Annotation annotation = new Annotation(0, literal.length(), result);
+                        print(literal, Collections.singletonList(annotationlis));
                     } else {
                         print(Formatting.toLiteral(result));
                     }

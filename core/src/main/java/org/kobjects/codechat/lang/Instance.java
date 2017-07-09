@@ -8,7 +8,7 @@ import org.kobjects.codechat.type.Typed;
  */
 public interface Instance extends Typed {
 
-    public enum Detail {DECLARATION, DEFINITION, FULL}
+    enum Detail {DECLARATION, DEFINITION, FULL}
 
     int getId();
     void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations);

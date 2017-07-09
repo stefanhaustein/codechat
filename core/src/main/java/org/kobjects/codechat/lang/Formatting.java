@@ -48,6 +48,10 @@ public final class Formatting {
         if (value instanceof String) {
             return Formatting.quote((String) value);
         }
+        if (value instanceof Instance) {
+            Instance instance = (Instance) value;
+            return instance.getType() + "#" + instance.getId();
+        }
         return String.valueOf(value);
     }
 }
