@@ -11,6 +11,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.text.method.BaseMovementMethod;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.view.Gravity;
@@ -62,6 +65,8 @@ public class ChatView extends ListView {
         setStackFromBottom(true);
         setOverScrollMode(OVER_SCROLL_ALWAYS);
         setTranscriptMode(TRANSCRIPT_MODE_ALWAYS_SCROLL);
+
+        //setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
     }
 
     public void setSelectionCallback(SelectionCallback selectionCallback) {
@@ -124,8 +129,7 @@ public class ChatView extends ListView {
                 textView.setBackground(new BubbleDrawable(arrowSize, cornerBox, r));
                 textView.setPadding(r ? sidePadding : sidePadding + arrowSize, topPadding, r ? sidePadding + arrowSize : sidePadding, bottomPadding);
                 textView.setTextColor(0x0ff000000);
-                textView.setTextIsSelectable(true);
-                textView.setMovementMethod(LinkMovementMethod.getInstance());
+//                textView.setTextIsSelectable(true);
               //  textView.setGravity(r ? Gravity.RIGHT : Gravity.LEFT);
                 result = new LinearLayout(viewGroup.getContext());
              /*   textView.setOnClickListener(new OnClickListener() {
@@ -135,12 +139,13 @@ public class ChatView extends ListView {
                     }
                 }); */
             //    textView.setFocusableInTouchMode(true);
-                textView.setOnFocusChangeListener(new OnFocusChangeListener() {
+               textView.setOnFocusChangeListener(new OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View view, boolean b) {
                        result.setBackgroundColor(b ? 0x011000000 : 0);
                     }
                 });
+
                 //  textView.setFocusableInTouchMode(false);
                 result.setOrientation(LinearLayout.VERTICAL);
                 result.addView(textView);
@@ -151,6 +156,8 @@ public class ChatView extends ListView {
                 params.bottomMargin = verticalMargin;
                 params.leftMargin = r ? wideHorizontalMarign : narrowHorizontalMarign;
                 params.rightMargin = r ? narrowHorizontalMarign : wideHorizontalMarign;
+                textView.setTextIsSelectable(true);
+                textView.setMovementMethod(LinkMovementMethod.getInstance());
             }
             CharSequence cs = (CharSequence) getItem(i);
             int cut = cs.length();
@@ -158,6 +165,7 @@ public class ChatView extends ListView {
                 cut--;
             }
             textView.setText(cs.subSequence(0, cut));
+
             return result;
         }
 
