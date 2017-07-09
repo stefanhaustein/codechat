@@ -24,10 +24,16 @@ public abstract class Property<T> {
         return listeners != null && listeners.size() > 0;
     }
 
-    public void notifyChanged(T oldValue, T newValue) {
+    public void notifyChanged(final T oldValue, final T newValue) {
         if (listeners != null) {
-            for (PropertyListener<T> listener : listeners) {
-                listener.valueChanged(this, oldValue, newValue);
+            for (final PropertyListener<T> listener : listeners) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.valueChanged(Property.this, oldValue, newValue);
+                    }
+                }).start();
+
             }
         }
     }

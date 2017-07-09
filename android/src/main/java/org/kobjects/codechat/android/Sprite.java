@@ -1,5 +1,6 @@
 package org.kobjects.codechat.android;
 
+import android.app.Activity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     private boolean syncRequested;
     private static List<Sprite> allVisibleSprites = new ArrayList();
     AndroidEnvironment environment;
+    enum Command {NONE, ADD, REMOVE};
+    private Command command = Command.ADD;
 
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(100.0);
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
@@ -149,7 +152,6 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 return false;
             }
         });
-        this.environment.rootView.addView(view);
         synchronized (allVisibleSprites) {
             allVisibleSprites.add(this);
         }
@@ -165,12 +167,22 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public void syncView() {
         if (!syncRequested) {
             syncRequested = true;
-            view.post(this);
+            ((Activity) environment.rootView.getContext()).runOnUiThread(this);
         }
     }
 
     public void run() {
         syncRequested = false;
+        switch (command) {
+            case ADD:
+                command = Command.NONE;
+                environment.rootView.addView(view);
+                break;
+            case REMOVE:
+                command = Command.NONE;
+                environment.rootView.removeView(view);
+                return;
+        }
         double size = this.size.get();
         switch (horizonalAlignment.get().getName()) {
             case "LEFT":
@@ -291,7 +303,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public void delete() {
         ViewParent parent = view.getParent();
         if (parent instanceof ViewGroup) {
-            ((ViewGroup) parent).removeView(view);
+            command = Command.REMOVE;
+            syncView();
         }
         synchronized (environment.ticking) {
             environment.ticking.remove(this);
