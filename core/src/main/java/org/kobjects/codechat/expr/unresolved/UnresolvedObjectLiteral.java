@@ -3,11 +3,8 @@ package org.kobjects.codechat.expr.unresolved;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.InstanceReference;
 import org.kobjects.codechat.expr.ObjectLiteral;
-import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
@@ -35,12 +32,12 @@ public class UnresolvedObjectLiteral extends UnresolvedExpression {
 
 
     @Override
-    public ObjectLiteral resolve(ParsingContext parsingContext) {
+    public ObjectLiteral resolve(ParsingContext parsingContext, Type expectedType) {
         type = (TupleType) parsingContext.environment.resolveType(typeName);
 
         LinkedHashMap<String, Expression> resolvedElements = new LinkedHashMap<>();
         for (String key: elements.keySet()) {
-            Expression resolved = elements.get(key).resolve(parsingContext);
+            Expression resolved = elements.get(key).resolve(parsingContext, null);
 
             TupleType.PropertyDescriptor property = type.getProperty(key);
 

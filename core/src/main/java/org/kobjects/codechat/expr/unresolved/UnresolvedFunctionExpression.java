@@ -3,12 +3,11 @@ package org.kobjects.codechat.expr.unresolved;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.lang.Closure;
-import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
+import org.kobjects.codechat.type.Type;
 
 public class UnresolvedFunctionExpression extends UnresolvedExpression {
     public Closure closure;
@@ -28,7 +27,7 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
+    public Expression resolve(ParsingContext parsingContext, Type expectedType) {
         return new FunctionExpression(id, name, functionType, parameterNames, closure, body);
     }
 

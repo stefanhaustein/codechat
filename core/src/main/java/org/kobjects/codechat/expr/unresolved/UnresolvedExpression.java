@@ -3,10 +3,11 @@ package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.type.Type;
 
 public abstract class UnresolvedExpression {
 
-    public abstract Expression resolve(ParsingContext parsingContext);
+    public abstract Expression resolve(ParsingContext parsingContext, Type expectedType);
 
     public abstract void toString(StringBuilder sb, int indent);
 

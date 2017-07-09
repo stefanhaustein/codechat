@@ -251,7 +251,7 @@ public class Parser {
             int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();
             UnresolvedFunctionExpression functionExpr = parseFunction(parsingContext, tokenizer, id, name);
-            return new ExpressionStatement(functionExpr.resolve(parsingContext));
+            return new ExpressionStatement(functionExpr.resolve(parsingContext, null));
         }
         if (tokenizer.tryConsume("for")) {
             return parseFor(parsingContext, tokenizer);
@@ -283,14 +283,15 @@ public class Parser {
 
         if (unresolved instanceof UnresolvedBinaryOperator && ((UnresolvedBinaryOperator) unresolved).name == '=') {
             UnresolvedBinaryOperator op = (UnresolvedBinaryOperator) unresolved;
-            Expression right = op.right.resolve(parsingContext);
             if (op.left instanceof UnresolvedIdentifier && parsingContext.parent == null && interactive) {
                 String name = ((UnresolvedIdentifier) op.left).name;
                 if (parsingContext.resolve(name) == null) {
+                    Expression right = op.right.resolve(parsingContext, null);
                     environment.ensureRootVariable(name, right.getType());
                 }
             }
-            return new Assignment(op.left.resolve(parsingContext), right);
+            Expression left = op.left.resolve(parsingContext, null);
+            return new Assignment(left, op.right.resolve(parsingContext, left.getType()));
         }
 
         /*
@@ -324,7 +325,7 @@ public class Parser {
             }
         }
 
-        Expression resolved = unresolved.resolve(parsingContext);
+        Expression resolved = unresolved.resolve(parsingContext, null);
         return new ExpressionStatement(resolved);
     }
 
@@ -344,7 +345,7 @@ public class Parser {
 
     Expression parseExpression(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
-        return unresolved.resolve(parsingContext);
+        return unresolved.resolve(parsingContext, null);
     }
 
     public Statement parse(ParsingContext parsingContext, String line) {

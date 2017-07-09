@@ -46,7 +46,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
+    public Expression resolve(ParsingContext parsingContext, Type expectedType) {
         if (base instanceof UnresolvedIdentifier) {
             String name = ((UnresolvedIdentifier) base).name;
 
@@ -57,7 +57,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
                 return new ConstructorInvocation(type, -1);
             }
             if ("new".equals(name) && children[0] instanceof UnresolvedInstanceReference) {
-                InstanceReference resolvedRef = (InstanceReference) children[0].resolve(parsingContext);
+                InstanceReference resolvedRef = (InstanceReference) children[0].resolve(parsingContext, null);
                 return new ConstructorInvocation(resolvedRef.type, resolvedRef.id);
             }
         }
@@ -65,7 +65,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
         Expression[] resolved = new Expression[children.length];
         Type[] paramTypes = new Type[resolved.length];
         for (int i = 0; i < resolved.length; i++) {
-            resolved[i] = children[i].resolve(parsingContext);
+            resolved[i] = children[i].resolve(parsingContext, null);
             paramTypes[i] = resolved[i].getType();
         }
 
@@ -79,7 +79,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
             }
         }
 
-        Expression resolvedBase = base.resolve(parsingContext);
+        Expression resolvedBase = base.resolve(parsingContext, null);
 
         /*
         if (resolvedBase instanceof RootVariableNode) {

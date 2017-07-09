@@ -18,10 +18,10 @@ public class UnresolvedArrayExpression extends UnresolvedExpression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
+    public Expression resolve(ParsingContext parsingContext, Type expectedType) {
         Expression[] resolvedArguments = new Expression[arguments.length];
         for (int i = 0; i < arguments.length; i++) {
-            resolvedArguments[i] = arguments[i].resolve(parsingContext);
+            resolvedArguments[i] = arguments[i].resolve(parsingContext, null);
         }
 
         if (resolvedArguments.length != 1) {
@@ -30,7 +30,7 @@ public class UnresolvedArrayExpression extends UnresolvedExpression {
         if (resolvedArguments[0].getType() != Type.NUMBER) {
             throw new RuntimeException("List index must be number");
         }
-        return new ArrayIndex(base.resolve(parsingContext), resolvedArguments[0]);
+        return new ArrayIndex(base.resolve(parsingContext, null), resolvedArguments[0]);
     }
 
     @Override

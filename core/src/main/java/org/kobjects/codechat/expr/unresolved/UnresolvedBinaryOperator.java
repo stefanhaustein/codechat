@@ -10,7 +10,6 @@ import org.kobjects.codechat.expr.RelationalOperator;
 import org.kobjects.codechat.expr.StringConcatenation;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.EnumType;
-import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
@@ -30,8 +29,8 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext) {
-        Expression left = this.left.resolve(parsingContext);
+    public Expression resolve(ParsingContext parsingContext, Type expectedType) {
+        Expression left = this.left.resolve(parsingContext, null);
         if (name == '.') {
             if (!(right instanceof UnresolvedIdentifier)) {
                 throw new RuntimeException("Identifer expected for dot operator");
@@ -48,7 +47,7 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
                 throw new RuntimeException("Base type must be tuple type or Enum metatype, but was: " + type);
             }
         }
-        Expression right = this.right.resolve(parsingContext);
+        Expression right = this.right.resolve(parsingContext, null);
 
         if (left.getType() == Type.STRING && name == '+') {
             return new StringConcatenation(left, right);
