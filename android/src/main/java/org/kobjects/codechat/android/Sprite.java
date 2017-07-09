@@ -229,17 +229,18 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             if (dxValue != 0 || force) {
                 double xMin;
                 double xMax;
-                switch (horizonalAlignment.get().toString()) {
+                switch (horizonalAlignment.get().getName()) {
                     case "LEFT":
                     case "RIGHT":
-                        xMin = -sizeValue;
-                        xMax = screen.width.get() + sizeValue;
+                        xMin = -sizeValue * 3 / 2;
+                        xMax = screen.width.get() + sizeValue * 3 / 2;
                         break;
                     default:
                         xMin = screen.left.get() - sizeValue;
                         xMax = screen.right.get() + sizeValue;
                         break;
                 }
+                // System.out.println("xMin: " + xMin + " xMax: " + xMax + " x: " + x.get() + " size: " + size.get() + " screenWidth: " + screen.width.get());
                 if (dxValue > 0 && xValue > xMax) {
                     x.set(xMin);
                 } else if (dxValue < 0 && xValue < xMin) {
@@ -252,11 +253,11 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             if (dyValue != 0 || force) {
                 double yMin;
                 double yMax;
-                switch (verticalAlignment.get().toString()) {
+                switch (verticalAlignment.get().getName()) {
                     case "TOP":
                     case "BOTTOM":
-                        yMin = -sizeValue;
-                        yMax = screen.height.get() + sizeValue;
+                        yMin = -sizeValue * 3 / 2;
+                        yMax = screen.height.get() + sizeValue * 3 / 2;
                         break;
                     default:
                         yMin = screen.bottom.get() - sizeValue;
