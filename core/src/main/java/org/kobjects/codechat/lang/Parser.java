@@ -140,8 +140,8 @@ public class Parser {
     }
 
     Statement parseBody(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
-        if (tokenizer.tryConsume(":")) {   // TODO remove begin
-            return parseBlock(parsingContext, tokenizer, false, "end");
+        if (tokenizer.tryConsume(":")) {
+            return parseBlock(parsingContext, tokenizer, false, "end", "");
         }
 /*        if (tokenizer.tryConsume("{")) {
             return parseBlock(parsingContext, tokenizer,false, "}", "end");
@@ -210,7 +210,7 @@ public class Parser {
 
         tokenizer.consume(":");
 
-        Statement ifBody = parseBlockLeaveEnd(parsingContext, tokenizer, false, "end", /*"}",*/ "else", "elseif");
+        Statement ifBody = parseBlockLeaveEnd(parsingContext, tokenizer, false, "end", /*"}",*/ "else", "elseif", "");
 
         Statement elseBody = null;
 
@@ -221,7 +221,7 @@ public class Parser {
                 elseBody = parseBlock(parsingContext, tokenizer, false, "}", "end");
             } else { */
                 tokenizer.tryConsume(":");
-                elseBody = parseBlock(parsingContext, tokenizer, false, "end");
+                elseBody = parseBlock(parsingContext, tokenizer, false, "end", "");
             //}
         } else {
             tokenizer.nextToken();
@@ -276,7 +276,7 @@ public class Parser {
         }*/
         if (tokenizer.tryConsume("begin")) {
             ParsingContext blockContext = new ParsingContext(parsingContext, false);
-            return parseBlock(blockContext, tokenizer, false, "end");
+            return parseBlock(blockContext, tokenizer, false, "end", "");
         }
 
         UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
