@@ -1,4 +1,4 @@
-# codechat
+# CodeChat
 
 Casual Coding on Android
 
