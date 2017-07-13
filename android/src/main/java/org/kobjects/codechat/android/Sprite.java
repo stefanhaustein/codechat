@@ -33,21 +33,39 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         }
     };
     static {
-        TYPE.addProperty(0, "size", Type.NUMBER, true);
-        TYPE.addProperty(1, "x", Type.NUMBER, true);
-        TYPE.addProperty(2, "y", Type.NUMBER, true);
-        TYPE.addProperty(3, "angle", Type.NUMBER, true);
-        TYPE.addProperty(4, "face", Type.STRING, true);
-        TYPE.addProperty(5, "collisions", new SetType(Sprite.TYPE), true);
-        TYPE.addProperty(6, "dx", Type.NUMBER, true);
-        TYPE.addProperty(7, "dy", Type.NUMBER, true);
-        TYPE.addProperty(8, "rotation", Type.NUMBER, true);
-        TYPE.addProperty(9, "touched", Type.BOOLEAN, false);
-        TYPE.addProperty(10, "direction", Type.NUMBER, true);
-        TYPE.addProperty(11, "speed", Type.NUMBER, true);
-        TYPE.addProperty(12, "visible", Type.BOOLEAN, false);
-        TYPE.addProperty(13, "horizontalAlignment", AndroidEnvironment.HorizontalAlignment, true);
-        TYPE.addProperty(14, "verticalAlignment", AndroidEnvironment.VerticalAlignment, true);
+        TYPE.addProperty(0, "size", Type.NUMBER, true,
+                "The size of this sprite in normalized pixels.");
+        TYPE.addProperty(1, "x", Type.NUMBER, true,
+                "The horizontal position of thes sprite in normalized pixels, relative to the left side, " +
+                "center or right side of the screen, depending on the value of the horizontalAlignment property.");
+        TYPE.addProperty(2, "y", Type.NUMBER, true,
+                "The vertical position of the text in normalized pixels relative to the top, " +
+                        "center or bottom of the screen, depending on the value of the verticalAlignment property. ");
+        TYPE.addProperty(3, "angle", Type.NUMBER, true,
+                "The rotation angle of this sprite in radians (counter clockwise).");
+        TYPE.addProperty(4, "face", Type.STRING, true, "The emoji displayed for this sprite.");
+        TYPE.addProperty(5, "collisions", new SetType(Sprite.TYPE), true,
+                "The set of other sprites this sprite is currently colliding with");
+        TYPE.addProperty(6, "dx", Type.NUMBER, true,
+                "The current horizontal speed of this sprite in normalized pixels per second.");
+        TYPE.addProperty(7, "dy", Type.NUMBER, true,
+                "The current vertical speed of this sprite in normalized pixels per second.");
+        TYPE.addProperty(8, "rotation", Type.NUMBER, true,
+                "The current counter clockwise rotation speed in radians per second.");
+        TYPE.addProperty(9, "touched", Type.BOOLEAN, false,
+                "True if this sprite is currently touched.");
+        TYPE.addProperty(10, "direction", Type.NUMBER, true,
+                "The movement direction of this sprite in radians; 0 if the sprite is not moving.");
+        TYPE.addProperty(11, "speed", Type.NUMBER, true,
+                "The current speed in pixels per second.");
+        TYPE.addProperty(12, "visible", Type.BOOLEAN, false,
+                "True if the sprite is currently withing the usable screen boundaries.");
+        TYPE.addProperty(13, "horizontalAlignment", AndroidEnvironment.HorizontalAlignment, true,
+                "Determines whether the x property is relative to the left side, " +
+                "center or right side of the screen.");
+        TYPE.addProperty(14, "verticalAlignment", AndroidEnvironment.VerticalAlignment, true,
+                "Determines whether the x property is relative to the left side, " +
+                "center or right side of the screen.");
     }
 
     private final ImageView view;

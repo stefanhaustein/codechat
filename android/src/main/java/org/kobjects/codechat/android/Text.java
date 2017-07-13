@@ -24,12 +24,21 @@ public class Text extends TupleInstance implements Runnable {
         }
     };
     static {
-        TYPE.addProperty(0, "size", Type.NUMBER, true);
-        TYPE.addProperty(1, "x", Type.NUMBER, true);
-        TYPE.addProperty(2, "y", Type.NUMBER, true);
-        TYPE.addProperty(3, "horizontalAlignment", AndroidEnvironment.HorizontalAlignment, true);
-        TYPE.addProperty(4, "verticalAlignment", AndroidEnvironment.VerticalAlignment, true);
-        TYPE.addProperty(5, "text", Type.STRING, true);
+        TYPE.addProperty(0, "size", Type.NUMBER, true,
+                "The font size in normalized pixels.");
+        TYPE.addProperty(1, "x", Type.NUMBER, true,
+                "The horizontal position of the text in normalized pixels, relative to the left side, " +
+                        "center or right side of the screen, depending on the value of the horizontalAlignment property.");
+        TYPE.addProperty(2, "y", Type.NUMBER, true,
+                "The vertical position of the text in normalized pixels relative to the top, " +
+                        "center or bottom of the screen, depending on the value of the verticalAlignment property. ");
+        TYPE.addProperty(3, "horizontalAlignment", AndroidEnvironment.HorizontalAlignment, true,
+                "Determines whether the x property is relative to the left side, " +
+                        "center or right side of the screen.");
+        TYPE.addProperty(4, "verticalAlignment", AndroidEnvironment.VerticalAlignment, true,
+                "Determines whether the x property is relative to the left side, " +
+                        "center or right side of the screen.");
+        TYPE.addProperty(5, "text", Type.STRING, true, "The displayed text string.");
     }
 
     private final TextView view;
@@ -47,6 +56,7 @@ public class Text extends TupleInstance implements Runnable {
     public Text(Environment environment, int id) {
         super(environment, id);
         this.environment = (AndroidEnvironment) environment;
+        this.text.set("Text#" + id);
         view = new TextView(this.environment.rootView.getContext());
         this.environment.rootView.addView(view);
         syncView();

@@ -9,13 +9,24 @@ public class Screen implements Tuple {
 
     public static final TupleType TYPE = new TupleType("screenType");
     static {
-        TYPE.addProperty(0, "width", TYPE.NUMBER, false);
-        TYPE.addProperty(1, "height", TYPE.NUMBER, false);
-        TYPE.addProperty(2, "top", TYPE.NUMBER, false);
-        TYPE.addProperty(3, "bottom", TYPE.NUMBER, false);
-        TYPE.addProperty(4, "left", TYPE.NUMBER, false);
-        TYPE.addProperty(5, "right", TYPE.NUMBER, false);
-        TYPE.addProperty(6, "frame", TYPE.NUMBER, false);
+        TYPE.addProperty(0, "width", TYPE.NUMBER, false,
+                "The width of the usable area of the screen in normalized pixels. "+
+                        "Pixels are normalized so that the smaller value of width and the height is at least 1000.");
+        TYPE.addProperty(1, "height", TYPE.NUMBER, false,
+                "The height of the usable area of the screen in normalized pixels. "+
+                        "Pixels are normalized so that the smaller value of width and the height is at least 1000.");
+        TYPE.addProperty(2, "top", TYPE.NUMBER, false,
+                "The top boundary of the usable screen are, counted from the center. At least 500.");
+        TYPE.addProperty(3, "bottom", TYPE.NUMBER, false,
+                "The bottom boundary of the usable screen area, counted from the center. " +
+                        "This value is always negative.");
+        TYPE.addProperty(4, "left", TYPE.NUMBER, false,
+                "The left boundary of the usable screen area, counted from the center. " +
+                "This value is always negative.");
+        TYPE.addProperty(5, "right", TYPE.NUMBER, false,
+                "The right boundary of the usable screen are, counted from the center. At least 500.");
+        TYPE.addProperty(6, "frame", TYPE.NUMBER, false,
+                "A counter that is incremented every time the screen content is updated.");
     }
 
     MaterialProperty<Double> width = new MaterialProperty<>(1000.0);

@@ -14,8 +14,8 @@ public class TupleType extends Type {
         this.name = name;
     }
 
-    public void addProperty(int index, String name, Type type, boolean writable) {
-        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable));
+    public void addProperty(int index, String name, Type type, boolean writable, String documentation) {
+        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation));
     }
 
     public PropertyDescriptor getProperty(String name) {
@@ -45,15 +45,17 @@ public class TupleType extends Type {
 
     public class PropertyDescriptor {
         public final String name;
-        public Type type;
-        public int index;
-        public boolean writable;
+        public final Type type;
+        public final int index;
+        public final boolean writable;
+        public final String documentation;
 
-        private PropertyDescriptor(String name, Type type, int index, boolean writable) {
+        private PropertyDescriptor(String name, Type type, int index, boolean writable, String documentation) {
             this.name = name;
             this.type = type;
             this.index = index;
             this.writable = writable;
+            this.documentation = documentation;
         }
 
         public Property getProperty(Tuple tuple) {
