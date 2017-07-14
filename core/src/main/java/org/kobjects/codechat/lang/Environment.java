@@ -55,6 +55,22 @@ public class Environment {
 
         addFunction("print", new PrintFunction(Type.ANY));
 
+        addFunction("help", new NativeFunction(Type.VOID, Type.ANY) {
+            @Override
+            protected Object eval(Object[] params) {
+                if (params[0] instanceof Documented) {
+                    ArrayList<Annotation> annotations = new ArrayList<>();
+                    String doc = ((Documented) params[0]).getDocumentation(annotations);
+                    environmentListener.print(doc, annotations);
+                } else {
+                    Type type = Type.of(params[0]);
+                    environmentListener.print(params[0] + " is an instance of the type " + type, null);
+                }
+                return null;
+            }
+        });
+
+
         addFunction("atan2", new NativeFunction(Type.NUMBER, Type.NUMBER, Type.NUMBER) {
             @Override
             protected Object eval(Object[] params) {

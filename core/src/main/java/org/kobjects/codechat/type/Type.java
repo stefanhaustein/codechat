@@ -74,4 +74,5 @@ public abstract class Type implements Typed {
     public Type getType() {
         return new MetaType(this);
     }
+
 }

@@ -1,17 +1,22 @@
 package org.kobjects.codechat.type;
 
+import java.util.List;
 import java.util.TreeMap;
+import org.kobjects.codechat.lang.Annotation;
+import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Settable;
 import org.kobjects.codechat.lang.Tuple;
 
-public class TupleType extends Type {
+public class TupleType extends Type implements Documented {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
     private final String name;
+    private final String documentation;
 
-    public TupleType(String name) {
+    public TupleType(String name, String documentation) {
         this.name = name;
+        this.documentation = documentation;
     }
 
     public void addProperty(int index, String name, Type type, boolean writable, String documentation) {
@@ -41,6 +46,16 @@ public class TupleType extends Type {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getDocumentation(List<Annotation> links) {
+        StringBuilder sb = new StringBuilder(documentation);
+        sb.append("\n\nProperties:\n\n");
+        for (PropertyDescriptor propertyDescriptor: properties()) {
+            sb.append(propertyDescriptor.name).append(": ").append(propertyDescriptor.type).append("\n");
+        }
+        return sb.toString();
     }
 
     public class PropertyDescriptor {

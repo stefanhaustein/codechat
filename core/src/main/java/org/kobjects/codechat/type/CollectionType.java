@@ -5,7 +5,7 @@ public abstract class CollectionType extends TupleType {
     public final Type elementType;
 
     public CollectionType(String name, Type elementType) {
-        super(name + "[" + elementType + "]");
+        super(name + "[" + elementType + "]", "A " + name + " of " + elementType);
         this.elementType = elementType;
         addProperty(0, "size", Type.NUMBER, false, "The number of contained elements.");
     }

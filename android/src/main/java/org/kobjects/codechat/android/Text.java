@@ -17,7 +17,7 @@ import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class Text extends TupleInstance implements Runnable {
-    public final static TupleType TYPE = new TupleType("Text") {
+    public final static TupleType TYPE = new TupleType("Text", "A text object displayed on the screen.") {
         @Override
         public Text createInstance(Environment environment, int id) {
             return new Text(environment, id);

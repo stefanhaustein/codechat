@@ -26,7 +26,9 @@ import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class Sprite extends TupleInstance implements Ticking, Runnable {
-    public final static TupleType TYPE = new TupleType("Sprite") {
+    public final static TupleType TYPE = new TupleType("Sprite",
+            "A sprite is an emoji displayed on a particular position on the screen. "
+             + "It is able to move and rotate at a given speed by setting the corresponding properties.") {
         @Override
         public Sprite createInstance(Environment environment, int id) {
             return new Sprite(environment, id);
