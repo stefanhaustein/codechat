@@ -13,14 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment {
+
+    static final String HELPTEXT = "CodeChat help.\n" +
+            "Type \"help <object>\" to get help on <object>.";
+
     public boolean paused;
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
@@ -53,12 +55,58 @@ public class Environment {
         addSystemVariable("\u03c4", 2 * Math.PI);
 
 
-        addFunction("print", new PrintFunction(Type.ANY));
-
-        addFunction("help", new NativeFunction(Type.VOID, Type.ANY) {
+        final Type type = Type.ANY;
+        addFunction(new NativeFunction("print", Type.VOID, "", type) {
             @Override
             protected Object eval(Object[] params) {
-                if (params[0] instanceof Documented) {
+                environmentListener.print(String.valueOf(params[0]), null);
+                return null;
+            }
+        });
+
+        addFunction(new NativeFunction("help", Type.VOID, "Prints a help text describing the argument.", Type.ANY) {
+            @Override
+            protected Object eval(Object[] params) {
+                if (params[0] == null) {
+                    ArrayList<Annotation> annotations = new ArrayList<>();
+                    StringBuilder sb = new StringBuilder(HELPTEXT);
+
+                    for (int i = 0; i  < 3; i++) {
+                        switch (i) {
+                            case 0:
+                                sb.append("\nBuilt in types: ");
+                                break;
+                            case 1:
+                                sb.append("\nBuilt in functions: ");
+                                break;
+                            case 2:
+                                sb.append("\nBuilt in constants and variables: ");
+                                break;
+
+                        }
+                        boolean first = true;
+                        for (RootVariable var : systemVariables.values()) {
+                            if (var.value instanceof Type) {
+                                if (i != 0) {
+                                    continue;
+                                }
+                            } else if (var.value instanceof Function) {
+                                if (i != 1) {
+                                    continue;
+                                }
+                            } else if (i != 2) {
+                                continue;
+                            }
+                            if (first) {
+                                first = false;
+                            } else {
+                                sb.append(", ");
+                            }
+                            Annotation.append(sb, var.name, var.value, annotations);
+                        }
+                    }
+                    environmentListener.print(sb.toString(), annotations);
+                } else if (params[0] instanceof Documented) {
                     ArrayList<Annotation> annotations = new ArrayList<>();
                     String doc = ((Documented) params[0]).getDocumentation(annotations);
                     environmentListener.print(doc, annotations);
@@ -71,13 +119,15 @@ public class Environment {
         });
 
 
-        addFunction("atan2", new NativeFunction(Type.NUMBER, Type.NUMBER, Type.NUMBER) {
+        addFunction(new NativeFunction("atan2", Type.NUMBER,
+                "Computes the angle in radians of the line through (0,0) and (y, x) relative to the x-axis", Type.NUMBER, Type.NUMBER) {
             @Override
             protected Object eval(Object[] params) {
                 return Math.atan2((Double) params[0], (Double) params[1]);
             }
         });
-        addFunction("clearAll", new NativeFunction(Type.VOID) {
+        addFunction(new NativeFunction("clearAll", Type.VOID,
+                "Deletes everything and resets the state to the initial state. Use with care.") {
             @Override
             protected Object eval(Object[] params) {
                 clearAll();
@@ -85,48 +135,49 @@ public class Environment {
                 return null;
             }
         });
-        addFunction("continue", new NativeFunction(Type.VOID) {
+        addFunction(new NativeFunction("continue", Type.VOID, "Resumes after pause was called. Has no effect otherwise.") {
             @Override
             protected Object eval(Object[] params) {
                 pause(false);
                 return null;
             }
         });
-        addFunction("dump", new NativeFunction(Type.VOID) {
+        addFunction(new NativeFunction("list", Type.VOID, "Lists the current program and state.") {
             @Override
             protected Object eval(Object[] params) {
                 list();
                 return null;
             }
         });
-        addFunction("load", new NativeFunction(Type.VOID, Type.STRING) {
+        addFunction(new NativeFunction("load", Type.VOID,
+                "Loads the program and state previously saved under the given name.", Type.STRING) {
             @Override
             protected Object eval(Object[] params) {
                 load(String.valueOf(params[0]));
                 return null;
             }
         });
-        addFunction("pause", new NativeFunction(Type.VOID) {
+        addFunction(new NativeFunction("pause", Type.VOID,  "Pause all events.") {
             @Override
             protected Object eval(Object[] params) {
                 pause(true);
                 return null;
             }
         });
-        addFunction("random", new NativeFunction(Type.NUMBER) {
+        addFunction(new NativeFunction("random", Type.NUMBER,  "Return a pseudorandom number >= 0 and < 1.") {
             @Override
             protected Object eval(Object[] params) {
                 return Math.random();
             }
         });
-        addFunction("save", new NativeFunction(Type.VOID, Type.STRING) {
+        addFunction(new NativeFunction("save", Type.VOID, "Saves the current program and state under the given name.") {
             @Override
             protected Object eval(Object[] params) {
                 save((String) params[0]);
                 return null;
             }
         });
-        addFunction("wait", new NativeFunction(Type.VOID, Type.NUMBER) {
+        addFunction(new NativeFunction("wait", Type.VOID, "Waits for a the given number of seconds.", Type.NUMBER) {
             @Override
             protected Object eval(Object[] params) {
                 try {
@@ -159,7 +210,7 @@ public class Environment {
     public void addType(Type... types) {
         for (Type type : types) {
             addSystemVariable(type.toString(), type);
-            addSystemVariable(type.toString().toLowerCase(), type);
+//            addSystemVariable(type.toString().toLowerCase(), type);
         }
     }
 
@@ -366,6 +417,10 @@ public class Environment {
         }
     }
 
+    public void addFunction(NativeFunction function) {
+        addFunction(function.name, function);
+    }
+
     public void addFunction(String name, Function function) {
         if (function instanceof NativeFunction) {
             addSystemVariable(name, function);
@@ -379,12 +434,36 @@ public class Environment {
     }
 
 
-    enum MathFnType {ABS, ACOS, ASIN, ATAN, CEIL, COS, COSH, EXP, FLOOR, LOG, LOG10, ROUND, SIGNUM, SIN, SINH, TAN, TANH};
+    enum MathFnType {
+        ABS("Returns the absolute value of the argument, i.e. negative values are multiplied with -1."),
+        ACOS("Returns the inverse cosine of the argument"),
+        ASIN("Returns the inverse sine of the argument"),
+        ATAN("Returns the inverse tangens of the argument"),
+        CEIL("Returns the closest integer that is larger or equal to the argument"),
+        COS("Returns the cosine of the argument"),
+        COSH("Returns the hyperbolic cosine of the argument"),
+        EXP("Return e to the power of the argument"),
+        FLOOR("Returns the closest integer that is smaller than or equal to the argumetn"),
+        LOG("Returns the natural logarithm of the argument"),
+        LOG10("Returns the logarithm to the base 10 of the argument"),
+        ROUND("Returns the argument rounded to the closest integer"),
+        SIGNUM("Returns the sign of the argument, i.e. -1 for negative numbers, 0 for 0 and 1 for positive numbers"),
+        SIN("Returns the sine of the argument"),
+        SINH("Returns the hyperbolic sine of the argument"),
+        TAN("Returns the tangens of the argument"),
+        TANH("Returns the hyperbolic tangent of the argument");
+
+        final String documentation;
+
+        MathFnType(String documentation) {
+            this.documentation = documentation;
+        }
+    }
 
     static class MathFn extends NativeFunction {
         MathFnType type;
         MathFn(MathFnType type) {
-            super(Type.NUMBER, Type.NUMBER);
+            super(type.name().toLowerCase(), Type.NUMBER, type.documentation, Type.NUMBER);
             this.type = type;
         }
 
@@ -414,17 +493,4 @@ public class Environment {
             }
         }
     }
-
-    class PrintFunction extends NativeFunction {
-        PrintFunction(Type type) {
-            super(Type.VOID, type);
-        }
-
-        @Override
-        protected Object eval(Object[] params) {
-            environmentListener.print(String.valueOf(params[0]), null);
-            return null;
-        }
-    }
-
 }

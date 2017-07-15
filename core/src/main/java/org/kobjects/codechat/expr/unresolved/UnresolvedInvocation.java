@@ -111,7 +111,14 @@ public class UnresolvedInvocation extends UnresolvedExpression {
         FunctionType functionType = (FunctionType) resolvedBase.getType();
 
         if (functionType.parameterTypes.length != resolved.length) {
-            throw new RuntimeException("UserFunction argument count mismatch. Expected: " + functionType.parameterTypes.length + " actual: " + resolved.length);
+            // FIXME
+            if (base instanceof UnresolvedIdentifier && base.toString().equals("help")
+                    && functionType.parameterTypes.length == 1 && resolved.length == 0) {
+                // ok
+            } else {
+                throw new RuntimeException("UserFunction argument count mismatch. Expected: "
+                        + functionType.parameterTypes.length + " actual: " + resolved.length);
+            }
         }
 
         for (int i = 0; i < resolved.length; i++) {

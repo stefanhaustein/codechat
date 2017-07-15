@@ -1,13 +1,18 @@
 package org.kobjects.codechat.lang;
 
+import java.util.List;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
-public abstract class NativeFunction implements Function {
+public abstract class NativeFunction implements Function, Documented {
     private final FunctionType type;
+    public final String name;
+    private final String documentation;
 
-    public NativeFunction(Type returnType, Type... parameterTypes) {
+    public NativeFunction(String name, Type returnType, String documentation, Type... parameterTypes) {
         this.type = new FunctionType(returnType, parameterTypes);
+        this.name = name;
+        this.documentation = documentation;
     }
 
     @Override
@@ -25,5 +30,14 @@ public abstract class NativeFunction implements Function {
     @Override
     public FunctionType getType() {
         return type;
+    }
+
+    @Override
+    public String getDocumentation(List<Annotation> annotations) {
+        StringBuilder sb = new StringBuilder();
+        type.serializeSignature(sb, -1, name, null, annotations);
+        sb.append('\n');
+        sb.append(documentation);
+        return sb.toString();
     }
 }

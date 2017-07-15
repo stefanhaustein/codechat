@@ -38,7 +38,8 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addType(HorizontalAlignment);
         addType(VerticalAlignment);
 
-        addFunction("move", new NativeFunction(Type.VOID, Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
+        addFunction(new NativeFunction("move", Type.VOID,
+                "Sets the speed and direction for the given sprite", Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
             @Override
             protected Object eval(Object[] params) {
                 ((Sprite) params[0]).move((Double) params[1], (Double) params[2]);

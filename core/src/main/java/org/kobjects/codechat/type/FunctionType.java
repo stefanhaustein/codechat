@@ -60,7 +60,7 @@ public class FunctionType extends Type {
         return new UserFunction(this, id);
     }
 
-    public int serializeSignature(StringBuilder sb, int id, String name, String[] parameterNames) {
+    public int serializeSignature(StringBuilder sb, int id, String name, String[] parameterNames, List<Annotation> annotations) {
         sb.append("function");
         if (id != -1) {
             sb.append('#').append(id);
@@ -74,31 +74,18 @@ public class FunctionType extends Type {
             sb.append(' ');
         }
         sb.append("(");
-        for (int i = 0; i < parameterNames.length; i++) {
+        for (int i = 0; i < parameterTypes.length; i++) {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(parameterNames[i]).append(": ").append(parameterTypes[i]);
+            if (parameterNames != null) {
+                sb.append(parameterNames[i]).append(": ");
+            }
+            Annotation.append(sb, parameterTypes[i].toString(), parameterTypes[i], annotations);
         }
-        sb.append("): ").append(returnType);
+        sb.append("): ");
+        Annotation.append(sb, returnType.toString(), returnType, annotations);
         return nameEnd;
     }
 
-    public double callScore(Type[] parameterTypes) {
-        if (parameterTypes.length != this.parameterTypes.length) {
-            return 0;
-        }
-        int result = 0;
-        for (int i = 0; i < parameterTypes.length; i++) {
-            if (parameterTypes[i].equals(this.parameterTypes[i])) {
-                result += 2;
-            } else if (this.parameterTypes[i].isAssignableFrom(parameterTypes[i])) {
-                result += 1;
-            } else {
-                return 0;
-            }
-        }
-        // First case makes sure 1 is exact and that the 0 parameter case is handled.
-        return result == parameterTypes.length * 2 ? 1 : (result / parameterTypes.length);
-    }
 }

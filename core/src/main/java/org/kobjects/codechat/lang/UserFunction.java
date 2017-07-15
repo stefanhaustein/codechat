@@ -55,14 +55,14 @@ public class UserFunction implements Function, Instance {
         int start = sb.length();
         int nameEnd = -1;
         if (detail == Detail.DECLARATION) {
-            nameEnd = functionType.serializeSignature(sb, id, name, parameterNames);
+            nameEnd = functionType.serializeSignature(sb, id, name, parameterNames, null);
             sb.append(";\n");
         } else if (body != null) {
             boolean wrap = closure.toString(sb, contextTemplate);
             int indent = wrap ? 1 : 0;
 
             start = sb.length();
-            nameEnd = functionType.serializeSignature(sb, id, name, parameterNames);
+            nameEnd = functionType.serializeSignature(sb, id, name, parameterNames, null);
 
             sb.append(":\n");
             body.toString(sb, indent + 1);

@@ -39,7 +39,7 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        functionType.serializeSignature(sb, id, name, parameterNames);
+        functionType.serializeSignature(sb, id, name, parameterNames, null);
         if (body == null) {
             sb.append(";\n");
         } else {
