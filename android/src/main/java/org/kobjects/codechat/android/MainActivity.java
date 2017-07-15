@@ -423,6 +423,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             pauseItem.setIcon(environment.paused ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
             pauseItem.setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
         }
+        menu.add("Help");
         if (displaySize.x <= displaySize.y) {
             menu.add(MENU_ITEM_WINDOW_MODE).setCheckable(true).setChecked(windowMode);
         }
@@ -449,7 +450,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 arrangeUi();
                 break;
             default:
-                processInput(title);
+                processInput(title.toLowerCase());
         }
         return true;
     }

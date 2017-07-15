@@ -20,7 +20,7 @@ import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment {
 
-    static final String HELPTEXT = "CodeChat help.\n" +
+    static final String HELPTEXT = "CodeChat is an application for 'casual' coding that uses a 'chat-like' interface.\n" +
             "Type \"help <object>\" to get help on <object>.";
 
     public boolean paused;
@@ -53,7 +53,6 @@ public class Environment {
         addSystemVariable("\u03c0", Math.PI);
         addSystemVariable("TAU", 2 * Math.PI);
         addSystemVariable("\u03c4", 2 * Math.PI);
-
 
         final Type type = Type.ANY;
         addFunction(new NativeFunction("print", Type.VOID, "", type) {
