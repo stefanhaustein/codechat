@@ -51,14 +51,20 @@ public class TupleType extends Type implements Documented {
     @Override
     public String getDocumentation(List<Annotation> links) {
         StringBuilder sb = new StringBuilder(documentation);
-        sb.append("\n\nProperties:\n\n");
+        sb.append("\nProperties: ");
+        boolean first = true;
         for (PropertyDescriptor propertyDescriptor: properties()) {
-            sb.append(propertyDescriptor.name).append(": ").append(propertyDescriptor.type).append("\n");
+            if (first) {
+                first = false;
+            } else {
+                sb.append(", ");
+            }
+            Annotation.append(sb, propertyDescriptor.name, propertyDescriptor, links);
         }
         return sb.toString();
     }
 
-    public class PropertyDescriptor {
+    public class PropertyDescriptor implements Documented {
         public final String name;
         public final Type type;
         public final int index;
@@ -85,6 +91,16 @@ public class TupleType extends Type implements Documented {
             return tuple.getProperty(index).get();
         }
 
+        @Override
+        public String getDocumentation(List<Annotation> links) {
+            StringBuilder sb = new StringBuilder();
+            Annotation.append(sb, TupleType.this.name, TupleType.this, links);
+            sb.append(".").append(name).append(": ");
+            Annotation.append(sb, type.toString(), type, links);
+            sb.append("\n");
+            sb.append(documentation);
+            return sb.toString();
+        }
     }
 
 

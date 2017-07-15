@@ -33,11 +33,13 @@ import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Annotation;
+import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
@@ -48,6 +50,7 @@ import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
+import org.w3c.dom.Document;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -480,6 +483,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                         StringBuilder sb = new StringBuilder();
                                         ((Instance) link).serialize(sb, Instance.Detail.FULL, null);
                                         input.setText(sb);
+                                    } else if (link instanceof Documented) {
+                                        ArrayList<Annotation> docAnnotations = new ArrayList<>();
+                                        print(((Documented) link).getDocumentation(docAnnotations), docAnnotations);
+                                    } else {
+                                        input.setText(link.toString());
                                     }
                                 }
                             }, annotation.getStart(), annotation.getEnd(), 0);

@@ -8,7 +8,7 @@ public class Annotation {
     private final int end;
     private final WeakReference<Object> link;
 
-    static void append(StringBuilder sb, String s, Object link, List<Annotation> list) {
+    public static void append(StringBuilder sb, String s, Object link, List<Annotation> list) {
         if (list != null) {
             list.add(new Annotation(sb.length(), sb.length() + s.length(), link));
         }
