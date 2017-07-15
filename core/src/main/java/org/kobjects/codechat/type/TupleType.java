@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.TreeMap;
 import org.kobjects.codechat.lang.Annotation;
 import org.kobjects.codechat.lang.Documented;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Settable;
 import org.kobjects.codechat.lang.Tuple;
 
 public class TupleType extends Type implements Documented {
@@ -84,7 +82,7 @@ public class TupleType extends Type implements Documented {
         }
 
         public void set(Tuple tuple, Object value) {
-            ((Settable) tuple.getProperty(index)).set(value);
+            tuple.getProperty(index).set(value);
         }
 
         public Object get(Tuple tuple) {

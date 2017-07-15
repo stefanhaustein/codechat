@@ -17,11 +17,8 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.LazyProperty;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Settable;
 import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.type.SetType;
-import org.kobjects.codechat.type.TupleType;
-import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
@@ -112,7 +109,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
     public MaterialProperty<Boolean> touched = new MaterialProperty<>(false);
 
-    public SettableProperty<Double> direction = new SettableProperty<Double>() {
+    public Property<Double> direction = new Property<Double>() {
         @Override
         public Double get() {
             return Math.atan2(dy.get(), dx.get());
@@ -124,7 +121,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         }
     };
 
-    public SettableProperty<Double> speed = new SettableProperty<Double>() {
+    public Property<Double> speed = new Property<Double>() {
         @Override
         public Double get() {
             double dX = dx.get();
@@ -360,11 +357,6 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             default:
                 throw new IllegalArgumentException();
         }
-    }
-
-
-    abstract class SettableProperty<T> extends Property<T> implements Settable<T> {
-
     }
 
     class VisualMaterialProperty<T> extends MaterialProperty<T> {

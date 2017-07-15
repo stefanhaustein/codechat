@@ -46,4 +46,7 @@ public abstract class Property<T> {
         void valueChanged(Property<T> property, T oldValue, T newValue);
     }
 
+    public void set(T value) {
+        throw new UnsupportedOperationException();
+    }
 }

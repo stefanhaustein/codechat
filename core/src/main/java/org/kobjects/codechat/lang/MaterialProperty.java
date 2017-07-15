@@ -3,7 +3,7 @@ package org.kobjects.codechat.lang;
 /**
  * Property backed by a stored value
  */
-public class MaterialProperty<T> extends Property<T> implements Settable<T> {
+public class MaterialProperty<T> extends Property<T> {
     protected T value;
     private final T initialValue;
 
