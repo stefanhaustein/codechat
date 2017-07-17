@@ -12,7 +12,6 @@ import java.util.List;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.NativeFunction;
 import org.kobjects.codechat.type.EnumType;
 import org.kobjects.codechat.type.Type;
@@ -33,12 +32,13 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
         addSystemVariable("screen", screen);
         addSystemVariable("sensors", new Sensors(rootView.getContext()));
+        addType(Screen.TYPE);
         addType(Sprite.TYPE);
         addType(Text.TYPE);
         addType(HorizontalAlignment);
         addType(VerticalAlignment);
 
-        addFunction(new NativeFunction("move", Type.VOID,
+        addNativeFunction(new NativeFunction("move", Type.VOID,
                 "Sets the speed and direction for the given sprite", Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
             @Override
             protected Object eval(Object[] params) {

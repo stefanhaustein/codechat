@@ -459,15 +459,23 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         if (update) {
             chatView.setValue(chatView.getCount() - 1, s);
         } else {
-            chatView.add(true, s);
+            if (s instanceof String && ((String) s).indexOf('\n') == -1) {
+               print((String) s, Collections.singletonList(new Annotation(0, s.length(), s)), true);
+            } else {
+                chatView.add(true, s);
+            }
         }
     }
 
     public void print(final String s) {
-        print(s, null);
+        print(s, null, false);
     }
 
     public void print(final String s, final List<Annotation> annotations) {
+        print(s, annotations, false);
+    }
+
+    public void print(final String s, final List<Annotation> annotations, final boolean right) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -494,9 +502,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                             }, annotation.getStart(), annotation.getEnd(), 0);
                         }
                     }
-                    chatView.add(false, spannable);
+                    chatView.add(right, spannable);
                 } else {
-                    chatView.add(false, s);
+                    chatView.add(right, s);
                 }
             }
         });

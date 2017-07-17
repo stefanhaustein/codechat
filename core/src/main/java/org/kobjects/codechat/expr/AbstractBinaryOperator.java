@@ -20,8 +20,9 @@ public abstract class AbstractBinaryOperator extends Expression {
             case '^':
             case '\u221a':
                 return Parser.PRECEDENCE_POWER;
-            case '*':
+            case '\u00d7':
             case '/':
+            case '%':
                 return Parser.PRECEDENCE_MULTIPLICATIVE;
             case '+':
             case '-':

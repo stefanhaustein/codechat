@@ -29,13 +29,13 @@ public class CountStatement extends AbstractStatement {
     @Override
     public void toString(StringBuilder sb, int indent) {
         indent(sb, indent);
-        sb.append("count ").append(variable.getName()).append(' ');
+        sb.append("count ").append(variable.getName()).append(" to ");
         expression.toString(sb, 0);
-        sb.append(" {\n");
+        sb.append(":\n");
 
         body.toString(sb, indent + 1);
 
         indent(sb, indent);
-        sb.append("}\n");
+        sb.append("end;\n");
     }
 }

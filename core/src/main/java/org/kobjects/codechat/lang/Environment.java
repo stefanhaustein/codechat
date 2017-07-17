@@ -20,8 +20,83 @@ import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment {
 
-    static final String HELPTEXT = "CodeChat is an application for 'casual' coding that uses a 'chat-like' interface.\n" +
+    static final String HELPTEXT = "CodeChat is an application for 'casual' coding on mobile devices using a " +
+            "'chat-like' interface. Emojis are supplied by EmojiOne.\n" +
             "Type \"help <object>\" to get help on <object>.";
+
+    static final Map<String,Documented> helpMap = new TreeMap<>();
+    static void addHelp(String what, String text) {
+        helpMap.put(what, new SimpleDocumented(text));
+    }
+
+    static final String[] OPERATOR_LIST = {
+            "new",
+            ".",
+            "^", "\u221a",
+            "not", "\u00ac", "°",
+            "*", "/", "\u00d7", "\u22C5", "%",
+            "+", "-",
+            "<", "\u2264", "<=", ">", "≥", ">=",
+            "=", "\u2261", "==", "\u2260", "!=",
+            "and", "\u2227",
+            "or", "\u2228"};
+
+    static final String[] CONTROL_STRUCTURE_LIST = {
+            "count", "for", "function", "if", "on", "onchange", "var"
+    };
+
+    static {
+        addHelp("new", "'new creates a new 'new' creates a new object of a given type, e.g. new Sprite");
+        addHelp(".", "The dot operator ('.') is used to reference individual members of objects, e.g. mySprite.x");
+        addHelp("^", "The power operator ('^') calculates the first operand to the power of the second operand. Example: 5^3");
+        addHelp("\u221a", "The binary root operator ('\u221a') calculates the nth root of the second operand. Example: 3\u221a27\n" +
+                "The unary root operator ('\u221a\') calculates the square root of the argument. Exampe: \u221a25");
+
+        addHelp("\u00ac", "The logical not operator ('\u00ac') negates the argument. Exampe: \u00ac true");
+        addHelp("not", "'not' is an alternative spelling for the logical not operator ('\00ac\') to simplify input in some cases. It will be replaced automatically");
+        addHelp("°", "The degree operator ('°') converts the argument from degree to radians. Example: 180°");
+
+        addHelp("\u00d7", "The multiplication operator ('\u00d7') multiplies the two arguments. Example: 5 \u00d7 4");
+        addHelp("*", "The operator '*' is an alternative spelling for the multiplication operator '\u00d7' to simplify input in some cases. It will be replaced automatically.");
+        addHelp("/", "The division operator ('/') divides the first argument by the second argument. Example: 10/2");
+        addHelp("\u22C5", "The operator '\u22C5' is an alternative spelling for the division operator '/' to simplify input in some cases. It will be replaced automatically");
+        addHelp("%", "The percent operator ('%') calculates n percent of the second argument. Example: 50% 10");
+
+        addHelp("+", "The binary plus operator ('+') adds two numbers. Example: 5 + 4");
+        addHelp("-", "The binary minus operator subtracts the second argument from the first agrument. Example: 4-4-4\n" +
+                "The unary minus operator negates the argument. Example: -5");
+
+        addHelp("<", "The less than operator evaluates to true if the first argument is strictly less than the second argument. Example: 3 < 4");
+        addHelp("\u2264", "The less than or equal operator ('\u2264') evaluates to true if the first argument is less than or equal to the second argument. Example: 3 \u2264 3");
+        addHelp("<=", "The operator '<=' is an alternative spelling for the less than or equal operator ('\u2264').");
+
+        addHelp(">", "The greater than operator evaluates to true if the first argument is strictly less than the second argument. Example: 4 > 3");
+        addHelp("≥", "The 'greater than or equal' operator ('\u2264') evaluates to true if the first argument is greater than or equal to the second argument. Example: 3 ≥ 3");
+        addHelp(">=", "The operator '>=' is an alternative spelling for the greater than or equal operator ('≥') to simplify input in some cases. It will be replaced automatically.");
+
+        addHelp("=", "The equals operator '=' returns true if both arguments are equal when used in expressions (typically conditions). Example: 4 = 4\n" +
+                "At statement level, this operator is also used for assignments. Example: x = 4\n");
+        addHelp("\u2261", "The operator '\u2261' returns true if both arguments are identical.");
+        addHelp("==", "The operator '==' is an alternative spelling for the operator '\u2261', provided to simplify input in some cases. It will be replaced automatically");
+
+        addHelp("\u2260", "The inequality operator '\u2261' returns true if both arguments are not equal. Example: 4 \u2261 5");
+        addHelp("!=", "The operator '!=' is an alternative spelling for the inequality operator '\u2260', provided to simplify input in some cases. It will be replaced automatically");
+
+        addHelp("\u2227", "The logical and operator '\u2227' yields true if both arguments are true. Example: true \u2227 true");
+        addHelp("and", "The operator 'and' is an alternative spelling for the operator '\u2227', provided to simplify input in some cases. It will be replaced automatically.");
+
+        addHelp("\u2228", "The logical or operator '\u2228' yields true if any of the arguments is true. Example: true \u2228 false");
+        addHelp("or", "The operator 'or' is an alternative spelling for the operator '\u2228', provided to simplify input in some cases. It will be replaced automatically.");
+
+        addHelp("count", "A 'count' loop counts a variabls from 0 to a given value. Example:\ncount x to 5: print x; end;");
+        addHelp("for", "A 'for' loop iterates over a given set of values. Example:\nfor x in List(1, 3, 7): print x; end;");
+        addHelp("function", "A 'function' example:\nfunction sqr(n: number): number: return n * n; end;");
+        addHelp("if", "An 'if' condition gates a code block on a condition. Example:\nif true: print 42; end;");
+        addHelp("on", "An 'on' trigger executes a code block on a property condition. Example: on mySprite.x > screen.right: mySprite.dx = -100; end;");
+        addHelp("onchange", "An 'onchange' trigger executes a code block whenenver the given property changes.");
+        addHelp("var", "A 'var' declaration declares a new (local) variable. For global variables, use an assignment without the 'var' keyword. Example:\nvar x = 4;");
+    }
+
 
     public boolean paused;
     int lastId;
@@ -55,7 +130,7 @@ public class Environment {
         addSystemVariable("\u03c4", 2 * Math.PI);
 
         final Type type = Type.ANY;
-        addFunction(new NativeFunction("print", Type.VOID, "", type) {
+        addNativeFunction(new NativeFunction("print", Type.VOID, "", type) {
             @Override
             protected Object eval(Object[] params) {
                 environmentListener.print(String.valueOf(params[0]), null);
@@ -63,7 +138,7 @@ public class Environment {
             }
         });
 
-        addFunction(new NativeFunction("help", Type.VOID, "Prints a help text describing the argument.", Type.ANY) {
+        addNativeFunction(new NativeFunction("help", Type.VOID, "Prints a help text describing the argument.", Type.ANY) {
             @Override
             protected Object eval(Object[] params) {
                 if (params[0] == null) {
@@ -79,9 +154,8 @@ public class Environment {
                                 sb.append("\nBuilt in functions: ");
                                 break;
                             case 2:
-                                sb.append("\nBuilt in constants and variables: ");
+                                sb.append("\nBuilt in constants: ");
                                 break;
-
                         }
                         boolean first = true;
                         for (RootVariable var : systemVariables.values()) {
@@ -104,6 +178,28 @@ public class Environment {
                             Annotation.append(sb, var.name, var.value, annotations);
                         }
                     }
+
+                    AnnotatedStringBuilder asb = new AnnotatedStringBuilder(sb, annotations);
+                    asb.append("\nOperators: ");
+
+                    for (int i = 0; i < OPERATOR_LIST.length; i++) {
+                        if (i > 0) {
+                            asb.append(", ");
+                        }
+                        String op = OPERATOR_LIST[i];
+                        asb.append(op, helpMap.get(op));
+                    }
+
+                    asb.append("\nControl structures:");
+
+                    for (int i = 0; i < CONTROL_STRUCTURE_LIST.length; i++) {
+                        if (i > 0) {
+                            asb.append(", ");
+                        }
+                        String op = CONTROL_STRUCTURE_LIST[i];
+                        asb.append(op, helpMap.get(op));
+                    }
+
                     environmentListener.print(sb.toString(), annotations);
                 } else if (params[0] instanceof Documented) {
                     ArrayList<Annotation> annotations = new ArrayList<>();
@@ -118,14 +214,15 @@ public class Environment {
         });
 
 
-        addFunction(new NativeFunction("atan2", Type.NUMBER,
-                "Computes the angle in radians of the line through (0,0) and (y, x) relative to the x-axis", Type.NUMBER, Type.NUMBER) {
+        addNativeFunction(new NativeFunction("atan2", Type.NUMBER,
+                "Computes the angle in radians of the line through (0,0) and (y, x) relative to the x-axis",
+                Type.NUMBER, Type.NUMBER) {
             @Override
             protected Object eval(Object[] params) {
                 return Math.atan2((Double) params[0], (Double) params[1]);
             }
         });
-        addFunction(new NativeFunction("clearAll", Type.VOID,
+        addNativeFunction(new NativeFunction("clearAll", Type.VOID,
                 "Deletes everything and resets the state to the initial state. Use with care.") {
             @Override
             protected Object eval(Object[] params) {
@@ -134,21 +231,23 @@ public class Environment {
                 return null;
             }
         });
-        addFunction(new NativeFunction("continue", Type.VOID, "Resumes after pause was called. Has no effect otherwise.") {
+        addNativeFunction(new NativeFunction("continue", Type.VOID,
+                "Resumes after pause was called. Has no effect otherwise.") {
             @Override
             protected Object eval(Object[] params) {
                 pause(false);
                 return null;
             }
         });
-        addFunction(new NativeFunction("list", Type.VOID, "Lists the current program and state.") {
+        addNativeFunction(new NativeFunction("list", Type.VOID,
+                "Lists the current program and state.") {
             @Override
             protected Object eval(Object[] params) {
                 list();
                 return null;
             }
         });
-        addFunction(new NativeFunction("load", Type.VOID,
+        addNativeFunction(new NativeFunction("load", Type.VOID,
                 "Loads the program and state previously saved under the given name.", Type.STRING) {
             @Override
             protected Object eval(Object[] params) {
@@ -156,27 +255,30 @@ public class Environment {
                 return null;
             }
         });
-        addFunction(new NativeFunction("pause", Type.VOID,  "Pause all events.") {
+        addNativeFunction(new NativeFunction("pause", Type.VOID,  "Pause all events.") {
             @Override
             protected Object eval(Object[] params) {
                 pause(true);
                 return null;
             }
         });
-        addFunction(new NativeFunction("random", Type.NUMBER,  "Return a pseudorandom number >= 0 and < 1.") {
+        addNativeFunction(new NativeFunction("random", Type.NUMBER,
+                "Return a pseudorandom number >= 0 and < 1.") {
             @Override
             protected Object eval(Object[] params) {
                 return Math.random();
             }
         });
-        addFunction(new NativeFunction("save", Type.VOID, "Saves the current program and state under the given name.") {
+        addNativeFunction(new NativeFunction("save", Type.VOID,
+                "Saves the current program and state under the given name.") {
             @Override
             protected Object eval(Object[] params) {
                 save((String) params[0]);
                 return null;
             }
         });
-        addFunction(new NativeFunction("wait", Type.VOID, "Waits for a the given number of seconds.", Type.NUMBER) {
+        addNativeFunction(new NativeFunction("wait", Type.VOID,
+                "Waits for a the given number of seconds.", Type.NUMBER) {
             @Override
             protected Object eval(Object[] params) {
                 try {
@@ -416,20 +518,16 @@ public class Environment {
         }
     }
 
-    public void addFunction(NativeFunction function) {
-        addFunction(function.name, function);
+    public void addNativeFunction(NativeFunction function) {
+        addSystemVariable(function.name, function);
     }
 
     public void addFunction(String name, Function function) {
-        if (function instanceof NativeFunction) {
-            addSystemVariable(name, function);
-        } else {
-            RootVariable var = new RootVariable();
-            var.name = name;
-            var.type = function.getType();
-            var.value = function;
-            rootVariables.put(name, var);
-        }
+        RootVariable var = new RootVariable();
+        var.name = name;
+        var.type = function.getType();
+        var.value = function;
+        rootVariables.put(name, var);
     }
 
 
