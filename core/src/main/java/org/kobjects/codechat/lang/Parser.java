@@ -34,6 +34,7 @@ import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
+import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
 public class Parser {
     // public static final int PRECEDENCE_HASH = 8;
@@ -108,7 +109,7 @@ public class Parser {
         Expression expression = parseExpression(parsingContext, tokenizer);
 
         if (!expression.getType().equals(Type.NUMBER)) {
-            throw new ParsingException(p0, tokenizer.currentPosition, "Count expression must be a number.");
+            throw new ParsingException(p0, tokenizer.currentPosition, "Count expression must be a number.", null);
 
         }
 
@@ -190,11 +191,11 @@ public class Parser {
 
         if (onChange) {
             if (!(expression instanceof PropertyAccess)) {
-                throw new ParsingException(p0, tokenizer.currentPosition, "property expected.");
+                throw new ParsingException(p0, tokenizer.currentPosition, "property expected.", null);
             }
         } else {
             if (!expression.getType().equals(Type.BOOLEAN)) {
-                throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.");
+                throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
             }
         }
 

@@ -49,14 +49,12 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.ParsingException;
-import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
-import org.w3c.dom.Document;
+import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
