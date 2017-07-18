@@ -104,10 +104,12 @@ public class Parser {
 
         tokenizer.consume("to");
 
+        int p0 = tokenizer.currentPosition;
         Expression expression = parseExpression(parsingContext, tokenizer);
 
         if (!expression.getType().equals(Type.NUMBER)) {
-            throw new RuntimeException("Count expression must be a number.");
+            throw new ParsingException(p0, tokenizer.currentPosition, "Count expression must be a number.");
+
         }
 
         ParsingContext countParsingContext = new ParsingContext(parsingContext, false);
@@ -140,13 +142,8 @@ public class Parser {
     }
 
     Statement parseBody(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
-        if (tokenizer.tryConsume(":")) {
-            return parseBlock(parsingContext, tokenizer, false, "end", "");
-        }
-/*        if (tokenizer.tryConsume("{")) {
-            return parseBlock(parsingContext, tokenizer,false, "}", "end");
-        } */
-        throw new RuntimeException("':' expected for body.");
+        tokenizer.consume(":");
+        return parseBlock(parsingContext, tokenizer, false, "end", "");
     }
 
     Type parseType(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
@@ -188,15 +185,16 @@ public class Parser {
 
     OnExpression parseOn(ParsingContext parsingContext, boolean onChange, ExpressionParser.Tokenizer tokenizer, int id) {
         ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
+        int p0 = tokenizer.currentPosition;
         final Expression expression = parseExpression(closureParsingContext, tokenizer);
 
         if (onChange) {
             if (!(expression instanceof PropertyAccess)) {
-                throw new RuntimeException("Expression is not a property: " + expression);
+                throw new ParsingException(p0, tokenizer.currentPosition, "property expected.");
             }
         } else {
             if (!expression.getType().equals(Type.BOOLEAN)) {
-                throw new RuntimeException("Expression must be boolean: " + expression);
+                throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.");
             }
         }
 

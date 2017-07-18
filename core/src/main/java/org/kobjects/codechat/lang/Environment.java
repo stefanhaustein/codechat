@@ -90,7 +90,7 @@ public class Environment {
 
         addHelp("count", "A 'count' loop counts a variabls from 0 to a given value. Example:\ncount x to 5: print x; end;");
         addHelp("for", "A 'for' loop iterates over a given set of values. Example:\nfor x in List(1, 3, 7): print x; end;");
-        addHelp("function", "A 'function' example:\nfunction sqr(n: number): number: return n * n; end;");
+        addHelp("function", "A 'function' example:\nfunction sqr(n: Number): Number: return n * n; end;");
         addHelp("if", "An 'if' condition gates a code block on a condition. Example:\nif true: print 42; end;");
         addHelp("on", "An 'on' trigger executes a code block on a property condition. Example: on mySprite.x > screen.right: mySprite.dx = -100; end;");
         addHelp("onchange", "An 'onchange' trigger executes a code block whenenver the given property changes.");
@@ -363,25 +363,6 @@ public class Environment {
             Instance instance = reference.get();
             if (instance != null) {
                 instance.serialize(sb, Instance.Detail.DEFINITION, annotations);
-            }
-        }
-    }
-
-
-    public int getBalance(String line) {
-        ExpressionParser.Tokenizer tokenizer = parser.createTokenizer(line);
-        int balance = 0;
-        while (true) {
-            tokenizer.nextToken();
-            switch (tokenizer.currentValue) {
-                case "":
-                    return balance;
-                case "{":
-                    balance++;
-                    break;
-                case "}":
-                    balance--;
-                    break;
             }
         }
     }

@@ -2,9 +2,12 @@ package org.kobjects.codechat.android;
 
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -13,9 +16,11 @@ import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.text.style.UnderlineSpan;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
@@ -44,6 +49,7 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.ParsingException;
 import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
@@ -76,16 +82,16 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     ImageButton menuButton;
 
     MenuItem pauseItem;
+    Object errorSpan;
 
-    String pending = "";
     EmojiPopup emojiPopup;
-    int balance;
     SharedPreferences settings;
     File codeDir;
     private float pixelPerDp;
     boolean windowMode;
     Point displaySize = new Point();
     private boolean fullScreenEditMode;
+    private long lastEdit;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -154,6 +160,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
             @Override
             public void afterTextChanged(Editable editable) {
+                lastEdit = System.currentTimeMillis();
                 if (editable.length() == 0) {
                     inputButtons.setOrientation(LinearLayout.HORIZONTAL);
                     if (fullScreenEditMode) {
@@ -161,6 +168,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         arrangeUi();
                     }
                 }
+
             }
         });
         inputRow.addView(input);
@@ -299,6 +307,42 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 e.printStackTrace();
             }
         }
+
+        final Handler handler = new Handler();
+        final Runnable syntaxChecker = new Runnable() {
+            @Override
+            public void run() {
+                if (System.currentTimeMillis() - lastEdit > 1000) {
+                    lastEdit = Integer.MAX_VALUE;
+                    Editable editable = input.getText();
+
+                    if (errorSpan != null) {
+                        editable.removeSpan(errorSpan);
+                        errorSpan = null;
+                    }
+                    try {
+                        ParsingContext parsingContext = new ParsingContext(environment);
+                        environment.parse(parsingContext, input.getText().toString());
+                        input.setError(null);
+
+                    } catch (ParsingException e) {
+                        final String msg = e.getMessage();
+                        if (e.start < editable.length() && e.end <= editable.length()) {
+                            // protection against expressionparser position bug.
+                            errorSpan = new BackgroundColorSpan(Color.RED);
+                            input.getText().setSpan(errorSpan, e.start, e.end, 0);
+                        }
+                        input.setError(e.getMessage());
+                    } catch (Exception e) {
+                        input.setError(e.getMessage());
+                    }
+
+                }
+                handler.postDelayed(this, 1000);
+            }
+        };
+        handler.postDelayed(syntaxChecker, 1000);
+
     }
 
     void detach(View view) {
@@ -455,15 +499,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         return true;
     }
 
-    void printRight(CharSequence s, boolean update) {
-        if (update) {
-            chatView.setValue(chatView.getCount() - 1, s);
+    void printRight(CharSequence s) {
+        if (s instanceof String && ((String) s).indexOf('\n') == -1) {
+            print((String) s, Collections.singletonList(new Annotation(0, s.length(), s)), true);
         } else {
-            if (s instanceof String && ((String) s).indexOf('\n') == -1) {
-               print((String) s, Collections.singletonList(new Annotation(0, s.length(), s)), true);
-            } else {
-                chatView.add(true, s);
-            }
+            chatView.add(true, s);
         }
     }
 
@@ -512,36 +552,16 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     void processInput(String line) {
         boolean printed = false;
-        boolean update = !pending.isEmpty();
-        if (update) {
-            StringBuilder sb = new StringBuilder(pending);
-            sb.append('\n');
-            for (int i = 0; i < balance; i++) {
-                sb.append("  ");
-            }
-            sb.append(line);
-            pending = sb.toString();
-        } else if (line.length() == 0) {
-            printRight("", false);
+        if (line.length() == 0) {
+            printRight("");
             return;
-        } else {
-            pending = line;
         }
-
-        balance = environment.getBalance(pending);
         try {
-            if (balance < 0) {
-                throw new RuntimeException("Unmatched closing '}'");
-            } else if (balance > 0) {
-                Spannable spannable = new SpannableString(pending + "\nappend " + (balance == 1 ? "" : (String.valueOf(balance) + ' ')) + "'}' to complete input");
-                spannable.setSpan(new ForegroundColorSpan(0x088000000), pending.length(), spannable.length(), 0);
-                spannable.setSpan(new RelativeSizeSpan(0.8f), pending.length(), spannable.length(), 0);
-                printRight(spannable, update);
-            } else if (pending.equals("edit") || pending.startsWith("edit ")) {
-                String key = pending.substring(4).trim();
+            if (line.equals("edit") || line.startsWith("edit ")) {
+                String key = line.substring(4).trim();
                 SortedMap<String,RootVariable> matches = environment.rootVariables.subMap(key, key + "ZZZZ");
 
-                printRight(pending, update);
+                printRight(line);
                 printed = true;
                 if (matches.size() == 0) {
                     print("not found: " + key);
@@ -558,15 +578,14 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     }
                     print(sb.toString());
                 }
-                pending = "";
             } else {
                 ParsingContext parsingContext = new ParsingContext(environment);
-                Statement statement = environment.parse(parsingContext, pending);
+                Statement statement = environment.parse(parsingContext, line);
 
                 if (statement instanceof ExpressionStatement) {
                     Expression expression = ((ExpressionStatement) statement).expression;
                     String s = expression.toString();
-                    printRight(s, update);
+                    printRight(s);
                     printed = true;
                     Object result = expression.eval(parsingContext.createEvaluationContext());
                     if (Type.VOID.equals(expression.getType())) {
@@ -579,12 +598,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         print(Formatting.toLiteral(result));
                     }
                 } else {
-                    printRight(statement.toString(), update);
+                    printRight(statement.toString());
                     printed = true;
                     statement.eval(parsingContext.createEvaluationContext());
                     print("ok");
                 }
-                pending = "";
 
                 if (environment.autoSave) {
                     environment.save(toolbar.getTitle().toString());
@@ -593,10 +611,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         } catch (Exception e) {
             e.printStackTrace();
             if (!printed) {
-                printRight(pending, update);
+                printRight(line);
             }
-            pending = "";
-            balance = 0;
             print(e.getMessage());
         }
     }
