@@ -10,7 +10,8 @@ import org.kobjects.codechat.type.Type;
 public class UnresolvedLiteral extends UnresolvedExpression {
     final Object value;
 
-    public UnresolvedLiteral(Object value) {
+    public UnresolvedLiteral(int start, int end, Object value) {
+        super(start, end);
         this.value = value;
     }
 

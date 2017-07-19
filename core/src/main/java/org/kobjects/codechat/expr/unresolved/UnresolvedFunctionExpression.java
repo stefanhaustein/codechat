@@ -17,7 +17,8 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
     public String name;
     int id;
 
-    public UnresolvedFunctionExpression(int id, String name, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
+    public UnresolvedFunctionExpression(int start, int end, int id, String name, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
+        super(start, end);
         this.id = id;
         this.name = name;
         this.functionType = functionType;

@@ -10,7 +10,8 @@ public class UnresolvedInstanceReference extends UnresolvedExpression {
     int id;
     String typeName;
 
-    public UnresolvedInstanceReference(String name) {
+    public UnresolvedInstanceReference(int start, int end, String name) {
+        super(start, end);
         int cut = name.indexOf('#');
         id = Integer.parseInt(name.substring(cut + 1));
 ;       typeName = name.substring(0, cut);

@@ -17,7 +17,8 @@ public class UnresolvedIdentifier extends UnresolvedExpression {
     private static final Expression[] EMPTY_EXPRESSION_ARRAY = new Expression[0];
     public final String name;
 
-    public UnresolvedIdentifier(String name) {
+    public UnresolvedIdentifier(int start, int end, String name) {
+        super(start, end);
         this.name = name;
     }
 

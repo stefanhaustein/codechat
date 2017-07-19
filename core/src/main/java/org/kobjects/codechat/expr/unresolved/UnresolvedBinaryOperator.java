@@ -12,6 +12,7 @@ import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.EnumType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.expressionparser.ExpressionParser;
 
 public class UnresolvedBinaryOperator extends UnresolvedExpression {
     public char name;
@@ -19,6 +20,7 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
     public UnresolvedExpression right;
 
     public UnresolvedBinaryOperator(char name, UnresolvedExpression left, UnresolvedExpression right) {
+        super(left.end, right.start);
         this.name = name;
         this.left = left;
         this.right = right;
@@ -33,7 +35,7 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
         Expression left = this.left.resolve(parsingContext, null);
         if (name == '.') {
             if (!(right instanceof UnresolvedIdentifier)) {
-                throw new RuntimeException("Identifer expected for dot operator");
+                throw new ExpressionParser.ParsingException(this.left.start, end, "Identifer expected for dot operator", null);
             }
             String propertyName = ((UnresolvedIdentifier) right).name;
             Type type = left.getType();
@@ -44,39 +46,41 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
                 TupleType.PropertyDescriptor property = instanceType.getProperty(propertyName);
                 return new PropertyAccess(left, property);
             } else {
-                throw new RuntimeException("Base type must be tuple type or Enum metatype, but was: " + type);
+                throw new ExpressionParser.ParsingException(this.left.start, end, "Base type must be tuple type or Enum metatype, but was: " + type, null);
             }
         }
         Expression right = this.right.resolve(parsingContext, null);
 
-        if (left.getType() == Type.STRING && name == '+') {
-            return new StringConcatenation(left, right);
+        try {
+            if (left.getType() == Type.STRING && name == '+') {
+                return new StringConcatenation(left, right);
+            }
+
+            switch (name) {
+                case '\u2227':
+                case '\u2228':
+                    return new BinaryLogicalOperator(name, left, right);
+
+                case '=':
+                case '<':
+                case '>':
+                case '\u2260':
+                case '\u2264':
+                case '\u2266':
+                    return new RelationalOperator(name, left, right);
+
+                case '+':
+                    if (left.getType() == Type.STRING) {
+                        return new StringConcatenation(left, right);
+                    }
+                    // Fallthrough intended
+                default:
+                    return new BinaryMathOperator(name, left, right);
+            }
+        } catch (Exception e) {
+            throw new ExpressionParser.ParsingException(this.start, this.end, e.getMessage(), e);
         }
-
-        switch (name) {
-            case '\u2227':
-            case '\u2228':
-                return new BinaryLogicalOperator(name, left, right);
-
-            case '=':
-            case '<':
-            case '>':
-            case '\u2260':
-            case '\u2264':
-            case '\u2266':
-                return new RelationalOperator(name, left, right);
-
-            case '+':
-                if (left.getType() == Type.STRING) {
-                    return new StringConcatenation(left, right);
-                }
-                // Fallthrough intended
-            default:
-                return new BinaryMathOperator(name, left, right);
-        }
-
     }
-
 
     @Override
     public void toString(StringBuilder sb, int indent) {

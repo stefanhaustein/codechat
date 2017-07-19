@@ -39,7 +39,8 @@ public class UnresolvedInvocation extends UnresolvedExpression {
     public UnresolvedExpression[] children;
     public boolean parens;
 
-    public UnresolvedInvocation(UnresolvedExpression base, boolean parens, UnresolvedExpression... children) {
+    public UnresolvedInvocation(int end, UnresolvedExpression base, boolean parens, UnresolvedExpression... children) {
+        super(base.start, end);
         this.base = base;
         this.parens = parens;
         this.children = children;

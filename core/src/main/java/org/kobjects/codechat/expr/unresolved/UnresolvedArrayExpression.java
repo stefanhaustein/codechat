@@ -4,6 +4,7 @@ import org.kobjects.codechat.expr.ArrayIndex;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.expressionparser.ExpressionParser;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 
@@ -12,7 +13,8 @@ public class UnresolvedArrayExpression extends UnresolvedExpression {
     UnresolvedExpression base;
     UnresolvedExpression[] arguments;
 
-    public UnresolvedArrayExpression(UnresolvedExpression base, UnresolvedExpression[] arguments) {
+    public UnresolvedArrayExpression(int end, UnresolvedExpression base, UnresolvedExpression[] arguments) {
+        super(base.end, end);
         this.base = base;
         this.arguments = arguments;
     }
@@ -25,10 +27,10 @@ public class UnresolvedArrayExpression extends UnresolvedExpression {
         }
 
         if (resolvedArguments.length != 1) {
-            throw new RuntimeException("Exactly one array index expected");
+            throw new ExpressionParser.ParsingException(start, end, "Exactly one array index expected", null);
         }
         if (resolvedArguments[0].getType() != Type.NUMBER) {
-            throw new RuntimeException("List index must be number");
+            throw new ExpressionParser.ParsingException(start, end, "List index must be number", null);
         }
         return new ArrayIndex(base.resolve(parsingContext, null), resolvedArguments[0]);
     }

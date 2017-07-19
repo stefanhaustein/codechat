@@ -7,6 +7,14 @@ import org.kobjects.codechat.type.Type;
 
 public abstract class UnresolvedExpression {
 
+    final int start;
+    final int end;
+
+    public UnresolvedExpression(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
+
     public abstract Expression resolve(ParsingContext parsingContext, Type expectedType);
 
     public abstract void toString(StringBuilder sb, int indent);

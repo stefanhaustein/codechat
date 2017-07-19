@@ -7,6 +7,7 @@ import org.kobjects.codechat.expr.ObjectLiteral;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.expressionparser.ExpressionParser;
 
 import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
 
@@ -17,7 +18,8 @@ public class UnresolvedObjectLiteral extends UnresolvedExpression {
     int id;
     LinkedHashMap<String, UnresolvedExpression> elements;
 
-    public UnresolvedObjectLiteral(UnresolvedExpression base, LinkedHashMap<String, UnresolvedExpression> elements) {
+    public UnresolvedObjectLiteral(int end, UnresolvedExpression base, LinkedHashMap<String, UnresolvedExpression> elements) {
+        super(base.start, end);
         this.elements = elements;
         if (base instanceof UnresolvedIdentifier) {
             typeName = ((UnresolvedIdentifier) base).name;
@@ -26,7 +28,7 @@ public class UnresolvedObjectLiteral extends UnresolvedExpression {
             typeName = ((UnresolvedInstanceReference) base).typeName;
             id = ((UnresolvedInstanceReference) base).id;
         } else {
-            throw new RuntimeException("Object literal base must be a type or instance reference.");
+            throw new ExpressionParser.ParsingException(base.start, end, "Object literal base must be a type or instance reference.", null);
         }
     }
 
@@ -37,15 +39,16 @@ public class UnresolvedObjectLiteral extends UnresolvedExpression {
 
         LinkedHashMap<String, Expression> resolvedElements = new LinkedHashMap<>();
         for (String key: elements.keySet()) {
-            Expression resolved = elements.get(key).resolve(parsingContext, null);
+            UnresolvedExpression unresolved = elements.get(key);
+            Expression resolved = unresolved.resolve(parsingContext, null);
 
             TupleType.PropertyDescriptor property = type.getProperty(key);
 
             if (!property.writable) {
-                throw new RuntimeException("Can't set read-only property " + key);
+                throw new ExpressionParser.ParsingException(unresolved.start - key.length(), unresolved.start, "Can't set read-only property " + key, null);
             }
             if (!property.type.isAssignableFrom(resolved.getType())) {
-                throw new RuntimeException(key + " can't be assigned to type " + resolved.getType());
+                throw new ExpressionParser.ParsingException(unresolved.start, unresolved.end, key + " can't be assigned to type " + resolved.getType(), null);
             }
 
             resolvedElements.put(key, resolved);

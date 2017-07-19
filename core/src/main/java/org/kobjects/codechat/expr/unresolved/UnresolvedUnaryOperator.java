@@ -5,12 +5,14 @@ import org.kobjects.codechat.expr.UnaryOperator;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.expressionparser.ExpressionParser;
 
 public class UnresolvedUnaryOperator extends UnresolvedExpression {
     char name;
     UnresolvedExpression operand;
 
-    public UnresolvedUnaryOperator(char name, UnresolvedExpression operand) {
+    public UnresolvedUnaryOperator(int start, int end, char name, UnresolvedExpression operand) {
+        super(start, end);
         this.name = name;
         this.operand = operand;
     }
@@ -23,7 +25,7 @@ public class UnresolvedUnaryOperator extends UnresolvedExpression {
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
         Expression operand = this.operand.resolve(parsingContext, null);
         if (!operand.getType().equals(getType())) {
-            throw new RuntimeException("Operand must be " + getType());
+            throw new ExpressionParser.ParsingException(start, end, "Operand must be " + getType(), null);
         }
         return new UnaryOperator(name, operand);
     }
