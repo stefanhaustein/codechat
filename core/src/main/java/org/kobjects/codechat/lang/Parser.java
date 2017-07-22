@@ -493,7 +493,6 @@ public class Parser {
                     return super.primary(parsingContext, tokenizer, name);
             }
         }
-
     }
 
     /**

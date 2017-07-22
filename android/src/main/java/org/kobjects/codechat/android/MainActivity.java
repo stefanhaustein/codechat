@@ -325,7 +325,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
                     } catch (ParsingException e) {
                         final String msg = e.getMessage();
-                        if (e.start < editable.length() && e.end <= editable.length()) {
+                        if (e.start >= 0 && e.start < e.end && e.end <= editable.length()) {
                             // protection against expressionparser position bug.
                             errorSpan = new BackgroundColorSpan(Color.RED);
                             input.getText().setSpan(errorSpan, e.start, e.end, 0);

@@ -16,6 +16,7 @@ import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.expressionparser.ExpressionParser;
 
 public class UnresolvedInvocation extends UnresolvedExpression {
 
@@ -71,12 +72,16 @@ public class UnresolvedInvocation extends UnresolvedExpression {
         }
 
         if (base instanceof UnresolvedIdentifier) {
-            String name = ((UnresolvedIdentifier) base).name;
-            if ("Set".equals(name)) {
-                return new CollectionLiteral(SetType.class, resolved);
-            }
-            if ("List".equals(name)) {
-                return new CollectionLiteral(ListType.class, resolved);
+            try {
+                String name = ((UnresolvedIdentifier) base).name;
+                if ("Set".equals(name)) {
+                    return new CollectionLiteral(SetType.class, resolved);
+                }
+                if ("List".equals(name)) {
+                    return new CollectionLiteral(ListType.class, resolved);
+                }
+            } catch (Exception e) {
+                throw new ExpressionParser.ParsingException(start, end, e.getMessage(), e);
             }
         }
 
@@ -106,7 +111,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
         }
 
         if (!(resolvedBase.getType() instanceof FunctionType)) {
-            throw new RuntimeException("Not a function: " + resolvedBase + ": " + resolvedBase.getType() + " / " + resolvedBase.getClass());
+            throw new ExpressionParser.ParsingException(start, end, "Not a function: " + resolvedBase + ": " + resolvedBase.getType() + " / " + resolvedBase.getClass(), null);
         }
 
         FunctionType functionType = (FunctionType) resolvedBase.getType();
@@ -117,14 +122,14 @@ public class UnresolvedInvocation extends UnresolvedExpression {
                     && functionType.parameterTypes.length == 1 && resolved.length == 0) {
                 // ok
             } else {
-                throw new RuntimeException("UserFunction argument count mismatch. Expected: "
-                        + functionType.parameterTypes.length + " actual: " + resolved.length);
+                throw new ExpressionParser.ParsingException(start, end, "UserFunction argument count mismatch. Expected: "
+                        + functionType.parameterTypes.length + " actual: " + resolved.length, null);
             }
         }
 
         for (int i = 0; i < resolved.length; i++) {
             if (!functionType.parameterTypes[i].isAssignableFrom(resolved[i].getType())) {
-                throw new RuntimeException("Type mismatch for paramerer " + i + "; expected: " + functionType.parameterTypes[i] + " actual: " + resolved[i].getType());
+                throw new ExpressionParser.ParsingException(start, end, "Type mismatch for paramerer " + i + "; expected: " + functionType.parameterTypes[i] + " actual: " + resolved[i].getType(), null);
             }
         }
 
