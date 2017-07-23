@@ -11,20 +11,25 @@ public class TupleType extends Type implements Documented {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
     private final String name;
     private final String documentation;
+    private final boolean singleton;
+
 
     public TupleType(String name, String documentation) {
-        this.name = name;
-        this.documentation = documentation;
+        this(name, documentation, false);
     }
 
-    public void addProperty(int index, String name, Type type, boolean writable, String documentation) {
+    public TupleType(String name, String documentation, boolean singleton) {
+        this.name = name;
+        this.documentation = documentation;
+        this.singleton = singleton;
+    }
+
+    public TupleType addProperty(int index, String name, Type type, boolean writable, String documentation) {
         propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation));
+        return this;
     }
 
     public PropertyDescriptor getProperty(String name) {
-        if (name.equals("rotationSpeed")) {
-            name = "rotation";
-        }
         PropertyDescriptor propertyDescriptor = propertyMap.get(name);
         if (propertyDescriptor == null) {
             throw new IllegalArgumentException("Propery '" + name + "' does not exist");
@@ -92,7 +97,8 @@ public class TupleType extends Type implements Documented {
         @Override
         public String getDocumentation(List<Annotation> links) {
             StringBuilder sb = new StringBuilder();
-            Annotation.append(sb, TupleType.this.name, TupleType.this, links);
+
+            Annotation.append(sb, singleton ? TupleType.this.name.toLowerCase() : TupleType.this.name, TupleType.this, links);
             sb.append(".").append(name).append(": ");
             Annotation.append(sb, type.toString(), type, links);
             sb.append("\n");

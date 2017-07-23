@@ -11,10 +11,49 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.lang.Tuple;
+import org.kobjects.codechat.type.ListType;
+import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.Type;
 
 import static android.content.Context.SENSOR_SERVICE;
 
-public class Sensors {
+public class Sensors implements Tuple {
+    static final private ListType TYPE_VECTOR = new ListType(Type.NUMBER);
+
+    static TupleType TYPE = new TupleType("Sensors",
+            "Hardware sensors are available as properties of the system variable 'sensors'. " +
+                    "The set of supportes sensors is likely to change in the future.", true)
+            .addProperty(0, "temperature", Type.NUMBER, false,
+                    "The current room temperature in degree Celsius")
+            .addProperty(1, "light", Type.NUMBER, false,
+                "The current ambient light level in lux.")
+            .addProperty(2, "proximity", Type.NUMBER, false,
+                    "The current estimated user proximity in centimeters.")
+            .addProperty(3, "pressure", Type.NUMBER, false,
+                    "The current pressure in millibar.")
+            .addProperty(4, "humidity", Type.NUMBER, false,
+                    "The current relative humidity in percent")
+            .addProperty(5, "heartRate", Type.NUMBER, false,
+                    "The current user heart rate in beats per minute.")
+            .addProperty(6, "heartBeat", Type.NUMBER, false,
+                    "The confidence in detecting the last heart beat. On-listeners will be triggered every time a beat is detected.")
+
+            .addProperty(7, "acceleration", TYPE_VECTOR, false,
+                    "List of accelleration on the x, y and z-axis in m/s\u00b2, excluding gravity.")
+            .addProperty(8, "gravity", TYPE_VECTOR, false,
+                    "List of the split of the gravity acceleration on the x, y an z-axis in m/s\u00b2.")
+            .addProperty(9, "gyroscope", TYPE_VECTOR, false,
+                    "Angular speed around the x, y and z-axis.")
+            .addProperty(10, "orientation", TYPE_VECTOR, false,
+                    "Azimuth, pitch and roll in degrees.")
+            .addProperty(10, "rotation", TYPE_VECTOR, false,
+                    "The value of the Android sensor of type TYPE_ROTATION_VECTOR. " +
+                    "safer but more complex handling of the current orientation; please refer to the corresponding" +
+                            "Android documentation for details.")
+            .addProperty(11, "compass", TYPE_VECTOR, false,
+                    "Similar to rotation, but bases on the magnetic field.");
+
     SensorManager sensorManager;
 
     HandlerThread sensorHandlerThread;
@@ -40,6 +79,34 @@ public class Sensors {
         sensorHandlerThread = new HandlerThread("SensorHandlerThread");
         sensorHandlerThread.start();
         sensorHandler = new Handler(sensorHandlerThread.getLooper());
+    }
+
+    @Override
+    public TupleType getType() {
+        return TYPE;
+    }
+
+    @Override
+    public Property getProperty(int index) {
+        switch (index) {
+            case 0: return temperature;
+            case 1: return light;
+            case 2: return proximity;
+            case 3: return pressure;
+            case 4: return humidity;
+            case 5: return heartRate;
+            case 6: return heartBeat;
+
+            case 7: return acceleration;
+            case 8: return gravity;
+            case 9: return gyroscope;
+            case 10: return orientation;
+            case 11: return rotation;
+            case 12: return compass;
+
+            default:
+                throw new IllegalArgumentException("property index: " + index);
+        }
     }
 
 

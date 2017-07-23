@@ -8,7 +8,7 @@ import org.kobjects.codechat.type.TupleType;
 public class Screen implements Tuple {
 
     public static final TupleType TYPE = new TupleType("Screen",
-            "The screen object contains information about the visible device screen such as the dimensions.");
+            "The screen object contains information about the visible device screen such as the dimensions.", true);
     static {
         TYPE.addProperty(0, "width", TYPE.NUMBER, false,
                 "The width of the usable area of the screen in normalized pixels. "+

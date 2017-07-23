@@ -30,13 +30,16 @@ public class AndroidEnvironment extends Environment implements Runnable {
         this.rootView = rootView;
         handler.postDelayed(this, 100);
 
-        addSystemVariable("screen", screen);
-        addSystemVariable("sensors", new Sensors(rootView.getContext()));
         addType(Screen.TYPE);
         addType(Sprite.TYPE);
         addType(Text.TYPE);
         addType(HorizontalAlignment);
         addType(VerticalAlignment);
+
+        addType(Sensors.TYPE);
+
+        addSystemVariable("screen", screen);
+        addSystemVariable("sensors", new Sensors(rootView.getContext()));
 
         addNativeFunction(new NativeFunction("move", Type.VOID,
                 "Sets the speed and direction for the given sprite", Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
