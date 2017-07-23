@@ -7,7 +7,7 @@ import java.util.List;
 import org.kobjects.codechat.type.SimpleType;
 import org.kobjects.codechat.type.TupleType;
 
-public abstract class TupleInstance implements Tuple, Instance {
+public abstract class TupleInstance implements Tuple, Instance, HasDependencies {
     private int id;
     protected TupleInstance(Environment environment, int id) {
         this.id = id;
@@ -67,6 +67,20 @@ public abstract class TupleInstance implements Tuple, Instance {
                         sb.append(Formatting.toLiteral(value));
                         sb.append(";\n");
                     }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void getDependencies(java.util.Collection<Object> result) {
+        for (TupleType.PropertyDescriptor propertyDescriptor : getType ().properties()) {
+            if (propertyDescriptor.writable) {
+                Object deps = getProperty(propertyDescriptor.index);
+                if (deps instanceof Instance) {
+                    result.add(deps);
+                } else if (deps instanceof HasDependencies) {
+                    ((HasDependencies) deps).getDependencies(result);
                 }
             }
         }

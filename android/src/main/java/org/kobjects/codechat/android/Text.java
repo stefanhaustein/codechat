@@ -10,6 +10,8 @@ import android.view.ViewParent;
 import android.widget.TextView;
 import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.HasDependencies;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.TupleInstance;

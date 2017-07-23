@@ -6,4 +6,6 @@ public interface Typed {
 
     Type getType();
 
+
+
 }
