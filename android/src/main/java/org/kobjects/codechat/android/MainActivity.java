@@ -13,14 +13,10 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.UnderlineSpan;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
@@ -43,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.lang.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Annotation;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
@@ -528,8 +525,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                     Object link = annotation.getLink();
                                     if (link instanceof Instance) {
                                         StringBuilder sb = new StringBuilder();
-                                        ((Instance) link).serialize(sb, Instance.Detail.FULL, null);
-                                        input.setText(sb);
+                                        ((Instance) link).serialize(new AnnotatedStringBuilder(sb, null), Instance.Detail.DETAIL);
+                                        input.setText(sb.toString());
                                     } else if (link instanceof Documented) {
                                         ArrayList<Annotation> docAnnotations = new ArrayList<>();
                                         print(((Documented) link).getDocumentation(docAnnotations), docAnnotations);

@@ -38,10 +38,25 @@ public class AnnotatedStringBuilder implements Appendable {
     public AnnotatedStringBuilder append(CharSequence csq, Object o) {
         int pos = sb.length();
         sb.append(csq);
-        if (o != null) {
+        if (o != null && annotations != null) {
             annotations.add(new Annotation(pos, sb.length(), o));
         }
         return this;
     }
 
+    public StringBuilder getStringBuilder() {
+        return sb;
+    }
+
+    public String toString() {
+        return sb.toString();
+    }
+
+    public List<Annotation> getAnnotationList() {
+        return annotations;
+    }
+
+    public int length() {
+        return sb.length();
+    }
 }

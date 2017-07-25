@@ -70,21 +70,21 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
 
     @Override
-    public void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations) {
+    public void serialize(AnnotatedStringBuilder asb, Detail detail) {
         if (detail != Detail.DECLARATION) {
-            boolean wrap = onExpression.closure.toString(sb, contextTemplate);
+            boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
 
-            int start = sb.length();
-            sb.append(onExpression.onChange ? "onchange#" : "on#").append(getId());
-            if (annotations != null) {
-                annotations.add(new Annotation(start, sb.length(), this));
+            int start = asb.length();
+            asb.append(onExpression.onChange ? "onchange#" : "on#").append(String.valueOf(getId()));
+            if (asb.getAnnotationList() != null) {
+                asb.getAnnotationList().add(new Annotation(start, asb.length(), this));
             }
-            sb.append(' ').append(onExpression.expression).append(":\n");
-            onExpression.body.toString(sb, wrap ? 2 : 1);
+            asb.append(" ").append(onExpression.expression.toString()).append(":\n");
+            onExpression.body.toString(asb.getStringBuilder(), wrap ? 2 : 1);
             if (wrap) {
-                sb.append("  end;\n");
+                asb.append("  end;\n");
             }
-            sb.append("end;\n");
+            asb.append("end;\n");
         }
     }
 

@@ -51,30 +51,30 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations) {
-        int start = sb.length();
+    public void serialize(AnnotatedStringBuilder asb, Detail detail) {
+        int start = asb.length();
         int nameEnd = -1;
         if (detail == Detail.DECLARATION) {
-            nameEnd = functionType.serializeSignature(sb, id, name, parameterNames, null);
-            sb.append(";\n");
+            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
+            asb.append(";\n");
         } else if (body != null) {
-            boolean wrap = closure.toString(sb, contextTemplate);
+            boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
             int indent = wrap ? 1 : 0;
 
-            start = sb.length();
-            nameEnd = functionType.serializeSignature(sb, id, name, parameterNames, null);
+            start = asb.length();
+            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
 
-            sb.append(":\n");
-            body.toString(sb, indent + 1);
-            AbstractStatement.indent(sb, indent);
-            sb.append("end;\n");
+            asb.append(":\n");
+            body.toString(asb.getStringBuilder(), indent + 1);
+            AbstractStatement.indent(asb.getStringBuilder(), indent);
+            asb.append("end;\n");
 
             if (wrap) {
-                sb.append("end;\n");
+                asb.append("end;\n");
             }
         }
-        if (nameEnd != -1 && annotations != null) {
-            annotations.add(new Annotation(start, nameEnd, this));
+        if (nameEnd != -1 && asb.getAnnotationList() != null) {
+            asb.getAnnotationList().add(new Annotation(start, nameEnd, this));
         }
     }
 

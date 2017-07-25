@@ -10,13 +10,14 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.expressionparser.ExpressionParser;
 
 public class Environment {
 
@@ -247,6 +248,17 @@ public class Environment {
                 return null;
             }
         });
+
+        addNativeFunction(new NativeFunction("dump", Type.VOID,
+                "Lists the current program and state.") {
+            @Override
+            protected Object eval(Object[] params) {
+                list2();
+                return null;
+            }
+        });
+
+
         addNativeFunction(new NativeFunction("load", Type.VOID,
                 "Loads the program and state previously saved under the given name.", Type.STRING) {
             @Override
@@ -293,19 +305,28 @@ public class Environment {
     }
 
     private void list() {
-        StringBuilder sb = new StringBuilder();
-        List<Annotation> annotations = new ArrayList<>();
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
         try {
-            dump(sb, annotations);
+            dump(asb);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String list = sb.toString();
+        String list = asb.toString();
         while (list.endsWith("\n")) {
             list = list.substring(0, list.length() - 1);
         }
 
-        environmentListener.print(list, annotations);
+        environmentListener.print(list, asb.getAnnotationList());
+    }
+
+    private void list2() {
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        dump2(asb);
+        String list = asb.toString();
+        while (list.endsWith("\n")) {
+            list = list.substring(0, list.length() - 1);
+        }
+        environmentListener.print(list, asb.getAnnotationList());
     }
 
     public void addType(Type... types) {
@@ -343,15 +364,74 @@ public class Environment {
         return instance;
     }
 
-    public void dump(StringBuilder sb, List<Annotation> annotations) throws IOException {
+    public void dump(AnnotatedStringBuilder asb) throws IOException {
         System.gc();
 
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                instance.serialize(sb, Instance.Detail.DECLARATION, annotations);
+                instance.serialize(asb, Instance.Detail.DECLARATION);
             }
         }
+        for (RootVariable variable : rootVariables.values()) {
+            if (variable.value != null && !systemVariables.containsKey(variable.name)) {
+                if (!(variable.value instanceof UserFunction) || !((UserFunction) variable.value).isNamed()) {
+                    variable.dump(asb.getStringBuilder());
+                }
+            }
+        }
+        for (WeakReference<Instance> reference : everything.values()) {
+            Instance instance = reference.get();
+            if (instance != null) {
+                instance.serialize(asb, Instance.Detail.DETAIL);
+            }
+        }
+    }
+
+    public void dump2(AnnotatedStringBuilder asb) {
+
+        Map<Instance, InstanceData> instanceDataMap = new HashMap<>();
+        Set<Instance> stubOrFullySerialized = new HashSet<>();
+
+        for (WeakReference<Instance> reference : everything.values()) {
+            Instance instance = reference.get();
+            if (instance != null) {
+                instanceDataMap.put(instance, new InstanceData(instance));
+            }
+        }
+
+        while (instanceDataMap.size() > 0) {
+            int smallestSize = Integer.MAX_VALUE;
+            InstanceData bestInstanceData = null;
+            for (InstanceData instanceData : instanceDataMap.values()) {
+                if (instanceData.dependencies.size() < smallestSize) {
+                    smallestSize = instanceData.dependencies.size();
+                    bestInstanceData = instanceData;
+                }
+            }
+
+            instanceDataMap.remove(bestInstanceData.instance);
+
+            for (Dependency dep : bestInstanceData.dependencies) {
+                if (dep instanceof Instance) {
+                    Instance depI = (Instance) dep;
+                    depI.serialize(asb, Instance.Detail.DECLARATION);
+                    stubOrFullySerialized.add(depI);
+                }
+            }
+
+            bestInstanceData.instance.serialize(asb, stubOrFullySerialized.contains(bestInstanceData.instance)
+                    ? Instance.Detail.DEFINITION : Instance.Detail.DETAIL);
+
+            stubOrFullySerialized.add(bestInstanceData.instance);
+
+            for (InstanceData instanceData : instanceDataMap.values()) {
+                instanceData.dependencies.remove(bestInstanceData.instance);
+                instanceData.dependencies.removeAll(bestInstanceData.dependencies);
+            }
+        }
+
+        /*
         for (RootVariable variable : rootVariables.values()) {
             if (variable.value != null && !systemVariables.containsKey(variable.name)) {
                 if (!(variable.value instanceof UserFunction) || !((UserFunction) variable.value).isNamed()) {
@@ -359,13 +439,11 @@ public class Environment {
                 }
             }
         }
-        for (WeakReference<Instance> reference : everything.values()) {
-            Instance instance = reference.get();
-            if (instance != null) {
-                instance.serialize(sb, Instance.Detail.DEFINITION, annotations);
-            }
-        }
+        */
+
+
     }
+
 
 
     public Statement parse(ParsingContext parsingContext, String line) {
@@ -399,10 +477,10 @@ public class Environment {
 
     public void save(String fileName) {
         try {
-            StringBuilder sb = new StringBuilder();
-            dump(sb, null);
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
+            dump(asb);
             Writer writer = new OutputStreamWriter(new FileOutputStream(new File(codeDir, fileName)), "utf-8");
-            writer.write(sb.toString());
+            writer.write(asb.toString());
             writer.close();
             autoSave = true;
             environmentListener.setName(fileName);
@@ -568,6 +646,22 @@ public class Environment {
                 case TANH: return Math.tanh(arg);
                 default:
                     throw new RuntimeException();
+            }
+        }
+    }
+
+
+    // Used for dump
+    static class InstanceData {
+        final Instance instance;
+        String name;
+        Set<Dependency> dependencies = new HashSet<>();
+
+        InstanceData(Instance instance) {
+            this.instance = instance;
+            this.name = instance.getType() + "#" + instance.getId();
+            if (instance instanceof HasDependencies) {
+                ((HasDependencies) instance).getDependencies(dependencies);
             }
         }
     }

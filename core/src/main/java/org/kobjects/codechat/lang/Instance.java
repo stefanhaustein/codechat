@@ -6,11 +6,15 @@ import org.kobjects.codechat.type.Typed;
 /**
  * Note that instances are not necessarily (constructor-) instantiable
  */
-public interface Instance extends Typed {
+public interface Instance extends Typed,Dependency {
 
-    enum Detail {DECLARATION, DEFINITION, FULL}
+    enum Detail {
+        DECLARATION, // new Foo#31
+        DEFINITION,  // Foo#31{bar: "x"}
+        DETAIL       // Foo#31.bar = "x"
+    }
 
     int getId();
-    void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations);
+    void serialize(AnnotatedStringBuilder asb, Detail detail);
     void delete();
 }

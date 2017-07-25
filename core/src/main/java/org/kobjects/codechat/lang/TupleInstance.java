@@ -1,8 +1,5 @@
 package org.kobjects.codechat.lang;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.lang.reflect.Field;
 import java.util.List;
 import org.kobjects.codechat.type.SimpleType;
 import org.kobjects.codechat.type.TupleType;
@@ -18,17 +15,26 @@ public abstract class TupleInstance implements Tuple, Instance, HasDependencies 
     }
 
 
-    public void serialize(StringBuilder sb, Detail detail, List<Annotation> annotations) {
-        if (detail == Detail.DECLARATION) {
-            serializeDeclaration(sb, annotations);
-        } else {
-            serializeDefinition(sb, detail == Detail.FULL);
+    @Override
+    public void serialize(AnnotatedStringBuilder asb, Detail detail) {
+        switch (detail) {
+            case DECLARATION:
+                asb.append(" new ").append(toString(), this).append(";\n");
+                break;
+            case DEFINITION:
+                serializeDefinition(asb);
+                break;
+            case DETAIL:
+                serializeDetails(asb);
+                break;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 
-    private void serializeDeclaration(StringBuilder sb, List<Annotation> annotations) {
-        Annotation.append(sb, toString(), this, annotations);
-        sb.append('{');
+    private void serializeDefinition(AnnotatedStringBuilder asb) {
+        asb.append(toString(), this);
+        asb.append("{");
         boolean first = true;
         for (TupleType.PropertyDescriptor propertyDescriptor: getType().properties()) {
             Property property = getProperty(propertyDescriptor.index);
@@ -40,32 +46,32 @@ public abstract class TupleInstance implements Tuple, Instance, HasDependencies 
                         if (first) {
                             first = false;
                         } else {
-                            sb.append(", ");
+                            asb.append(", ");
                         }
-                        sb.append(propertyDescriptor.name);
-                        sb.append(": ");
-                        sb.append(Formatting.toLiteral(value));
+                        asb.append(propertyDescriptor.name);
+                        asb.append(": ");
+                        asb.append(Formatting.toLiteral(value));
                     }
                 }
             }
         }
-        sb.append("};\n");
+        asb.append("};\n");
     }
 
-    private void serializeDefinition(StringBuilder sb, boolean all) {
+    private void serializeDetails(AnnotatedStringBuilder asb) {
         for (TupleType.PropertyDescriptor propertyDescriptor : getType().properties()) {
             Property property = getProperty(propertyDescriptor.index);
-            if (property instanceof MaterialProperty && (all || !(propertyDescriptor.type instanceof SimpleType))) {
+            if (property instanceof MaterialProperty) {
                 MaterialProperty materialProperty = (MaterialProperty) property;
                 if (materialProperty.modified()) {
                     Object value = property.get();
                     if (value != null) {
-                        sb.append(toString());
-                        sb.append('.');
-                        sb.append(propertyDescriptor.name);
-                        sb.append(" = ");
-                        sb.append(Formatting.toLiteral(value));
-                        sb.append(";\n");
+                        asb.append(toString());
+                        asb.append(".");
+                        asb.append(propertyDescriptor.name);
+                        asb.append(" = ");
+                        asb.append(Formatting.toLiteral(value));
+                        asb.append(";\n");
                     }
                 }
             }
@@ -73,12 +79,12 @@ public abstract class TupleInstance implements Tuple, Instance, HasDependencies 
     }
 
     @Override
-    public void getDependencies(java.util.Collection<Object> result) {
+    public void getDependencies(java.util.Collection<Dependency> result) {
         for (TupleType.PropertyDescriptor propertyDescriptor : getType ().properties()) {
             if (propertyDescriptor.writable) {
                 Object deps = getProperty(propertyDescriptor.index);
-                if (deps instanceof Instance) {
-                    result.add(deps);
+                if (deps instanceof Dependency) {
+                    result.add((Dependency) deps);
                 } else if (deps instanceof HasDependencies) {
                     ((HasDependencies) deps).getDependencies(result);
                 }

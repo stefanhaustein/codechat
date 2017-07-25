@@ -13,7 +13,7 @@ import java.util.LinkedHashSet;
 import static org.kobjects.codechat.lang.Formatting.toLiteral;
 
 
-public class Collection implements Tuple, Iterable {
+public class Collection implements Tuple, Iterable, HasDependencies {
 
     final CollectionType type;
     final java.util.Collection<Object> data;
@@ -80,5 +80,16 @@ public class Collection implements Tuple, Iterable {
     @Override
     public Iterator iterator() {
         return data.iterator();
+    }
+
+    @Override
+    public void getDependencies(java.util.Collection<Dependency> result) {
+        for (Object o : data) {
+            if (o instanceof Dependency) {
+                result.add((Dependency) o);
+            } else if (o instanceof HasDependencies) {
+                ((HasDependencies) o).getDependencies(result);
+            }
+        }
     }
 }
