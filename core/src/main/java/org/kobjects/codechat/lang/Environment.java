@@ -396,7 +396,7 @@ public class Environment {
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                instanceDataMap.put(instance, new InstanceData(instance));
+                instanceDataMap.put(instance, new InstanceData(instance, this));
             }
         }
 
@@ -657,11 +657,11 @@ public class Environment {
         String name;
         Set<Dependency> dependencies = new HashSet<>();
 
-        InstanceData(Instance instance) {
+        InstanceData(Instance instance, Environment environment) {
             this.instance = instance;
             this.name = instance.getType() + "#" + instance.getId();
             if (instance instanceof HasDependencies) {
-                ((HasDependencies) instance).getDependencies(dependencies);
+                ((HasDependencies) instance).getDependencies(environment, dependencies);
             }
         }
     }

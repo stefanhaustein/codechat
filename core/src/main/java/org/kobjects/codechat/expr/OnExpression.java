@@ -1,6 +1,9 @@
 package org.kobjects.codechat.expr;
 
+import java.util.Collection;
 import org.kobjects.codechat.lang.Closure;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.type.Type;
@@ -56,5 +59,10 @@ public class OnExpression extends Expression {
     @Override
     public int getChildCount() {
         return 1;
+    }
+
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        super.getDependencies(environment, result);
+        body.getDependencies(environment, result);
     }
 }

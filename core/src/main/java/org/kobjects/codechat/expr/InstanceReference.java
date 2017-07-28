@@ -1,8 +1,12 @@
 package org.kobjects.codechat.expr;
 
+import java.util.Collection;
+import javax.naming.Context;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.Type;
 
 public class InstanceReference extends Expression {
@@ -38,5 +42,9 @@ public class InstanceReference extends Expression {
     @Override
     public int getChildCount() {
         return 0;
+    }
+
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        result.add((Instance) environment.getInstance(type, id, false));
     }
 }

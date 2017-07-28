@@ -1,10 +1,13 @@
 package org.kobjects.codechat.expr;
 
+import java.util.Collection;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.lang.HasDependencies;
 import org.kobjects.codechat.type.Type;
 
-public abstract class Expression {
+public abstract class Expression implements HasDependencies {
 
     public abstract Object eval(EvaluationContext context);
 
@@ -42,5 +45,12 @@ public abstract class Expression {
 
     public boolean isAssignable() {
         return false;
+    }
+
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        for (int i = 0; i < getChildCount(); i++) {
+            getChild(i).getDependencies(environment, result);
+        }
     }
 }

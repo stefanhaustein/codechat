@@ -1,5 +1,8 @@
 package org.kobjects.codechat.statement;
 
+import java.util.Collection;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 
 public class Block extends AbstractStatement {
@@ -25,6 +28,13 @@ public class Block extends AbstractStatement {
     public void toString(StringBuilder sb, int indent) {
         for (Statement statement: statements) {
             statement.toString(sb, indent);
+        }
+    }
+
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        for (Statement statement: statements) {
+            statement.getDependencies(environment, result);
         }
     }
 }

@@ -2,8 +2,11 @@ package org.kobjects.codechat.statement;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import org.kobjects.codechat.expr.LocalVariableNode;
 import org.kobjects.codechat.expr.RootVariableNode;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Instance;
@@ -44,5 +47,10 @@ public class DeleteStatement extends AbstractStatement {
         sb.append("delete ");
         expr.toString(sb, indent);
         sb.append(";\n");
+    }
+
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        expr.getDependencies(environment, result);
     }
 }

@@ -1,7 +1,10 @@
 package org.kobjects.codechat.expr;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import org.kobjects.codechat.lang.Closure;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.type.FunctionType;
@@ -70,4 +73,11 @@ public class FunctionExpression extends Expression {
     public int getChildCount() {
         return 0;
     }
+
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        if (body != null) {
+            body.getDependencies(environment, result);
+        }
+    }
+
 }

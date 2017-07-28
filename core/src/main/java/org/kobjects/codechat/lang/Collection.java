@@ -1,11 +1,10 @@
 package org.kobjects.codechat.lang;
 
 import java.util.Iterator;
+import javax.naming.Context;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.SetType;
-import org.kobjects.codechat.type.Type;
-import org.kobjects.codechat.type.Typed;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -83,12 +82,12 @@ public class Collection implements Tuple, Iterable, HasDependencies {
     }
 
     @Override
-    public void getDependencies(java.util.Collection<Dependency> result) {
+    public void getDependencies(Environment environment, java.util.Collection<Dependency> result) {
         for (Object o : data) {
             if (o instanceof Dependency) {
                 result.add((Dependency) o);
             } else if (o instanceof HasDependencies) {
-                ((HasDependencies) o).getDependencies(result);
+                ((HasDependencies) o).getDependencies(environment, result);
             }
         }
     }

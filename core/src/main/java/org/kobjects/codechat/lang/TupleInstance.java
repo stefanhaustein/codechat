@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
-import java.util.List;
+import java.util.Collection;
+import javax.naming.Context;
 import org.kobjects.codechat.type.SimpleType;
 import org.kobjects.codechat.type.TupleType;
 
@@ -79,14 +80,14 @@ public abstract class TupleInstance implements Tuple, Instance, HasDependencies 
     }
 
     @Override
-    public void getDependencies(java.util.Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
         for (TupleType.PropertyDescriptor propertyDescriptor : getType ().properties()) {
             if (propertyDescriptor.writable) {
                 Object deps = getProperty(propertyDescriptor.index);
                 if (deps instanceof Dependency) {
                     result.add((Dependency) deps);
                 } else if (deps instanceof HasDependencies) {
-                    ((HasDependencies) deps).getDependencies(result);
+                    ((HasDependencies) deps).getDependencies(environment, result);
                 }
             }
         }

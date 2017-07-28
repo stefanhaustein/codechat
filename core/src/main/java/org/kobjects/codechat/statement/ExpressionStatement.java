@@ -1,6 +1,9 @@
 package org.kobjects.codechat.statement;
 
+import java.util.Collection;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 
 public class ExpressionStatement extends AbstractStatement {
@@ -21,5 +24,10 @@ public class ExpressionStatement extends AbstractStatement {
         AbstractStatement.indent(sb, indent);
         expression.toString(sb, indent);
         sb.append(";\n");
+    }
+
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        expression.getDependencies(environment, result);
     }
 }

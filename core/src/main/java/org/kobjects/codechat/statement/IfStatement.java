@@ -1,6 +1,8 @@
 package org.kobjects.codechat.statement;
 
+import java.util.Collection;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.lang.Dependency;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Environment;
 
@@ -49,5 +51,14 @@ public class IfStatement extends AbstractStatement {
             AbstractStatement.indent(sb, indent);
         }
         sb.append("end;\n");
+    }
+
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        condition.getDependencies(environment, result);
+        ifBody.getDependencies(environment, result);
+        if (elseBody != null) {
+            elseBody.getDependencies(environment, result);
+        }
     }
 }
