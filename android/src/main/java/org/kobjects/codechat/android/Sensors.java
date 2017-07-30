@@ -9,7 +9,10 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Tuple;
 import org.kobjects.codechat.type.ListType;
@@ -107,6 +110,11 @@ public class Sensors implements Tuple {
             default:
                 throw new IllegalArgumentException("property index: " + index);
         }
+    }
+
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+
     }
 
 
