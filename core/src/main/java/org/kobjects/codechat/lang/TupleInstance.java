@@ -5,7 +5,7 @@ import javax.naming.Context;
 import org.kobjects.codechat.type.SimpleType;
 import org.kobjects.codechat.type.TupleType;
 
-public abstract class TupleInstance implements Tuple, Instance, HasDependencies {
+public abstract class TupleInstance implements Tuple, Instance {
     private int id;
     protected TupleInstance(Environment environment, int id) {
         this.id = id;

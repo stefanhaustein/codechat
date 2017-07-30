@@ -6,11 +6,13 @@ public class LocalVariable {
     private final String name;
     private final int index;
     private final Type type;
+    private final boolean constant;
 
-    LocalVariable(String name, Type type, int index) {
+    LocalVariable(String name, Type type, int index, boolean constant) {
         this.name = name;
         this.type = type;
         this.index = index;
+        this.constant = constant;
     }
 
     public String getName() {

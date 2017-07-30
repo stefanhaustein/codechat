@@ -48,12 +48,12 @@ public class UnaryOperator extends Expression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        if (name != '°') {
-            sb.append(name);
-        }
-        operand.toString(sb, 0, getPrecedence());
         if (name == '°') {
+            operand.toString(sb, indent, getPrecedence());
             sb.append(name);
+        } else {
+            sb.append(name);
+            operand.toString(sb, indent, getPrecedence());
         }
     }
 

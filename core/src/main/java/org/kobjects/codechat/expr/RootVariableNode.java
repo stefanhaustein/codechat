@@ -1,5 +1,8 @@
 package org.kobjects.codechat.expr;
 
+import java.util.Collection;
+import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Parser;
 import org.kobjects.codechat.lang.RootVariable;
@@ -48,4 +51,8 @@ public class RootVariableNode extends Expression {
         return true;
     }
 
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        result.add(rootVariable);
+    }
 }

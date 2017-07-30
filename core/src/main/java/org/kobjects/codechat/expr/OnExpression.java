@@ -61,6 +61,11 @@ public class OnExpression extends Expression {
         return 1;
     }
 
+    @Override
+    public Expression getChild(int index) {
+        return expression;
+    }
+
     public void getDependencies(Environment environment, Collection<Dependency> result) {
         super.getDependencies(environment, result);
         body.getDependencies(environment, result);

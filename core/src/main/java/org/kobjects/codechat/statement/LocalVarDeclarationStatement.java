@@ -7,11 +7,11 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.LocalVariable;
 
-public class VarStatement extends AbstractStatement {
+public class LocalVarDeclarationStatement extends AbstractStatement {
     LocalVariable variable;
     Expression initializer;
 
-    public VarStatement(LocalVariable variable, Expression initializer) {
+    public LocalVarDeclarationStatement(LocalVariable variable, Expression initializer) {
         this.variable = variable;
         this.initializer = initializer;
     }

@@ -43,20 +43,21 @@ public class ParsingContext {
         result = parent.resolve(name);
         if (closure != null && result != null) {
             int originalIndex = result.getIndex();
-            result = addVariable(name, result.getType());
+            result = addVariable(name, result.getType(), true);
             closure.addMapping(name, originalIndex, result.getIndex());
         }
         return result;
     }
 
-    public LocalVariable addVariable(String name, Type type) {
+    public LocalVariable addVariable(String name, Type type, boolean constant) {
         if (variables.containsKey(name)) {
             throw new RuntimeException("Local variable '" + name + "' already defined.");
         }
-        LocalVariable variable = new LocalVariable(name, type, nextIndex[0]++);
+        LocalVariable variable = new LocalVariable(name, type, nextIndex[0]++, constant);
         variables.put(name, variable);
         return variable;
     }
+
 
     public int getVarCount() {
         return nextIndex[0];

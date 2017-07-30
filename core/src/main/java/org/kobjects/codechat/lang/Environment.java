@@ -410,18 +410,22 @@ public class Environment {
                 }
             }
 
+            System.out.println("Selected for serialization: " + bestInstanceData.instance);
+
             instanceDataMap.remove(bestInstanceData.instance);
 
             for (Dependency dep : bestInstanceData.dependencies) {
                 if (dep instanceof Instance) {
                     Instance depI = (Instance) dep;
+                    System.out.println("- serializing dependency stub: " + asb);
                     depI.serialize(asb, Instance.Detail.DECLARATION);
                     stubOrFullySerialized.add(depI);
                 }
             }
 
+            System.out.println("Set of already serialized: " + stubOrFullySerialized);
             bestInstanceData.instance.serialize(asb, stubOrFullySerialized.contains(bestInstanceData.instance)
-                    ? Instance.Detail.DEFINITION : Instance.Detail.DETAIL);
+                    ? Instance.Detail.DETAIL : Instance.Detail.DEFINITION);
 
             stubOrFullySerialized.add(bestInstanceData.instance);
 
@@ -565,7 +569,7 @@ public class Environment {
         return (Type) var.value;
     }
 
-    public void ensureRootVariable(String name, Type type) {
+    public RootVariable ensureRootVariable(String name, Type type) {
         RootVariable rootVariable = rootVariables.get(name);
         if (rootVariable == null) {
             rootVariable = new RootVariable();
@@ -575,6 +579,7 @@ public class Environment {
         } else if (!rootVariable.type.isAssignableFrom(type)) {
             throw new RuntimeException("Can't assign type " + type + " to variable " + name + " of type " + rootVariable.type);
         }
+        return rootVariable;
     }
 
     public void addNativeFunction(NativeFunction function) {
@@ -584,6 +589,7 @@ public class Environment {
     public void addFunction(String name, Function function) {
         RootVariable var = new RootVariable();
         var.name = name;
+        var.constant = true;
         var.type = function.getType();
         var.value = function;
         rootVariables.put(name, var);

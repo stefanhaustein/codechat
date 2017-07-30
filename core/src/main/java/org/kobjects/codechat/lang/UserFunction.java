@@ -1,5 +1,6 @@
 package org.kobjects.codechat.lang;
 
+import java.util.Collection;
 import java.util.List;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.AbstractStatement;
@@ -81,5 +82,12 @@ public class UserFunction implements Function, Instance {
     @Override
     public void delete() {
 
+    }
+
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        if (body != null) {
+            body.getDependencies(environment, result);
+        }
     }
 }

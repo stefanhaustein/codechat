@@ -1,5 +1,6 @@
 package org.kobjects.codechat.lang;
 
+import java.util.Collection;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.PropertyAccess;
@@ -121,4 +122,8 @@ public class OnInstance implements Instance, Property.PropertyListener {
         }
     }
 
+    @Override
+    public void getDependencies(Environment environment, Collection<Dependency> result) {
+        onExpression.getDependencies(environment, result);
+    }
 }

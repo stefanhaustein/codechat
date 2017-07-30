@@ -6,7 +6,7 @@ import org.kobjects.codechat.type.Typed;
 /**
  * Note that instances are not necessarily (constructor-) instantiable
  */
-public interface Instance extends Typed,Dependency {
+public interface Instance extends Typed, Dependency, HasDependencies {
 
     enum Detail {
         DECLARATION, // new Foo#31

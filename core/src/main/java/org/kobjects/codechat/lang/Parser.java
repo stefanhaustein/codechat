@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.expr.unresolved.UnresolvedArrayExpression;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedBinaryOperator;
@@ -25,7 +26,7 @@ import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.CountStatement;
 import org.kobjects.codechat.statement.ForStatement;
 import org.kobjects.codechat.statement.ReturnStatement;
-import org.kobjects.codechat.statement.VarStatement;
+import org.kobjects.codechat.statement.LocalVarDeclarationStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.IfStatement;
@@ -115,7 +116,7 @@ public class Parser {
 
         ParsingContext countParsingContext = new ParsingContext(parsingContext, false);
 
-        LocalVariable counter = countParsingContext.addVariable(varName, Type.NUMBER);
+        LocalVariable counter = countParsingContext.addVariable(varName, Type.NUMBER, true);
 
         Statement body = parseBody(countParsingContext, tokenizer);
 
@@ -136,7 +137,7 @@ public class Parser {
 
         ParsingContext foreachParsingContext = new ParsingContext(parsingContext, false);
 
-        LocalVariable counter = foreachParsingContext.addVariable(varName, elementType);
+        LocalVariable counter = foreachParsingContext.addVariable(varName, elementType, true);
 
         Statement body = parseBody(foreachParsingContext, tokenizer);
         return new ForStatement(counter, expression, body);
@@ -164,7 +165,7 @@ public class Parser {
                 String paramName = tokenizer.consumeIdentifier();
                 tokenizer.consume(":");
                 Type type = parseType(parsingContext, tokenizer);
-                bodyContext.addVariable(paramName, type);
+                bodyContext.addVariable(paramName, type, true);
                 parameterNames.add(paramName);
                 parameterTypes.add(type);
             } while (tokenizer.tryConsume(","));
@@ -229,13 +230,19 @@ public class Parser {
         return new IfStatement(condition, ifBody, elseBody);
     }
 
-    VarStatement parseVar(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+    Statement parseVar(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean constant, boolean rootLevel) {
         String varName = tokenizer.consumeIdentifier();
         tokenizer.consume("=");
         Expression init = parseExpression(parsingContext, tokenizer);
 
-        LocalVariable variable = parsingContext.addVariable(varName, init.getType());
-        return new VarStatement(variable, init);
+        if (rootLevel) {
+            RootVariable rootVariable = environment.ensureRootVariable(varName, init.getType());
+            Expression left = new RootVariableNode(rootVariable);
+            return new Assignment(left, init);
+
+        }
+        LocalVariable variable = parsingContext.addVariable(varName, init.getType(), constant);
+        return new LocalVarDeclarationStatement(variable, init);
     }
 
 
@@ -264,8 +271,11 @@ public class Parser {
             String name = tokenizer.consumeIdentifier();
             return new ExpressionStatement(parseOn(parsingContext, name.startsWith("onchange"), tokenizer, extractId(name)));
         }
-        if (tokenizer.tryConsume("var")) {
-            return parseVar(parsingContext, tokenizer);
+        if (tokenizer.tryConsume("var") || tokenizer.tryConsume("mutable")) {
+            return parseVar(parsingContext, tokenizer, false, interactive);
+        }
+        if (tokenizer.tryConsume("let") || tokenizer.tryConsume("const")) {
+            return parseVar(parsingContext, tokenizer, true, interactive);
         }
         if (tokenizer.tryConsume("return")) {
             return new ReturnStatement(parseExpression(parsingContext, tokenizer));
