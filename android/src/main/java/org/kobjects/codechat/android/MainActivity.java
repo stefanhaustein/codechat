@@ -7,7 +7,6 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -36,11 +35,13 @@ import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.SortedMap;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Annotation;
+import org.kobjects.codechat.lang.Dependency;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
@@ -525,7 +526,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                     Object link = annotation.getLink();
                                     if (link instanceof Instance) {
                                         StringBuilder sb = new StringBuilder();
-                                        ((Instance) link).serialize(new AnnotatedStringBuilder(sb, null), Instance.Detail.DETAIL);
+                                        ((Instance) link).serialize(new AnnotatedStringBuilder(sb, null), Instance.Detail.DETAIL, new HashMap<Dependency, Environment.SerializationState>());
                                         input.setText(sb.toString());
                                     } else if (link instanceof Documented) {
                                         ArrayList<Annotation> docAnnotations = new ArrayList<>();

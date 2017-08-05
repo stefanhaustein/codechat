@@ -1,7 +1,8 @@
 package org.kobjects.codechat.lang;
 
 import java.util.Collection;
-import javax.naming.Context;
+import java.util.Map;
+
 import org.kobjects.codechat.type.SimpleType;
 import org.kobjects.codechat.type.TupleType;
 
@@ -17,7 +18,7 @@ public abstract class TupleInstance implements Tuple, Instance {
 
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, Detail detail) {
+    public void serialize(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
         switch (detail) {
             case DECLARATION:
                 asb.append(" new ").append(toString(), this).append(";\n");
@@ -39,7 +40,7 @@ public abstract class TupleInstance implements Tuple, Instance {
         boolean first = true;
         for (TupleType.PropertyDescriptor propertyDescriptor: getType().properties()) {
             Property property = getProperty(propertyDescriptor.index);
-            if (property instanceof MaterialProperty && propertyDescriptor.type instanceof SimpleType) {
+            if (property instanceof MaterialProperty) {
                 MaterialProperty materialProperty = (MaterialProperty) property;
                 if (materialProperty.modified()) {
                     Object value = property.get();

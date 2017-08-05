@@ -7,6 +7,8 @@ import org.kobjects.codechat.expr.PropertyAccess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.kobjects.codechat.type.Type;
 
 public class OnInstance implements Instance, Property.PropertyListener {
@@ -71,7 +73,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, Detail detail) {
+    public void serialize(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
         if (detail != Detail.DECLARATION) {
             boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
 

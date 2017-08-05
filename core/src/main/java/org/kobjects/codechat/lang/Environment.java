@@ -122,7 +122,7 @@ public class Environment {
 
     private void addBuiltins() {
         for (MathFnType mathFnType : MathFnType.values()) {
-            addFunction(mathFnType.name().toLowerCase(), new MathFn(mathFnType));
+            addNativeFunction(new MathFn(mathFnType));
         }
 
         addSystemVariable("PI", Math.PI);
@@ -249,15 +249,6 @@ public class Environment {
             }
         });
 
-        addNativeFunction(new NativeFunction("dump", Type.VOID,
-                "Lists the current program and state.") {
-            @Override
-            protected Object eval(Object[] params) {
-                list2();
-                return null;
-            }
-        });
-
 
         addNativeFunction(new NativeFunction("load", Type.VOID,
                 "Loads the program and state previously saved under the given name.", Type.STRING) {
@@ -282,7 +273,7 @@ public class Environment {
             }
         });
         addNativeFunction(new NativeFunction("save", Type.VOID,
-                "Saves the current program and state under the given name.") {
+                "Saves the current program and state under the given name.", Type.STRING) {
             @Override
             protected Object eval(Object[] params) {
                 save((String) params[0]);
@@ -304,24 +295,10 @@ public class Environment {
 
     }
 
+
     private void list() {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        try {
-            dump(asb);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String list = asb.toString();
-        while (list.endsWith("\n")) {
-            list = list.substring(0, list.length() - 1);
-        }
-
-        environmentListener.print(list, asb.getAnnotationList());
-    }
-
-    private void list2() {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        dump2(asb);
+        dump(asb);
         String list = asb.toString();
         while (list.endsWith("\n")) {
             list = list.substring(0, list.length() - 1);
@@ -364,31 +341,7 @@ public class Environment {
         return instance;
     }
 
-    public void dump(AnnotatedStringBuilder asb) throws IOException {
-        System.gc();
-
-        for (WeakReference<Instance> reference : everything.values()) {
-            Instance instance = reference.get();
-            if (instance != null) {
-                instance.serialize(asb, Instance.Detail.DECLARATION);
-            }
-        }
-        for (RootVariable variable : rootVariables.values()) {
-            if (variable.value != null && !systemVariables.containsKey(variable.name)) {
-                if (!(variable.value instanceof UserFunction) || !((UserFunction) variable.value).isNamed()) {
-                    variable.dump(asb.getStringBuilder());
-                }
-            }
-        }
-        for (WeakReference<Instance> reference : everything.values()) {
-            Instance instance = reference.get();
-            if (instance != null) {
-                instance.serialize(asb, Instance.Detail.DETAIL);
-            }
-        }
-    }
-
-    enum SerializationState {
+    public enum SerializationState {
         PENDING, STUB_SERIALIZED, FULLY_SERIALIZED
     }
 
@@ -405,7 +358,7 @@ public class Environment {
                 case STUB_SERIALIZED:
                     return;
                 case PENDING:
-                    target.serialize(asb, Instance.Detail.DECLARATION);
+                    target.serialize(asb, Instance.Detail.DECLARATION, serialized);
                     serialized.put(target, SerializationState.STUB_SERIALIZED);
                     return;
                 default:
@@ -425,10 +378,10 @@ public class Environment {
             case FULLY_SERIALIZED:
                 return;  // should be impossible
             case STUB_SERIALIZED:
-                target.serialize(asb, Instance.Detail.DETAIL);
+                target.serialize(asb, Instance.Detail.DETAIL, serialized);
                 break;
             case PENDING:
-                target.serialize(asb, Instance.Detail.DEFINITION);
+                target.serialize(asb, Instance.Detail.DEFINITION, serialized);
                 break;
             default:
                 throw new RuntimeException();
@@ -437,7 +390,8 @@ public class Environment {
     }
 
 
-    public void dump2(AnnotatedStringBuilder asb) {
+    public void dump(AnnotatedStringBuilder asb) {
+        System.gc();
 
         Map<Dependency, SerializationState> stateMap = new HashMap<>();
 

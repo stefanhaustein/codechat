@@ -1,7 +1,8 @@
 package org.kobjects.codechat.lang;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
+
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
@@ -52,7 +53,7 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, Detail detail) {
+    public void serialize(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
         int start = asb.length();
         int nameEnd = -1;
         if (detail == Detail.DECLARATION) {

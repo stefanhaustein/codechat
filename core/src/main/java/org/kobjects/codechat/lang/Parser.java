@@ -3,6 +3,7 @@ package org.kobjects.codechat.lang;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -232,16 +233,41 @@ public class Parser {
 
     Statement parseVar(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean constant, boolean rootLevel) {
         String varName = tokenizer.consumeIdentifier();
-        tokenizer.consume("=");
-        Expression init = parseExpression(parsingContext, tokenizer);
+        int p0 = tokenizer.currentPosition;
+        Type type = null;
+        if (tokenizer.tryConsume(":")) {
+            type = parseType(parsingContext, tokenizer);
+        }
+
+        Expression init = null;
+        if (tokenizer.tryConsume("=")) {
+            init = parseExpression(parsingContext, tokenizer);
+            if (type == null) {
+                type = init.getType();
+            } else if (!type.isAssignableFrom(init.getType())) {
+                throw new ParsingException(p0, tokenizer.currentPosition,
+                        "Initializer type is not compatible with the declared type.", null);
+            }
+        }
 
         if (rootLevel) {
-            RootVariable rootVariable = environment.ensureRootVariable(varName, init.getType());
+            if (type == null) {
+                throw new ParsingException(p0, tokenizer.currentPosition,
+                        "Explicit type or initializer required for root constants and variables.", null);
+            }
+            RootVariable rootVariable = environment.ensureRootVariable(varName, type);
             Expression left = new RootVariableNode(rootVariable);
+            if (init == null) {
+                return new ExpressionStatement(left);
+            }
             return new Assignment(left, init);
-
         }
-        LocalVariable variable = parsingContext.addVariable(varName, init.getType(), constant);
+
+        if (init == null) {
+            throw new ParsingException(p0, tokenizer.currentPosition,
+                    "Initializer required for local constants and variables.", null);
+        }
+        LocalVariable variable = parsingContext.addVariable(varName, type, constant);
         return new LocalVarDeclarationStatement(variable, init);
     }
 
@@ -271,7 +297,7 @@ public class Parser {
             String name = tokenizer.consumeIdentifier();
             return new ExpressionStatement(parseOn(parsingContext, name.startsWith("onchange"), tokenizer, extractId(name)));
         }
-        if (tokenizer.tryConsume("var") || tokenizer.tryConsume("mutable")) {
+        if (tokenizer.tryConsume("var") || tokenizer.tryConsume("variable") || tokenizer.tryConsume("mutable")) {
             return parseVar(parsingContext, tokenizer, false, interactive);
         }
         if (tokenizer.tryConsume("let") || tokenizer.tryConsume("const")) {
