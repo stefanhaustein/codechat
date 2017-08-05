@@ -15,6 +15,6 @@ public interface Instance extends Typed, Dependency, HasDependencies {
     }
 
     int getId();
-    void serialize(AnnotatedStringBuilder asb, Detail detail);
+
     void delete();
 }

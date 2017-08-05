@@ -388,63 +388,71 @@ public class Environment {
         }
     }
 
+    enum SerializationState {
+        PENDING, STUB_SERIALIZED, FULLY_SERIALIZED
+    }
+
+    /**
+     * Serializes the given target including all dependencies
+     */
+    public void serialize(AnnotatedStringBuilder asb, Dependency target, Map<Dependency, SerializationState> serialized) {
+        SerializationState state = serialized.get(target);
+        if (state == null) {
+            serialized.put(target, SerializationState.PENDING);
+        } else {
+            switch (state) {
+                case FULLY_SERIALIZED:
+                case STUB_SERIALIZED:
+                    return;
+                case PENDING:
+                    target.serialize(asb, Instance.Detail.DECLARATION);
+                    serialized.put(target, SerializationState.STUB_SERIALIZED);
+                    return;
+                default:
+                    throw new RuntimeException();
+            }
+        }
+
+        if (target instanceof HasDependencies) {
+            Set<Dependency> dependencies = new HashSet<>();
+            ((HasDependencies) target).getDependencies(this, dependencies);
+            for (Dependency dependency: dependencies) {
+                serialize(asb, dependency, serialized);
+            }
+        }
+
+        switch(serialized.get(target)) {
+            case FULLY_SERIALIZED:
+                return;  // should be impossible
+            case STUB_SERIALIZED:
+                target.serialize(asb, Instance.Detail.DETAIL);
+                break;
+            case PENDING:
+                target.serialize(asb, Instance.Detail.DEFINITION);
+                break;
+            default:
+                throw new RuntimeException();
+        }
+        serialized.put(target, SerializationState.FULLY_SERIALIZED);
+    }
+
+
     public void dump2(AnnotatedStringBuilder asb) {
 
-        Map<Instance, InstanceData> instanceDataMap = new HashMap<>();
-        Set<Instance> stubOrFullySerialized = new HashSet<>();
+        Map<Dependency, SerializationState> stateMap = new HashMap<>();
+
+        for (RootVariable variable : rootVariables.values()) {
+            if (variable.value != null && !systemVariables.containsKey(variable.name)) {
+                serialize(asb, variable, stateMap);
+            }
+        }
 
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                instanceDataMap.put(instance, new InstanceData(instance, this));
+                serialize(asb, instance, stateMap);
             }
         }
-
-        while (instanceDataMap.size() > 0) {
-            int smallestSize = Integer.MAX_VALUE;
-            InstanceData bestInstanceData = null;
-            for (InstanceData instanceData : instanceDataMap.values()) {
-                if (instanceData.dependencies.size() < smallestSize) {
-                    smallestSize = instanceData.dependencies.size();
-                    bestInstanceData = instanceData;
-                }
-            }
-
-            System.out.println("Selected for serialization: " + bestInstanceData.instance);
-
-            instanceDataMap.remove(bestInstanceData.instance);
-
-            for (Dependency dep : bestInstanceData.dependencies) {
-                if (dep instanceof Instance) {
-                    Instance depI = (Instance) dep;
-                    System.out.println("- serializing dependency stub: " + asb);
-                    depI.serialize(asb, Instance.Detail.DECLARATION);
-                    stubOrFullySerialized.add(depI);
-                }
-            }
-
-            System.out.println("Set of already serialized: " + stubOrFullySerialized);
-            bestInstanceData.instance.serialize(asb, stubOrFullySerialized.contains(bestInstanceData.instance)
-                    ? Instance.Detail.DETAIL : Instance.Detail.DEFINITION);
-
-            stubOrFullySerialized.add(bestInstanceData.instance);
-
-            for (InstanceData instanceData : instanceDataMap.values()) {
-                instanceData.dependencies.remove(bestInstanceData.instance);
-                instanceData.dependencies.removeAll(bestInstanceData.dependencies);
-            }
-        }
-
-        /*
-        for (RootVariable variable : rootVariables.values()) {
-            if (variable.value != null && !systemVariables.containsKey(variable.name)) {
-                if (!(variable.value instanceof UserFunction) || !((UserFunction) variable.value).isNamed()) {
-                    variable.dump(sb);
-                }
-            }
-        }
-        */
-
 
     }
 
@@ -658,16 +666,24 @@ public class Environment {
 
 
     // Used for dump
-    static class InstanceData {
-        final Instance instance;
+    static class DependencyData {
+        final Dependency dependency;
         String name;
         Set<Dependency> dependencies = new HashSet<>();
 
-        InstanceData(Instance instance, Environment environment) {
-            this.instance = instance;
+        DependencyData(Instance instance, Environment environment) {
+            this.dependency = instance;
             this.name = instance.getType() + "#" + instance.getId();
             if (instance instanceof HasDependencies) {
                 ((HasDependencies) instance).getDependencies(environment, dependencies);
+            }
+        }
+
+        DependencyData(RootVariable variable, Environment environment) {
+            this.dependency = variable;
+            this.name = variable.name;
+            if (variable instanceof HasDependencies) {
+                ((HasDependencies) variable).getDependencies(environment, dependencies);
             }
         }
     }
