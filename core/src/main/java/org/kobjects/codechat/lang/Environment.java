@@ -12,6 +12,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -107,9 +108,6 @@ public class Environment {
     public EnvironmentListener environmentListener;
     Parser parser = new Parser(this);
     public boolean autoSave;
-    /** Copied to rootVariables on clearAll */
-    public Map<String,RootVariable> systemVariables = new TreeMap<>();
-
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
@@ -146,6 +144,22 @@ public class Environment {
                     ArrayList<Annotation> annotations = new ArrayList<>();
                     StringBuilder sb = new StringBuilder(HELPTEXT);
 
+                    LinkedHashSet<RootVariable>[] builtins = new LinkedHashSet[3];
+                    for (int i = 0; i < 3; i++) {
+                        builtins[i] = new LinkedHashSet<>();
+                    }
+                    for (RootVariable var : rootVariables.values()) {
+                        if (var.builtin) {
+                            if (var.value instanceof Type) {
+                                builtins[0].add(var);
+                            } else if (var.value instanceof Function) {
+                                builtins[1].add(var);
+                            } else {
+                                builtins[2].add(var);
+                            }
+                        }
+                    }
+
                     for (int i = 0; i  < 3; i++) {
                         switch (i) {
                             case 0:
@@ -159,18 +173,7 @@ public class Environment {
                                 break;
                         }
                         boolean first = true;
-                        for (RootVariable var : systemVariables.values()) {
-                            if (var.value instanceof Type) {
-                                if (i != 0) {
-                                    continue;
-                                }
-                            } else if (var.value instanceof Function) {
-                                if (i != 1) {
-                                    continue;
-                                }
-                            } else if (i != 2) {
-                                continue;
-                            }
+                        for (RootVariable var : builtins[i]) {
                             if (first) {
                                 first = false;
                             } else {
@@ -318,12 +321,12 @@ public class Environment {
         var.name = name;
         var.type = Type.of(value);
         var.value = value;
+        var.builtin = true;
 
         if (rootVariables.containsKey(name)) {
             throw new RuntimeException("Already declared: " + name);
         }
 
-        systemVariables.put(name, var);
         rootVariables.put(name, var);
     }
 
@@ -396,7 +399,7 @@ public class Environment {
         Map<Dependency, SerializationState> stateMap = new HashMap<>();
 
         for (RootVariable variable : rootVariables.values()) {
-            if (variable.value != null && !systemVariables.containsKey(variable.name)) {
+            if (variable.value != null && !variable.builtin) {
                 serialize(asb, variable, stateMap);
             }
         }
@@ -435,8 +438,13 @@ public class Environment {
     }
 
     public void clearAll() {
-        rootVariables.clear();
-        rootVariables.putAll(systemVariables);
+        TreeMap<String, RootVariable> systemVariables = new TreeMap<>();
+        for (RootVariable var : rootVariables.values()) {
+            if (var.builtin) {
+                systemVariables.put(var.name, var);
+            }
+        }
+        rootVariables = systemVariables;
         everything.clear();
         lastId = 0;
     }

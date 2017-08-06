@@ -10,6 +10,7 @@ public class RootVariable implements Dependency, HasDependencies {
     public Type type;
     public Object value;
     public boolean constant;
+    public boolean builtin;
 
     public void dump(StringBuilder sb) {
         sb.append(name);
@@ -20,6 +21,9 @@ public class RootVariable implements Dependency, HasDependencies {
 
     @Override
     public void serialize(AnnotatedStringBuilder asb, Instance.Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
+        if (builtin) {
+            return;
+        }
         if (detail == Instance.Detail.DECLARATION) {
             asb.append(constant ? "let " : "mutable ");
             asb.append(name);
