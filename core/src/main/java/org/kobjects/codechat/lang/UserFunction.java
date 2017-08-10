@@ -12,7 +12,6 @@ public class UserFunction implements Function, Instance {
     private EvaluationContext contextTemplate;
     private int id;
     private FunctionType functionType;
-    private String name;
     private Statement body;
     private Closure closure;
     private String[] parameterNames;
@@ -23,15 +22,10 @@ public class UserFunction implements Function, Instance {
     }
 
     public void init(FunctionExpression definition, EvaluationContext contextTemplate) {
-        this.name = definition.name;
         this.body = definition.body;
         this.closure = definition.closure;
         this.parameterNames = definition.parameterNames;
         this.contextTemplate = contextTemplate;
-    }
-
-    public boolean isNamed() {
-        return name != null;
     }
 
     public EvaluationContext createContext() {
@@ -57,14 +51,14 @@ public class UserFunction implements Function, Instance {
         int start = asb.length();
         int nameEnd = -1;
         if (detail == Detail.DECLARATION) {
-            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
+            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, null, parameterNames, null);
             asb.append(";\n");
         } else if (body != null) {
             boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
             int indent = wrap ? 1 : 0;
 
             start = asb.length();
-            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
+            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, null, parameterNames, null);
 
             asb.append(":\n");
             body.toString(asb.getStringBuilder(), indent + 1);

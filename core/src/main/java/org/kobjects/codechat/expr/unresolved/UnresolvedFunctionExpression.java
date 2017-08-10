@@ -14,13 +14,13 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
     public Statement body;
     private FunctionType functionType;
     public String[] parameterNames;
-    public String name;
+
     int id;
 
-    public UnresolvedFunctionExpression(int start, int end, int id, String name, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
+    public UnresolvedFunctionExpression(int start, int end, int id, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
         super(start, end);
         this.id = id;
-        this.name = name;
+
         this.functionType = functionType;
         this.parameterNames = parameterNames;
         this.closure = closure;
@@ -29,7 +29,7 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
 
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
-        return new FunctionExpression(id, name, functionType, parameterNames, closure, body);
+        return new FunctionExpression(id, functionType, parameterNames, closure, body);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        functionType.serializeSignature(sb, id, name, parameterNames, null);
+        functionType.serializeSignature(sb, id, null, parameterNames, null);
         if (body == null) {
             sb.append(";\n");
         } else {

@@ -155,7 +155,7 @@ public class Parser {
         return type;
     }
 
-    UnresolvedFunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id, String name) {
+    UnresolvedFunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id) {
         int start = tokenizer.currentPosition;
         tokenizer.consume("(");
         ParsingContext bodyContext = new ParsingContext(parsingContext, true);
@@ -184,7 +184,7 @@ public class Parser {
         } else {
             body = parseBody(bodyContext, tokenizer);
         }
-        return new UnresolvedFunctionExpression(start, tokenizer.currentPosition, id, name, functionType, parameterNames.toArray(new String[parameterNames.size()]), bodyContext.getClosure(), body);
+        return new UnresolvedFunctionExpression(start, tokenizer.currentPosition, id, functionType, parameterNames.toArray(new String[parameterNames.size()]), bodyContext.getClosure(), body);
     }
 
     OnExpression parseOn(ParsingContext parsingContext, boolean onChange, ExpressionParser.Tokenizer tokenizer, int id) {
@@ -250,9 +250,13 @@ public class Parser {
             }
         }
 
+        return processVar(parsingContext, p0, tokenizer.currentPosition, constant, rootLevel, varName, type, init);
+    }
+
+    Statement processVar(ParsingContext parsingContext, int p0, int currentPosition, boolean constant, boolean rootLevel, String varName, Type type, Expression init) {
         if (rootLevel) {
             if (type == null) {
-                throw new ParsingException(p0, tokenizer.currentPosition,
+                throw new ParsingException(p0, currentPosition,
                         "Explicit type or initializer required for root constants and variables.", null);
             }
             RootVariable rootVariable = environment.ensureRootVariable(varName, type);
@@ -264,13 +268,12 @@ public class Parser {
         }
 
         if (init == null) {
-            throw new ParsingException(p0, tokenizer.currentPosition,
+            throw new ParsingException(p0, currentPosition,
                     "Initializer required for local constants and variables.", null);
         }
         LocalVariable variable = parsingContext.addVariable(varName, type, constant);
         return new LocalVarDeclarationStatement(variable, init);
     }
-
 
 
     Statement parseStatement(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean interactive) {
@@ -281,10 +284,13 @@ public class Parser {
             return new DeleteStatement(parseExpression(parsingContext, tokenizer), parsingContext);
         }
         if (tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#")) {
+            int p0 = tokenizer.currentPosition;
             int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();
-            UnresolvedFunctionExpression functionExpr = parseFunction(parsingContext, tokenizer, id, name);
-            return new ExpressionStatement(functionExpr.resolve(parsingContext, null));
+
+            Expression functionExpr = parseFunction(parsingContext, tokenizer, id).resolve(parsingContext, null);
+
+            return processVar(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr);
         }
         if (tokenizer.tryConsume("for")) {
             return parseFor(parsingContext, tokenizer);
@@ -484,7 +490,7 @@ public class Parser {
                 return new UnresolvedLiteral(start, end, Boolean.FALSE);
             }
             if ("function".equals(name) || name.startsWith("function#")) {
-                return parseFunction(parsingContext, tokenizer, extractId(name), null);
+                return parseFunction(parsingContext, tokenizer, extractId(name));
             }
             if (name.indexOf('#') != -1) {
                 return new UnresolvedInstanceReference(start, end, name);

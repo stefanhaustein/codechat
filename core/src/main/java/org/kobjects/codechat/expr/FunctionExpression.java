@@ -18,12 +18,10 @@ public class FunctionExpression extends Expression {
     public Statement body;
     private FunctionType functionType;
     public String[] parameterNames;
-    public String name;
     int id;
 
-    public FunctionExpression(int id, String name, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
+    public FunctionExpression(int id, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
         this.id = id;
-        this.name = name;
         this.functionType = functionType;
         this.parameterNames = parameterNames;
         this.closure = closure;
@@ -39,9 +37,6 @@ public class FunctionExpression extends Expression {
             result = (UserFunction) context.environment.getInstance(functionType, id, false);
         }
         result.init(this, closure.createEvalContext(context));
-        if (name != null) {
-            context.environment.addFunction(name, result);
-        }
         return result;
     }
 
@@ -58,7 +53,7 @@ public class FunctionExpression extends Expression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        functionType.serializeSignature(sb, id, name, parameterNames, null);
+        functionType.serializeSignature(sb, id, null, parameterNames, null);
         if (body == null) {
             sb.append(";\n");
         } else {
