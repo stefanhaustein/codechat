@@ -3,6 +3,7 @@ package org.kobjects.codechat.lang;
 import java.util.Collection;
 import java.util.Map;
 
+import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
 public class RootVariable implements Dependency, HasDependencies {
@@ -24,8 +25,9 @@ public class RootVariable implements Dependency, HasDependencies {
         if (builtin) {
             return;
         }
+
         if (detail == Instance.Detail.DECLARATION) {
-            asb.append(constant ? "let " : "mutable ");
+            asb.append(constant ? "let " : "variable ");
             asb.append(name);
             asb.append(" : ").append(type.getName(), type);
             asb.append(";\n");
@@ -44,6 +46,14 @@ public class RootVariable implements Dependency, HasDependencies {
                 instanceDetail = Instance.Detail.DECLARATION;
                 newInstanceState = Environment.SerializationState.FULLY_SERIALIZED;
             }
+        }
+
+        if (detail == Instance.Detail.DEFINITION && instanceDetail == Instance.Detail.DEFINITION && type instanceof FunctionType && constant) {
+
+            ((UserFunction) value).serializeWithName(asb, detail, serializationStateMap, name);
+
+            serializationStateMap.put((Dependency) value, newInstanceState);
+            return;
         }
 
         if (detail == Instance.Detail.DEFINITION) {

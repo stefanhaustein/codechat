@@ -539,12 +539,13 @@ public class Environment {
         return (Type) var.value;
     }
 
-    public RootVariable ensureRootVariable(String name, Type type) {
+    public RootVariable ensureRootVariable(String name, Type type, boolean constant) {
         RootVariable rootVariable = rootVariables.get(name);
         if (rootVariable == null) {
             rootVariable = new RootVariable();
             rootVariable.name = name;
             rootVariable.type = type;
+            rootVariable.constant = constant;
             rootVariables.put(name, rootVariable);
         } else if (!rootVariable.type.isAssignableFrom(type)) {
             throw new RuntimeException("Can't assign type " + type + " to variable " + name + " of type " + rootVariable.type);

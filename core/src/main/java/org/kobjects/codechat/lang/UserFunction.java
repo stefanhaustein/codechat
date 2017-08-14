@@ -48,17 +48,21 @@ public class UserFunction implements Function, Instance {
 
     @Override
     public void serialize(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
+        serializeWithName(asb, detail, serializationStateMap, null);
+    }
+
+    public void serializeWithName(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap, String name) {
         int start = asb.length();
         int nameEnd = -1;
         if (detail == Detail.DECLARATION) {
-            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, null, parameterNames, null);
+            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
             asb.append(";\n");
         } else if (body != null) {
             boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
             int indent = wrap ? 1 : 0;
 
             start = asb.length();
-            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, null, parameterNames, null);
+            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
 
             asb.append(":\n");
             body.toString(asb.getStringBuilder(), indent + 1);

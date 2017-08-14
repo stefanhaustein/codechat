@@ -259,7 +259,7 @@ public class Parser {
                 throw new ParsingException(p0, currentPosition,
                         "Explicit type or initializer required for root constants and variables.", null);
             }
-            RootVariable rootVariable = environment.ensureRootVariable(varName, type);
+            RootVariable rootVariable = environment.ensureRootVariable(varName, type, constant);
             Expression left = new RootVariableNode(rootVariable);
             if (init == null) {
                 return new ExpressionStatement(left);
@@ -330,7 +330,7 @@ public class Parser {
                 String name = ((UnresolvedIdentifier) op.left).name;
                 if (parsingContext.resolve(name) == null) {
                     Expression right = op.right.resolve(parsingContext, null);
-                    environment.ensureRootVariable(name, right.getType());
+                    environment.ensureRootVariable(name, right.getType(), false);
                 }
             }
             Expression left = op.left.resolve(parsingContext, null);
