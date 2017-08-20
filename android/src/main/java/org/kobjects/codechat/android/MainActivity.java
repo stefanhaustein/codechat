@@ -31,7 +31,7 @@ import android.widget.LinearLayout;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
-import com.vanniktech.emoji.one.EmojiOneProvider;
+import com.vanniktech.emoji.google.GoogleEmojiProvider;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 
         codeDir = getExternalFilesDir("code");
 
-        EmojiManager.install(new EmojiOneProvider());
+        EmojiManager.install(new GoogleEmojiProvider());
         rootLayout = new FrameLayout(this);
         contentLayout = new FrameLayout(this);
         contentLayout.setOnTouchListener(new View.OnTouchListener() {

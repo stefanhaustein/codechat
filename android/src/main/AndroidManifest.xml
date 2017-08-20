@@ -3,8 +3,9 @@
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application android:label="CodeChat"
-                 android:icon="@mipmap/ic_launcher">
-        <activity android:name="org.kobjects.codechat.android.MainActivity"
+                 android:icon="@mipmap/ic_launcher"
+                 android:name=".EmojiCompatApplication">
+        <activity android:name=".MainActivity"
                   android:theme="@style/AppTheme"
                   android:configChanges="orientation|screenSize">
             <intent-filter>
