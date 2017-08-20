@@ -3,7 +3,6 @@ package org.kobjects.codechat.lang;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -259,7 +258,7 @@ public class Parser {
                 throw new ParsingException(p0, currentPosition,
                         "Explicit type or initializer required for root constants and variables.", null);
             }
-            RootVariable rootVariable = environment.ensureRootVariable(varName, type, constant);
+            RootVariable rootVariable = environment.redeclareRootVariable(varName, type, constant);
             Expression left = new RootVariableNode(rootVariable);
             if (init == null) {
                 return new ExpressionStatement(left);
@@ -330,7 +329,7 @@ public class Parser {
                 String name = ((UnresolvedIdentifier) op.left).name;
                 if (parsingContext.resolve(name) == null) {
                     Expression right = op.right.resolve(parsingContext, null);
-                    environment.ensureRootVariable(name, right.getType(), false);
+                    environment.redeclareRootVariable(name, right.getType(), false);
                 }
             }
             Expression left = op.left.resolve(parsingContext, null);

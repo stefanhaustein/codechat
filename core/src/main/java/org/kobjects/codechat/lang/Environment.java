@@ -539,16 +539,36 @@ public class Environment {
         return (Type) var.value;
     }
 
-    public RootVariable ensureRootVariable(String name, Type type, boolean constant) {
+    Iterable<HasDependencies> findDependencies(Dependency dependency) {
+        HashSet<HasDependencies> result = new HashSet<>();
+        HashSet<Dependency> localDependencies = new HashSet<>();
+        for (WeakReference<Instance> ref: everything.values()) {
+            Instance instance = ref.get();
+            if (instance != null) {
+                instance.getDependencies(this, localDependencies);
+            }
+            if (localDependencies.contains(dependency)) {
+                result.add(instance);
+            }
+        }
+        return result;
+    }
+
+    public RootVariable redeclareRootVariable(String name, Type type, boolean constant) {
         RootVariable rootVariable = rootVariables.get(name);
-        if (rootVariable == null) {
+        boolean existing = rootVariable != null;
+        if (!existing) {
             rootVariable = new RootVariable();
             rootVariable.name = name;
-            rootVariable.type = type;
-            rootVariable.constant = constant;
             rootVariables.put(name, rootVariable);
-        } else if (!rootVariable.type.isAssignableFrom(type)) {
-            throw new RuntimeException("Can't assign type " + type + " to variable " + name + " of type " + rootVariable.type);
+        }
+        rootVariable.type = type;
+        rootVariable.constant = constant;
+
+        if (existing) {
+            for (HasDependencies dependent : findDependencies(rootVariable)) {
+                environmentListener.print("Potentially invalidated: " + dependent, null);
+            }
         }
         return rootVariable;
     }
