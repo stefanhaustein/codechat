@@ -6,7 +6,7 @@ android {
     buildToolsVersion "26.0.1"
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 26
         versionCode 5
         versionName "0.5"
@@ -14,7 +14,7 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-emoji-bundled:26.0.0"
-    compile 'com.vanniktech:emoji-google:0.6.0-SNAPSHOT'
+    compile "com.android.support:support-emoji-bundled:26.0.1"
+    compile 'com.vanniktech:emoji-google-compat:0.6.0-SNAPSHOT'
     compile project(':core')
 }

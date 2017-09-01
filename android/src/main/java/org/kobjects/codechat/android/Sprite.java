@@ -155,6 +155,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         view = new ImageView(this.environment.rootView.getContext());
         view.setAdjustViewBounds(true);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        // view.setDrawingCacheEnabled(true);
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -234,7 +235,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         }
         if (face.get() != lastFace) {
             lastFace = face.get();
-            view.setImageDrawable(new Emoji(lastFace).getDrawable(view.getContext()));
+            view.setImageDrawable(new EmojiDrawable(lastFace));
         }
     }
 

@@ -11,6 +11,7 @@ import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.EnumType;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.expressionparser.ExpressionParser;
 
 public class UnresolvedIdentifier extends UnresolvedExpression {
     private static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
@@ -40,7 +41,7 @@ public class UnresolvedIdentifier extends UnresolvedExpression {
             }
         }
 
-        throw new RuntimeException("Undefined identifier: " + name);
+        throw new ExpressionParser.ParsingException(start, end, "Undefined identifier: " + name, null);
     }
 
     @Override

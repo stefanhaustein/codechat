@@ -12,6 +12,8 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.SpanWatcher;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
@@ -28,10 +30,9 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import com.vanniktech.emoji.EmojiEditText;
-import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
-import com.vanniktech.emoji.google.GoogleEmojiProvider;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 
     MenuItem pauseItem;
     Object errorSpan;
+    ImageButton emojiInputButton;
 
     EmojiPopup emojiPopup;
     SharedPreferences settings;
@@ -88,6 +90,10 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     Point displaySize = new Point();
     private boolean fullScreenEditMode;
     private long lastEdit;
+    private int errorStart;
+    private int errorEnd;
+    private String errorText;
+    private String errorPrinted;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -95,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 
         codeDir = getExternalFilesDir("code");
 
-        EmojiManager.install(new GoogleEmojiProvider());
         rootLayout = new FrameLayout(this);
         contentLayout = new FrameLayout(this);
         contentLayout.setOnTouchListener(new View.OnTouchListener() {
@@ -117,7 +122,21 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 
         inputRow = new LinearLayout(this);
 
-        input = new EmojiEditText(this);
+        input = new EmojiEditText(this) {
+            @Override
+            public boolean isSuggestionsEnabled() {
+                return false;
+            }
+
+            @Override
+            protected void onSelectionChanged(int selStart, int selEnd) {
+                if (errorSpan != null && selStart == selEnd && selStart >= errorStart && selStart <= errorEnd && errorText != null && !errorText.equals(errorPrinted)) {
+                    print(errorText);
+                    errorPrinted = errorText;
+                }
+            }
+
+        };
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE); // TYPE_TEXT_FLAG_NO_SUGGESTIONS);//|
         input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 //        input.setPrivateImeOptions("nm");
@@ -182,7 +201,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 final int oldHeight = oldBottom - oldTop;
                 final int newHeight = newBottom - newTop;
 
-                if (newHeight > oldHeight && oldHeight != 0) {
+                if (newHeight > oldHeight * 1.5 && oldHeight != 0) {
                     inputRow.post(new Runnable() {
                         @Override
                         public void run() {
@@ -226,7 +245,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         inputRow.addView(inputButtons);
         ((LinearLayout.LayoutParams) inputButtons.getLayoutParams()).gravity = Gravity.BOTTOM;
 
-        final ImageButton emojiInputButton = new ImageButton(this);
+        emojiInputButton = new ImageButton(this);
         inputButtons.addView(emojiInputButton);
 
         ((LinearLayout.LayoutParams) emojiInputButton.getLayoutParams()).gravity = Gravity.BOTTOM;
@@ -248,6 +267,17 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 }
             }
         });
+
+        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (!b && emojiPopup != null && emojiPopup.isShowing()) {
+                    emojiPopup.dismiss();
+                    emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
+                }
+            }
+        });
+
 
         final ImageButton enterButton = new ImageButton(this);
         enterButton.setImageResource(R.drawable.ic_send_black_24dp);
@@ -315,22 +345,28 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     if (errorSpan != null) {
                         editable.removeSpan(errorSpan);
                         errorSpan = null;
+
                     }
                     try {
                         ParsingContext parsingContext = new ParsingContext(environment);
                         environment.parse(parsingContext, input.getText().toString());
-                        input.setError(null);
 
                     } catch (ParsingException e) {
-                        final String msg = e.getMessage();
-                        if (e.start >= 0 && e.start < e.end && e.end <= editable.length()) {
+                        errorText = e.getMessage();
+                   //     if (e.start >= 0 && e.start < e.end && e.end <= editable.length()) {
                             // protection against expressionparser position bug.
                             errorSpan = new BackgroundColorSpan(Color.RED);
-                            input.getText().setSpan(errorSpan, e.start, e.end, 0);
-                        }
-                        input.setError(e.getMessage());
+
+
+                            errorStart = Math.max(Math.min(e.start, editable.length() - 1), 0);
+                            errorEnd = Math.min(Math.max(e.end, 1), editable.length());
+
+                            input.getText().setSpan(errorSpan, errorStart, errorEnd, 0);
+
+                     //   }
+
                     } catch (Exception e) {
-                        input.setError(e.getMessage());
+                      e.printStackTrace();
                     }
 
                 }
@@ -350,6 +386,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     void arrangeUi() {
         if (emojiPopup != null) {
             emojiPopup.dismiss();
+            emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
             emojiPopup = null;
         }
         detach(chatView);
@@ -528,11 +565,13 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                         StringBuilder sb = new StringBuilder();
                                         ((Instance) link).serialize(new AnnotatedStringBuilder(sb, null), Instance.Detail.DETAIL, new HashMap<Dependency, Environment.SerializationState>());
                                         input.setText(sb.toString());
+                                        // input.requestFocus();
                                     } else if (link instanceof Documented) {
                                         ArrayList<Annotation> docAnnotations = new ArrayList<>();
                                         print(((Documented) link).getDocumentation(docAnnotations), docAnnotations);
                                     } else {
                                         input.setText(link.toString());
+                                        // input.requestFocus();
                                     }
                                 }
                             }, annotation.getStart(), annotation.getEnd(), 0);
