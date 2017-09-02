@@ -141,8 +141,8 @@ public class Environment {
             @Override
             protected Object eval(Object[] params) {
                 if (params[0] == null) {
-                    ArrayList<Annotation> annotations = new ArrayList<>();
-                    StringBuilder sb = new StringBuilder(HELPTEXT);
+                    AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+                    asb.append(HELPTEXT);
 
                     LinkedHashSet<RootVariable>[] builtins = new LinkedHashSet[3];
                     for (int i = 0; i < 3; i++) {
@@ -163,13 +163,13 @@ public class Environment {
                     for (int i = 0; i  < 3; i++) {
                         switch (i) {
                             case 0:
-                                sb.append("\nBuilt in types: ");
+                                asb.append("\nBuilt in types: ");
                                 break;
                             case 1:
-                                sb.append("\nBuilt in functions: ");
+                                asb.append("\nBuilt in functions: ");
                                 break;
                             case 2:
-                                sb.append("\nBuilt in constants: ");
+                                asb.append("\nBuilt in constants: ");
                                 break;
                         }
                         boolean first = true;
@@ -177,13 +177,12 @@ public class Environment {
                             if (first) {
                                 first = false;
                             } else {
-                                sb.append(", ");
+                                asb.append(", ");
                             }
-                            Annotation.append(sb, var.name, var.value, annotations);
+                            asb.append(var.name, var.value);
                         }
                     }
 
-                    AnnotatedStringBuilder asb = new AnnotatedStringBuilder(sb, annotations);
                     asb.append("\nOperators: ");
 
                     for (int i = 0; i < OPERATOR_LIST.length; i++) {
@@ -204,7 +203,7 @@ public class Environment {
                         asb.append(op, helpMap.get(op));
                     }
 
-                    environmentListener.print(sb.toString(), annotations);
+                    environmentListener.print(asb.toString(), asb.getAnnotationList());
                 } else if (params[0] instanceof Documented) {
                     ArrayList<Annotation> annotations = new ArrayList<>();
                     String doc = ((Documented) params[0]).getDocumentation(annotations);
