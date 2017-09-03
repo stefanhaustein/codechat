@@ -12,8 +12,6 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.SpanWatcher;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
@@ -30,7 +28,6 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import java.io.File;
@@ -41,7 +38,7 @@ import java.util.List;
 import java.util.SortedMap;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.AnnotatedStringBuilder;
-import org.kobjects.codechat.lang.Annotation;
+import org.kobjects.codechat.lang.AnnotationSpan;
 import org.kobjects.codechat.lang.Dependency;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
@@ -534,7 +531,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     void printRight(CharSequence s) {
         if (s instanceof String && ((String) s).indexOf('\n') == -1) {
-            print((String) s, Collections.singletonList(new Annotation(0, s.length(), s)), true);
+            print((String) s, Collections.singletonList(new AnnotationSpan(0, s.length(), s)), true);
         } else {
             chatView.add(true, s);
         }
@@ -544,18 +541,18 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         print(s, null, false);
     }
 
-    public void print(final String s, final List<Annotation> annotations) {
+    public void print(final String s, final List<AnnotationSpan> annotations) {
         print(s, annotations, false);
     }
 
-    public void print(final String s, final List<Annotation> annotations, final boolean right) {
+    public void print(final String s, final List<AnnotationSpan> annotations, final boolean right) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
                 if (annotations != null) {  // FIXME
                     SpannableString spannable = new SpannableString(s);
-                    for (final Annotation annotation : annotations) {
+                    for (final AnnotationSpan annotation : annotations) {
                         if (annotation.getLink() != null) {
                             spannable.setSpan(new ClickableSpan() {
                                 @Override
@@ -567,7 +564,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                         input.setText(sb.toString());
                                         // input.requestFocus();
                                     } else if (link instanceof Documented) {
-                                        ArrayList<Annotation> docAnnotations = new ArrayList<>();
+                                        ArrayList<AnnotationSpan> docAnnotations = new ArrayList<>();
                                         print(((Documented) link).getDocumentation(docAnnotations), docAnnotations);
                                     } else {
                                         input.setText(link.toString());
@@ -627,7 +624,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         print("ok");
                     } else if (result instanceof Instance) {
                         String literal = Formatting.toLiteral(result);
-                        Annotation annotation = new Annotation(0, literal.length(), result);
+                        AnnotationSpan annotation = new AnnotationSpan(0, literal.length(), result);
                         print(literal, Collections.singletonList(annotation));
                     } else {
                         print(Formatting.toLiteral(result));

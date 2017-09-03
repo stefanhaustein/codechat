@@ -1,7 +1,7 @@
 package org.kobjects.codechat.type;
 
 import java.util.List;
-import org.kobjects.codechat.lang.Annotation;
+import org.kobjects.codechat.lang.AnnotationSpan;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.EnumLiteral;
 
@@ -41,7 +41,7 @@ public class EnumType extends Type implements Documented {
     }
 
     @Override
-    public String getDocumentation(List<Annotation> links) {
+    public String getDocumentation(List<AnnotationSpan> links) {
         StringBuilder sb = new StringBuilder(name);
         sb.append(": enumeration type of the values ");
 

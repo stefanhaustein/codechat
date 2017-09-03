@@ -80,7 +80,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
             int start = asb.length();
             asb.append(onExpression.onChange ? "onchange#" : "on#").append(String.valueOf(getId()));
             if (asb.getAnnotationList() != null) {
-                asb.getAnnotationList().add(new Annotation(start, asb.length(), this));
+                asb.getAnnotationList().add(new AnnotationSpan(start, asb.length(), this));
             }
             asb.append(" ").append(onExpression.expression.toString()).append(":\n");
             onExpression.body.toString(asb.getStringBuilder(), wrap ? 2 : 1);

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Annotation;
+import org.kobjects.codechat.lang.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
@@ -81,7 +81,7 @@ public class Shell implements EnvironmentListener {
     }
 
     @Override
-    public void print(String s, List<Annotation> annotations) {
+    public void print(String s, List<AnnotationSpan> annotations) {
         System.out.println(s);
     }
 }

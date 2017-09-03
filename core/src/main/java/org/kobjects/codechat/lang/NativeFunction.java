@@ -33,7 +33,7 @@ public abstract class NativeFunction implements Function, Documented {
     }
 
     @Override
-    public String getDocumentation(List<Annotation> annotations) {
+    public String getDocumentation(List<AnnotationSpan> annotations) {
         StringBuilder sb = new StringBuilder();
         type.serializeSignature(sb, -1, name, null, annotations);
         sb.append('\n');

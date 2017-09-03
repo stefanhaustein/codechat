@@ -6,15 +6,15 @@ import java.util.List;
 
 public class AnnotatedStringBuilder implements Appendable, CharSequence {
     private final StringBuilder sb;
-    private final List<Annotation> annotations;
+    private final List<AnnotationSpan> annotations;
 
-    public AnnotatedStringBuilder(StringBuilder sb, List<Annotation> annotations) {
+    public AnnotatedStringBuilder(StringBuilder sb, List<AnnotationSpan> annotations) {
         this.sb = sb;
         this.annotations = annotations;
     }
 
     public AnnotatedStringBuilder() {
-        this(new StringBuilder(), new ArrayList<Annotation>());
+        this(new StringBuilder(), new ArrayList<AnnotationSpan>());
     }
 
     @Override
@@ -39,7 +39,7 @@ public class AnnotatedStringBuilder implements Appendable, CharSequence {
         int pos = sb.length();
         sb.append(csq);
         if (o != null && annotations != null) {
-            annotations.add(new Annotation(pos, sb.length(), o));
+            annotations.add(new AnnotationSpan(pos, sb.length(), o));
         }
         return this;
     }
@@ -52,7 +52,7 @@ public class AnnotatedStringBuilder implements Appendable, CharSequence {
         return sb.toString();
     }
 
-    public List<Annotation> getAnnotationList() {
+    public List<AnnotationSpan> getAnnotationList() {
         return annotations;
     }
 

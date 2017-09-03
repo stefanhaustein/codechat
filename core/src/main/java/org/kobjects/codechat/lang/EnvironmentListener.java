@@ -7,5 +7,5 @@ public interface EnvironmentListener {
 
     void setName(String name);
 
-    void print(String s, List<Annotation> annotations);
+    void print(String s, List<AnnotationSpan> annotations);
 }

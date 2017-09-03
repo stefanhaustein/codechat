@@ -10,7 +10,7 @@ public class SimpleDocumented implements Documented {
     }
 
     @Override
-    public String getDocumentation(List<Annotation> links) {
+    public String getDocumentation(List<AnnotationSpan> links) {
         return s;
     }
 }

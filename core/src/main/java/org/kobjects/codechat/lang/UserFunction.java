@@ -74,7 +74,7 @@ public class UserFunction implements Function, Instance {
             }
         }
         if (nameEnd != -1 && asb.getAnnotationList() != null) {
-            asb.getAnnotationList().add(new Annotation(start, nameEnd, this));
+            asb.getAnnotationList().add(new AnnotationSpan(start, nameEnd, this));
         }
     }
 

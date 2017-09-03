@@ -2,7 +2,7 @@ package org.kobjects.codechat.type;
 
 import java.util.List;
 import java.util.TreeMap;
-import org.kobjects.codechat.lang.Annotation;
+import org.kobjects.codechat.lang.AnnotationSpan;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Tuple;
@@ -52,7 +52,7 @@ public class TupleType extends Type implements Documented {
     }
 
     @Override
-    public String getDocumentation(List<Annotation> links) {
+    public String getDocumentation(List<AnnotationSpan> links) {
         StringBuilder sb = new StringBuilder(documentation);
         sb.append("\nProperties: ");
         boolean first = true;
@@ -62,7 +62,7 @@ public class TupleType extends Type implements Documented {
             } else {
                 sb.append(", ");
             }
-            Annotation.append(sb, propertyDescriptor.name, propertyDescriptor, links);
+            AnnotationSpan.append(sb, propertyDescriptor.name, propertyDescriptor, links);
         }
         return sb.toString();
     }
@@ -95,12 +95,12 @@ public class TupleType extends Type implements Documented {
         }
 
         @Override
-        public String getDocumentation(List<Annotation> links) {
+        public String getDocumentation(List<AnnotationSpan> links) {
             StringBuilder sb = new StringBuilder();
 
-            Annotation.append(sb, singleton ? TupleType.this.name.toLowerCase() : TupleType.this.name, TupleType.this, links);
+            AnnotationSpan.append(sb, singleton ? TupleType.this.name.toLowerCase() : TupleType.this.name, TupleType.this, links);
             sb.append(".").append(name).append(": ");
-            Annotation.append(sb, type.toString(), type, links);
+            AnnotationSpan.append(sb, type.toString(), type, links);
             sb.append("\n");
             sb.append(documentation);
             return sb.toString();

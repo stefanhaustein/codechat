@@ -205,7 +205,7 @@ public class Environment {
 
                     environmentListener.print(asb.toString(), asb.getAnnotationList());
                 } else if (params[0] instanceof Documented) {
-                    ArrayList<Annotation> annotations = new ArrayList<>();
+                    ArrayList<AnnotationSpan> annotations = new ArrayList<>();
                     String doc = ((Documented) params[0]).getDocumentation(annotations);
                     environmentListener.print(doc, annotations);
                 } else {

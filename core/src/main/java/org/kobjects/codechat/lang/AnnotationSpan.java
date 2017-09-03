@@ -3,19 +3,19 @@ package org.kobjects.codechat.lang;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class Annotation {
+public class AnnotationSpan {
     private final int start;
     private final int end;
     private final WeakReference<Object> link;
 
-    public static void append(StringBuilder sb, String s, Object link, List<Annotation> list) {
+    public static void append(StringBuilder sb, String s, Object link, List<AnnotationSpan> list) {
         if (list != null) {
-            list.add(new Annotation(sb.length(), sb.length() + s.length(), link));
+            list.add(new AnnotationSpan(sb.length(), sb.length() + s.length(), link));
         }
         sb.append(s);
     }
 
-    public Annotation(int start, int end, Object link) {
+    public AnnotationSpan(int start, int end, Object link) {
         this.start = start;
         this.end = end;
         this.link = new WeakReference<Object>(link);

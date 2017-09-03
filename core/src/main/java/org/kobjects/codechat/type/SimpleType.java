@@ -1,7 +1,7 @@
 package org.kobjects.codechat.type;
 
 import java.util.List;
-import org.kobjects.codechat.lang.Annotation;
+import org.kobjects.codechat.lang.AnnotationSpan;
 import org.kobjects.codechat.lang.Documented;
 
 public class SimpleType extends Type implements Documented {
@@ -26,7 +26,7 @@ public class SimpleType extends Type implements Documented {
     }
 
     @Override
-    public String getDocumentation(List<Annotation> links) {
+    public String getDocumentation(List<AnnotationSpan> links) {
         return documentation;
     }
 }

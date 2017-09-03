@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface Documented {
 
-    String getDocumentation(List<Annotation> links);
+    String getDocumentation(List<AnnotationSpan> links);
 
 }
