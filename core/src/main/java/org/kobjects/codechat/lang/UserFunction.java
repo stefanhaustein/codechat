@@ -3,6 +3,8 @@ package org.kobjects.codechat.lang;
 import java.util.Collection;
 import java.util.Map;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
@@ -73,8 +75,8 @@ public class UserFunction implements Function, Instance {
                 asb.append("end;\n");
             }
         }
-        if (nameEnd != -1 && asb.getAnnotationList() != null) {
-            asb.getAnnotationList().add(new AnnotationSpan(start, nameEnd, this));
+        if (nameEnd != -1) {
+            asb.addAnnotation(start, nameEnd, this);
         }
     }
 

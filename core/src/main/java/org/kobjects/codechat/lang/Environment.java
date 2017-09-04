@@ -16,6 +16,12 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import javax.print.Doc;
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedString;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.AnnotationSpan;
+import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
@@ -26,9 +32,9 @@ public class Environment {
             "'chat-like' interface. Emojis are supplied by EmojiOne.\n" +
             "Type \"help <object>\" to get help on <object>.";
 
-    static final Map<String,Documented> helpMap = new TreeMap<>();
+    static final Map<String,TextLink> helpMap = new TreeMap<>();
     static void addHelp(String what, String text) {
-        helpMap.put(what, new SimpleDocumented(text));
+        helpMap.put(what, new TextLink(text));
     }
 
     static final String[] OPERATOR_LIST = {
@@ -132,7 +138,7 @@ public class Environment {
         addNativeFunction(new NativeFunction("print", Type.VOID, "", type) {
             @Override
             protected Object eval(Object[] params) {
-                environmentListener.print(String.valueOf(params[0]), null);
+                environmentListener.print(String.valueOf(params[0]));
                 return null;
             }
         });
@@ -203,14 +209,12 @@ public class Environment {
                         asb.append(op, helpMap.get(op));
                     }
 
-                    environmentListener.print(asb.toString(), asb.getAnnotationList());
+                    environmentListener.print(asb);
                 } else if (params[0] instanceof Documented) {
-                    ArrayList<AnnotationSpan> annotations = new ArrayList<>();
-                    String doc = ((Documented) params[0]).getDocumentation(annotations);
-                    environmentListener.print(doc, annotations);
+                    environmentListener.print(((Documented) params[0]).getDocumentation());
                 } else {
                     Type type = Type.of(params[0]);
-                    environmentListener.print(params[0] + " is an instance of the type " + type, null);
+                    environmentListener.print(params[0] + " is an instance of the type " + type);
                 }
                 return null;
             }
@@ -305,7 +309,7 @@ public class Environment {
         while (list.endsWith("\n")) {
             list = list.substring(0, list.length() - 1);
         }
-        environmentListener.print(list, asb.getAnnotationList());
+        environmentListener.print(new AnnotatedString(list, asb.getAnnotationList()));
     }
 
     public void addType(Type... types) {
@@ -566,7 +570,7 @@ public class Environment {
 
         if (existing) {
             for (HasDependencies dependent : findDependencies(rootVariable)) {
-                environmentListener.print("Potentially invalidated: " + dependent, null);
+                environmentListener.print("Potentially invalidated: " + dependent);
             }
         }
         return rootVariable;

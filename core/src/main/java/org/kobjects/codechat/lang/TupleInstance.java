@@ -3,7 +3,7 @@ package org.kobjects.codechat.lang;
 import java.util.Collection;
 import java.util.Map;
 
-import org.kobjects.codechat.type.SimpleType;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.type.TupleType;
 
 public abstract class TupleInstance implements Tuple, Instance {

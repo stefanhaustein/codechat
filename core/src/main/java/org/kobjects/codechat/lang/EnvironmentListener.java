@@ -1,11 +1,14 @@
 package org.kobjects.codechat.lang;
 
 import java.util.List;
+import org.kobjects.codechat.annotation.AnnotationSpan;
 
 public interface EnvironmentListener {
     void paused(boolean paused);
 
     void setName(String name);
 
-    void print(String s, List<AnnotationSpan> annotations);
+    void print(CharSequence s);
+
+    void edit(String s);
 }

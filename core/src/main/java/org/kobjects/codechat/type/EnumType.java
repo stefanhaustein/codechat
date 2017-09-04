@@ -1,7 +1,9 @@
 package org.kobjects.codechat.type;
 
 import java.util.List;
-import org.kobjects.codechat.lang.AnnotationSpan;
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.EnumLiteral;
 
@@ -41,18 +43,19 @@ public class EnumType extends Type implements Documented {
     }
 
     @Override
-    public String getDocumentation(List<AnnotationSpan> links) {
-        StringBuilder sb = new StringBuilder(name);
-        sb.append(": enumeration type of the values ");
+    public AnnotatedCharSequence getDocumentation() {
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        asb.append(name);
+        asb.append(": enumeration type of the values ");
 
         for (int i = 0; i < values.length; i++) {
             if (i == values.length - 1) {
-                sb.append(" and ");
+                asb.append(" and ");
             } else if (i > 0) {
-                sb.append(", ");
+                asb.append(", ");
             }
-            sb.append(values[i].getName());
+            asb.append(values[i].getName());
         }
-        return sb.toString();
+        return asb.build();
     }
 }

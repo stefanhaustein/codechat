@@ -1,4 +1,4 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.annotation;
 
 import java.lang.ref.WeakReference;
 import java.util.List;

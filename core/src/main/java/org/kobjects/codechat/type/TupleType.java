@@ -2,7 +2,10 @@ package org.kobjects.codechat.type;
 
 import java.util.List;
 import java.util.TreeMap;
-import org.kobjects.codechat.lang.AnnotationSpan;
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedString;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Tuple;
@@ -52,19 +55,20 @@ public class TupleType extends Type implements Documented {
     }
 
     @Override
-    public String getDocumentation(List<AnnotationSpan> links) {
-        StringBuilder sb = new StringBuilder(documentation);
-        sb.append("\nProperties: ");
+    public AnnotatedCharSequence getDocumentation() {
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        asb.append(documentation);
+        asb.append("\nProperties: ");
         boolean first = true;
         for (PropertyDescriptor propertyDescriptor: properties()) {
             if (first) {
                 first = false;
             } else {
-                sb.append(", ");
+                asb.append(", ");
             }
-            AnnotationSpan.append(sb, propertyDescriptor.name, propertyDescriptor, links);
+            asb.append(propertyDescriptor.name, propertyDescriptor);
         }
-        return sb.toString();
+        return asb.build();
     }
 
     public class PropertyDescriptor implements Documented {
@@ -95,15 +99,15 @@ public class TupleType extends Type implements Documented {
         }
 
         @Override
-        public String getDocumentation(List<AnnotationSpan> links) {
-            StringBuilder sb = new StringBuilder();
+        public AnnotatedCharSequence getDocumentation() {
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
 
-            AnnotationSpan.append(sb, singleton ? TupleType.this.name.toLowerCase() : TupleType.this.name, TupleType.this, links);
-            sb.append(".").append(name).append(": ");
-            AnnotationSpan.append(sb, type.toString(), type, links);
-            sb.append("\n");
-            sb.append(documentation);
-            return sb.toString();
+            asb.append(singleton ? TupleType.this.name.toLowerCase() : TupleType.this.name, TupleType.this);
+            asb.append(".").append(name).append(": ");
+            asb.append(type.toString(), type);
+            asb.append("\n");
+            asb.append(documentation);
+            return asb.build();
         }
     }
 

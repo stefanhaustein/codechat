@@ -1,6 +1,9 @@
 package org.kobjects.codechat.lang;
 
 import java.util.List;
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
@@ -33,11 +36,11 @@ public abstract class NativeFunction implements Function, Documented {
     }
 
     @Override
-    public String getDocumentation(List<AnnotationSpan> annotations) {
-        StringBuilder sb = new StringBuilder();
-        type.serializeSignature(sb, -1, name, null, annotations);
-        sb.append('\n');
-        sb.append(documentation);
-        return sb.toString();
+    public AnnotatedCharSequence getDocumentation() {
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        type.serializeSignature(asb.getStringBuilder(), -1, name, null, asb.getAnnotationList());
+        asb.append("\n");
+        asb.append(documentation);
+        return asb.build();
     }
 }

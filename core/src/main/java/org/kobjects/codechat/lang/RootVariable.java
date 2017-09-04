@@ -3,6 +3,7 @@ package org.kobjects.codechat.lang;
 import java.util.Collection;
 import java.util.Map;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 

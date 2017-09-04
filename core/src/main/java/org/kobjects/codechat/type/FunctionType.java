@@ -2,7 +2,7 @@ package org.kobjects.codechat.type;
 
 
 import java.util.List;
-import org.kobjects.codechat.lang.AnnotationSpan;
+import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.UserFunction;
 

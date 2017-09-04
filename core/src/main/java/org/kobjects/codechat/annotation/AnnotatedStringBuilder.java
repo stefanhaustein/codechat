@@ -1,10 +1,11 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.annotation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class AnnotatedStringBuilder implements Appendable, CharSequence {
+public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence {
     private final StringBuilder sb;
     private final List<AnnotationSpan> annotations;
 
@@ -68,5 +69,20 @@ public class AnnotatedStringBuilder implements Appendable, CharSequence {
     @Override
     public CharSequence subSequence(int start, int end) {
         return sb.subSequence(start, end);
+    }
+
+    public void addAnnotation(int start, int length, Object o) {
+        if (annotations != null) {
+            annotations.add(new AnnotationSpan(start, length, o));
+        }
+    }
+
+    @Override
+    public Iterable<AnnotationSpan> getAnnotations() {
+        return annotations == null ? Collections.<AnnotationSpan>emptyList() : annotations;
+    }
+
+    public AnnotatedCharSequence build() {
+        return new AnnotatedString(sb, annotations);
     }
 }

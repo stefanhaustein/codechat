@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.AnnotationSpan;
+import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
@@ -76,12 +76,14 @@ public class Shell implements EnvironmentListener {
         print("Name set to: '" + name + "'");
     }
 
-    public void print(String s) {
-        print(s, null);
+
+    @Override
+    public void print(CharSequence s) {
+        System.out.println(s);
     }
 
     @Override
-    public void print(String s, List<AnnotationSpan> annotations) {
+    public void edit(String s) {
         System.out.println(s);
     }
 }
