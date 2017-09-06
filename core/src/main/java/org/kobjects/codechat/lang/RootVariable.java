@@ -66,7 +66,7 @@ public class RootVariable implements Dependency, HasDependencies {
         asb.append(" = ");
 
         if (instanceDetail == null) {
-            asb.append(Formatting.toLiteral(value));
+            Formatting.toLiteral(asb, value);
             asb.append(";\n");
         } else {
             ((Dependency) value).serialize(asb, instanceDetail, serializationStateMap);

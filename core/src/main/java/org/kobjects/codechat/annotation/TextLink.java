@@ -5,7 +5,7 @@ import org.kobjects.codechat.lang.Environment;
 
 public class TextLink implements Link {
 
-    AnnotatedCharSequence text;
+    private AnnotatedCharSequence text;
 
     public TextLink(String s) {
         this.text = new AnnotatedString(s, null);

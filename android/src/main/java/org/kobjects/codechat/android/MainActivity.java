@@ -32,23 +32,15 @@ import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import java.io.File;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.SortedMap;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedString;
-import org.kobjects.codechat.annotation.DocumentedLink;
-import org.kobjects.codechat.annotation.InstanceLink;
-import org.kobjects.codechat.annotation.Link;
-import org.kobjects.codechat.annotation.TextLink;
+import org.kobjects.codechat.annotation.EditTextLink;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.AnnotationSpan;
-import org.kobjects.codechat.lang.Dependency;
-import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
@@ -535,7 +527,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     void printRight(CharSequence s) {
         if (s instanceof String && ((String) s).indexOf('\n') == -1) {
-            print(new AnnotatedString((String) s, Collections.singletonList(new AnnotationSpan(0, s.length(), new TextLink((String) s)))), true);
+            print(new AnnotatedString((String) s, Collections.singletonList(new AnnotationSpan(0, s.length(), new EditTextLink((String) s)))), true);
         } else {
             chatView.add(true, s);
         }
@@ -620,18 +612,6 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     Object result = expression.eval(parsingContext.createEvaluationContext());
                     if (Type.VOID.equals(expression.getType())) {
                         print("ok");
-                    } else if (result instanceof Instance) {
-                        String literal = Formatting.toLiteral(result);
-                        Link link;
-                        if (result instanceof Instance) {
-                            link = new InstanceLink((Instance) result);
-                        } else if (result instanceof Documented) {
-                            link = new DocumentedLink((Documented) result);
-                        } else {
-                            link = null;
-                        }
-                        AnnotationSpan annotation = new AnnotationSpan(0, literal.length(), link);
-                        print(new AnnotatedString(literal, Collections.singletonList(annotation)));
                     } else {
                         print(Formatting.toLiteral(result));
                     }

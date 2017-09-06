@@ -1,5 +1,10 @@
 package org.kobjects.codechat.lang;
 
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.annotation.InstanceLink;
+
 public final class Formatting {
     private Formatting() {
     }
@@ -41,17 +46,26 @@ public final class Formatting {
         return sb.toString();
     }
 
-    public static String toLiteral(Object value) {
-        if (value instanceof Number) {
-            return numberToString(((Number) value).doubleValue());
-        }
-        if (value instanceof String) {
-            return Formatting.quote((String) value);
-        }
-        if (value instanceof Instance) {
+    public static void toLiteral(AnnotatedStringBuilder asb, Object value) {
+        if (value instanceof ToLiteral) {
+            ((ToLiteral) value).toLiteral(asb);
+        } else if (value instanceof Number) {
+            asb.append(String.valueOf(((Number) value).doubleValue()));
+        } else if (value instanceof String) {
+            asb.append(Formatting.quote((String) value));
+        } else if (value instanceof Instance) {
             Instance instance = (Instance) value;
-            return instance.getType() + "#" + instance.getId();
+            asb.append(instance.getType() + "#" + instance.getId(), new InstanceLink(instance));
+        } else if (value instanceof Documented) {
+            asb.append(String.valueOf(value), new DocumentedLink((Documented) value));
+        } else {
+            asb.append(String.valueOf(value));
         }
-        return String.valueOf(value);
+    }
+
+    public static AnnotatedCharSequence toLiteral(Object value) {
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        toLiteral(asb, value);
+        return asb.build();
     }
 }
