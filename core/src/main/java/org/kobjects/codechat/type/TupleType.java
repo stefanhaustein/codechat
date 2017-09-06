@@ -6,6 +6,7 @@ import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.AnnotationSpan;
+import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Tuple;
@@ -66,7 +67,7 @@ public class TupleType extends Type implements Documented {
             } else {
                 asb.append(", ");
             }
-            asb.append(propertyDescriptor.name, propertyDescriptor);
+            asb.append(propertyDescriptor.name, new DocumentedLink(propertyDescriptor));
         }
         return asb.build();
     }
@@ -102,9 +103,9 @@ public class TupleType extends Type implements Documented {
         public AnnotatedCharSequence getDocumentation() {
             AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
 
-            asb.append(singleton ? TupleType.this.name.toLowerCase() : TupleType.this.name, TupleType.this);
+            asb.append(singleton ? TupleType.this.name.toLowerCase() : TupleType.this.name, new DocumentedLink(TupleType.this));
             asb.append(".").append(name).append(": ");
-            asb.append(type.toString(), type);
+            asb.append(type.toString(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
             asb.append("\n");
             asb.append(documentation);
             return asb.build();

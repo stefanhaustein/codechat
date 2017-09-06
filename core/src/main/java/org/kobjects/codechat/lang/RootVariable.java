@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
@@ -30,7 +31,7 @@ public class RootVariable implements Dependency, HasDependencies {
         if (detail == Instance.Detail.DECLARATION) {
             asb.append(constant ? "let " : "variable ");
             asb.append(name);
-            asb.append(" : ").append(type.getName(), type);
+            asb.append(" : ").append(type.getName(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
             asb.append(";\n");
             return;
         }

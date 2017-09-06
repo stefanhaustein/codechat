@@ -3,6 +3,7 @@ package org.kobjects.codechat.lang;
 import java.util.Collection;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.AnnotationSpan;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.PropertyAccess;
@@ -79,7 +80,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
         if (detail != Detail.DECLARATION) {
             boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
 
-            asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), this);
+            asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), new InstanceLink(this));
             asb.append(" ").append(onExpression.expression.toString()).append(":\n");
             onExpression.body.toString(asb.getStringBuilder(), wrap ? 2 : 1);
             if (wrap) {

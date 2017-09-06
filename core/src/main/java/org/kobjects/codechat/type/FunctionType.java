@@ -2,7 +2,11 @@ package org.kobjects.codechat.type;
 
 
 import java.util.List;
+import javax.print.Doc;
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotationSpan;
+import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.UserFunction;
 
@@ -79,11 +83,10 @@ public class FunctionType extends Type {
             if (parameterNames != null) {
                 sb.append(parameterNames[i]).append(": ");
             }
-            AnnotationSpan.append(sb, parameterTypes[i].toString(), parameterTypes[i], annotations);
+            AnnotationSpan.append(sb, parameterTypes[i].toString(), parameterTypes[i] instanceof Documented ? new DocumentedLink((Documented) parameterTypes[i]) : null, annotations);
         }
         sb.append("): ");
-        AnnotationSpan.append(sb, returnType.toString(), returnType, annotations);
+        AnnotationSpan.append(sb, returnType.toString(), returnType instanceof Documented ? new DocumentedLink((Documented) returnType) : null, annotations);
         return nameEnd;
     }
-
 }

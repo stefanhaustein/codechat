@@ -36,11 +36,11 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
         return this;
     }
 
-    public AnnotatedStringBuilder append(CharSequence csq, Object o) {
+    public AnnotatedStringBuilder append(CharSequence csq, Link link) {
         int pos = sb.length();
         sb.append(csq);
-        if (o != null && annotations != null) {
-            annotations.add(new AnnotationSpan(pos, sb.length(), o));
+        if (link != null && annotations != null) {
+            annotations.add(new AnnotationSpan(pos, sb.length(), link));
         }
         return this;
     }
@@ -71,9 +71,9 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
         return sb.subSequence(start, end);
     }
 
-    public void addAnnotation(int start, int length, Object o) {
+    public void addAnnotation(int start, int length, Link link) {
         if (annotations != null) {
-            annotations.add(new AnnotationSpan(start, length, o));
+            annotations.add(new AnnotationSpan(start, length, link));
         }
     }
 

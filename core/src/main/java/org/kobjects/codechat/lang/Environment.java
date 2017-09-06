@@ -21,6 +21,7 @@ import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.AnnotationSpan;
+import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.MetaType;
@@ -185,7 +186,7 @@ public class Environment {
                             } else {
                                 asb.append(", ");
                             }
-                            asb.append(var.name, var.value);
+                            asb.append(var.name, i == 2 ? new TextLink(String.valueOf(var.value)) : new DocumentedLink((Documented) var.value));
                         }
                     }
 

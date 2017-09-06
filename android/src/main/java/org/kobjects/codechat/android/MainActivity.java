@@ -31,14 +31,15 @@ import android.widget.LinearLayout;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.SortedMap;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedString;
+import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.Link;
+import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.AnnotationSpan;
@@ -534,7 +535,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     void printRight(CharSequence s) {
         if (s instanceof String && ((String) s).indexOf('\n') == -1) {
-            print(new AnnotatedString((String) s, Collections.singletonList(new AnnotationSpan(0, s.length(), s))), true);
+            print(new AnnotatedString((String) s, Collections.singletonList(new AnnotationSpan(0, s.length(), new TextLink((String) s)))), true);
         } else {
             chatView.add(true, s);
         }
@@ -566,20 +567,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                             spannable.setSpan(new ClickableSpan() {
                                 @Override
                                 public void onClick(View view) {
-                                    Object link = annotation.getLink();
-                                    if (link instanceof Link) {
-                                        ((Link) link).execute(environment);
-                                    } else if (link instanceof Instance) {
-                                        StringBuilder sb = new StringBuilder();
-                                        ((Instance) link).serialize(new AnnotatedStringBuilder(sb, null), Instance.Detail.DETAIL, new HashMap<Dependency, Environment.SerializationState>());
-                                        input.setText(sb.toString());
-                                        // input.requestFocus();
-                                    } else if (link instanceof Documented) {
-                                        print(((Documented) link).getDocumentation());
-                                    } else {
-                                        input.setText(String.valueOf(link));
-                                        // input.requestFocus();
-                                    }
+                                    annotation.getLink().execute(environment);
                                 }
                             }, annotation.getStart(), annotation.getEnd(), 0);
                         }
@@ -634,7 +622,15 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         print("ok");
                     } else if (result instanceof Instance) {
                         String literal = Formatting.toLiteral(result);
-                        AnnotationSpan annotation = new AnnotationSpan(0, literal.length(), result);
+                        Link link;
+                        if (result instanceof Instance) {
+                            link = new InstanceLink((Instance) result);
+                        } else if (result instanceof Documented) {
+                            link = new DocumentedLink((Documented) result);
+                        } else {
+                            link = null;
+                        }
+                        AnnotationSpan annotation = new AnnotationSpan(0, literal.length(), link);
                         print(new AnnotatedString(literal, Collections.singletonList(annotation)));
                     } else {
                         print(Formatting.toLiteral(result));

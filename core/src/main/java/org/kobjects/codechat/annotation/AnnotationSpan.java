@@ -6,19 +6,19 @@ import java.util.List;
 public class AnnotationSpan {
     private final int start;
     private final int end;
-    private final WeakReference<Object> link;
+    private final Link link;
 
-    public static void append(StringBuilder sb, String s, Object link, List<AnnotationSpan> list) {
+    public static void append(StringBuilder sb, String s, Link link, List<AnnotationSpan> list) {
         if (list != null) {
             list.add(new AnnotationSpan(sb.length(), sb.length() + s.length(), link));
         }
         sb.append(s);
     }
 
-    public AnnotationSpan(int start, int end, Object link) {
+    public AnnotationSpan(int start, int end, Link link) {
         this.start = start;
         this.end = end;
-        this.link = new WeakReference<Object>(link);
+        this.link = link;
     }
 
     public String toString() {
@@ -33,7 +33,7 @@ public class AnnotationSpan {
         return end;
     }
 
-    public Object getLink() {
-        return link.get();
+    public Link getLink() {
+        return link;
     }
 }

@@ -75,9 +75,10 @@ public class UserFunction implements Function, Instance {
                 asb.append("end;\n");
             }
         }
-        if (nameEnd != -1) {
+
+/*        if (nameEnd != -1) {
             asb.addAnnotation(start, nameEnd, this);
-        }
+        }*/
     }
 
     @Override

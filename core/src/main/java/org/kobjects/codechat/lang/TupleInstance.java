@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.type.TupleType;
 
 public abstract class TupleInstance implements Tuple, Instance {
@@ -21,7 +23,7 @@ public abstract class TupleInstance implements Tuple, Instance {
     public void serialize(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
         switch (detail) {
             case DECLARATION:
-                asb.append(" new ").append(toString(), this).append(";\n");
+                asb.append(" new ").append(toString(), new InstanceLink(this)).append(";\n");
                 break;
             case DEFINITION:
                 serializeDefinition(asb);
@@ -35,7 +37,7 @@ public abstract class TupleInstance implements Tuple, Instance {
     }
 
     private void serializeDefinition(AnnotatedStringBuilder asb) {
-        asb.append(toString(), this);
+        asb.append(toString(), new InstanceLink(this));
         asb.append("{");
         boolean first = true;
         for (TupleType.PropertyDescriptor propertyDescriptor: getType().properties()) {

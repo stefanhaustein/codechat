@@ -1,6 +1,7 @@
 package org.kobjects.codechat.type;
 
 
+import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 
