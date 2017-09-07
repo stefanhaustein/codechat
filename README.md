@@ -1,6 +1,6 @@
 # CodeChat
 
-Casual Coding on Android
+## Casual Coding on Android
 
 Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is familiar with WhatsApp...) 
 
