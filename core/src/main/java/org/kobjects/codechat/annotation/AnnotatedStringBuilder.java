@@ -20,13 +20,28 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
 
     @Override
     public AnnotatedStringBuilder append(CharSequence csq) {
-        sb.append(csq);
+        sb.append(csq, 0, csq.length());
         return this;
     }
 
+    /**
+     * If the appended character sequence is an instance of AnnotatedCharSequence,
+     * annotations that are fully contained between start and end are carried over.
+     */
     @Override
     public AnnotatedStringBuilder append(CharSequence csq, int start, int end) {
+        int offset = length();
         sb.append(csq, start, end);
+        if (annotations != null && csq instanceof AnnotatedCharSequence) {
+            for (AnnotationSpan span : ((AnnotatedCharSequence) csq).getAnnotations()) {
+                if (span.getStart() >= start && span.getEnd() <= end) {
+                    annotations.add(new AnnotationSpan(
+                            span.getStart() - start + offset,
+                            span.getEnd() - start + offset,
+                            span.getLink()));
+                }
+            }
+        }
         return this;
     }
 
@@ -38,9 +53,13 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
 
     public AnnotatedStringBuilder append(CharSequence csq, Link link) {
         int pos = sb.length();
-        sb.append(csq);
-        if (link != null && annotations != null) {
-            annotations.add(new AnnotationSpan(pos, sb.length(), link));
+        if (link == null) {
+            append(csq);
+        } else {
+            sb.append(csq);
+            if (annotations != null) {
+                annotations.add(new AnnotationSpan(pos, sb.length(), link));
+            }
         }
         return this;
     }
@@ -82,7 +101,10 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
         return annotations == null ? Collections.<AnnotationSpan>emptyList() : annotations;
     }
 
-    public AnnotatedCharSequence build() {
+    /**
+     * Builds an AnnotatedString instance from the contents of this builder.
+     */
+    public AnnotatedString build() {
         return new AnnotatedString(sb, annotations);
     }
 }
