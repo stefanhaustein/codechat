@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import java.util.Collection;
-import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.HasDependencies;
@@ -48,7 +48,7 @@ public abstract class Expression implements HasDependencies {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         for (int i = 0; i < getChildCount(); i++) {
             getChild(i).getDependencies(environment, result);
         }

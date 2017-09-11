@@ -1,17 +1,13 @@
 package org.kobjects.codechat.statement;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
-import org.kobjects.codechat.expr.LocalVariableNode;
 import org.kobjects.codechat.expr.RootVariableNode;
-import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.lang.RootVariable;
 
 public class DeleteStatement extends AbstractStatement {
     Expression expr;
@@ -50,7 +46,7 @@ public class DeleteStatement extends AbstractStatement {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         expr.getDependencies(environment, result);
     }
 }

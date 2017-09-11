@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.type.TupleType;
 
@@ -20,7 +19,7 @@ public abstract class TupleInstance implements Tuple, Instance {
 
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext) {
         switch (detail) {
             case DECLARATION:
                 asb.append(" new ").append(toString(), new InstanceLink(this)).append(";\n");
@@ -83,12 +82,12 @@ public abstract class TupleInstance implements Tuple, Instance {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         for (TupleType.PropertyDescriptor propertyDescriptor : getType ().properties()) {
             if (propertyDescriptor.writable) {
                 Object deps = getProperty(propertyDescriptor.index);
-                if (deps instanceof Dependency) {
-                    result.add((Dependency) deps);
+                if (deps instanceof Entity) {
+                    result.add((Entity) deps);
                 } else if (deps instanceof HasDependencies) {
                     ((HasDependencies) deps).getDependencies(environment, result);
                 }

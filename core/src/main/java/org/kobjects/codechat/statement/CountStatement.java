@@ -2,7 +2,7 @@ package org.kobjects.codechat.statement;
 
 import java.util.Collection;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.LocalVariable;
@@ -43,7 +43,7 @@ public class CountStatement extends AbstractStatement {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         expression.getDependencies(environment, result);
         body.getDependencies(environment, result);
     }

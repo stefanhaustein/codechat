@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
@@ -49,14 +48,14 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
-        serializeWithName(asb, detail, serializationStateMap, null);
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext) {
+        serializeWithName(asb, detail, serializationContext, null);
     }
 
-    public void serializeWithName(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap, String name) {
+    public void serializeWithName(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext, String name) {
         int start = asb.length();
         int nameEnd = -1;
-        if (detail == Detail.DECLARATION) {
+        if (detail == SerializationContext.Detail.DECLARATION) {
             nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
             asb.append(";\n");
         } else if (body != null) {
@@ -87,7 +86,7 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         if (body != null) {
             body.getDependencies(environment, result);
         }

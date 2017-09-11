@@ -1,8 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import java.util.Collection;
-import javax.naming.Context;
-import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Instance;
@@ -44,7 +43,7 @@ public class InstanceReference extends Expression {
         return 0;
     }
 
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         result.add((Instance) environment.getInstance(type, id, false));
     }
 }

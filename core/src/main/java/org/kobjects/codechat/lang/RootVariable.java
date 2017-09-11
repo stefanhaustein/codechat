@@ -8,7 +8,7 @@ import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
-public class RootVariable implements Dependency, HasDependencies {
+public class RootVariable implements Entity, HasDependencies {
     public String name;
     public Type type;
     public Object value;
@@ -23,12 +23,12 @@ public class RootVariable implements Dependency, HasDependencies {
     }
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, Instance.Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext) {
         if (builtin) {
             return;
         }
 
-        if (detail == Instance.Detail.DECLARATION) {
+        if (detail == SerializationContext.Detail.DECLARATION) {
             asb.append(constant ? "let " : "variable ");
             asb.append(name);
             asb.append(" : ").append(type.getName(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
@@ -37,29 +37,31 @@ public class RootVariable implements Dependency, HasDependencies {
         }
 
 
-        Instance.Detail instanceDetail = null;
-        Environment.SerializationState newInstanceState = null;
-        if (value instanceof Dependency) {
-            Environment.SerializationState state = serializationStateMap.get((Dependency) value);
+        SerializationContext.Detail instanceDetail = null;
+        SerializationContext.SerializationState newInstanceState = null;
+        if (value instanceof Entity) {
+            SerializationContext.SerializationState state = serializationContext.getState((Entity) value);
             if (state == null) {
-                instanceDetail = Instance.Detail.DEFINITION;
-                newInstanceState = Environment.SerializationState.STUB_SERIALIZED;
-            } else if (state == Environment.SerializationState.PENDING) {
-                instanceDetail = Instance.Detail.DECLARATION;
-                newInstanceState = Environment.SerializationState.FULLY_SERIALIZED;
+                instanceDetail = SerializationContext.Detail.DEFINITION;
+                newInstanceState = SerializationContext.SerializationState.STUB_SERIALIZED;
+            } else if (state == SerializationContext.SerializationState.PENDING) {
+                instanceDetail = SerializationContext.Detail.DECLARATION;
+                newInstanceState = SerializationContext.SerializationState.FULLY_SERIALIZED;
             }
         }
 
-        if (detail == Instance.Detail.DEFINITION && instanceDetail == Instance.Detail.DEFINITION && type instanceof FunctionType && constant) {
+        if (detail == SerializationContext.Detail.DEFINITION
+                && instanceDetail == SerializationContext.Detail.DEFINITION
+                && type instanceof FunctionType && constant) {
 
-            ((UserFunction) value).serializeWithName(asb, detail, serializationStateMap, name);
+            ((UserFunction) value).serializeWithName(asb, detail, serializationContext, name);
 
-            serializationStateMap.put((Dependency) value, newInstanceState);
+            serializationContext.setState((Entity) value, newInstanceState);
             return;
         }
 
-        if (detail == Instance.Detail.DEFINITION) {
-            asb.append(constant ? "let " : "variable ");
+        if (detail == SerializationContext.Detail.DEFINITION) {
+            asb.append(constant ? "const " : "variable ");
         }
 
         asb.append(name);
@@ -69,13 +71,13 @@ public class RootVariable implements Dependency, HasDependencies {
             Formatting.toLiteral(asb, value);
             asb.append(";\n");
         } else {
-            ((Dependency) value).serialize(asb, instanceDetail, serializationStateMap);
-            serializationStateMap.put((Dependency) value, newInstanceState);
+            ((Entity) value).serialize(asb, instanceDetail, serializationContext);
+            serializationContext.setState((Entity) value, newInstanceState);
         }
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         if (value instanceof HasDependencies) {
             ((HasDependencies) value).getDependencies(environment, result);
         }

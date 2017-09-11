@@ -2,7 +2,6 @@ package org.kobjects.codechat.lang;
 
 import java.util.Collection;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.OnExpression;
@@ -76,8 +75,8 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, Detail detail, Map<Dependency, Environment.SerializationState> serializationStateMap) {
-        if (detail != Detail.DECLARATION) {
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext) {
+        if (detail != SerializationContext.Detail.DECLARATION) {
             boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
 
             asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), new InstanceLink(this));
@@ -124,7 +123,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         onExpression.getDependencies(environment, result);
     }
 }

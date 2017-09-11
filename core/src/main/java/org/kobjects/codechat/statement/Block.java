@@ -1,7 +1,7 @@
 package org.kobjects.codechat.statement;
 
 import java.util.Collection;
-import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 
@@ -32,7 +32,7 @@ public class Block extends AbstractStatement {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         for (Statement statement: statements) {
             statement.getDependencies(environment, result);
         }

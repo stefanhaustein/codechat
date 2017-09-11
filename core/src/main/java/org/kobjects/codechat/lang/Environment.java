@@ -9,18 +9,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import javax.print.Doc;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.statement.Statement;
@@ -348,25 +344,21 @@ public class Environment {
         return instance;
     }
 
-    public enum SerializationState {
-        PENDING, STUB_SERIALIZED, FULLY_SERIALIZED
-    }
-
     /**
      * Serializes the given target including all dependencies
      */
-    public void serialize(AnnotatedStringBuilder asb, Dependency target, Map<Dependency, SerializationState> serialized) {
-        SerializationState state = serialized.get(target);
+    public void serialize(AnnotatedStringBuilder asb, Entity target, SerializationContext serializationContext) {
+        SerializationContext.SerializationState state = serializationContext.getState(target);
         if (state == null) {
-            serialized.put(target, SerializationState.PENDING);
+            serializationContext.setState(target, SerializationContext.SerializationState.PENDING);
         } else {
             switch (state) {
                 case FULLY_SERIALIZED:
                 case STUB_SERIALIZED:
                     return;
                 case PENDING:
-                    target.serialize(asb, Instance.Detail.DECLARATION, serialized);
-                    serialized.put(target, SerializationState.STUB_SERIALIZED);
+                    target.serialize(asb, SerializationContext.Detail.DECLARATION, serializationContext);
+                    serializationContext.setState(target, SerializationContext.SerializationState.STUB_SERIALIZED);
                     return;
                 default:
                     throw new RuntimeException();
@@ -374,44 +366,44 @@ public class Environment {
         }
 
         if (target instanceof HasDependencies) {
-            Set<Dependency> dependencies = new HashSet<>();
+            Set<Entity> dependencies = new HashSet<>();
             ((HasDependencies) target).getDependencies(this, dependencies);
-            for (Dependency dependency: dependencies) {
-                serialize(asb, dependency, serialized);
+            for (Entity dependency: dependencies) {
+                serialize(asb, dependency, serializationContext);
             }
         }
 
-        switch(serialized.get(target)) {
+        switch(serializationContext.getState(target)) {
             case FULLY_SERIALIZED:
                 return;  // should be impossible
             case STUB_SERIALIZED:
-                target.serialize(asb, Instance.Detail.DETAIL, serialized);
+                target.serialize(asb, SerializationContext.Detail.DETAIL, serializationContext);
                 break;
             case PENDING:
-                target.serialize(asb, Instance.Detail.DEFINITION, serialized);
+                target.serialize(asb, SerializationContext.Detail.DEFINITION, serializationContext);
                 break;
             default:
                 throw new RuntimeException();
         }
-        serialized.put(target, SerializationState.FULLY_SERIALIZED);
+        serializationContext.setState(target, SerializationContext.SerializationState.FULLY_SERIALIZED);
     }
 
 
     public void dump(AnnotatedStringBuilder asb) {
         System.gc();
 
-        Map<Dependency, SerializationState> stateMap = new HashMap<>();
+        SerializationContext serializationContext = new SerializationContext();
 
         for (RootVariable variable : rootVariables.values()) {
             if (variable.value != null && !variable.builtin) {
-                serialize(asb, variable, stateMap);
+                serialize(asb, variable, serializationContext);
             }
         }
 
         for (WeakReference<Instance> reference : everything.values()) {
             Instance instance = reference.get();
             if (instance != null) {
-                serialize(asb, instance, stateMap);
+                serialize(asb, instance, serializationContext);
             }
         }
 
@@ -543,9 +535,9 @@ public class Environment {
         return (Type) var.value;
     }
 
-    Iterable<HasDependencies> findDependencies(Dependency dependency) {
+    Iterable<HasDependencies> findDependencies(Entity dependency) {
         HashSet<HasDependencies> result = new HashSet<>();
-        HashSet<Dependency> localDependencies = new HashSet<>();
+        HashSet<Entity> localDependencies = new HashSet<>();
         for (WeakReference<Instance> ref: everything.values()) {
             Instance instance = ref.get();
             if (instance != null) {
@@ -654,9 +646,9 @@ public class Environment {
 
     // Used for dump
     static class DependencyData {
-        final Dependency dependency;
+        final Entity dependency;
         String name;
-        Set<Dependency> dependencies = new HashSet<>();
+        Set<Entity> dependencies = new HashSet<>();
 
         DependencyData(Instance instance, Environment environment) {
             this.dependency = instance;

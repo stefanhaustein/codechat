@@ -2,9 +2,10 @@ package org.kobjects.codechat.annotation;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.SerializationContext;
 
 public class InstanceLink implements Link {
     private final WeakReference<Instance> instance;
@@ -21,7 +22,7 @@ public class InstanceLink implements Link {
         if (instance == null) {
             environment.environmentListener.print("(deleted)");
         } else {
-            instance.serialize(new AnnotatedStringBuilder(sb, null), Instance.Detail.DETAIL, new HashMap<Dependency, Environment.SerializationState>());
+            instance.serialize(new AnnotatedStringBuilder(sb, null), SerializationContext.Detail.DETAIL, new SerializationContext());
             environment.environmentListener.edit(sb.toString());
         }
     }

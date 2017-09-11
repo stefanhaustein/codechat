@@ -1,15 +1,12 @@
 package org.kobjects.codechat.expr;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import org.kobjects.codechat.lang.Closure;
-import org.kobjects.codechat.lang.Dependency;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.lang.ParsingContext;
-import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 
@@ -69,7 +66,7 @@ public class FunctionExpression extends Expression {
         return 0;
     }
 
-    public void getDependencies(Environment environment, Collection<Dependency> result) {
+    public void getDependencies(Environment environment, Collection<Entity> result) {
         if (body != null) {
             body.getDependencies(environment, result);
         }
