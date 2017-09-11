@@ -34,7 +34,9 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 
 ### Rotating Spaceship
 
-    ship = Sprite#1{angle: -0.06785307179600877, face: "🚀", size: 250.0};
+    ship = new Sprite;
+    ship.face = "🚀";
+    ship.size: 250.0;
 
     leftButton = new Sprite;
     leftButton.face = "↪️";
