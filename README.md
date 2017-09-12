@@ -31,3 +31,32 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     onchange screen.frame:
       ball.dy = ball.dy - 15.0;
     end;
+
+### Rotating Spaceship
+
+    ship = new Sprite;
+    ship.face = "🚀";
+    ship.size: 250.0;
+
+    leftButton = new Sprite;
+    leftButton.face = "↪️";
+    leftButton.horizontalAlignment = LEFT;
+    leftButton.size = 250;
+    leftButton.verticalAlignment = BOTTOM;
+
+    rightButton = Sprite;
+    rightButton.face: "↩️";
+    rightButton.horizontalAlignment = LEFT;
+    rightButton.size = 250.0;
+    rightButton.verticalAlignment =BOTTOM;
+    rightButton.x = 250.0;
+
+    on leftButton.touched:
+      ship.rotation = 3.0;
+    end;
+    on rightButton.touched:
+      ship.rotation = -3.0;
+    end;
+    on not rightButton.touched and not leftButton.touched:
+      ship.rotation = 0.0;
+    end;
