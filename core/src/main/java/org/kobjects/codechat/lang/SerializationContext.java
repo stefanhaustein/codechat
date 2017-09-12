@@ -11,14 +11,28 @@ public class SerializationContext {
     }
 
     public enum SerializationState {
-        PENDING, STUB_SERIALIZED, FULLY_SERIALIZED
+        UNVISITED,             //
+        PENDING,               // Serialization started & currently serializing dependencies
+        STUB_SERIALIZED,       // A stub was serialized
+        FULLY_SERIALIZED       // Fully serialized
+    }
+
+    private final SerializationState defaultState;
+
+    public SerializationContext() {
+        this(SerializationState.UNVISITED);
+    }
+
+    public SerializationContext(SerializationState defaultState) {
+        this.defaultState = defaultState;
     }
 
     private Map<Entity, SerializationState> stateMap = new HashMap<>();
     // Map<Entity, String> nameMap = new HashMap<>();
 
     public SerializationState getState(Entity value) {
-        return stateMap.get(value);
+        SerializationState state = stateMap.get(value);
+        return state == null ? defaultState : state;
     }
 
 

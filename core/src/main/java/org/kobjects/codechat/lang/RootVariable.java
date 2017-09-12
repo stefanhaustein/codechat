@@ -40,13 +40,15 @@ public class RootVariable implements Entity, HasDependencies {
         SerializationContext.Detail instanceDetail = null;
         SerializationContext.SerializationState newInstanceState = null;
         if (value instanceof Entity) {
-            SerializationContext.SerializationState state = serializationContext.getState((Entity) value);
-            if (state == null) {
-                instanceDetail = SerializationContext.Detail.DEFINITION;
-                newInstanceState = SerializationContext.SerializationState.STUB_SERIALIZED;
-            } else if (state == SerializationContext.SerializationState.PENDING) {
-                instanceDetail = SerializationContext.Detail.DECLARATION;
-                newInstanceState = SerializationContext.SerializationState.FULLY_SERIALIZED;
+            switch (serializationContext.getState((Entity) value)) {
+                case UNVISITED:
+                    instanceDetail = SerializationContext.Detail.DEFINITION;
+                    newInstanceState = SerializationContext.SerializationState.STUB_SERIALIZED;
+                    break;
+                case PENDING:
+                    instanceDetail = SerializationContext.Detail.DECLARATION;
+                    newInstanceState = SerializationContext.SerializationState.FULLY_SERIALIZED;
+                    break;
             }
         }
 

@@ -18,6 +18,7 @@ import java.util.TreeMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.MetaType;
@@ -295,7 +296,6 @@ public class Environment {
                 return null;
             }
         });
-
     }
 
 
@@ -348,21 +348,19 @@ public class Environment {
      * Serializes the given target including all dependencies
      */
     public void serialize(AnnotatedStringBuilder asb, Entity target, SerializationContext serializationContext) {
-        SerializationContext.SerializationState state = serializationContext.getState(target);
-        if (state == null) {
-            serializationContext.setState(target, SerializationContext.SerializationState.PENDING);
-        } else {
-            switch (state) {
-                case FULLY_SERIALIZED:
-                case STUB_SERIALIZED:
-                    return;
-                case PENDING:
-                    target.serialize(asb, SerializationContext.Detail.DECLARATION, serializationContext);
-                    serializationContext.setState(target, SerializationContext.SerializationState.STUB_SERIALIZED);
-                    return;
-                default:
-                    throw new RuntimeException();
-            }
+        switch (serializationContext.getState(target)) {
+            case UNVISITED:
+                serializationContext.setState(target, SerializationContext.SerializationState.PENDING);
+                break;
+            case FULLY_SERIALIZED:
+            case STUB_SERIALIZED:
+                return;
+            case PENDING:
+                target.serialize(asb, SerializationContext.Detail.DECLARATION, serializationContext);
+                serializationContext.setState(target, SerializationContext.SerializationState.STUB_SERIALIZED);
+                return;
+            default:
+                throw new RuntimeException();
         }
 
         if (target instanceof HasDependencies) {
@@ -535,8 +533,8 @@ public class Environment {
         return (Type) var.value;
     }
 
-    Iterable<HasDependencies> findDependencies(Entity dependency) {
-        HashSet<HasDependencies> result = new HashSet<>();
+    Iterable<Entity> findDependencies(Entity dependency) {
+        HashSet<Entity> result = new HashSet<>();
         HashSet<Entity> localDependencies = new HashSet<>();
         for (WeakReference<Instance> ref: everything.values()) {
             Instance instance = ref.get();
@@ -550,7 +548,10 @@ public class Environment {
         return result;
     }
 
-    public RootVariable redeclareRootVariable(String name, Type type, boolean constant) {
+    /**
+     * Called when parsing top-level function and variable declarations.
+     */
+    public RootVariable declareRootVariable(String name, Type type, boolean constant) {
         RootVariable rootVariable = rootVariables.get(name);
         boolean existing = rootVariable != null;
         if (!existing) {
@@ -562,11 +563,32 @@ public class Environment {
         rootVariable.constant = constant;
 
         if (existing) {
-            for (HasDependencies dependent : findDependencies(rootVariable)) {
-                environmentListener.print("Potentially invalidated: " + dependent);
+            for (Entity dependent : findDependencies(rootVariable)) {
+                validate(dependent);
             }
         }
         return rootVariable;
+    }
+
+    private void validate(Entity dependent) {
+        SerializationContext serializationContext = new SerializationContext(SerializationContext.SerializationState.FULLY_SERIALIZED);
+        serializationContext.setState(dependent, SerializationContext.SerializationState.UNVISITED);
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        dependent.serialize(asb, SerializationContext.Detail.DETAIL, serializationContext);
+        String serialized = asb.toString();
+
+        try {
+            parse(new ParsingContext(this), serialized);
+        } catch (Exception e) {
+            asb = new AnnotatedStringBuilder();
+
+            asb.append("Broken dependency: ");
+            if (dependent instanceof Instance) {
+                asb.append(Formatting.toLiteral(dependent), new InstanceLink((Instance) dependent));
+            } else {
+                asb.append(Formatting.toLiteral(dependent));
+            }
+        }
     }
 
     public void addNativeFunction(NativeFunction function) {

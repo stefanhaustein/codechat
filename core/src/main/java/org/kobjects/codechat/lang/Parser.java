@@ -249,16 +249,16 @@ public class Parser {
             }
         }
 
-        return processVar(parsingContext, p0, tokenizer.currentPosition, constant, rootLevel, varName, type, init);
+        return processDeclaration(parsingContext, p0, tokenizer.currentPosition, constant, rootLevel, varName, type, init);
     }
 
-    Statement processVar(ParsingContext parsingContext, int p0, int currentPosition, boolean constant, boolean rootLevel, String varName, Type type, Expression init) {
+    Statement processDeclaration(ParsingContext parsingContext, int p0, int currentPosition, boolean constant, boolean rootLevel, String varName, Type type, Expression init) {
         if (rootLevel) {
             if (type == null) {
                 throw new ParsingException(p0, currentPosition,
                         "Explicit type or initializer required for root constants and variables.", null);
             }
-            RootVariable rootVariable = environment.redeclareRootVariable(varName, type, constant);
+            RootVariable rootVariable = environment.declareRootVariable(varName, type, constant);
             Expression left = new RootVariableNode(rootVariable);
             if (init == null) {
                 return new ExpressionStatement(left);
@@ -289,7 +289,7 @@ public class Parser {
 
             Expression functionExpr = parseFunction(parsingContext, tokenizer, id).resolve(parsingContext, null);
 
-            return processVar(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr);
+            return processDeclaration(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr);
         }
         if (tokenizer.tryConsume("for")) {
             return parseFor(parsingContext, tokenizer);
@@ -329,7 +329,7 @@ public class Parser {
                 String name = ((UnresolvedIdentifier) op.left).name;
                 if (parsingContext.resolve(name) == null) {
                     Expression right = op.right.resolve(parsingContext, null);
-                    environment.redeclareRootVariable(name, right.getType(), false);
+                    environment.declareRootVariable(name, right.getType(), false);
                 }
             }
             Expression left = op.left.resolve(parsingContext, null);
