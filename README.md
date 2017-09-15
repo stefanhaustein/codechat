@@ -60,3 +60,31 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     on not rightButton.touched and not leftButton.touched:
       ship.rotation = 0.0;
     end;
+    
+#### Shooting
+
+    function shoot(): Void :
+      var shot = new Sprite;
+      shot.face = "⭐";
+      shot.speed = 1000.0;
+      shot.direction = ship.angle + 45.0°;
+      on ¬shot.visible:
+        delete shot;
+      end;
+    end;
+    
+    fireButton = new Sprite;
+    fireButton.face = "⏺️";
+    fireButton.horizontalAlignment = RIGHT;
+    fireButton.size = 250.0;
+    fireButton.verticalAlignment = BOTTOM;
+    
+    on fireButton.touched:
+     shoot;
+    end;
+
+    
+    
+
+    
+    
