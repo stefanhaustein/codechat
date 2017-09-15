@@ -36,7 +36,7 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 
     ship = new Sprite;
     ship.face = "🚀";
-    ship.size: 250.0;
+    ship.size = 250.0;
 
     leftButton = new Sprite;
     leftButton.face = "↪️";
@@ -44,11 +44,11 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     leftButton.size = 250;
     leftButton.verticalAlignment = BOTTOM;
 
-    rightButton = Sprite;
-    rightButton.face: "↩️";
+    rightButton = new Sprite;
+    rightButton.face = "↩️";
     rightButton.horizontalAlignment = LEFT;
     rightButton.size = 250.0;
-    rightButton.verticalAlignment =BOTTOM;
+    rightButton.verticalAlignment = BOTTOM;
     rightButton.x = 250.0;
 
     on leftButton.touched:
