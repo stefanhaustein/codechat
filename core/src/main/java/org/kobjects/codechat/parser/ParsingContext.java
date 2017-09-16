@@ -1,7 +1,11 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.parser;
 
 import java.util.Map;
 import java.util.TreeMap;
+import org.kobjects.codechat.lang.Closure;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.type.Type;
 
 public class ParsingContext {

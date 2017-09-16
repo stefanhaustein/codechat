@@ -11,7 +11,7 @@ public class Closure {
         mappings.add(new Mapping(name, originalIndex, closureIndex));
     }
 
-    void setVarCount(int varCount) {
+    public void setVarCount(int varCount) {
         this.varCount = varCount;
     }
 

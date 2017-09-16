@@ -12,6 +12,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
@@ -31,21 +32,20 @@ import android.widget.LinearLayout;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import java.io.File;
-import java.util.Collections;
 import java.util.SortedMap;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedString;
-import org.kobjects.codechat.annotation.EditTextLink;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
-import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.expressionparser.ExpressionParser;
 import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
@@ -334,16 +334,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         environment.parse(parsingContext, input.getText().toString());
 
                     } catch (ParsingException e) {
-                        errorText = e.getMessage();
-                   //     if (e.start >= 0 && e.start < e.end && e.end <= editable.length()) {
-                            // protection against expressionparser position bug.
-                            errorSpan = new BackgroundColorSpan(Color.RED);
-
-
-                            errorStart = Math.max(Math.min(e.start, editable.length() - 1), 0);
-                            errorEnd = Math.min(Math.max(e.end, 1), editable.length());
-
-                            input.getText().setSpan(errorSpan, errorStart, errorEnd, 0);
+                        setErrorSpan(input.getText(), e);
 
                      //   }
 
@@ -357,6 +348,18 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         };
         handler.postDelayed(syntaxChecker, 1000);
 
+    }
+
+    private void setErrorSpan(Spannable text, ParsingException e) {
+        //errorText = e.getMessage();
+        //     if (e.start >= 0 && e.start < e.end && e.end <= editable.length()) {
+        // protection against expressionparser position bug.
+        errorSpan = new BackgroundColorSpan(Color.RED);
+
+        errorStart = Math.max(Math.min(e.start, text.length() - 1), 0);
+        errorEnd = Math.min(Math.max(e.end, 1), text.length());
+
+        text.setSpan(errorSpan, errorStart, errorEnd, 0);
     }
 
     void detach(View view) {
@@ -614,7 +617,13 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         } catch (Exception e) {
             e.printStackTrace();
             if (!printed) {
-                printRight(line);
+                if (e instanceof ParsingException) {
+                    SpannableString spannable = new SpannableString(line);
+                    setErrorSpan(spannable, ((ParsingException) e));
+                    printRight(spannable);
+                } else {
+                    printRight(line);
+                }
             }
             print(e.getMessage());
         }

@@ -2,8 +2,7 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
-import org.kobjects.codechat.lang.Parser;
-import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.Type;
 
 public class Literal extends Expression {

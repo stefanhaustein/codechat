@@ -50,7 +50,11 @@ public class FunctionExpression extends Expression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        functionType.serializeSignature(sb, id, null, parameterNames, null);
+        toString(sb, indent, null);
+    }
+
+    public void toString(StringBuilder sb, int indent, String name) {
+        functionType.serializeSignature(sb, id, name, parameterNames, null);
         if (body == null) {
             sb.append(";\n");
         } else {

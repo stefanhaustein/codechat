@@ -1,6 +1,6 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.parser.Parser;
 
 public abstract class AbstractBinaryOperator extends Expression {
     char name;

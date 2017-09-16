@@ -2,11 +2,11 @@ package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.expr.ArrayIndex;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
-import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
+import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
 
 public class UnresolvedArrayExpression extends UnresolvedExpression {
 

@@ -1,4 +1,4 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -18,6 +18,9 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedInstanceReference;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedObjectLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.LocalVariable;
+import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.statement.Assignment;
 import org.kobjects.codechat.expr.unresolved.UnresolvedInvocation;
 import org.kobjects.codechat.expr.Expression;
@@ -66,7 +69,7 @@ public class Parser {
     private final Environment environment;
     private final ExpressionParser<UnresolvedExpression, ParsingContext> expressionParser = createExpressionParser();
 
-    Parser(Environment environment) {
+    public Parser(Environment environment) {
         this.environment = environment;
     }
 
@@ -471,13 +474,17 @@ public class Parser {
 
         @Override
         public UnresolvedExpression numberLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
-            return new UnresolvedLiteral(tokenizer.currentPosition - value.length(), tokenizer.currentPosition, Double.parseDouble(value));
+            int end = tokenizer.currentPosition - tokenizer.leadingWhitespace.length();
+            int start = tokenizer.currentPosition - value.length();
+            return new UnresolvedLiteral(start, end, Double.parseDouble(value));
         }
 
         @Override
         public UnresolvedExpression identifier(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name) {
-            int end = tokenizer.currentPosition;
+            int end = tokenizer.currentPosition - tokenizer.leadingWhitespace.length();
             int start = end - name.length();
+
+            System.out.println("identifier start: " + start + " end: " + end);
 
             if (EMOJI_PATTERN.matcher(name).matches()) {
                 return new UnresolvedLiteral(start, end, name);
@@ -504,8 +511,9 @@ public class Parser {
 
         @Override
         public UnresolvedExpression stringLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String value) {
-            return new UnresolvedLiteral(tokenizer.currentPosition - value.length(), tokenizer.currentPosition,
-                    ExpressionParser.unquote(value));
+            int start = tokenizer.currentPosition - tokenizer.leadingWhitespace.length();
+            int end = start - value.length();
+            return new UnresolvedLiteral(start, end, ExpressionParser.unquote(value));
         }
 
         @Override

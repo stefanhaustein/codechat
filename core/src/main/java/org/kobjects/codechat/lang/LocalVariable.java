@@ -8,7 +8,7 @@ public class LocalVariable {
     private final Type type;
     private final boolean constant;
 
-    LocalVariable(String name, Type type, int index, boolean constant) {
+    public LocalVariable(String name, Type type, int index, boolean constant) {
         this.name = name;
         this.type = type;
         this.index = index;

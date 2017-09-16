@@ -8,7 +8,7 @@ import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.Type;
 
-import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
+import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
 
 public class CollectionLiteral extends Expression {
     Expression[] elements;

@@ -4,7 +4,7 @@ import java.util.Collection;
 import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 

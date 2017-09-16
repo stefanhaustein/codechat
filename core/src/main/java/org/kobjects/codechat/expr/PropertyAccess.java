@@ -1,10 +1,8 @@
 package org.kobjects.codechat.expr;
 
-import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.lang.Tuple;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;

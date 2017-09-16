@@ -8,7 +8,7 @@ import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.expr.RelationalOperator;
 import org.kobjects.codechat.expr.StringConcatenation;
-import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.EnumType;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;

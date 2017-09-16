@@ -5,7 +5,7 @@ import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.Parser;
+import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.Type;
 
 public class InstanceReference extends Expression {

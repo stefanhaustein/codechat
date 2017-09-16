@@ -3,14 +3,12 @@ package org.kobjects.codechat.expr;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.TupleInstance;
-import org.kobjects.codechat.lang.ParsingContext;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
-import static org.kobjects.codechat.lang.Parser.PRECEDENCE_PATH;
+import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
 
 public class ObjectLiteral extends Expression {
 

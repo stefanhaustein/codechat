@@ -7,7 +7,7 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.parser.ParsingContext;
 
 public class DeleteStatement extends AbstractStatement {
     Expression expr;

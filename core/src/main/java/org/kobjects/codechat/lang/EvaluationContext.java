@@ -5,7 +5,7 @@ public class EvaluationContext {
     public final Environment environment;
     public final Object[] variables;
 
-    EvaluationContext(Environment environment, int varCount) {
+    public EvaluationContext(Environment environment, int varCount) {
         this.environment = environment;
         this.variables = new Object[varCount];
     }

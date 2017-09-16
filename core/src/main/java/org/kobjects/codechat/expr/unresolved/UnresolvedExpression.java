@@ -2,7 +2,7 @@ package org.kobjects.codechat.expr.unresolved;
 
 
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.Type;
 
 public abstract class UnresolvedExpression {

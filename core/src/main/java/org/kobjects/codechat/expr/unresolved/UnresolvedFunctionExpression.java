@@ -3,7 +3,7 @@ package org.kobjects.codechat.expr.unresolved;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.lang.Closure;
-import org.kobjects.codechat.lang.ParsingContext;
+import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
