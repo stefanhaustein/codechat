@@ -1,37 +1,24 @@
 package org.kobjects.codechat.android;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.SpannedString;
-import android.text.method.BaseMovementMethod;
 import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.view.Gravity;
-import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Space;
-import android.widget.TextView;
 import com.vanniktech.emoji.EmojiTextView;
 import java.util.ArrayList;
 import java.util.BitSet;
 
-import static android.graphics.PixelFormat.TRANSLUCENT;
-
 public class ChatView extends ListView {
+
+    static final int VIEW_ITEM_TYPE_EMPTY = 0;
+    static final int VIEW_ITEM_TYPE_LEFT = 1;
+    static final int VIEW_ITEM_TYPE_RIGHT = 2;
+
     ArrayList<CharSequence> text = new ArrayList<>();
     BitSet right = new BitSet();
     ChatAdapter chatAdapter = new ChatAdapter();
@@ -44,7 +31,8 @@ public class ChatView extends ListView {
     private final int narrowHorizontalMarign;
     private final int wideHorizontalMarign;
     private final float dpToPx;
-    SelectionCallback selectionCallback;
+    private int bubbleActionResId;
+    private BubbleAction bubbleAction;
 
     public ChatView(Context context) {
         super(context);
@@ -69,8 +57,9 @@ public class ChatView extends ListView {
         //setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
     }
 
-    public void setSelectionCallback(SelectionCallback selectionCallback) {
-        this.selectionCallback = selectionCallback;
+    public void setBubbleAction(int bubbleActionResId, BubbleAction bubbleAction) {
+        this.bubbleActionResId = bubbleActionResId;
+        this.bubbleAction = bubbleAction;
     }
 
     public void add(boolean right, CharSequence s) {
@@ -78,12 +67,6 @@ public class ChatView extends ListView {
         text.add(s == null ? "" : s);
         chatAdapter.notifyDataSetChanged();
     }
-
-    public void setValue(int i, CharSequence s) {
-        text.set(i, s);
-        chatAdapter.notifyDataSetChanged();
-    }
-
 
     class ChatAdapter extends BaseAdapter {
 
@@ -122,7 +105,7 @@ public class ChatView extends ListView {
             final EmojiTextView textView;
             if (view instanceof LinearLayout) {
                 result = (LinearLayout) view;
-                textView = (EmojiTextView) result.getChildAt(0);
+                textView = (EmojiTextView) result.getChildAt(type == VIEW_ITEM_TYPE_LEFT ? 0 : result.getChildCount() - 1);
             } else {
                 textView = new EmojiTextView(viewGroup.getContext());
                 final boolean r = type == 2;
@@ -147,17 +130,37 @@ public class ChatView extends ListView {
                 });
 
                 //  textView.setFocusableInTouchMode(false);
-                result.setOrientation(LinearLayout.VERTICAL);
+           //     result.setOrientation(LinearLayout.VERTICAL);
                 result.addView(textView);
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) textView.getLayoutParams();
                 params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
                 params.gravity = r ? Gravity.RIGHT : Gravity.LEFT;
                 params.topMargin = verticalMargin;
                 params.bottomMargin = verticalMargin;
-                params.leftMargin = r ? wideHorizontalMarign : narrowHorizontalMarign;
-                params.rightMargin = r ? narrowHorizontalMarign : wideHorizontalMarign;
+                params.rightMargin = narrowHorizontalMarign;
+                params.leftMargin = narrowHorizontalMarign;
+              //  params.leftMargin = r ? wideHorizontalMarign : narrowHorizontalMarign;
+              //  params.rightMargin = r ? narrowHorizontalMarign : wideHorizontalMarign;
                 textView.setTextIsSelectable(true);
                 textView.setMovementMethod(LinkMovementMethod.getInstance());
+
+                if (bubbleAction != null) {
+                    ImageView editButton = new ImageView(viewGroup.getContext());
+                    editButton.setImageResource(bubbleActionResId);
+                    editButton.setAlpha(0.5f);
+                    editButton.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            bubbleAction.clicked(textView.getText());
+                        }
+                    });
+                    result.addView(editButton, type == VIEW_ITEM_TYPE_LEFT ? 1 : 0);
+                }
+
+                View emptyView = new View(viewGroup.getContext());
+                result.addView(emptyView, type == VIEW_ITEM_TYPE_LEFT ? result.getChildCount() : 0);
+                ((LinearLayout.LayoutParams) emptyView.getLayoutParams()).weight = 100;
+
             }
             CharSequence cs = (CharSequence) getItem(i);
             int cut = cs.length();
@@ -175,96 +178,12 @@ public class ChatView extends ListView {
         }
 
         public int getItemViewType(int position) {
-            return text.get(position).length() == 0 ? 0 : right.get(position) ? 2 : 1;
+            return text.get(position).length() == 0 ? VIEW_ITEM_TYPE_EMPTY : right.get(position) ? VIEW_ITEM_TYPE_RIGHT : VIEW_ITEM_TYPE_LEFT;
         }
     }
 
-    static class BubbleDrawable extends Drawable {
-
-        boolean right;
-        float cornerBox;
-        float arrowSize;
-        Paint paint = new Paint();
-
-        BubbleDrawable(float arrowSize, float cornerBox, boolean right) {
-            this.arrowSize = arrowSize;
-            this.cornerBox = cornerBox;
-            this.right = right;
-            paint.setAntiAlias(true);
-        }
-
-
-        @Override
-        public void setBounds(Rect bounds) {
-            super.setBounds(bounds);
-        }
-
-        @Override
-        public void draw(Canvas canvas) {
-            paint.setStyle(Paint.Style.FILL);
-            RectF bounds = new RectF(getBounds());
-            if (right) {
-                paint.setColor(0xffC5CAE9);
-            } else {
-                paint.setColor(0xffffffff);
-            }
-          //  canvas.drawRoundRect(bounds, 16, 16 , paint);
-
-            Path path = new Path();
-            RectF arcBox = new RectF();
-
-            if (right) {
-                path.moveTo(bounds.right, bounds.top);
-                arcBox.set(bounds.left, bounds.top, bounds.left + cornerBox, bounds.top + cornerBox);
-                path.arcTo(arcBox, 270, -90, false);
-                arcBox.set(bounds.left, bounds.bottom - cornerBox, bounds.left + cornerBox, bounds.bottom);
-                path.arcTo(arcBox, 180, -90, false);
-                arcBox.set(bounds.right - cornerBox - arrowSize, bounds.bottom - cornerBox, bounds.right - arrowSize, bounds.bottom);
-                path.arcTo(arcBox, 90, -90, false);
-                path.lineTo(bounds.right - arrowSize, bounds.top + arrowSize);
-            } else {
-                path.moveTo(bounds.left, bounds.top);
-                arcBox.set(bounds.right - cornerBox, bounds.top, bounds.right, bounds.top + cornerBox);
-                path.arcTo(arcBox, 270, 90, false);
-                arcBox.set(bounds.right - cornerBox, bounds.bottom - cornerBox, bounds.right, bounds.bottom);
-                path.arcTo(arcBox, 0, 90, false);
-                arcBox.set(bounds.left + arrowSize, bounds.bottom - cornerBox, bounds.left + cornerBox + arrowSize, bounds.bottom);
-                path.arcTo(arcBox, 90, 90, false);
-                path.lineTo(bounds.left + arrowSize, bounds.top + arrowSize);
-            }
-            path.close();
-
-        /*    Path path = new Path();
-            path.moveTo(bounds.right, bounds.top + 20);
-            path.lineTo(bounds.right + 20, bounds.top);
-            path.lineTo(bounds.right - 20, bounds.top);*/
-            canvas.drawPath(path, paint);
-
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setColor(0xffcccccc);
-         //   canvas.drawRoundRect(bounds, 16, 16 , paint);
-            canvas.drawPath(path, paint);
-        }
-
-        @Override
-        public void setAlpha(int i) {
-
-        }
-
-        @Override
-        public void setColorFilter(ColorFilter colorFilter) {
-
-        }
-
-        @Override
-        public int getOpacity() {
-            return TRANSLUCENT;
-        }
-
+    interface BubbleAction {
+        void clicked(CharSequence text);
     }
 
-
-    public interface SelectionCallback {
-        void selected(boolean right, String text);
-    }
 }

@@ -533,16 +533,17 @@ public class Environment {
         return (Type) var.value;
     }
 
-    Iterable<Entity> findDependencies(Entity dependency) {
+    Iterable<Entity> findDependencies(Entity entity) {
         HashSet<Entity> result = new HashSet<>();
         HashSet<Entity> localDependencies = new HashSet<>();
         for (WeakReference<Instance> ref: everything.values()) {
             Instance instance = ref.get();
             if (instance != null) {
+                localDependencies.clear();
                 instance.getDependencies(this, localDependencies);
-            }
-            if (localDependencies.contains(dependency)) {
-                result.add(instance);
+                if (localDependencies.contains(entity)) {
+                    result.add(instance);
+                }
             }
         }
         return result;

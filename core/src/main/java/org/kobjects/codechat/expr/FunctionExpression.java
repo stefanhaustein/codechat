@@ -31,7 +31,7 @@ public class FunctionExpression extends Expression {
         if (body == null || id == -1) {
             result = (UserFunction) context.environment.instantiate(functionType, id);
         } else {
-            result = (UserFunction) context.environment.getInstance(functionType, id, false);
+            result = (UserFunction) context.environment.getInstance(functionType, id, true);
         }
         result.init(this, closure.createEvalContext(context));
         return result;

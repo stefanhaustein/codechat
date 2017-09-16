@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 
         chatView = new ChatView(this);
 
+
         environment = new AndroidEnvironment(this, contentLayout, codeDir);
 
         inputRow = new LinearLayout(this);
@@ -133,6 +134,14 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE); // TYPE_TEXT_FLAG_NO_SUGGESTIONS);//|
         input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 //        input.setPrivateImeOptions("nm");
+
+
+        chatView.setBubbleAction(R.drawable.ic_keyboard_arrow_down_black_24dp, new ChatView.BubbleAction() {
+            @Override
+            public void clicked(CharSequence text) {
+                input.setText(String.valueOf(text));
+            }
+        });
 
         /*
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
@@ -194,7 +203,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 final int oldHeight = oldBottom - oldTop;
                 final int newHeight = newBottom - newTop;
 
-                if (newHeight > oldHeight * 1.5 && oldHeight != 0) {
+                if ((newHeight > oldHeight * 1.2 && oldHeight != 0) || newHeight > chatView.getHeight()) {
                     inputRow.post(new Runnable() {
                         @Override
                         public void run() {
@@ -211,26 +220,6 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 }
             }
         });
-
-        chatView.setSelectionCallback(new ChatView.SelectionCallback() {
-            @Override
-            public void selected(boolean right, String text) {
-                int lineCount = 0;
-                for (int i = 0; i < text.length(); i++) {
-                    if (text.charAt(i) == '\n') {
-                        lineCount++;
-                        if (lineCount > 5) {
-                            return;
-                        }
-                    }
-                }
-                if (lineCount == 0) {
-                    text = input.getText().toString() + text;
-                }
-                input.setText(text);
-            }
-        });
-
 
         inputButtons = new LinearLayout(this);
        // inputButtons.setOrientation(LinearLayout.VERTICAL);
@@ -526,11 +515,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     void printRight(CharSequence s) {
-        if (s instanceof String && ((String) s).indexOf('\n') == -1) {
-            print(new AnnotatedString((String) s, Collections.singletonList(new AnnotationSpan(0, s.length(), new EditTextLink((String) s)))), true);
-        } else {
-            chatView.add(true, s);
-        }
+        chatView.add(true, s);
     }
 
     public void print(final CharSequence s) {
