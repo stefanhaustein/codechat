@@ -78,7 +78,7 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     fireButton = new Sprite;
     fireButton.face = "⏺️";
     fireButton.size = 250.0;
-    fireButton.xlAlign = RIGHT;
+    fireButton.xAlign = RIGHT;
     fireButton.yAlign = BOTTOM;
     
     on fireButton.touched:
