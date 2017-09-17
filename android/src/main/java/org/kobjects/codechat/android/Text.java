@@ -3,15 +3,12 @@ package org.kobjects.codechat.android;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.TypedValue;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import android.widget.TextView;
 import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.HasDependencies;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.TupleInstance;
@@ -33,11 +30,11 @@ public class Text extends TupleInstance implements Runnable {
                         "center or right side of the screen, depending on the value of the horizontalAlignment property.");
         TYPE.addProperty(2, "y", Type.NUMBER, true,
                 "The vertical position of the text in normalized pixels relative to the top, " +
-                        "center or bottom of the screen, depending on the value of the verticalAlignment property. ");
-        TYPE.addProperty(3, "horizontalAlignment", AndroidEnvironment.HorizontalAlignment, true,
+                        "center or bottom of the screen, depending on the value of the yAlign property. ");
+        TYPE.addProperty(3, "horizontalAlignment", AndroidEnvironment.XAlign, true,
                 "Determines whether the x property is relative to the left side, " +
                         "center or right side of the screen.");
-        TYPE.addProperty(4, "verticalAlignment", AndroidEnvironment.VerticalAlignment, true,
+        TYPE.addProperty(4, "yAlign", AndroidEnvironment.YAlign, true,
                 "Determines whether the x property is relative to the left side, " +
                         "center or right side of the screen.");
         TYPE.addProperty(5, "text", Type.STRING, true, "The displayed text string.");
@@ -51,8 +48,8 @@ public class Text extends TupleInstance implements Runnable {
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<String> text = new VisualMaterialProperty<>("");
-    public VisualMaterialProperty<EnumLiteral> horizonalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.HorizontalAlignment.getValue("CENTER"));
-    public VisualMaterialProperty<EnumLiteral> verticalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.VerticalAlignment.getValue("CENTER"));
+    public VisualMaterialProperty<EnumLiteral> horizonalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.getValue("CENTER"));
+    public VisualMaterialProperty<EnumLiteral> verticalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.getValue("CENTER"));
 
 
     public Text(Environment environment, int id) {

@@ -22,8 +22,8 @@ public class AndroidEnvironment extends Environment implements Runnable {
     Handler handler = new Handler();
     public Screen screen = new Screen();
     public double scale;
-    public static EnumType VerticalAlignment = new EnumType("VerticalAlignment", "TOP", "CENTER", "BOTTOM");
-    public static EnumType HorizontalAlignment = new EnumType("HorizontalAlignment", "LEFT", "CENTER", "RIGHT");
+    public static EnumType YAlign = new EnumType("YAlign", "TOP", "CENTER", "BOTTOM");
+    public static EnumType XAlign = new EnumType("XAlign", "LEFT", "CENTER", "RIGHT");
 
     public AndroidEnvironment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
         super(environmentListener, codeDir);
@@ -33,8 +33,8 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addType(Screen.TYPE);
         addType(Sprite.TYPE);
         addType(Text.TYPE);
-        addType(HorizontalAlignment);
-        addType(VerticalAlignment);
+        addType(XAlign);
+        addType(YAlign);
 
         addType(Sensors.TYPE);
 

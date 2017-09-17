@@ -8,7 +8,6 @@ import android.view.ViewParent;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import org.kobjects.codechat.lang.Collection;
@@ -36,10 +35,10 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 "The size of this sprite in normalized pixels.");
         TYPE.addProperty(1, "x", Type.NUMBER, true,
                 "The horizontal position of thes sprite in normalized pixels, relative to the left side, " +
-                "center or right side of the screen, depending on the value of the horizontalAlignment property.");
+                "center or right side of the screen, depending on the value of the xAlign property.");
         TYPE.addProperty(2, "y", Type.NUMBER, true,
                 "The vertical position of the text in normalized pixels relative to the top, " +
-                        "center or bottom of the screen, depending on the value of the verticalAlignment property. ");
+                        "center or bottom of the screen, depending on the value of the yAlign property. ");
         TYPE.addProperty(3, "angle", Type.NUMBER, true,
                 "The rotation angle of this sprite in radians (counter clockwise).");
         TYPE.addProperty(4, "face", Type.STRING, true, "The emoji displayed for this sprite.");
@@ -51,20 +50,20 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 "The current vertical speed of this sprite in normalized pixels per second.");
         TYPE.addProperty(8, "rotation", Type.NUMBER, true,
                 "The current counter clockwise rotation speed in radians per second.");
-        TYPE.addProperty(9, "touched", Type.BOOLEAN, false,
-                "True if this sprite is currently touched.");
+        TYPE.addProperty(9, "touch", Type.BOOLEAN, false,
+                "True if this sprite is currently touch.");
         TYPE.addProperty(10, "direction", Type.NUMBER, true,
                 "The movement direction of this sprite in radians; 0 if the sprite is not moving.");
         TYPE.addProperty(11, "speed", Type.NUMBER, true,
                 "The current speed in pixels per second.");
         TYPE.addProperty(12, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently withing the usable screen boundaries.");
-        TYPE.addProperty(13, "horizontalAlignment", AndroidEnvironment.HorizontalAlignment, true,
+        TYPE.addProperty(13, "yAlign", AndroidEnvironment.XAlign, true,
                 "Determines whether the x property is relative to the left side, " +
                 "center or right side of the screen.");
-        TYPE.addProperty(14, "verticalAlignment", AndroidEnvironment.VerticalAlignment, true,
-                "Determines whether the x property is relative to the left side, " +
-                "center or right side of the screen.");
+        TYPE.addProperty(14, "yAlign", AndroidEnvironment.YAlign, true,
+                "Determines whether the y property is relative to the top, " +
+                "center or bottom of the screen.");
     }
 
     private final ImageView view;
@@ -78,8 +77,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
-    public VisualMaterialProperty<EnumLiteral> horizonalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.HorizontalAlignment.getValue("CENTER"));
-    public VisualMaterialProperty<EnumLiteral> verticalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.VerticalAlignment.getValue("CENTER"));
+    public VisualMaterialProperty<EnumLiteral> xAlign = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.getValue("CENTER"));
+    public VisualMaterialProperty<EnumLiteral> yAlign = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.getValue("CENTER"));
     public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
     public LazyProperty<Collection> collisions = new LazyProperty<Collection>() {
         @Override
@@ -107,7 +106,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public MaterialProperty<Double> dx = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> dy = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
-    public MaterialProperty<Boolean> touched = new MaterialProperty<>(false);
+    public MaterialProperty<Boolean> touch = new MaterialProperty<>(false);
 
     public Property<Double> direction = new Property<Double>() {
         @Override
@@ -160,11 +159,11 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    touched.set(true);
+                    touch.set(true);
                     return true;
                 }
                 if (motionEvent.getActionMasked() == MotionEvent.ACTION_UP) {
-                    touched.set(false);
+                    touch.set(false);
                     return true;
                 }
                 return false;
@@ -202,7 +201,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 return;
         }
         double size = this.size.get();
-        switch (horizonalAlignment.get().getName()) {
+        switch (xAlign.get().getName()) {
             case "LEFT":
                 view.setX((float) (environment.scale * (x.get())));
                 break;
@@ -214,7 +213,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 break;
         }
 
-        switch (verticalAlignment.get().getName()) {
+        switch (yAlign.get().getName()) {
             case "TOP":
                 view.setY((float) (environment.scale * (y.get())));
                 break;
@@ -259,7 +258,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             if (dxValue != 0 || force) {
                 double xMin;
                 double xMax;
-                switch (horizonalAlignment.get().getName()) {
+                switch (xAlign.get().getName()) {
                     case "LEFT":
                     case "RIGHT":
                         xMin = -sizeValue * 3 / 2;
@@ -283,7 +282,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             if (dyValue != 0 || force) {
                 double yMin;
                 double yMax;
-                switch (verticalAlignment.get().getName()) {
+                switch (yAlign.get().getName()) {
                     case "TOP":
                     case "BOTTOM":
                         yMin = -sizeValue * 3 / 2;
@@ -349,12 +348,12 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             case 6: return dx;
             case 7: return dy;
             case 8: return rotation;
-            case 9: return touched;
+            case 9: return touch;
             case 10: return direction;
             case 11: return speed;
             case 12: return visible;
-            case 13: return horizonalAlignment;
-            case 14: return verticalAlignment;
+            case 13: return xAlign;
+            case 14: return yAlign;
             default:
                 throw new IllegalArgumentException();
         }
