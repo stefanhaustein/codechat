@@ -11,7 +11,9 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 
 ### Bouncing Ball
 
-    ball = new Sprite
+    ball = new Sprite;
+    ball.size = 250;
+    ball.dx = -1;
     ball.xAlign = LEFT;
     ball.yAlign = BOTTOM;
     on ball.x > screen.width - ball.size:
@@ -76,10 +78,10 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     fireButton = new Sprite;
     fireButton.face = "⏺️";
     fireButton.size = 250.0;
-    fireButton.xlAlign = RIGHT;
+    fireButton.xAlign = RIGHT;
     fireButton.yAlign = BOTTOM;
     
-    on fireButton.touched:
+    on fireButton.touch:
      shoot;
     end;
 
