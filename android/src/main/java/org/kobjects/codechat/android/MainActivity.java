@@ -33,8 +33,9 @@ import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import java.io.File;
 import java.util.SortedMap;
+import org.kobjects.codechat.android.chatview.BubbleAction;
+import org.kobjects.codechat.android.chatview.ChatView;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
@@ -45,7 +46,6 @@ import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.expressionparser.ExpressionParser;
 import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
 import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     private int errorEnd;
     private String errorText;
     private String errorPrinted;
+    private BubbleAction editAction;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -110,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
         setSupportActionBar(toolbar);
 
         chatView = new ChatView(this);
-
 
         environment = new AndroidEnvironment(this, contentLayout, codeDir);
 
@@ -136,12 +136,12 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 //        input.setPrivateImeOptions("nm");
 
 
-        chatView.setBubbleAction(R.drawable.ic_keyboard_arrow_down_black_24dp, new ChatView.BubbleAction() {
+        editAction = new BubbleAction(R.drawable.ic_keyboard_arrow_down_black_24dp, "Edit") {
             @Override
-            public void clicked(CharSequence text) {
+            public void invoke(CharSequence text) {
                 input.setText(String.valueOf(text));
             }
-        });
+        };
 
         /*
         input.setOnEditorActionListener( new EditText.OnEditorActionListener() {
@@ -517,12 +517,17 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         return true;
     }
 
-    void printRight(CharSequence s) {
-        chatView.add(true, s);
+    void printInput(CharSequence s) {
+        chatView.add(ChatView.BubbleType.RIGHT, s, editAction);
     }
 
+    @Override
     public void print(final CharSequence s) {
-        print(s, false);
+        print(ChatView.BubbleType.LEFT, s);
+    }
+
+    void print(final CharSequence s, BubbleAction... actions) {
+        print(ChatView.BubbleType.LEFT, s);
     }
 
     @Override
@@ -535,11 +540,10 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         });
     }
 
-    public void print(final CharSequence s, final boolean right) {
+    public void print(final ChatView.BubbleType bubbleType, final CharSequence s, final BubbleAction... actions) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
                 if (s instanceof AnnotatedCharSequence) {  // FIXME
                     SpannableString spannable = new SpannableString(s);
                     for (final AnnotationSpan annotation : ((AnnotatedCharSequence) s).getAnnotations()) {
@@ -552,9 +556,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                             }, annotation.getStart(), annotation.getEnd(), 0);
                         }
                     }
-                    chatView.add(right, spannable);
+                    chatView.add(bubbleType, spannable, actions);
                 } else {
-                    chatView.add(right, s);
+                    chatView.add(bubbleType, s, actions);
                 }
             }
         });
@@ -563,7 +567,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     void processInput(String line) {
         boolean printed = false;
         if (line.length() == 0) {
-            printRight("");
+            print(ChatView.BubbleType.EMPTY, "");
             return;
         }
         try {
@@ -571,7 +575,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 String key = line.substring(4).trim();
                 SortedMap<String,RootVariable> matches = environment.rootVariables.subMap(key, key + "ZZZZ");
 
-                printRight(line);
+                printInput(line);
                 printed = true;
                 if (matches.size() == 0) {
                     print("not found: " + key);
@@ -595,16 +599,16 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 if (statement instanceof ExpressionStatement) {
                     Expression expression = ((ExpressionStatement) statement).expression;
                     String s = expression.toString();
-                    printRight(s);
+                    printInput(s);
                     printed = true;
                     Object result = expression.eval(parsingContext.createEvaluationContext());
                     if (Type.VOID.equals(expression.getType())) {
                         print("ok");
                     } else {
-                        print(Formatting.toLiteral(result));
+                        print(Formatting.toLiteral(result), editAction);
                     }
                 } else {
-                    printRight(statement.toString());
+                    printInput(statement.toString());
                     printed = true;
                     statement.eval(parsingContext.createEvaluationContext());
                     print("ok");
@@ -620,9 +624,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 if (e instanceof ParsingException) {
                     SpannableString spannable = new SpannableString(line);
                     setErrorSpan(spannable, ((ParsingException) e));
-                    printRight(spannable);
+                    printInput(spannable);
                 } else {
-                    printRight(line);
+                    printInput(line);
                 }
             }
             print(e.getMessage());

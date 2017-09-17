@@ -58,7 +58,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 "The current speed in pixels per second.");
         TYPE.addProperty(12, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently withing the usable screen boundaries.");
-        TYPE.addProperty(13, "yAlign", AndroidEnvironment.XAlign, true,
+        TYPE.addProperty(13, "xAlign", AndroidEnvironment.XAlign, true,
                 "Determines whether the x property is relative to the left side, " +
                 "center or right side of the screen.");
         TYPE.addProperty(14, "yAlign", AndroidEnvironment.YAlign, true,

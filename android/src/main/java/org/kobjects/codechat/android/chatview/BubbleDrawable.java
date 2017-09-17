@@ -1,4 +1,4 @@
-package org.kobjects.codechat.android;
+package org.kobjects.codechat.android.chatview;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
