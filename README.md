@@ -12,8 +12,8 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 ### Bouncing Ball
 
     ball = new Sprite
-    ball.horizontalAlignment = LEFT;
-    ball.verticalAlignment = BOTTOM;
+    ball.xAlign = LEFT;
+    ball.yAlign = BOTTOM;
     on ball.x > screen.width - ball.size:
       ball.dx = -100.0;
       ball.rotation = 3.0;
@@ -40,24 +40,24 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 
     leftButton = new Sprite;
     leftButton.face = "↪️";
-    leftButton.horizontalAlignment = LEFT;
     leftButton.size = 250;
-    leftButton.verticalAlignment = BOTTOM;
+    leftButton.xAlign = LEFT;
+    leftButton.yAlign = BOTTOM;
 
     rightButton = new Sprite;
     rightButton.face = "↩️";
-    rightButton.horizontalAlignment = LEFT;
     rightButton.size = 250.0;
-    rightButton.verticalAlignment = BOTTOM;
     rightButton.x = 250.0;
+    rightButton.xAlign = LEFT;
+    rightButton.yAlign = BOTTOM;
 
-    on leftButton.touched:
+    on leftButton.touch:
       ship.rotation = 3.0;
     end;
-    on rightButton.touched:
+    on rightButton.touch:
       ship.rotation = -3.0;
     end;
-    on not rightButton.touched and not leftButton.touched:
+    on not rightButton.touch and not leftButton.touch:
       ship.rotation = 0.0;
     end;
     
@@ -75,16 +75,12 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     
     fireButton = new Sprite;
     fireButton.face = "⏺️";
-    fireButton.horizontalAlignment = RIGHT;
     fireButton.size = 250.0;
-    fireButton.verticalAlignment = BOTTOM;
+    fireButton.xlAlign = RIGHT;
+    fireButton.yAlign = BOTTOM;
     
     on fireButton.touched:
      shoot;
     end;
 
-    
-    
-
-    
-    
+ 
