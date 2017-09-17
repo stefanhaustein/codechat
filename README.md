@@ -81,7 +81,7 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     fireButton.xAlign = RIGHT;
     fireButton.yAlign = BOTTOM;
     
-    on fireButton.touched:
+    on fireButton.touch:
      shoot;
     end;
 
