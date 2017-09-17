@@ -1,8 +1,5 @@
 package org.kobjects.codechat.lang;
 
-import java.util.Collection;
-import java.util.Map;
-
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.type.TupleType;
@@ -82,12 +79,12 @@ public abstract class TupleInstance implements Tuple, Instance {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Entity> result) {
+    public void getDependencies(Environment environment, DependencyCollector result) {
         for (TupleType.PropertyDescriptor propertyDescriptor : getType ().properties()) {
             if (propertyDescriptor.writable) {
                 Object deps = getProperty(propertyDescriptor.index);
                 if (deps instanceof Entity) {
-                    result.add((Entity) deps);
+                    result.addStrong((Entity) deps);
                 } else if (deps instanceof HasDependencies) {
                     ((HasDependencies) deps).getDependencies(environment, result);
                 }

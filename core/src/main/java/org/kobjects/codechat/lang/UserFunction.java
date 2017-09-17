@@ -86,7 +86,7 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Entity> result) {
+    public void getDependencies(Environment environment, DependencyCollector result) {
         if (body != null) {
             body.getDependencies(environment, result);
         }

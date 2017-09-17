@@ -365,9 +365,9 @@ public class Environment {
         }
 
         if (target instanceof HasDependencies) {
-            Set<Entity> dependencies = new HashSet<>();
-            ((HasDependencies) target).getDependencies(this, dependencies);
-            for (Entity dependency: dependencies) {
+            DependencyCollector collector = new DependencyCollector();
+            ((HasDependencies) target).getDependencies(this, collector);
+            for (Entity dependency: collector.getStrong()) {
                 serialize(asb, dependency, serializationContext);
             }
         }
@@ -536,11 +536,10 @@ public class Environment {
 
     Iterable<Entity> findDependencies(Entity entity) {
         HashSet<Entity> result = new HashSet<>();
-        HashSet<Entity> localDependencies = new HashSet<>();
         for (WeakReference<Instance> ref: everything.values()) {
             Instance instance = ref.get();
             if (instance != null) {
-                localDependencies.clear();
+                DependencyCollector localDependencies = new DependencyCollector();
                 instance.getDependencies(this, localDependencies);
                 if (localDependencies.contains(entity)) {
                     result.add(instance);
@@ -668,11 +667,12 @@ public class Environment {
     }
 
 
+    /*
     // Used for dump
     static class DependencyData {
         final Entity dependency;
         String name;
-        Set<Entity> dependencies = new HashSet<>();
+        DependencyCollector dependencies = new DependencyCollector();
 
         DependencyData(Instance instance, Environment environment) {
             this.dependency = instance;
@@ -690,4 +690,5 @@ public class Environment {
             }
         }
     }
+    */
 }

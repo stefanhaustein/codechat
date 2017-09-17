@@ -81,10 +81,10 @@ public class Collection implements Tuple, Iterable, HasDependencies {
     }
 
     @Override
-    public void getDependencies(Environment environment, java.util.Collection<Entity> result) {
+    public void getDependencies(Environment environment, DependencyCollector result) {
         for (Object o : data) {
             if (o instanceof Entity) {
-                result.add((Entity) o);
+                result.addStrong((Entity) o);
             } else if (o instanceof HasDependencies) {
                 ((HasDependencies) o).getDependencies(environment, result);
             }

@@ -79,7 +79,7 @@ public class RootVariable implements Entity, HasDependencies {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Entity> result) {
+    public void getDependencies(Environment environment, DependencyCollector result) {
         if (value instanceof HasDependencies) {
             ((HasDependencies) value).getDependencies(environment, result);
         }

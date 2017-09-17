@@ -1,7 +1,6 @@
 package org.kobjects.codechat.expr;
 
-import java.util.Collection;
-import org.kobjects.codechat.lang.Entity;
+import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.parser.Parser;
@@ -52,7 +51,7 @@ public class RootVariableNode extends Expression {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Entity> result) {
-        result.add(rootVariable);
+    public void getDependencies(Environment environment, DependencyCollector result) {
+        result.addStrong(rootVariable);
     }
 }

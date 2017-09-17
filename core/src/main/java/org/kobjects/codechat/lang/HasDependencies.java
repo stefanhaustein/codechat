@@ -4,6 +4,6 @@ import java.util.Collection;
 
 public interface HasDependencies {
 
-    void getDependencies(Environment environment, Collection<Entity> result);
+    void getDependencies(Environment environment, DependencyCollector result);
 
 }

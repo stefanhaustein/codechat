@@ -2,6 +2,7 @@ package org.kobjects.codechat.statement;
 
 import java.util.Collection;
 import org.kobjects.codechat.expr.RootVariableNode;
+import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -46,7 +47,7 @@ public class DeleteStatement extends AbstractStatement {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Entity> result) {
+    public void getDependencies(Environment environment, DependencyCollector result) {
         expr.getDependencies(environment, result);
     }
 }

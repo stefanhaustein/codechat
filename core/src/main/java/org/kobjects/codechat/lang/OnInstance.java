@@ -123,7 +123,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
     }
 
     @Override
-    public void getDependencies(Environment environment, Collection<Entity> result) {
+    public void getDependencies(Environment environment, DependencyCollector result) {
         onExpression.getDependencies(environment, result);
     }
 }

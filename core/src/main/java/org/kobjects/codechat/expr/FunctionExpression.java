@@ -2,6 +2,7 @@ package org.kobjects.codechat.expr;
 
 import java.util.Collection;
 import org.kobjects.codechat.lang.Closure;
+import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -70,7 +71,7 @@ public class FunctionExpression extends Expression {
         return 0;
     }
 
-    public void getDependencies(Environment environment, Collection<Entity> result) {
+    public void getDependencies(Environment environment, DependencyCollector result) {
         if (body != null) {
             body.getDependencies(environment, result);
         }
