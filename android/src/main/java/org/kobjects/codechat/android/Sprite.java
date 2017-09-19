@@ -68,7 +68,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
 
     private final ImageView view;
     private boolean syncRequested;
-    private static List<Sprite> allVisibleSprites = new ArrayList();
+    static List<Sprite> allVisibleSprites = new ArrayList();
     AndroidEnvironment environment;
     enum Command {NONE, ADD, REMOVE};
     private Command command = Command.ADD;

@@ -12,7 +12,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -345,65 +344,31 @@ public class Environment {
         return instance;
     }
 
-    /**
-     * Serializes the given target including all dependencies
-     */
-    public void serialize(AnnotatedStringBuilder asb, Entity target, SerializationContext serializationContext) {
-        switch (serializationContext.getState(target)) {
-            case UNVISITED:
-                serializationContext.setState(target, SerializationContext.SerializationState.PENDING);
-                break;
-            case FULLY_SERIALIZED:
-            case STUB_SERIALIZED:
-                return;
-            case PENDING:
-                target.serialize(asb, SerializationContext.Detail.DECLARATION, serializationContext);
-                serializationContext.setState(target, SerializationContext.SerializationState.STUB_SERIALIZED);
-                return;
-            default:
-                throw new RuntimeException();
-        }
 
-        if (target instanceof HasDependencies) {
-            DependencyCollector collector = new DependencyCollector();
-            ((HasDependencies) target).getDependencies(this, collector);
-            for (Entity dependency: collector.getStrong()) {
-                serialize(asb, dependency, serializationContext);
-            }
-        }
 
-        switch(serializationContext.getState(target)) {
-            case FULLY_SERIALIZED:
-                return;  // should be impossible
-            case STUB_SERIALIZED:
-                target.serialize(asb, SerializationContext.Detail.DETAIL, serializationContext);
-                break;
-            case PENDING:
-                target.serialize(asb, SerializationContext.Detail.DEFINITION, serializationContext);
-                break;
-            default:
-                throw new RuntimeException();
-        }
-        serializationContext.setState(target, SerializationContext.SerializationState.FULLY_SERIALIZED);
+    protected void addExtraRootEntities(SerializationContext serializationContext) {
+
     }
-
 
     public void dump(AnnotatedStringBuilder asb) {
         System.gc();
 
-        SerializationContext serializationContext = new SerializationContext();
+        SerializationContext serializationContext = new SerializationContext(this);
 
         for (RootVariable variable : rootVariables.values()) {
             if (variable.value != null && !variable.builtin) {
-                serialize(asb, variable, serializationContext);
+                variable.serialize(asb, serializationContext);
             }
         }
 
-        for (WeakReference<Instance> reference : everything.values()) {
-            Instance instance = reference.get();
-            if (instance != null) {
-                serialize(asb, instance, serializationContext);
+        addExtraRootEntities(serializationContext);
+
+        while (true) {
+            Entity entity = serializationContext.pollPending();
+            if (entity == null) {
+                break;
             }
+            entity.serialize(asb, serializationContext);
         }
 
     }
@@ -572,10 +537,10 @@ public class Environment {
     }
 
     private void validate(Entity dependent) {
-        SerializationContext serializationContext = new SerializationContext(SerializationContext.SerializationState.FULLY_SERIALIZED);
+        SerializationContext serializationContext = new SerializationContext(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
         serializationContext.setState(dependent, SerializationContext.SerializationState.UNVISITED);
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        dependent.serialize(asb, SerializationContext.Detail.DETAIL, serializationContext);
+        dependent.serialize(asb, serializationContext);
         String serialized = asb.toString();
 
         try {

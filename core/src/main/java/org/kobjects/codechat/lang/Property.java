@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public abstract class Property<T> {
     protected ArrayList<PropertyListener<T>> listeners;
@@ -40,6 +41,13 @@ public abstract class Property<T> {
 
     public void removeAllListeners() {
         listeners = null;
+    }
+
+    public Iterable<PropertyListener<T>> getListeners() {
+        if (listeners == null) {
+            return Collections.emptyList();
+        }
+        return listeners;
     }
 
     public interface PropertyListener<T> {

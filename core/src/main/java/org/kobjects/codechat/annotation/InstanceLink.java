@@ -22,7 +22,7 @@ public class InstanceLink implements Link {
         if (instance == null) {
             environment.environmentListener.print("(deleted)");
         } else {
-            instance.serialize(new AnnotatedStringBuilder(sb, null), SerializationContext.Detail.DETAIL, new SerializationContext());
+            instance.serialize(new AnnotatedStringBuilder(sb, null), new SerializationContext(environment, SerializationContext.SerializationState.STUB_SERIALIZED));
             environment.environmentListener.edit(sb.toString());
         }
     }

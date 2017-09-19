@@ -33,6 +33,16 @@ public class DependencyCollector {
         return result;
     }
 
+    public Iterable<Entity> getWeak() {
+        HashSet result = new HashSet();
+        for (Map.Entry<Entity,Type> entry : dependencies.entrySet()) {
+            if (entry.getValue() == Type.WEAK) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
+    }
+
     public boolean contains(Entity entity) {
         return dependencies.containsKey(entity);
     }

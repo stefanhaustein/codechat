@@ -74,21 +74,6 @@ public class OnInstance implements Instance, Property.PropertyListener {
     }
 
 
-    @Override
-    public void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext) {
-        if (detail != SerializationContext.Detail.DECLARATION) {
-            boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
-
-            asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), new InstanceLink(this));
-            asb.append(" ").append(onExpression.expression.toString()).append(":\n");
-            onExpression.body.toString(asb.getStringBuilder(), wrap ? 2 : 1);
-            if (wrap) {
-                asb.append("  end;\n");
-            }
-            asb.append("end;\n");
-        }
-    }
-
     public void delete() {
         detach();
     }
@@ -97,6 +82,28 @@ public class OnInstance implements Instance, Property.PropertyListener {
     @Override
     public OnInstanceType getType() {
         return onExpression.onChange ? ONCHANGE_TYPE : ON_TYPE;
+    }
+
+    @Override
+    public void serializeStub(AnnotatedStringBuilder asb) {
+        asb.append("new ");
+        Formatting.toLiteral(asb, this);
+        asb.append(";\n");
+    }
+
+    @Override
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
+        serializationContext.serializeDependencies(asb, this);
+
+        boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
+
+        asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), new InstanceLink(this));
+        asb.append(" ").append(onExpression.expression.toString()).append(":\n");
+        onExpression.body.toString(asb.getStringBuilder(), wrap ? 2 : 1);
+        if (wrap) {
+            asb.append("  end;\n");
+        }
+        asb.append("end;\n");
     }
 
     public static class OnInstanceType extends Type {

@@ -48,11 +48,19 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext) {
-        serializeWithName(asb, detail, serializationContext, null);
+    public void serializeStub(AnnotatedStringBuilder asb) {
+        serializeWithName(asb, SerializationContext.Detail.DECLARATION, null);
     }
 
-    public void serializeWithName(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext, String name) {
+    @Override
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
+        serializationContext.serializeDependencies(asb,this);
+        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
+        serializeWithName(asb, SerializationContext.Detail.DECLARATION, null);
+        serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
+    }
+
+    public void serializeWithName(AnnotatedStringBuilder asb, SerializationContext.Detail detail, String name) {
         int start = asb.length();
         int nameEnd = -1;
         if (detail == SerializationContext.Detail.DECLARATION) {

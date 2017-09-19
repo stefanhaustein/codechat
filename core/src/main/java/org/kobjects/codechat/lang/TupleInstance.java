@@ -14,22 +14,39 @@ public abstract class TupleInstance implements Tuple, Instance {
         return getType() + "#" + id;
     }
 
+    @Override
+    public void serializeStub(AnnotatedStringBuilder asb) {
+        asb.append("new ").append(toString()).append(";\n");
+    }
+
+    void serializeDependencies(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
+        DependencyCollector dependencyCollector = new DependencyCollector();
+        getDependencies(serializationContext.getEnvironment(), dependencyCollector);
+
+        for (Entity entity: dependencyCollector.getStrong()) {
+            if (serializationContext.getState(entity) == SerializationContext.SerializationState.UNVISITED) {
+                entity.serializeStub(asb);
+                serializationContext.setState(entity, SerializationContext.SerializationState.STUB_SERIALIZED);
+            }
+        }
+    }
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext) {
-        switch (detail) {
-            case DECLARATION:
-                asb.append(" new ").append(toString(), new InstanceLink(this)).append(";\n");
-                break;
-            case DEFINITION:
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
+        serializeDependencies(asb, serializationContext);
+        switch (serializationContext.getState(this)) {
+            case UNVISITED:
                 serializeDefinition(asb);
                 break;
-            case DETAIL:
+            case STUB_SERIALIZED:
                 serializeDetails(asb);
                 break;
             default:
-                throw new IllegalArgumentException();
+                System.err.println("Redundant serialization of " + toString());
+                asb.append(toString()).append("\n");
+                break;
         }
+        serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
     }
 
     private void serializeDefinition(AnnotatedStringBuilder asb) {
@@ -81,12 +98,18 @@ public abstract class TupleInstance implements Tuple, Instance {
     @Override
     public void getDependencies(Environment environment, DependencyCollector result) {
         for (TupleType.PropertyDescriptor propertyDescriptor : getType ().properties()) {
-            if (propertyDescriptor.writable) {
-                Object deps = getProperty(propertyDescriptor.index);
-                if (deps instanceof Entity) {
-                    result.addStrong((Entity) deps);
-                } else if (deps instanceof HasDependencies) {
-                    ((HasDependencies) deps).getDependencies(environment, result);
+            Property property = getProperty(propertyDescriptor.index);
+            if (property instanceof MaterialProperty) {
+                Object value = property.get();
+                if (value instanceof Entity) {
+                    result.addStrong((Entity) value);
+                } else if (value instanceof HasDependencies) {
+                    ((HasDependencies) value).getDependencies(environment, result);
+                }
+            }
+            for (Object listener : property.getListeners()) {
+                if (listener instanceof OnInstance) {
+                    result.addWeak((OnInstance) listener);
                 }
             }
         }

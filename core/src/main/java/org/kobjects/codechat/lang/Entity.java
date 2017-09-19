@@ -8,5 +8,6 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
  * Defines a serialization entry point. Data inside is usually serialized in a way that
  */
 public interface Entity {
-    void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext);
+    void serializeStub(AnnotatedStringBuilder asb);
+    void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext);
 }

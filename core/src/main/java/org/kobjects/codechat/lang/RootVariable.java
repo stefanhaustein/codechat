@@ -3,6 +3,7 @@ package org.kobjects.codechat.lang;
 import java.util.Collection;
 import java.util.Map;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.type.FunctionType;
@@ -23,59 +24,63 @@ public class RootVariable implements Entity, HasDependencies {
     }
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, SerializationContext.Detail detail, SerializationContext serializationContext) {
+    public void serializeStub(AnnotatedStringBuilder asb) {
+        asb.append(constant ? "const " : "variable ");
+        asb.append(name);
+        asb.append(": ");
+        asb.append(type.toString());
+        asb.append(";\n");
+    }
+
+    @Override
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
         if (builtin) {
+            serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
             return;
         }
 
-        if (detail == SerializationContext.Detail.DECLARATION) {
-            asb.append(constant ? "let " : "variable ");
+        SerializationContext.SerializationState state = serializationContext.getState(this);
+        if (state == SerializationContext.SerializationState.FULLY_SERIALIZED) {
+            System.err.println("Double serialization of root identifier " + name);
+            return;
+        }
+
+        serializationContext.serializeDependencies(asb, this);
+
+        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
+
+        if (value instanceof UserFunction && constant) {
+            UserFunction fn = (UserFunction) value;
+            serializationContext.setState(fn, SerializationContext.SerializationState.STUB_SERIALIZED);
+            fn.serializeWithName(asb, SerializationContext.Detail.DEFINITION, name);
+            serializationContext.setState(fn, SerializationContext.SerializationState.FULLY_SERIALIZED);
+        } else {
+            if (state == SerializationContext.SerializationState.UNVISITED) {
+                asb.append(constant ? "const " : "variable ");
+            }
             asb.append(name);
-            asb.append(" : ").append(type.getName(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
-            asb.append(";\n");
-            return;
-        }
-
-
-        SerializationContext.Detail instanceDetail = null;
-        SerializationContext.SerializationState newInstanceState = null;
-        if (value instanceof Entity) {
-            switch (serializationContext.getState((Entity) value)) {
-                case UNVISITED:
-                    instanceDetail = SerializationContext.Detail.DEFINITION;
-                    newInstanceState = SerializationContext.SerializationState.STUB_SERIALIZED;
-                    break;
-                case PENDING:
-                    instanceDetail = SerializationContext.Detail.DECLARATION;
-                    newInstanceState = SerializationContext.SerializationState.FULLY_SERIALIZED;
-                    break;
+            asb.append(" = ");
+            if (value instanceof Entity) {
+                Entity entity = (Entity) value;
+                SerializationContext.SerializationState valueState = serializationContext.getState(entity);
+                switch (valueState) {
+                    case UNVISITED:
+                        entity.serialize(asb, serializationContext);
+                        break;
+                    case STUB_SERIALIZED:
+                        serializationContext.enqueue(entity);
+                        // FALLTHROUGH intended:
+                    default:
+                        Formatting.toLiteral(asb, value);
+                        asb.append(";\n");
+                }
+            } else {
+                Formatting.toLiteral(asb, value);
+                asb.append(";\n");
             }
         }
 
-        if (detail == SerializationContext.Detail.DEFINITION
-                && instanceDetail == SerializationContext.Detail.DEFINITION
-                && type instanceof FunctionType && constant) {
-
-            ((UserFunction) value).serializeWithName(asb, detail, serializationContext, name);
-
-            serializationContext.setState((Entity) value, newInstanceState);
-            return;
-        }
-
-        if (detail == SerializationContext.Detail.DEFINITION) {
-            asb.append(constant ? "const " : "variable ");
-        }
-
-        asb.append(name);
-        asb.append(" = ");
-
-        if (instanceDetail == null) {
-            Formatting.toLiteral(asb, value);
-            asb.append(";\n");
-        } else {
-            ((Entity) value).serialize(asb, instanceDetail, serializationContext);
-            serializationContext.setState((Entity) value, newInstanceState);
-        }
+        serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
     }
 
     @Override

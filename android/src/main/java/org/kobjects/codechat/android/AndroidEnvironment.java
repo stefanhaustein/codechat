@@ -9,10 +9,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.NativeFunction;
+import org.kobjects.codechat.lang.SerializationContext;
 import org.kobjects.codechat.type.EnumType;
 import org.kobjects.codechat.type.Type;
 
@@ -76,6 +78,14 @@ public class AndroidEnvironment extends Environment implements Runnable {
             screen.frame.set(screen.frame.get() + 1);
         }
         handler.postDelayed(this, 17);
+    }
+
+
+
+    protected void addExtraRootEntities(SerializationContext serializationContext) {
+        for (Entity entity : Sprite.allVisibleSprites) {
+            serializationContext.enqueue(entity);
+        }
     }
 
 
