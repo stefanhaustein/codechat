@@ -14,7 +14,7 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-emoji-bundled:26.0.2"
+    compile "com.android.support:support-emoji-bundled:26.1.0"
     compile 'com.vanniktech:emoji-google-compat:0.6.0-SNAPSHOT'
     compile project(':core')
 }

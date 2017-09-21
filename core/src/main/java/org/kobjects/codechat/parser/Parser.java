@@ -16,6 +16,7 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedFunctionExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
 import org.kobjects.codechat.expr.unresolved.UnresolvedInstanceReference;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
+import org.kobjects.codechat.expr.unresolved.UnresolvedMultiAssignment;
 import org.kobjects.codechat.expr.unresolved.UnresolvedObjectLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
 import org.kobjects.codechat.lang.Environment;
@@ -465,6 +466,7 @@ public class Parser {
         public UnresolvedExpression suffixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
             switch (name) {
                 case "{": return parseObjectLiteral(parsingContext, tokenizer, argument);
+                case "::": return parseMultiAssignment(parsingContext, tokenizer, argument);
                 case "°": return new UnresolvedUnaryOperator(tokenizer.currentPosition - name.length(), tokenizer.currentPosition,'°', argument);
                 default:
                     return super.suffixOperator(parsingContext, tokenizer, name, argument);
@@ -544,6 +546,20 @@ public class Parser {
         }
     }
 
+    private UnresolvedExpression parseMultiAssignment(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, UnresolvedExpression base) {
+        LinkedHashMap<String, UnresolvedExpression> assignments = new LinkedHashMap<>();
+        while (!tokenizer.tryConsume("end")) {
+            while (tokenizer.tryConsume(";")) {
+            }
+            String propertyName = tokenizer.consumeIdentifier();
+            tokenizer.consume("=");
+            assignments.put(propertyName, expressionParser.parse(parsingContext, tokenizer));
+            while (tokenizer.tryConsume(";")) {
+            }
+        }
+        return new UnresolvedMultiAssignment(base, assignments, tokenizer.currentPosition);
+    }
+
     /**
      * Creates a parser for this processor with matching operations and precedences set up.
      */
@@ -559,7 +575,7 @@ public class Parser {
 //        parser.addApplyBrackets(PRECEDENCE_PATH, "(", ",", ")");
         parser.addApplyBrackets(PRECEDENCE_APPLY, "[", ",", "]");
         parser.addApplyBrackets(PRECEDENCE_APPLY, "(", ",", ")");
-        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_APPLY, "{");
+        parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_APPLY, "{", "::");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
 

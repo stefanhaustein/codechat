@@ -1,5 +1,6 @@
 package org.kobjects.codechat.lang;
 
+import java.util.Arrays;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
@@ -67,5 +68,11 @@ public final class Formatting {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
         toLiteral(asb, value);
         return asb.build();
+    }
+
+    public static String space(int i) {
+        char[] chars = new char[i];
+        Arrays.fill(chars, ' ');
+        return new String(chars);
     }
 }
