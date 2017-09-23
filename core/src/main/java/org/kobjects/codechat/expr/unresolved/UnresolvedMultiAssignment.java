@@ -30,8 +30,8 @@ public class UnresolvedMultiAssignment extends UnresolvedExpression {
     public MultiAssignment resolve(ParsingContext parsingContext, Type expectedType) {
         Expression resolvedBase = base.resolve(parsingContext, expectedType);
 
-        if (resolvedBase.getType() instanceof TupleType) {
-            throw new ExpressionParser.ParsingException(base.start, base.end, "Multi-assignment base expression must be of tuply type.", null);
+        if (!(resolvedBase.getType() instanceof TupleType)) {
+            throw new ExpressionParser.ParsingException(base.start, base.end, "Multi-assignment base expression must be of tupe type (is: " + resolvedBase.getType() + ")", null);
         }
         TupleType type = (TupleType) resolvedBase.getType();
 
