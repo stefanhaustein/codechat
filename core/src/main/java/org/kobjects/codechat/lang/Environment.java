@@ -9,10 +9,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.WeakHashMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
@@ -107,6 +109,7 @@ public class Environment {
     public boolean paused;
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
+    public Map<Instance,String> constants = new WeakHashMap<>();
     public TreeMap<String,RootVariable> rootVariables = new TreeMap<>();
     public File codeDir;
     public EnvironmentListener environmentListener;
@@ -406,6 +409,7 @@ public class Environment {
         }
         rootVariables = systemVariables;
         everything.clear();
+        constants.clear();
         lastId = 0;
     }
 

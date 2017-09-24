@@ -97,6 +97,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
                 ticking.clear();
             }
         }
+        Sprite.clearAll();
         super.clearAll();
         if (rootView != null) {
             for (int i = rootView.getChildCount() - 1; i >= 0; i--) {

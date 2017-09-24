@@ -52,11 +52,11 @@ public class RootVariable implements Entity, HasDependencies {
         if (value instanceof UserFunction && constant) {
             UserFunction fn = (UserFunction) value;
             serializationContext.setState(fn, SerializationContext.SerializationState.STUB_SERIALIZED);
-            fn.serializeWithName(asb, SerializationContext.Detail.DEFINITION, name);
+            fn.serializeWithName(asb, name, true);
             serializationContext.setState(fn, SerializationContext.SerializationState.FULLY_SERIALIZED);
         } else {
             if (state == SerializationContext.SerializationState.UNVISITED) {
-                asb.append(constant ? "const " : "variable ");
+                asb.append(constant ? "let " : "variable ");
             }
             asb.append(name);
             asb.append(" = ");

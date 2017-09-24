@@ -3,6 +3,7 @@ package org.kobjects.codechat.expr;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
@@ -43,6 +44,9 @@ public class RootVariableNode extends Expression {
     @Override
     public void assign(EvaluationContext context, Object value) {
         rootVariable.value = value;
+        if (rootVariable.constant && value instanceof Instance) {
+            context.environment.constants.put((Instance) value, rootVariable.name);
+        }
     }
 
 

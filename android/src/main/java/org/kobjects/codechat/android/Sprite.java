@@ -373,4 +373,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         }
     }
 
+
+    public static void clearAll() {
+        allVisibleSprites.clear();
+    }
 }

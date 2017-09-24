@@ -6,17 +6,20 @@ import org.kobjects.codechat.type.TupleType;
 
 public abstract class TupleInstance implements Tuple, Instance {
     private int id;
+    private Environment environment;
     protected TupleInstance(Environment environment, int id) {
+        this.environment = environment;
         this.id = id;
     }
 
     public String toString() {
-        return getType() + "#" + id;
+        String name = environment.constants.get(this);
+        return  name != null ? name : (getType() + "#" + id);
     }
 
     @Override
     public void serializeStub(AnnotatedStringBuilder asb) {
-        asb.append("new ").append(toString()).append(";\n");
+        asb.append("new ").append(getType() + "#" + id).append(";\n");
     }
 
     void serializeDependencies(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
@@ -38,6 +41,10 @@ public abstract class TupleInstance implements Tuple, Instance {
         switch (serializationContext.getState(this)) {
             case UNVISITED:
                 asb.append("new ");
+                if (environment.constants.containsKey(this)) {
+                    asb.append(getType().getName());
+                    break;
+                }
             case STUB_SERIALIZED:
                 asb.append(toString(), new InstanceLink(this));
                 break;

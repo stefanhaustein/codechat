@@ -333,7 +333,7 @@ public class Parser {
                 String name = ((UnresolvedIdentifier) op.left).name;
                 if (parsingContext.resolve(name) == null) {
                     Expression right = op.right.resolve(parsingContext, null);
-                    environment.declareRootVariable(name, right.getType(), false);
+                    environment.declareRootVariable(name, right.getType(), true);
                 }
             }
             Expression left = op.left.resolve(parsingContext, null);
@@ -459,6 +459,11 @@ public class Parser {
 
         @Override
         public UnresolvedExpression prefixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
+            if (name.equals("new")) {
+                return new UnresolvedInvocation(tokenizer.currentPosition,
+                        new UnresolvedIdentifier(tokenizer.currentPosition - name.length(), tokenizer.currentPosition,
+                                "new"), false, argument);
+            }
             return new UnresolvedUnaryOperator(tokenizer.currentPosition - name.length(), tokenizer.currentPosition, name.equals("not") ? '\u00ac' : name.charAt(0), argument);
         }
 
@@ -569,9 +574,8 @@ public class Parser {
         parser.addGroupBrackets("(", null, ")");
         // parser.addGroupBrackets("[", ",", "]");
 
-        // FIXME: Should be parser.
-        // parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
-        parser.addPrimary("new");
+        parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_PREFIX, "new");
+        // parser.addPrimary("new");
 //        parser.addApplyBrackets(PRECEDENCE_PATH, "(", ",", ")");
         parser.addApplyBrackets(PRECEDENCE_APPLY, "[", ",", "]");
         parser.addApplyBrackets(PRECEDENCE_APPLY, "(", ",", ")");

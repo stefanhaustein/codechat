@@ -8,15 +8,8 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 
 public class SerializationContext {
 
-    public enum Detail {
-        DECLARATION, // new Foo#31
-        DEFINITION,  // Foo#31{bar: "x"}
-        DETAIL       // Foo#31.bar = "x"
-    }
-
     public enum SerializationState {
         UNVISITED,             //
-        PENDING,               // Serialization started & currently serializing dependencies
         STUB_SERIALIZED,       // A stub was serialized
         FULLY_SERIALIZED       // Fully serialized
     }
@@ -71,7 +64,8 @@ public class SerializationContext {
         DependencyCollector dependencyCollector = new DependencyCollector();
         hasDependencies.getDependencies(getEnvironment(), dependencyCollector);
         for (Entity entity: dependencyCollector.getStrong()) {
-            if (getState(entity) == SerializationContext.SerializationState.UNVISITED) {
+            if (getState(entity) == SerializationContext.SerializationState.UNVISITED
+                    && (!(entity instanceof RootVariable) || !((RootVariable) entity).builtin)) {
                 entity.serializeStub(asb);
                 setState(entity, SerializationContext.SerializationState.STUB_SERIALIZED);
             }
