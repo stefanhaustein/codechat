@@ -7,6 +7,7 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Tuple;
+import org.kobjects.codechat.lang.TupleInstance;
 import org.kobjects.codechat.type.TupleType;
 
 public class Screen implements Tuple {
@@ -100,6 +101,6 @@ public class Screen implements Tuple {
 
     @Override
     public void getDependencies(Environment environment, DependencyCollector result) {
-
+        TupleInstance.getDependencies(this, environment, result);
     }
 }

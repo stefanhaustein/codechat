@@ -359,9 +359,7 @@ public class Environment {
         SerializationContext serializationContext = new SerializationContext(this);
 
         for (RootVariable variable : rootVariables.values()) {
-            if (variable.value != null && !variable.builtin) {
-                variable.serialize(asb, serializationContext);
-            }
+            variable.serialize(asb, serializationContext);
         }
 
         addExtraRootEntities(serializationContext);

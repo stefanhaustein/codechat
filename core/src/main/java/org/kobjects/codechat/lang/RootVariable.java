@@ -34,11 +34,6 @@ public class RootVariable implements Entity, HasDependencies {
 
     @Override
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        if (builtin) {
-            serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
-            return;
-        }
-
         SerializationContext.SerializationState state = serializationContext.getState(this);
         if (state == SerializationContext.SerializationState.FULLY_SERIALIZED) {
             System.err.println("Double serialization of root identifier " + name);
@@ -46,6 +41,11 @@ public class RootVariable implements Entity, HasDependencies {
         }
 
         serializationContext.serializeDependencies(asb, this);
+
+        if (builtin || value == null) {
+            serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
+            return;
+        }
 
         serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
 

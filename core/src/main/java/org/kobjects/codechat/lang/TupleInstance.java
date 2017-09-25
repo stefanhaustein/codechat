@@ -5,6 +5,26 @@ import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.type.TupleType;
 
 public abstract class TupleInstance implements Tuple, Instance {
+
+    public static void getDependencies(Tuple tuple,Environment environment, DependencyCollector result) {
+        for (TupleType.PropertyDescriptor propertyDescriptor : tuple.getType ().properties()) {
+            Property property = tuple.getProperty(propertyDescriptor.index);
+            if (property instanceof MaterialProperty) {
+                Object value = property.get();
+                if (value instanceof Entity) {
+                    result.addStrong((Entity) value);
+                } else if (value instanceof HasDependencies) {
+                    ((HasDependencies) value).getDependencies(environment, result);
+                }
+            }
+            for (Object listener : property.getListeners()) {
+                if (listener instanceof OnInstance) {
+                    result.addWeak((OnInstance) listener);
+                }
+            }
+        }
+    }
+
     private int id;
     private Environment environment;
     protected TupleInstance(Environment environment, int id) {
@@ -79,22 +99,7 @@ public abstract class TupleInstance implements Tuple, Instance {
 
     @Override
     public void getDependencies(Environment environment, DependencyCollector result) {
-        for (TupleType.PropertyDescriptor propertyDescriptor : getType ().properties()) {
-            Property property = getProperty(propertyDescriptor.index);
-            if (property instanceof MaterialProperty) {
-                Object value = property.get();
-                if (value instanceof Entity) {
-                    result.addStrong((Entity) value);
-                } else if (value instanceof HasDependencies) {
-                    ((HasDependencies) value).getDependencies(environment, result);
-                }
-            }
-            for (Object listener : property.getListeners()) {
-                if (listener instanceof OnInstance) {
-                    result.addWeak((OnInstance) listener);
-                }
-            }
-        }
+        getDependencies(this, environment, result);
     }
 
     public int getId() {
