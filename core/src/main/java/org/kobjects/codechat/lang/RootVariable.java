@@ -1,13 +1,7 @@
 package org.kobjects.codechat.lang;
 
-import java.util.Collection;
-import java.util.Map;
-
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
-import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
 public class RootVariable implements Entity, HasDependencies {
@@ -85,9 +79,9 @@ public class RootVariable implements Entity, HasDependencies {
     }
 
     @Override
-    public void getDependencies(Environment environment, DependencyCollector result) {
+    public void getDependencies(DependencyCollector result) {
         if (value instanceof HasDependencies) {
-            ((HasDependencies) value).getDependencies(environment, result);
+            ((HasDependencies) value).getDependencies(result);
         }
     }
 }

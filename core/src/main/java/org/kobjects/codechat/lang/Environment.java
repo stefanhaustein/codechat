@@ -505,8 +505,8 @@ public class Environment {
         for (WeakReference<Instance> ref: everything.values()) {
             Instance instance = ref.get();
             if (instance != null) {
-                DependencyCollector localDependencies = new DependencyCollector();
-                instance.getDependencies(this, localDependencies);
+                DependencyCollector localDependencies = new DependencyCollector(this);
+                instance.getDependencies(localDependencies);
                 if (localDependencies.contains(entity)) {
                     result.add(instance);
                 }

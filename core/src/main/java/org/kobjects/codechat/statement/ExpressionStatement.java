@@ -1,10 +1,7 @@
 package org.kobjects.codechat.statement;
 
-import java.util.Collection;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.DependencyCollector;
-import org.kobjects.codechat.lang.Entity;
-import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 
 public class ExpressionStatement extends AbstractStatement {
@@ -28,7 +25,7 @@ public class ExpressionStatement extends AbstractStatement {
     }
 
     @Override
-    public void getDependencies(Environment environment, DependencyCollector result) {
-        expression.getDependencies(environment, result);
+    public void getDependencies(DependencyCollector result) {
+        expression.getDependencies(result);
     }
 }

@@ -1,10 +1,7 @@
 package org.kobjects.codechat.expr;
 
-import java.util.Collection;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.DependencyCollector;
-import org.kobjects.codechat.lang.Entity;
-import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.type.Type;
@@ -67,8 +64,8 @@ public class OnExpression extends Expression {
         return expression;
     }
 
-    public void getDependencies(Environment environment, DependencyCollector result) {
-        super.getDependencies(environment, result);
-        body.getDependencies(environment, result);
+    public void getDependencies(DependencyCollector result) {
+        super.getDependencies(result);
+        body.getDependencies(result);
     }
 }

@@ -1,9 +1,7 @@
 package org.kobjects.codechat.lang;
 
-import java.util.Collection;
-
 public interface HasDependencies {
 
-    void getDependencies(Environment environment, DependencyCollector result);
+    void getDependencies(DependencyCollector result);
 
 }

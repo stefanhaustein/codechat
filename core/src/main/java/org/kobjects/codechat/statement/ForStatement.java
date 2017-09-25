@@ -1,11 +1,8 @@
 package org.kobjects.codechat.statement;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.DependencyCollector;
-import org.kobjects.codechat.lang.Entity;
-import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.LocalVariable;
 
@@ -51,8 +48,8 @@ public class ForStatement extends AbstractStatement {
     }
 
     @Override
-    public void getDependencies(Environment environment, DependencyCollector result) {
-        expression.getDependencies(environment, result);
-        body.getDependencies(environment, result);
+    public void getDependencies(DependencyCollector result) {
+        expression.getDependencies(result);
+        body.getDependencies(result);
     }
 }

@@ -9,11 +9,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import org.kobjects.codechat.lang.DependencyCollector;
-import org.kobjects.codechat.lang.Entity;
-import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Tuple;
 import org.kobjects.codechat.type.ListType;
@@ -114,7 +111,7 @@ public class Sensors implements Tuple {
     }
 
     @Override
-    public void getDependencies(Environment environment, DependencyCollector result) {
+    public void getDependencies(DependencyCollector result) {
 
     }
 

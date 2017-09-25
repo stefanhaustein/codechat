@@ -1,8 +1,5 @@
 package org.kobjects.codechat.lang;
 
-import java.util.Collection;
-import java.util.Map;
-
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.AbstractStatement;
@@ -94,9 +91,9 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void getDependencies(Environment environment, DependencyCollector result) {
+    public void getDependencies(DependencyCollector result) {
         if (body != null) {
-            body.getDependencies(environment, result);
+            body.getDependencies(result);
         }
     }
 }

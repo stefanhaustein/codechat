@@ -1,7 +1,6 @@
 package org.kobjects.codechat.lang;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -61,8 +60,8 @@ public class SerializationContext {
     }
 
     public void serializeDependencies(AnnotatedStringBuilder asb, HasDependencies hasDependencies) {
-        DependencyCollector dependencyCollector = new DependencyCollector();
-        hasDependencies.getDependencies(getEnvironment(), dependencyCollector);
+        DependencyCollector dependencyCollector = new DependencyCollector(environment);
+        hasDependencies.getDependencies(dependencyCollector);
         for (Entity entity: dependencyCollector.getStrong()) {
             if (getState(entity) == SerializationContext.SerializationState.UNVISITED
                     && (!(entity instanceof RootVariable) || !((RootVariable) entity).builtin)) {

@@ -11,7 +11,12 @@ public class DependencyCollector {
         STRONG
     }
 
-    HashMap<Entity,Type> dependencies = new HashMap<>();
+    private final Environment environment;
+    private final HashMap<Entity,Type> dependencies = new HashMap<>();
+
+    public DependencyCollector(Environment environment) {
+        this.environment = environment;
+    }
 
     public void addStrong(Entity strongDependency) {
         dependencies.put(strongDependency, Type.STRONG);
@@ -41,6 +46,10 @@ public class DependencyCollector {
             }
         }
         return result;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
     }
 
     public boolean contains(Entity entity) {

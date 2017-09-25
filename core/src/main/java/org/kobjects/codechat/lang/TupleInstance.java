@@ -6,7 +6,7 @@ import org.kobjects.codechat.type.TupleType;
 
 public abstract class TupleInstance implements Tuple, Instance {
 
-    public static void getDependencies(Tuple tuple,Environment environment, DependencyCollector result) {
+    public static void getDependencies(Tuple tuple, DependencyCollector result) {
         for (TupleType.PropertyDescriptor propertyDescriptor : tuple.getType ().properties()) {
             Property property = tuple.getProperty(propertyDescriptor.index);
             if (property instanceof MaterialProperty) {
@@ -14,7 +14,7 @@ public abstract class TupleInstance implements Tuple, Instance {
                 if (value instanceof Entity) {
                     result.addStrong((Entity) value);
                 } else if (value instanceof HasDependencies) {
-                    ((HasDependencies) value).getDependencies(environment, result);
+                    ((HasDependencies) value).getDependencies(result);
                 }
             }
             for (Object listener : property.getListeners()) {
@@ -43,8 +43,8 @@ public abstract class TupleInstance implements Tuple, Instance {
     }
 
     void serializeDependencies(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        DependencyCollector dependencyCollector = new DependencyCollector();
-        getDependencies(serializationContext.getEnvironment(), dependencyCollector);
+        DependencyCollector dependencyCollector = new DependencyCollector(environment);
+        getDependencies(dependencyCollector);
 
         for (Entity entity: dependencyCollector.getStrong()) {
             if (serializationContext.getState(entity) == SerializationContext.SerializationState.UNVISITED) {
@@ -98,8 +98,8 @@ public abstract class TupleInstance implements Tuple, Instance {
 
 
     @Override
-    public void getDependencies(Environment environment, DependencyCollector result) {
-        getDependencies(this, environment, result);
+    public void getDependencies(DependencyCollector result) {
+        getDependencies(this, result);
     }
 
     public int getId() {

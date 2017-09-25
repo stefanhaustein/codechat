@@ -1,9 +1,6 @@
 package org.kobjects.codechat.android;
 
-import java.util.Collection;
 import org.kobjects.codechat.lang.DependencyCollector;
-import org.kobjects.codechat.lang.Entity;
-import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Tuple;
@@ -100,7 +97,7 @@ public class Screen implements Tuple {
     }
 
     @Override
-    public void getDependencies(Environment environment, DependencyCollector result) {
-        TupleInstance.getDependencies(this, environment, result);
+    public void getDependencies(DependencyCollector result) {
+        TupleInstance.getDependencies(this, result);
     }
 }

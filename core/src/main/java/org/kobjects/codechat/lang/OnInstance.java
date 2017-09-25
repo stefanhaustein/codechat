@@ -128,7 +128,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
     }
 
     @Override
-    public void getDependencies(Environment environment, DependencyCollector result) {
-        onExpression.getDependencies(environment, result);
+    public void getDependencies(DependencyCollector result) {
+        onExpression.getDependencies(result);
     }
 }
