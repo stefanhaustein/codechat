@@ -4,7 +4,7 @@ import java.util.Arrays;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
-import org.kobjects.codechat.annotation.InstanceLink;
+import org.kobjects.codechat.annotation.EntityLink;
 
 public final class Formatting {
     private Formatting() {
@@ -56,7 +56,7 @@ public final class Formatting {
             asb.append(Formatting.quote((String) value));
         } else if (value instanceof Instance) {
             Instance instance = (Instance) value;
-            asb.append(instance.getType() + "#" + instance.getId(), new InstanceLink(instance));
+            asb.append(instance.getType() + "#" + instance.getId(), new EntityLink(instance));
         } else if (value instanceof Documented) {
             asb.append(String.valueOf(value), new DocumentedLink((Documented) value));
         } else {

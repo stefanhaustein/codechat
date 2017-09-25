@@ -1,7 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.InstanceLink;
+import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.type.TupleType;
 
 public abstract class TupleInstance implements Tuple, Instance {
@@ -66,7 +66,7 @@ public abstract class TupleInstance implements Tuple, Instance {
                     break;
                 }
             case STUB_SERIALIZED:
-                asb.append(toString(), new InstanceLink(this));
+                asb.append(toString(), new EntityLink(this));
                 break;
             default:
                 System.err.println("Redundant serialization of " + toString());

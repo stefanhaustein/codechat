@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -18,7 +17,7 @@ import java.util.WeakHashMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
-import org.kobjects.codechat.annotation.InstanceLink;
+import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -552,7 +551,7 @@ public class Environment {
 
             asb.append("Broken dependency: ");
             if (dependent instanceof Instance) {
-                asb.append(Formatting.toLiteral(dependent), new InstanceLink((Instance) dependent));
+                asb.append(Formatting.toLiteral(dependent), new EntityLink((Instance) dependent));
             } else {
                 asb.append(Formatting.toLiteral(dependent));
             }

@@ -6,6 +6,7 @@ import java.util.Map;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
@@ -58,18 +59,18 @@ public class RootVariable implements Entity, HasDependencies {
             if (state == SerializationContext.SerializationState.UNVISITED) {
                 asb.append(constant ? "let " : "variable ");
             }
-            asb.append(name);
-            asb.append(" = ");
             if (value instanceof Entity) {
                 Entity entity = (Entity) value;
-                SerializationContext.SerializationState valueState = serializationContext.getState(entity);
-                switch (valueState) {
+
+                switch (serializationContext.getState(entity)) {
                     case UNVISITED:
+                        asb.append(name, new EntityLink(this));
+                        asb.append(" = ");
                         entity.serialize(asb, serializationContext);
                         break;
                     case STUB_SERIALIZED:
-                        serializationContext.enqueue(entity);
-                        // FALLTHROUGH intended:
+                        entity.serialize(asb, serializationContext);
+                        break;
                     default:
                         Formatting.toLiteral(asb, value);
                         asb.append(";\n");

@@ -1,15 +1,13 @@
 package org.kobjects.codechat.lang;
 
-import java.util.Collection;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.InstanceLink;
+import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.PropertyAccess;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.kobjects.codechat.type.Type;
 
@@ -97,7 +95,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
         boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
 
-        asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), new InstanceLink(this));
+        asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), new EntityLink(this));
         asb.append(" ").append(onExpression.expression.toString()).append(":\n");
         onExpression.body.toString(asb.getStringBuilder(), wrap ? 2 : 1);
         if (wrap) {
