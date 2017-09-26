@@ -45,8 +45,9 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void serializeStub(AnnotatedStringBuilder asb) {
+    public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
         serializeWithName(asb, null, false);
+        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.type.TupleType;
 
@@ -37,34 +38,30 @@ public abstract class TupleInstance implements Tuple, Instance {
         return  name != null ? name : (getType() + "#" + id);
     }
 
-    @Override
-    public void serializeStub(AnnotatedStringBuilder asb) {
-        asb.append("new ").append(getType() + "#" + id).append(";\n");
-    }
-
-    void serializeDependencies(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        DependencyCollector dependencyCollector = new DependencyCollector(environment);
-        getDependencies(dependencyCollector);
-
-        for (Entity entity: dependencyCollector.getStrong()) {
-            if (serializationContext.getState(entity) == SerializationContext.SerializationState.UNVISITED) {
-                entity.serializeStub(asb);
-                serializationContext.setState(entity, SerializationContext.SerializationState.STUB_SERIALIZED);
-            }
+    private void appendConstructor(AnnotatedStringBuilder asb) {
+        asb.append("new ");
+        if (environment.constants.containsKey(this)) {
+            asb.append(getType().toString(), new DocumentedLink(getType()));
+        } else {
+            asb.append(getType() + "#" + id, new EntityLink(this));
         }
     }
 
     @Override
+    public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
+        appendConstructor(asb);
+        asb.append(";\n");
+        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
+    }
+
+    @Override
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        serializeDependencies(asb, serializationContext);
+        serializationContext.serializeDependencies(asb, this);
 
         switch (serializationContext.getState(this)) {
             case UNVISITED:
-                asb.append("new ");
-                if (environment.constants.containsKey(this)) {
-                    asb.append(getType().getName());
-                    break;
-                }
+                appendConstructor(asb);
+                break;
             case STUB_SERIALIZED:
                 asb.append(toString(), new EntityLink(this));
                 break;

@@ -19,12 +19,23 @@ public class RootVariable implements Entity, HasDependencies {
     }
 
     @Override
-    public void serializeStub(AnnotatedStringBuilder asb) {
-        asb.append(constant ? "const " : "variable ");
-        asb.append(name);
-        asb.append(": ");
-        asb.append(type.toString());
-        asb.append(";\n");
+    public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
+        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
+        if (constant) {
+            asb.append("let ").append(name).append(" = ");
+            if (value instanceof Instance) {
+                ((Instance) value).serializeStub(asb, serializationContext);
+            } else {
+                Formatting.toLiteral(asb, value);
+                serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
+            }
+        } else {
+            asb.append(constant ? "const " : "variable ");
+            asb.append(name);
+            asb.append(": ");
+            asb.append(type.toString());
+            asb.append(";\n");
+        }
     }
 
     @Override

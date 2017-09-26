@@ -65,7 +65,7 @@ public class SerializationContext {
         for (Entity entity: dependencyCollector.getStrong()) {
             if (getState(entity) == SerializationContext.SerializationState.UNVISITED
                     && (!(entity instanceof RootVariable) || !((RootVariable) entity).builtin)) {
-                entity.serializeStub(asb);
+                entity.serializeStub(asb, this);
                 setState(entity, SerializationContext.SerializationState.STUB_SERIALIZED);
             }
         }

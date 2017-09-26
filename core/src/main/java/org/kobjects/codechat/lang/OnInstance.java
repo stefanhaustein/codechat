@@ -83,10 +83,11 @@ public class OnInstance implements Instance, Property.PropertyListener {
     }
 
     @Override
-    public void serializeStub(AnnotatedStringBuilder asb) {
+    public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
         asb.append("new ");
         Formatting.toLiteral(asb, this);
         asb.append(";\n");
+        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
     }
 
     @Override
