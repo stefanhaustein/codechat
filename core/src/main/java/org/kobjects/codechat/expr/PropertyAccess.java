@@ -29,6 +29,10 @@ public class PropertyAccess extends Expression {
         return property.writable;
     }
 
+    @Override
+    public Property getLock(EvaluationContext context) {
+        return property.getProperty((Tuple) base.eval(context));
+    }
 
     @Override
     public void assign(EvaluationContext context, Object value) {

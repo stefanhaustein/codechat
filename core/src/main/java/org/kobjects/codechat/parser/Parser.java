@@ -43,17 +43,18 @@ import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
 public class Parser {
     // public static final int PRECEDENCE_HASH = 8;
-    public static final int PRECEDENCE_PREFIX = 10;
-    public static final int PRECEDENCE_APPLY = 9;
-    public static final int PRECEDENCE_PATH = 8;
-    public static final int PRECEDENCE_POWER = 7;
-    public static final int PRECEDENCE_SIGN = 6;
-    public static final int PRECEDENCE_MULTIPLICATIVE = 5;
-    public static final int PRECEDENCE_ADDITIVE = 4;
-    public static final int PRECEDENCE_RELATIONAL = 3;
-    public static final int PRECEDENCE_EQUALITY = 2;
-    public static final int PRECEDENCE_AND = 1;
-    public static final int PRECEDENCE_OR = 0;
+    public static final int PRECEDENCE_PREFIX = 11;
+    public static final int PRECEDENCE_APPLY = 10;
+    public static final int PRECEDENCE_PATH = 9;
+    public static final int PRECEDENCE_POWER = 8;
+    public static final int PRECEDENCE_SIGN = 7;
+    public static final int PRECEDENCE_MULTIPLICATIVE = 6;
+    public static final int PRECEDENCE_ADDITIVE = 5;
+    public static final int PRECEDENCE_RELATIONAL = 4;
+    public static final int PRECEDENCE_EQUALITY = 3;
+    public static final int PRECEDENCE_AND = 2;
+    public static final int PRECEDENCE_OR = 1;
+    public static final int PRECEDENCE_ASSIGNMENT = 0;
 
     private static String EMOJI_REGEX =
             "[\\u20a0-\\u32ff\\x{1f000}-\\x{1ffff}][\\x{1F1E6}-\\x{1f1ff}\\x{1f3fe}-\\x{1f3fe}]?";
@@ -327,7 +328,7 @@ public class Parser {
         UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
         int unresolvedPosition = tokenizer.currentPosition;
 
-        if (unresolved instanceof UnresolvedBinaryOperator && ((UnresolvedBinaryOperator) unresolved).name == '=') {
+        if (unresolved instanceof UnresolvedBinaryOperator && ((UnresolvedBinaryOperator) unresolved).name.equals("=")) {
             UnresolvedBinaryOperator op = (UnresolvedBinaryOperator) unresolved;
             if (op.left instanceof UnresolvedIdentifier && parsingContext.parent == null && interactive) {
                 String name = ((UnresolvedIdentifier) op.left).name;
@@ -421,40 +422,34 @@ public class Parser {
 
         @Override
         public UnresolvedExpression infixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression left, UnresolvedExpression right) {
-            char c;
             switch (name) {
                 case "and":
-                    c = '\u2227';
+                    name = "\u2227";
                     break;
                 case "or":
-                    c = '\u2228';
+                    name = "\u2228";
                     break;
                 case "==":
-                    c ='\u2261';
+                    name = "\u2261";
                     break;
                 case "!=":
-                    c = '\u2260';
+                    name = "\u2260";
                     break;
                 case "<=":
-                    c = '\u2264';
+                    name = "\u2264";
                     break;
                 case ">=":
-                    c = '\u2265';
+                    name = "\u2265";
                     break;
                 case "\u00F7":
-                    c = '/';
+                    name = "/";
                     break;
                 case "\u22C5":
                 case "*":
-                    c = '\u00d7';
+                    name = "\u00d7";
                     break;
-                default:
-                    if (name.length() != 1) {
-                        throw new IllegalArgumentException("Unrecognized operator: '" + name + "'");
-                    }
-                    c = name.charAt(0);
             }
-            return new UnresolvedBinaryOperator(c, left, right);
+            return new UnresolvedBinaryOperator(name, left, right);
         }
 
         @Override
@@ -596,6 +591,9 @@ public class Parser {
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
+
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ASSIGNMENT, "+=", "-=", "*=", "/=");
+
 
         // FIXME
         // parser.addPrimary("on", "onchange");

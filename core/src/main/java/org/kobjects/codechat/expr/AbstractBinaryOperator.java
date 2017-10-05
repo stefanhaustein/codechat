@@ -13,6 +13,10 @@ public abstract class AbstractBinaryOperator extends Expression {
         this.right = right;
     }
 
+    public static int getPrecedence(String name) {
+        return (name.length() == 1) ? getPrecedence(name.charAt(0)) : Parser.PRECEDENCE_ASSIGNMENT;
+    }
+
     public static int getPrecedence(char name) {
         switch (name) {
             case '.':

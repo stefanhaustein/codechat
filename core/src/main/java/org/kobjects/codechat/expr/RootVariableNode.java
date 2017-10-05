@@ -39,6 +39,10 @@ public class RootVariableNode extends Expression {
         return 0;
     }
 
+    @Override
+    public Object getLock(EvaluationContext context) {
+        return rootVariable;
+    }
 
     @Override
     public void assign(EvaluationContext context, Object value) {

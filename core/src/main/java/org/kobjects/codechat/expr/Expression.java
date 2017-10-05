@@ -13,6 +13,10 @@ public abstract class Expression implements HasDependencies {
         throw new RuntimeException("Assignment not supported for " + this);
     }
 
+    public Object getLock(EvaluationContext context) {
+        throw new RuntimeException("synchronization not supported for " + this);
+    }
+
     public final String toString() {
         StringBuilder sb = new StringBuilder();
         toString(sb, 0, 0);

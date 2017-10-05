@@ -14,6 +14,11 @@ public class LocalVariableNode extends Expression {
 
 
     @Override
+    public Object getLock(EvaluationContext context) {
+        return context.variables;
+    }
+
+    @Override
     public Object eval(EvaluationContext context) {
         return context.variables[variable.getIndex()];
     }
