@@ -113,7 +113,7 @@ public class Environment {
     public File codeDir;
     public EnvironmentListener environmentListener;
     Parser parser = new Parser(this);
-    public boolean autoSave;
+    public boolean autoSave = true;
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;

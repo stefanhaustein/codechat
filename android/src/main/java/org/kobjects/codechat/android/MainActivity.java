@@ -643,7 +643,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     @Override
     public void setName(String name) {
         if (!name.equals(toolbar.getTitle().toString())) {
-            toolbar.setTitle(name);
+            toolbar.setTitle(name + (environment.autoSave ? "" : "*"));
             settings.edit().putString(SETTINGS_FILE_NAME, name).commit();
         }
     }

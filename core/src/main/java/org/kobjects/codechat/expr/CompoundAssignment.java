@@ -34,6 +34,12 @@ public class CompoundAssignment extends Expression {
                 case '-':
                     l -= r;
                     break;
+                case '\u00d7':
+                    l *= r;
+                    break;
+                case '/':
+                    l /= r;
+                    break;
                 default:
                     throw new RuntimeException("Unsupported compound operator: " + name + "=");
 

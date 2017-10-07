@@ -12,11 +12,14 @@ public class MaterialProperty<T> extends Property<T> {
     }
 
     public void set(T newValue) {
-        if (newValue == this.value || this.value != null && this.value.equals(newValue)) {
-            return;
+        T oldValue;
+        synchronized(this) {
+            if (newValue == this.value || this.value != null && this.value.equals(newValue)) {
+                return;
+            }
+            oldValue = this.value;
+            this.value = newValue;
         }
-        T oldValue = this.value;
-        this.value = newValue;
         notifyChanged(newValue, oldValue);
     }
 

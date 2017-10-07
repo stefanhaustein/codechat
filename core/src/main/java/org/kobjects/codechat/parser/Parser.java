@@ -448,6 +448,10 @@ public class Parser {
                 case "*":
                     name = "\u00d7";
                     break;
+                case "\u22C5=":
+                case "*=":
+                    name = "\u00d7=";
+                    break;
             }
             return new UnresolvedBinaryOperator(name, left, right);
         }
@@ -592,7 +596,7 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
 
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ASSIGNMENT, "+=", "-=", "*=", "/=");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ASSIGNMENT, "+=", "-=", "*=", "\u00d7=", "\u22C5=", "/=");
 
 
         // FIXME

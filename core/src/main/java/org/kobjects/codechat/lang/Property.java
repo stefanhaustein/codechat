@@ -8,24 +8,24 @@ public abstract class Property<T> {
 
     public abstract T get();
 
-    public void addListener(PropertyListener<T> listener) {
+    public synchronized void addListener(PropertyListener<T> listener) {
         if (listeners == null) {
             listeners = new ArrayList<>();
         }
         listeners.add(listener);
     }
 
-    public void removeListener(PropertyListener<T> listener) {
+    public synchronized void removeListener(PropertyListener<T> listener) {
         if (listeners != null) {
             listeners.remove(listener);
         }
     }
 
-    public boolean hasListeners() {
+    public synchronized boolean hasListeners() {
         return listeners != null && listeners.size() > 0;
     }
 
-    public void notifyChanged(final T oldValue, final T newValue) {
+    public synchronized void notifyChanged(final T oldValue, final T newValue) {
         if (listeners != null) {
             for (final PropertyListener<T> listener : listeners) {
                 new Thread(new Runnable() {
@@ -39,11 +39,11 @@ public abstract class Property<T> {
         }
     }
 
-    public void removeAllListeners() {
+    public synchronized void removeAllListeners() {
         listeners = null;
     }
 
-    public Iterable<PropertyListener<T>> getListeners() {
+    public synchronized Iterable<PropertyListener<T>> getListeners() {
         if (listeners == null) {
             return Collections.emptyList();
         }
