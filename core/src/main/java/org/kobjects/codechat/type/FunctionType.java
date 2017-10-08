@@ -4,8 +4,10 @@ package org.kobjects.codechat.type;
 import java.util.List;
 import javax.print.Doc;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.UserFunction;
@@ -23,7 +25,7 @@ public class FunctionType extends Type {
     @Override
     public String getName() {
         StringBuilder sb = new StringBuilder();
-        sb.append("function(");
+        sb.append(returnType == null ? "func(" : "proc(");
         if (parameterTypes.length > 0) {
             sb.append(parameterTypes[0]);
             for (int i = 1; i < parameterTypes.length; i++) {
@@ -31,7 +33,9 @@ public class FunctionType extends Type {
                 sb.append(parameterTypes[i]);
             }
         }
-        sb.append(":").append(returnType);
+        if (returnType != null) {
+            sb.append(":").append(returnType);
+        }
         return sb.toString();
     }
 
@@ -62,31 +66,34 @@ public class FunctionType extends Type {
         return new UserFunction(this, id);
     }
 
-    public int serializeSignature(StringBuilder sb, int id, String name, String[] parameterNames, List<AnnotationSpan> annotations) {
-        sb.append("function");
-        if (id != -1) {
-            sb.append('#').append(id);
-        }
+    public int serializeSignature(AnnotatedStringBuilder asb, int id, String name, String[] parameterNames, EntityLink link) {
+        int p0 = asb.length();
+        asb.append(returnType == null ? "proc" : "func");
         if (name != null) {
-            sb.append(' ');
-            sb.append(name);
+            asb.append(' ').append(name, link);
+        } else if (id != -1) {
+            asb.append('#').append(id);
+            asb.addAnnotation(p0, asb.length(), link);
         }
-        int nameEnd = sb.length();
+        int nameEnd = asb.length();
         if (name == null) {
-            sb.append(' ');
+            asb.append(' ');
         }
-        sb.append("(");
+        asb.append('(');
         for (int i = 0; i < parameterTypes.length; i++) {
             if (i > 0) {
-                sb.append(", ");
+                asb.append(", ");
             }
             if (parameterNames != null) {
-                sb.append(parameterNames[i]).append(": ");
+                asb.append(parameterNames[i]).append(": ");
             }
-            AnnotationSpan.append(sb, parameterTypes[i].toString(), parameterTypes[i] instanceof Documented ? new DocumentedLink((Documented) parameterTypes[i]) : null, annotations);
+            asb.append(parameterTypes[i].toString(), parameterTypes[i] instanceof Documented ? new DocumentedLink((Documented) parameterTypes[i]) : null);
         }
-        sb.append("): ");
-        AnnotationSpan.append(sb, returnType.toString(), returnType instanceof Documented ? new DocumentedLink((Documented) returnType) : null, annotations);
+        asb.append(')');
+        if (returnType != null) {
+            asb.append(": ");
+            asb.append(returnType.toString(), returnType instanceof Documented ? new DocumentedLink((Documented) returnType) : null);
+        }
         return nameEnd;
     }
 }

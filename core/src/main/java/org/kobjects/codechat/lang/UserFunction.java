@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
@@ -46,7 +47,8 @@ public class UserFunction implements Function, Instance {
 
     @Override
     public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        serializeWithName(asb, null, false);
+        functionType.serializeSignature(asb, id, serializationContext.getEnvironment().constants.get(this), parameterNames, new EntityLink(this));
+        asb.append(" : fwd;\n");
         serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
     }
 
@@ -54,36 +56,21 @@ public class UserFunction implements Function, Instance {
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
         serializationContext.serializeDependencies(asb,this);
         serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
-        serializeWithName(asb, null, true);
-        serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
-    }
 
-    public void serializeWithName(AnnotatedStringBuilder asb, String name, boolean serailizeBody) {
-        int start = asb.length();
-        int nameEnd = -1;
-        if (!serailizeBody) {
-            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
-            asb.append(";\n");
-        } else if (body != null) {
-            boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
-            int indent = wrap ? 1 : 0;
+        boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
+        int indent = wrap ? 1 : 0;
 
-            start = asb.length();
-            nameEnd = functionType.serializeSignature(asb.getStringBuilder(), id, name, parameterNames, null);
+        functionType.serializeSignature(asb, id, serializationContext.getEnvironment().constants.get(this), parameterNames, new EntityLink(this));
 
-            asb.append(":\n");
-            body.toString(asb.getStringBuilder(), indent + 1);
-            AbstractStatement.indent(asb.getStringBuilder(), indent);
+        asb.append(":\n");
+        body.toString(asb.getStringBuilder(), indent + 1);
+        AbstractStatement.indent(asb.getStringBuilder(), indent);
+        asb.append("end;\n");
+
+        if (wrap) {
             asb.append("end;\n");
-
-            if (wrap) {
-                asb.append("end;\n");
-            }
         }
-
-/*        if (nameEnd != -1) {
-            asb.addAnnotation(start, nameEnd, this);
-        }*/
+        serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
     }
 
     @Override

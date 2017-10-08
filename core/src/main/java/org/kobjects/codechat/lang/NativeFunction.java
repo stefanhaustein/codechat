@@ -38,7 +38,7 @@ public abstract class NativeFunction implements Function, Documented {
     @Override
     public AnnotatedCharSequence getDocumentation() {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        type.serializeSignature(asb.getStringBuilder(), -1, name, null, asb.getAnnotationList());
+        type.serializeSignature(asb, -1, name, null, null);
         asb.append("\n");
         asb.append(documentation);
         return asb.build();

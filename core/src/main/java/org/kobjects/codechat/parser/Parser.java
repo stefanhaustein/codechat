@@ -159,7 +159,7 @@ public class Parser {
         return type;
     }
 
-    UnresolvedFunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id) {
+    UnresolvedFunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue) {
         int start = tokenizer.currentPosition;
         tokenizer.consume("(");
         ParsingContext bodyContext = new ParsingContext(parsingContext, true);
@@ -177,16 +177,29 @@ public class Parser {
             tokenizer.consume(")");
         }
 
-        tokenizer.consume(":");
-        Type returnType = parseType(parsingContext, tokenizer);
-
+        Type returnType;
+        if (returnsValue) {
+            tokenizer.consume(":");
+            if (tokenizer.tryConsume("void") || tokenizer.tryConsume("Void")) {
+                returnType = null;
+            } else {
+                returnType = parseType(parsingContext, tokenizer);
+            }
+        } else {
+            returnType = null;
+        }
         FunctionType functionType = new FunctionType(returnType, parameterTypes.toArray(new Type[parameterTypes.size()]));
 
         Statement body;
-        if (tokenizer.tryConsume(";") || tokenizer.tryConsume("")) {
+        if (tokenizer.tryConsume("fwd") || tokenizer.tryConsume(";") || tokenizer.tryConsume("")) {
             body = null;
         } else {
-            body = parseBody(bodyContext, tokenizer);
+            tokenizer.consume(":");
+            if (tokenizer.tryConsume("fwd")) {
+                body = null;
+            } else {
+                body = parseBlock(bodyContext, tokenizer, false,"end", "");
+            }
         }
         return new UnresolvedFunctionExpression(start, tokenizer.currentPosition, id, functionType, parameterNames.toArray(new String[parameterNames.size()]), bodyContext.getClosure(), body);
     }
@@ -287,13 +300,21 @@ public class Parser {
         if (tokenizer.tryConsume("delete")) {
             return new DeleteStatement(parseExpression(parsingContext, tokenizer), parsingContext);
         }
-        if (tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#")) {
+        if (tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#") ||
+                tokenizer.currentValue.equals("func") || tokenizer.currentValue.startsWith("func#") ) {
             int p0 = tokenizer.currentPosition;
             int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();
 
-            Expression functionExpr = parseFunction(parsingContext, tokenizer, id).resolve(parsingContext, null);
+            Expression functionExpr = parseFunction(parsingContext, tokenizer, id, true).resolve(parsingContext, null);
 
+            return processDeclaration(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr);
+        }
+        if (tokenizer.currentValue.equals("proc") || tokenizer.currentValue.startsWith("proc#") ) {
+            int p0 = tokenizer.currentPosition;
+            int id = extractId(tokenizer.consumeIdentifier());
+            String name = tokenizer.consumeIdentifier();
+            Expression functionExpr = parseFunction(parsingContext, tokenizer, id, false).resolve(parsingContext, null);
             return processDeclaration(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr);
         }
         if (tokenizer.tryConsume("for")) {
@@ -413,6 +434,7 @@ public class Parser {
                 new Scanner(reader),
                 expressionParser.getSymbols() , ":", "end", "else", ";", "}");
         tokenizer.identifierPattern = IDENTIFIER_PATTERN;
+        tokenizer.insertSemicolons = true;
         return tokenizer;
     }
 
@@ -451,6 +473,9 @@ public class Parser {
                 case "\u22C5=":
                 case "*=":
                     name = "\u00d7=";
+                    break;
+                case "\u00F7=":
+                    name = "/=";
                     break;
             }
             return new UnresolvedBinaryOperator(name, left, right);
@@ -501,8 +526,12 @@ public class Parser {
             if (name.equals("false")) {
                 return new UnresolvedLiteral(start, end, Boolean.FALSE);
             }
-            if ("function".equals(name) || name.startsWith("function#")) {
-                return parseFunction(parsingContext, tokenizer, extractId(name));
+            if ("function".equals(name) || name.startsWith("function#") ||
+                    "func".equals(name) || name.startsWith("func#")) {
+                return parseFunction(parsingContext, tokenizer, extractId(name), true);
+            }
+            if ("proc".equals(name) || name.startsWith("proc#")) {
+                return parseFunction(parsingContext, tokenizer, extractId(name), false);
             }
             if (name.indexOf('#') != -1) {
                 return new UnresolvedInstanceReference(start, end, name);
@@ -586,7 +615,7 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-", "\u221a", "\u00ac", "not");
         parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_SIGN, "°");
 
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/", "\u00d7", "\u22C5", "%");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_MULTIPLICATIVE, "*", "/", "\u00d7", "\u00f7", "\u22C5", "%");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ADDITIVE, "+", "-");
 
 
@@ -596,7 +625,7 @@ public class Parser {
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");
 
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ASSIGNMENT, "+=", "-=", "*=", "\u00d7=", "\u22C5=", "/=");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_ASSIGNMENT, "+=", "-=", "*=", "\u00d7=", "\u00f7=", "\u22C5=", "/=");
 
 
         // FIXME

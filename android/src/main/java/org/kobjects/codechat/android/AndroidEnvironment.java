@@ -16,6 +16,7 @@ import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.NativeFunction;
 import org.kobjects.codechat.lang.SerializationContext;
 import org.kobjects.codechat.type.EnumType;
+import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
@@ -91,7 +92,9 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
     @Override
     public void clearAll() {
-        screen.frame.removeAllListeners();
+        for (TupleType.PropertyDescriptor propertyDescriptor : screen.getType().properties()) {
+            screen.getProperty(propertyDescriptor.index).removeAllListeners();
+        }
         if (ticking != null) {
             synchronized (ticking) {
                 ticking.clear();

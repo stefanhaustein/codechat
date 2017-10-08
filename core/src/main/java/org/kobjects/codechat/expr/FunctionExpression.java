@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -52,7 +53,7 @@ public class FunctionExpression extends Expression {
     }
 
     public void toString(StringBuilder sb, int indent, String name) {
-        functionType.serializeSignature(sb, id, name, parameterNames, null);
+        functionType.serializeSignature(new AnnotatedStringBuilder(sb, null), id, name, parameterNames, null);
         if (body == null) {
             sb.append(";\n");
         } else {

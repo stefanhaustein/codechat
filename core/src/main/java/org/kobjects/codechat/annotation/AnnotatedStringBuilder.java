@@ -46,8 +46,13 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
     }
 
     @Override
-    public AnnotatedStringBuilder append(char c) throws IOException {
+    public AnnotatedStringBuilder append(char c) {
         sb.append(c);
+        return this;
+    }
+
+    public AnnotatedStringBuilder append(int i) {
+        sb.append(i);
         return this;
     }
 
@@ -107,4 +112,5 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
     public AnnotatedString build() {
         return new AnnotatedString(sb, annotations);
     }
+
 }

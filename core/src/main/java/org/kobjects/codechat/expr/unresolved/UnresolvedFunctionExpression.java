@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.lang.Closure;
@@ -40,7 +41,8 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
 
     @Override
     public void toString(StringBuilder sb, int indent) {
-        functionType.serializeSignature(sb, id, null, parameterNames, null);
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder(sb, null);
+        functionType.serializeSignature(asb, id, null, parameterNames, null);
         if (body == null) {
             sb.append(";\n");
         } else {
