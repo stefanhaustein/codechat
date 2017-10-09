@@ -17,7 +17,6 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedIdentifier;
 import org.kobjects.codechat.expr.unresolved.UnresolvedInstanceReference;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedMultiAssignment;
-import org.kobjects.codechat.expr.unresolved.UnresolvedObjectLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.LocalVariable;
@@ -397,20 +396,6 @@ public class Parser {
         return new ExpressionStatement(resolved);
     }
 
-    UnresolvedObjectLiteral parseObjectLiteral(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, UnresolvedExpression base) {
-        // tokenizer.consume("(");
-        LinkedHashMap<String, UnresolvedExpression> elements = new LinkedHashMap<>();
-        if (!tokenizer.tryConsume("}")) {
-            do {
-                String key = tokenizer.consumeIdentifier();
-                tokenizer.consume(":");
-                elements.put(key, expressionParser.parse(parsingContext, tokenizer));
-            } while (tokenizer.tryConsume(","));
-            tokenizer.consume("}");
-        }
-        return new UnresolvedObjectLiteral(tokenizer.currentPosition, base, elements);
-    }
-
     Expression parseExpression(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
         UnresolvedExpression unresolved = expressionParser.parse(parsingContext, tokenizer);
         return unresolved.resolve(parsingContext, null);
@@ -494,7 +479,6 @@ public class Parser {
         @Override
         public UnresolvedExpression suffixOperator(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
             switch (name) {
-                case "{": return parseObjectLiteral(parsingContext, tokenizer, argument);
                 case "::": return parseMultiAssignment(parsingContext, tokenizer, argument);
                 case "°": return new UnresolvedUnaryOperator(tokenizer.currentPosition - name.length(), tokenizer.currentPosition,'°', argument);
                 default:

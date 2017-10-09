@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.parser.Parser;
@@ -23,8 +24,8 @@ public class Literal extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
-        sb.append(Formatting.toLiteral(value));
+    public void toString(AnnotatedStringBuilder sb, int indent) {
+        Formatting.toLiteral(sb, value);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.InstanceReference;
 import org.kobjects.codechat.parser.Parser;
@@ -33,7 +34,7 @@ public class UnresolvedInstanceReference extends UnresolvedExpression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         sb.append(typeName).append('#').append(id);
     }
 }

@@ -103,7 +103,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
         asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), new EntityLink(this));
         asb.append(" ").append(onExpression.expression.toString()).append(":\n");
-        onExpression.body.toString(asb.getStringBuilder(), wrap ? 2 : 1);
+        onExpression.body.toString(asb, wrap ? 2 : 1);
         if (wrap) {
             asb.append("  end;\n");
         }

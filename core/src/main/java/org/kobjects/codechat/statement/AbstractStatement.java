@@ -1,16 +1,18 @@
 package org.kobjects.codechat.statement;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+
 public abstract class AbstractStatement implements Statement {
 
     final static Object KEEP_GOING = new Object();
 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        toString(sb, 0);
-        return sb.toString();
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
+        toString(asb, 0);
+        return asb.toString();
     }
 
-    public static void indent(StringBuilder sb, int indent) {
+    public static void indent(AnnotatedStringBuilder sb, int indent) {
         for (int i = 0; i < indent; i++) {
             sb.append("  ");
         }

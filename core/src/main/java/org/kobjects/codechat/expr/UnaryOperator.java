@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.Type;
@@ -44,7 +45,7 @@ public class UnaryOperator extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         if (name == '°') {
             operand.toString(sb, indent, getPrecedence());
             sb.append(name);

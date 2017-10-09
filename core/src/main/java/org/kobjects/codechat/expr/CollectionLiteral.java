@@ -1,6 +1,7 @@
 package org.kobjects.codechat.expr;
 
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.CollectionType;
@@ -54,7 +55,7 @@ public class CollectionLiteral extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         sb.append(collectionTypeClass == SetType.class ? "set(" : "list(");
         if (elements.length > 0) {
             elements[0].toString(sb, indent);

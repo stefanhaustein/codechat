@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.lang.Formatting;
@@ -26,8 +27,8 @@ public class UnresolvedLiteral extends UnresolvedExpression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
-        sb.append(Formatting.toLiteral(value));
+    public void toString(AnnotatedStringBuilder asb, int indent) {
+        Formatting.toLiteral(asb, value);
     }
 
 }

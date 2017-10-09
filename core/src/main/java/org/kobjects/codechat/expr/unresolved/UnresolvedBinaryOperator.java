@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.AbstractBinaryOperator;
 import org.kobjects.codechat.expr.BinaryLogicalOperator;
 import org.kobjects.codechat.expr.BinaryMathOperator;
@@ -85,7 +86,7 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         int precedence = getPrecedence();
         left.toString(sb, 0, precedence);
         sb.append(' ');

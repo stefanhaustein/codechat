@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.LocalVariableNode;
@@ -49,9 +50,7 @@ public class UnresolvedIdentifier extends UnresolvedExpression {
         return Parser.PRECEDENCE_PATH;
     }
 
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         sb.append(name);
     }
-
-
 }

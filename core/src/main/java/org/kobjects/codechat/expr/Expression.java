@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.HasDependencies;
@@ -18,24 +19,24 @@ public abstract class Expression implements HasDependencies {
     }
 
     public final String toString() {
-        StringBuilder sb = new StringBuilder();
-        toString(sb, 0, 0);
-        return sb.toString();
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
+        toString(asb, 0, 0);
+        return asb.toString();
     }
 
     public abstract Type getType();
 
     public abstract int getPrecedence();
 
-    public abstract void toString(StringBuilder sb, int indent);
+    public abstract void toString(AnnotatedStringBuilder asb, int indent);
 
-    public final void toString(StringBuilder sb, int indent, int parentPrecedence) {
+    public final void toString(AnnotatedStringBuilder asb, int indent, int parentPrecedence) {
         if (parentPrecedence > getPrecedence()) {
-            sb.append('(');
-            toString(sb, indent);
-            sb.append(')');
+            asb.append('(');
+            toString(asb, indent);
+            asb.append(')');
         } else {
-            toString(sb, indent);
+            toString(asb, indent);
         }
     }
 

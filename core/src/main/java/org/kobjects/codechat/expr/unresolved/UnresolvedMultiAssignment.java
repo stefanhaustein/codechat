@@ -2,12 +2,11 @@ package org.kobjects.codechat.expr.unresolved;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.MultiAssignment;
-import org.kobjects.codechat.expr.ObjectLiteral;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
@@ -58,7 +57,7 @@ public class UnresolvedMultiAssignment extends UnresolvedExpression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         base.toString(sb, indent);
         sb.append(" ::\n");
         String materializedIndent = Formatting.space(indent + 2);

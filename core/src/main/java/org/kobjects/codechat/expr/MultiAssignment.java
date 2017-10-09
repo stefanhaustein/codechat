@@ -2,6 +2,7 @@ package org.kobjects.codechat.expr;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
@@ -42,7 +43,7 @@ public class MultiAssignment extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         base.toString(sb, indent);
         sb.append(" ::\n");
         String materializedIndent = Formatting.space(indent + 2);

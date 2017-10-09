@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.UnaryOperator;
 import org.kobjects.codechat.parser.Parser;
@@ -36,7 +37,7 @@ public class UnresolvedUnaryOperator extends UnresolvedExpression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         if (name != '°') {
             if (name == '\u00ac') {
                 sb.append("not ");

@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -43,12 +44,14 @@ public class OnExpression extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         sb.append(onChange ? "onchange" : "on");
         if (id != -1) {
             sb.append('#').append(id);
         }
-        sb.append(' ').append(expression).append(":\n");
+        sb.append(' ');
+        expression.toString(sb, indent);
+        sb.append(":\n");
         body.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
         sb.append("end");

@@ -68,8 +68,8 @@ public class UserFunction implements Function, Instance {
         functionType.serializeSignature(asb, id, serializationContext.getEnvironment().constants.get(this), parameterNames, new EntityLink(this));
 
         asb.append(":\n");
-        body.toString(asb.getStringBuilder(), indent + 1);
-        AbstractStatement.indent(asb.getStringBuilder(), indent);
+        body.toString(asb, indent + 1);
+        AbstractStatement.indent(asb, indent);
         asb.append("end;\n");
 
         if (wrap) {

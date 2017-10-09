@@ -1,5 +1,6 @@
 package org.kobjects.codechat.statement;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -28,18 +29,19 @@ public class IfStatement extends AbstractStatement {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         toString(sb, indent, false);
     }
 
-    public void toString(StringBuilder sb, int indent, boolean elseif) {
+    public void toString(AnnotatedStringBuilder sb, int indent, boolean elseif) {
         if (elseif) {
             sb.append("elseif ");
         } else {
             AbstractStatement.indent(sb, indent);
             sb.append("if ");
         }
-        sb.append(condition).append(":\n");
+        condition.toString(sb, indent);
+        sb.append(":\n");
         ifBody.toString(sb, indent + 1);
         AbstractStatement.indent(sb, indent);
         if (elseBody instanceof IfStatement) {

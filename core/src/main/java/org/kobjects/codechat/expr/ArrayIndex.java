@@ -1,6 +1,7 @@
 package org.kobjects.codechat.expr;
 
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -34,7 +35,7 @@ public class ArrayIndex extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         base.toString(sb, indent);
         sb.append('[');
         index.toString(sb, indent);

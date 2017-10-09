@@ -2,12 +2,12 @@ package org.kobjects.codechat.expr.unresolved;
 
 import java.util.LinkedHashMap;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.CollectionLiteral;
 import org.kobjects.codechat.expr.ConstructorInvocation;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.FunctionInvocation;
 import org.kobjects.codechat.expr.InstanceReference;
-import org.kobjects.codechat.expr.ObjectLiteral;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -20,7 +20,7 @@ import org.kobjects.expressionparser.ExpressionParser;
 
 public class UnresolvedInvocation extends UnresolvedExpression {
 
-    static void toString(StringBuilder sb, UnresolvedExpression base, boolean parens, UnresolvedExpression[] children) {
+    static void toString(AnnotatedStringBuilder sb, UnresolvedExpression base, boolean parens, UnresolvedExpression[] children) {
         base.toString(sb, 0);
         sb.append(parens ? '(' : ' ');
         if (children.length > 0) {
@@ -103,13 +103,6 @@ public class UnresolvedInvocation extends UnresolvedExpression {
         }
         */
 
-        if (resolvedBase.getType() instanceof MetaType) {
-            Type baseType = ((MetaType)resolvedBase.getType()).getType();
-            if (baseType instanceof TupleType && resolved.length == 0) {
-                return new ObjectLiteral((TupleType) baseType, -1, new LinkedHashMap<String, Expression>());
-            }
-        }
-
         if (!(resolvedBase.getType() instanceof FunctionType)) {
             throw new ExpressionParser.ParsingException(start, end, "Not a function: " + resolvedBase + ": " + resolvedBase.getType() + " / " + resolvedBase.getClass(), null);
         }
@@ -142,7 +135,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         toString(sb, base, parens, children);
     }
 

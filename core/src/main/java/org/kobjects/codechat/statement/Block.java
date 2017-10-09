@@ -1,5 +1,6 @@
 package org.kobjects.codechat.statement;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
 
@@ -23,7 +24,7 @@ public class Block extends AbstractStatement {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         for (Statement statement: statements) {
             statement.toString(sb, indent);
         }

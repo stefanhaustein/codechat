@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr.unresolved;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.ArrayIndex;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -41,7 +42,7 @@ public class UnresolvedArrayExpression extends UnresolvedExpression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         base.toString(sb, indent);
         sb.append('[');
         if (arguments.length > 0) {

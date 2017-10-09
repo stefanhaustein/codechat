@@ -1,6 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import java.util.Collection;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -34,8 +35,8 @@ public class InstanceReference extends Expression {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
-        sb.append(type).append('#').append(id);
+    public void toString(AnnotatedStringBuilder asb, int indent) {
+        asb.append(type.toString()).append('#').append(id);
     }
 
     @Override

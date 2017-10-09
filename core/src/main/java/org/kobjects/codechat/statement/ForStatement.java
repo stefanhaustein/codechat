@@ -1,6 +1,7 @@
 package org.kobjects.codechat.statement;
 
 import java.util.ArrayList;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -35,7 +36,7 @@ public class ForStatement extends AbstractStatement {
     }
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         indent(sb, indent);
         sb.append("for ").append(variable.getName()).append(" in ");
         expression.toString(sb, 0);

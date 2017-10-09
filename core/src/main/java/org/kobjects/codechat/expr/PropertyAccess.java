@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.lang.Property;
@@ -49,7 +50,7 @@ public class PropertyAccess extends Expression {
         return Parser.PRECEDENCE_PATH;
     }
 
-    public void toString(StringBuilder sb, int indent) {
+    public void toString(AnnotatedStringBuilder sb, int indent) {
         base.toString(sb, 0, Parser.PRECEDENCE_PATH);
         sb.append('.');
         sb.append(property.name);

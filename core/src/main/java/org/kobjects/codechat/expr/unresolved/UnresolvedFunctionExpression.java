@@ -40,16 +40,15 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
 
 
     @Override
-    public void toString(StringBuilder sb, int indent) {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder(sb, null);
+    public void toString(AnnotatedStringBuilder asb, int indent) {
         functionType.serializeSignature(asb, id, null, parameterNames, null);
         if (body == null) {
-            sb.append(";\n");
+            asb.append(";\n");
         } else {
-            sb.append(" :\n");
-            body.toString(sb, indent + 1);
-            AbstractStatement.indent(sb, indent);
-            sb.append("end\n");
+            asb.append(" :\n");
+            body.toString(asb, indent + 1);
+            AbstractStatement.indent(asb, indent);
+            asb.append("end\n");
         }
     }
 }
