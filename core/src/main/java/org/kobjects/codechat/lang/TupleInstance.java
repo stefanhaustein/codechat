@@ -33,6 +33,10 @@ public abstract class TupleInstance implements Tuple, Instance {
         this.id = id;
     }
 
+    public final void setId(int id) {
+        this.id = id;
+    }
+
     public String toString() {
         String name = environment.constants.get(this);
         return  name != null ? name : (getType() + "#" + id);

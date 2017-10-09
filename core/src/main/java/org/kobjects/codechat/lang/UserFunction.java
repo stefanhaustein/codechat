@@ -46,6 +46,11 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
     public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
         functionType.serializeSignature(asb, id, serializationContext.getEnvironment().constants.get(this), parameterNames, new EntityLink(this));
         asb.append(" : fwd;\n");

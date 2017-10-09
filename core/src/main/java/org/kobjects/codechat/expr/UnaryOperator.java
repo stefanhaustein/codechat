@@ -20,8 +20,6 @@ public class UnaryOperator extends Expression {
         }
         double value = ((Number) operand.eval(context)).doubleValue();
         switch (name) {
-            case '\u00ac':
-
             case '\u221a':
                 return Math.sqrt(value);
             case '+':
@@ -51,7 +49,11 @@ public class UnaryOperator extends Expression {
             operand.toString(sb, indent, getPrecedence());
             sb.append(name);
         } else {
-            sb.append(name);
+            if (name == '\u00ac') {
+                sb.append("not ");
+            } else {
+                sb.append(name);
+            }
             operand.toString(sb, indent, getPrecedence());
         }
     }

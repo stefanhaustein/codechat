@@ -89,7 +89,16 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
         int precedence = getPrecedence();
         left.toString(sb, 0, precedence);
         sb.append(' ');
-        sb.append(name);
+        switch(name) {
+            case "∧":
+                sb.append("and");
+                break;
+            case "∨":
+                sb.append("or");
+                break;
+            default:
+                sb.append(name);
+        }
         sb.append(' ');
         right.toString(sb, 0, precedence);
     }

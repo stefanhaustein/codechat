@@ -9,5 +9,7 @@ public interface Instance extends Typed, Entity, HasDependencies {
 
     int getId();
 
+    void setId(int id);
+
     void delete();
 }

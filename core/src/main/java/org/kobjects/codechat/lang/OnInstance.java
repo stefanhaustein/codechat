@@ -71,6 +71,11 @@ public class OnInstance implements Instance, Property.PropertyListener {
         return id;
     }
 
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
 
     public void delete() {
         detach();

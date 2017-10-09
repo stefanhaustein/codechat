@@ -9,8 +9,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
@@ -114,6 +116,8 @@ public class Environment {
     public EnvironmentListener environmentListener;
     Parser parser = new Parser(this);
     public boolean autoSave = true;
+    boolean loading;
+    List<Instance> anonymousInstances;
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
@@ -334,7 +338,11 @@ public class Environment {
 
     public Instance instantiate(Type type, int id) {
         if (id == -1) {
-            id = ++lastId;
+            if (loading) {
+                id = -2;
+            } else {
+                id = ++lastId;
+            }
         } else {
             lastId = Math.max(id, lastId);
             if (everything.get(id) != null) {
@@ -342,7 +350,11 @@ public class Environment {
             }
         }
         Instance instance = type.createInstance(this, id);
-        everything.put(id, new WeakReference<Instance>(instance));
+        if (id == -2) {
+            anonymousInstances.add(instance);
+        } else {
+            everything.put(id, new WeakReference<Instance>(instance));
+        }
         return instance;
     }
 
@@ -425,6 +437,8 @@ public class Environment {
     }
 
     public void load(String fileName) {
+        anonymousInstances = new ArrayList<>();
+        loading = true;
         File file = new File(codeDir, fileName);
         if (!file.exists()) {
             throw new RuntimeException("File '" + file.getName() + "' does not exist.");
@@ -476,7 +490,16 @@ public class Environment {
         } catch (Exception e) {
             autoSave = false;
             throw new RuntimeException(e);
+        } finally {
+            for (Instance instance: anonymousInstances) {
+                int id = ++lastId;
+                instance.setId(id);
+                everything.put(id, new WeakReference<Instance>(instance));
+            }
+            loading = false;
+            anonymousInstances = null;
         }
+
     }
 
     public void pause(boolean paused) {
