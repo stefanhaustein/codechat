@@ -449,7 +449,7 @@ public class Environment {
                     new InputStreamReader(new FileInputStream(file), "utf-8"));
 
             environmentListener.setName(file.getName());
-            boolean success = true;
+            ArrayList<Exception> parsingErrors = new ArrayList<>();
             clearAll();
 
             StringBuilder pending = new StringBuilder();
@@ -471,9 +471,7 @@ public class Environment {
                                 e.eval(evaluationContext);
                             }
                         } catch (Exception e) {
-                            System.err.println("Error parsing line: " + statement);
-                            e.printStackTrace();
-                            success = false;
+                            parsingErrors.add(e);
                         }
                         pending.setLength(0);
                     }
@@ -483,8 +481,10 @@ public class Environment {
                 }
                 pending.append(line).append('\n');
             }
-            if (!success) {
-                throw new RuntimeException("Parsing error(s)");
+            if (parsingErrors.size() == 1) {
+                throw parsingErrors.get(0);
+            } else if (parsingErrors.size() > 0) {
+                throw new RuntimeException(parsingErrors.toString());
             }
             autoSave = true;
         } catch (Exception e) {
