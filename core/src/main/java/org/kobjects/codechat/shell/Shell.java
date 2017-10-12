@@ -81,6 +81,11 @@ public class Shell implements EnvironmentListener {
     }
 
     @Override
+    public void showError(CharSequence s) {
+        System.err.println(s);
+    }
+
+    @Override
     public void edit(String s) {
         System.out.println(s);
     }

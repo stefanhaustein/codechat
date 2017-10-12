@@ -10,5 +10,7 @@ public interface EnvironmentListener {
 
     void print(CharSequence s);
 
+    void showError(CharSequence s);
+
     void edit(String s);
 }

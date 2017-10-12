@@ -2,8 +2,8 @@ package org.kobjects.codechat.android;
 
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -31,11 +31,14 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
+import com.vanniktech.emoji.EmojiTextView;
 import java.io.File;
 import java.util.SortedMap;
 import org.kobjects.codechat.android.chatview.BubbleAction;
 import org.kobjects.codechat.android.chatview.ChatView;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.ErrorLink;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
@@ -48,8 +51,6 @@ import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
-import static android.support.v4.view.MenuItemCompat.SHOW_AS_ACTION_IF_ROOM;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class MainActivity extends AppCompatActivity implements EnvironmentListener, PopupMenu.OnMenuItemClickListener {
     static final String SETTINGS_FILE_NAME = "fileName";
@@ -60,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     static final String MENU_ITEM_WINDOW_MODE = "Window mode";
 
     static final int SHOW_TOOLBAR_HEIGHT_DP = 620;
+
+    /** Matches the accent color, easier than jumping throug andorid hoops to obtain it. */
+    static final int ERROR_COLOR = 0x0aaff5722;
 
     EmojiEditText input;
     FrameLayout rootLayout;
@@ -86,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     private int errorStart;
     private int errorEnd;
     private String errorText;
-    private String errorPrinted;
     private BubbleAction editAction;
+    private EmojiTextView errorView;
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -110,6 +114,23 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
         toolbar.setTitle("CodeChat");
         setSupportActionBar(toolbar);
 
+        // Construct first, add last...
+        errorView = new EmojiTextView(this);
+        errorView.setTextColor(0x0ffffffff);
+        errorView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                errorView.setVisibility(View.INVISIBLE);
+            }
+        });
+        final GradientDrawable errorShape =  new GradientDrawable();
+        errorShape.setCornerRadius(pixelPerDp * 8);
+        errorShape.setColor(ERROR_COLOR);
+        errorView.setBackground(errorShape);
+        int pad = Math.round(pixelPerDp * 8);
+        errorView.setPadding(pad, pad, pad, pad);
+
+
         chatView = new ChatView(this);
 
         environment = new AndroidEnvironment(this, contentLayout, codeDir);
@@ -124,9 +145,10 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 
             @Override
             protected void onSelectionChanged(int selStart, int selEnd) {
-                if (errorSpan != null && selStart == selEnd && selStart >= errorStart && selStart <= errorEnd && errorText != null && !errorText.equals(errorPrinted)) {
-                    print(errorText);
-                    errorPrinted = errorText;
+                if (errorSpan != null && selStart == selEnd && selStart >= errorStart && selStart <= errorEnd) {
+                    showError(errorText);
+                } else {
+                    errorView.setVisibility(INVISIBLE);
                 }
             }
 
@@ -257,6 +279,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     emojiPopup.dismiss();
                     emojiInputButton.setImageResource(R.drawable.ic_tag_faces_black_24dp);
                 }
+                showError(null);
             }
         });
 
@@ -268,6 +291,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             @Override
             public void onClick(View view) {
                 String line = input.getText().toString();
+                errorSpan = null;
                 input.setText("");
                 processInput(line);
             }
@@ -299,6 +323,10 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 input.setText(content);
             }
         });
+
+        rootLayout.addView(errorView);
+
+        errorView.setVisibility(View.INVISIBLE);
 
         setContentView(rootLayout);
 
@@ -334,8 +362,10 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         environment.parse(parsingContext, input.getText().toString());
 
                     } catch (ParsingException e) {
-                        setErrorSpan(input.getText(), e);
-
+                        errorSpan = addErrorSpan(input.getText(), e);
+                        errorText = e.getMessage();
+                        errorStart = e.start;
+                        errorEnd = e.end;
                      //   }
 
                     } catch (Exception e) {
@@ -350,16 +380,14 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     }
 
-    private void setErrorSpan(Spannable text, ParsingException e) {
-        //errorText = e.getMessage();
-        //     if (e.start >= 0 && e.start < e.end && e.end <= editable.length()) {
-        // protection against expressionparser position bug.
-        errorSpan = new BackgroundColorSpan(Color.RED);
+    private BackgroundColorSpan addErrorSpan(Spannable text, ParsingException e) {
+        BackgroundColorSpan errorSpan = new BackgroundColorSpan(ERROR_COLOR);
 
-        errorStart = Math.max(Math.min(e.start, text.length() - 1), 0);
-        errorEnd = Math.min(Math.max(e.end, 1), text.length());
+        int errorStart = Math.max(Math.min(e.start, text.length() - 1), 0);
+        int errorEnd = Math.min(Math.max(e.end, 1), text.length());
 
         text.setSpan(errorSpan, errorStart, errorEnd, 0);
+        return errorSpan;
     }
 
     void detach(View view) {
@@ -378,6 +406,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         detach(inputRow);
         detach(toolbar);
         detach(contentLayout);
+        detach(errorView);
         rootLayout.removeAllViews();
 
         getWindowManager().getDefaultDisplay().getSize(displaySize);
@@ -388,8 +417,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             LinearLayout columns = new LinearLayout(this);
             rootLayout.addView(columns);
             FrameLayout.LayoutParams columnsParams = (FrameLayout.LayoutParams) columns.getLayoutParams();
-            columnsParams.height = MATCH_PARENT;
-            columnsParams.width = MATCH_PARENT;
+            columnsParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            columnsParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
 
             LinearLayout rows = new LinearLayout(this);
             rows.setOrientation(LinearLayout.VERTICAL);
@@ -406,13 +435,13 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             LinearLayout.LayoutParams rowsParams = (LinearLayout.LayoutParams) rows.getLayoutParams();
             rowsParams.width = 0;
             rowsParams.weight = 0.5f;
-            rowsParams.height = MATCH_PARENT;
+            rowsParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
 
             columns.addView(contentLayout);
             LinearLayout.LayoutParams contentParams = (LinearLayout.LayoutParams) contentLayout.getLayoutParams();
             contentParams.width = 0;
             contentParams.weight = 0.5f;
-            contentParams.height = MATCH_PARENT;
+            contentParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
             contentLayout.setBackgroundColor(0xff888888);
         } else {
             LinearLayout rows = new LinearLayout(this);
@@ -424,8 +453,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 FrameLayout overlay = new FrameLayout(this);
                 overlay.addView(chatView);
                 FrameLayout.LayoutParams chatParams = (FrameLayout.LayoutParams) chatView.getLayoutParams();
-                chatParams.width = MATCH_PARENT;
-                chatParams.height = MATCH_PARENT;
+                chatParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                chatParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
 
                 rows.addView(overlay);
                 ((LinearLayout.LayoutParams) overlay.getLayoutParams()).weight = 1;
@@ -438,8 +467,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     contentParams.height = displaySize.x * 3 / 8;
                 } else {
                     contentLayout.setBackgroundColor(0);
-                    contentParams.width = MATCH_PARENT;
-                    contentParams.height = MATCH_PARENT;
+                    contentParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                    contentParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 }
             }
             rows.addView(inputRow);
@@ -447,8 +476,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
             rootLayout.addView(rows);
             FrameLayout.LayoutParams rowsParams = (FrameLayout.LayoutParams) rows.getLayoutParams();
-            rowsParams.height = MATCH_PARENT;
-            rowsParams.width = MATCH_PARENT;
+            rowsParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            rowsParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
         }
 
         float displayHightDp = displaySize.y / pixelPerDp;
@@ -459,6 +488,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             toolbar.setVisibility(View.VISIBLE);
             menuButton.setVisibility(View.GONE);
         }
+        rootLayout.addView(errorView);
 
         input.requestFocus();
     }
@@ -483,7 +513,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         if (isOptionsMenu) {
             pauseItem = pause;
             pauseItem.setIcon(environment.paused ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
-            pauseItem.setShowAsAction(SHOW_AS_ACTION_IF_ROOM);
+            pauseItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
         menu.add("Help");
         if (displaySize.x <= displaySize.y) {
@@ -518,12 +548,26 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     void printInput(CharSequence s) {
-        chatView.add(ChatView.BubbleType.RIGHT, s, editAction);
+        print(ChatView.BubbleType.RIGHT, s, editAction);
     }
 
     @Override
     public void print(final CharSequence s) {
         print(ChatView.BubbleType.LEFT, s);
+    }
+
+    @Override
+    public void showError(CharSequence s) {
+        if (s == null) {
+            errorView.setVisibility(View.INVISIBLE);
+            return;
+        }
+        errorView.setText(s);
+        errorView.setVisibility(View.VISIBLE);
+        errorView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+        errorView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        ((FrameLayout.LayoutParams) errorView.getLayoutParams()).gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+        errorView.requestLayout();
     }
 
     void print(final CharSequence s, BubbleAction... actions) {
@@ -622,9 +666,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             e.printStackTrace();
             if (!printed) {
                 if (e instanceof ParsingException) {
-                    SpannableString spannable = new SpannableString(line);
-                    setErrorSpan(spannable, ((ParsingException) e));
-                    printInput(spannable);
+                    ParsingException pe = (ParsingException) e;
+                    AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+                    asb.append(line);
+                    asb.addAnnotation(pe.start, pe.end, new ErrorLink(pe));
+                    printInput(asb.build());
                 } else {
                     printInput(line);
                 }
