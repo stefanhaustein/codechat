@@ -59,7 +59,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
         int width = rootView.getWidth();
         int height = rootView.getHeight();
         screen.update(width, height);
-        float newScale = Math.min(rootView.getWidth(), rootView.getHeight()) / 1000f;
+        float newScale = Math.min(rootView.getWidth(), rootView.getHeight()) / 100f;
         boolean force = newScale != scale;
         scale = newScale;
         if (!paused || force) {

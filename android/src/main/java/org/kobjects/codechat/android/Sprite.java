@@ -32,30 +32,30 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     };
     static {
         TYPE.addProperty(0, "size", Type.NUMBER, true,
-                "The size of this sprite in normalized pixels.");
+                "The size of this sprite.");
         TYPE.addProperty(1, "x", Type.NUMBER, true,
-                "The horizontal position of thes sprite in normalized pixels, relative to the left side, " +
+                "The horizontal position of the sprite, relative to the left side, " +
                 "center or right side of the screen, depending on the value of the xAlign property.");
         TYPE.addProperty(2, "y", Type.NUMBER, true,
-                "The vertical position of the text in normalized pixels relative to the top, " +
+                "The vertical position of the sprite relative to the top, " +
                         "center or bottom of the screen, depending on the value of the yAlign property. ");
         TYPE.addProperty(3, "angle", Type.NUMBER, true,
-                "The rotation angle of this sprite in radians (counter clockwise).");
+                "The clockwise rotation angle of this sprite in degree.");
         TYPE.addProperty(4, "face", Type.STRING, true, "The emoji displayed for this sprite.");
         TYPE.addProperty(5, "collisions", new SetType(Sprite.TYPE), true,
                 "The set of other sprites this sprite is currently colliding with");
         TYPE.addProperty(6, "dx", Type.NUMBER, true,
-                "The current horizontal speed of this sprite in normalized pixels per second.");
+                "The current horizontal speed of this sprite in units per second.");
         TYPE.addProperty(7, "dy", Type.NUMBER, true,
-                "The current vertical speed of this sprite in normalized pixels per second.");
+                "The current vertical speed of this sprite in units per second.");
         TYPE.addProperty(8, "rotation", Type.NUMBER, true,
-                "The current counter clockwise rotation speed in radians per second.");
+                "The current clockwise rotation speed in degree per second.");
         TYPE.addProperty(9, "touch", Type.BOOLEAN, false,
-                "True if this sprite is currently touch.");
+                "True if this sprite is currently touched.");
         TYPE.addProperty(10, "direction", Type.NUMBER, true,
-                "The movement direction of this sprite in radians; 0 if the sprite is not moving.");
+                "The movement direction of this sprite in degree; 0 if the sprite is not moving.");
         TYPE.addProperty(11, "speed", Type.NUMBER, true,
-                "The current speed in pixels per second.");
+                "The current speed in units per second.");
         TYPE.addProperty(12, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently withing the usable screen boundaries.");
         TYPE.addProperty(13, "xAlign", AndroidEnvironment.XAlign, true,
@@ -73,7 +73,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     enum Command {NONE, ADD, REMOVE};
     private Command command = Command.ADD;
 
-    public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(100.0);
+    public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
@@ -111,7 +111,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public Property<Double> direction = new Property<Double>() {
         @Override
         public Double get() {
-            return Math.atan2(dy.get(), dx.get());
+            return Math.atan2(dy.get(), dx.get()) * 180 / Math.PI;
         }
 
         @Override
@@ -175,9 +175,13 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         syncView();
     }
 
+    private static double toRad(double deg) {
+        return -deg * Math.PI / 180;
+    }
+
     public void move(double speed, double angle) {
-        this.dx.set(speed * Math.cos(angle));
-        this.dy.set(speed * Math.sin(angle));
+        this.dx.set(speed * Math.cos(toRad(angle)));
+        this.dy.set(speed * Math.sin(toRad(angle)));
     }
 
 
@@ -225,7 +229,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 break;
         }
 
-        view.setRotation((float) (-angle.get() * 180 / Math.PI));
+        view.setRotation(angle.get().floatValue());
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.width = Math.round((float) (environment.scale * size));
         if (params.height != params.width) {
@@ -307,11 +311,11 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         double rotationSpeedVaue = rotation.get();
         if (rotationSpeedVaue != 0) {
             double rotationValue = angle.get() + rotationSpeedVaue * s;
-            while (rotationValue > 2 * Math.PI) {
-                rotationValue -= 2 * Math.PI;
+            while (rotationValue > 360) {
+                rotationValue -= 360;
             }
-            while (rotationValue < -2 * Math.PI) {
-                rotationValue += 2 * Math.PI;
+            while (rotationValue < -360) {
+                rotationValue += 360;
             }
             angle.set(rotationValue);
         }

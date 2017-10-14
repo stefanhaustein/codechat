@@ -14,12 +14,12 @@ public class Screen implements Tuple {
     static {
         TYPE.addProperty(0, "width", TYPE.NUMBER, false,
                 "The width of the usable area of the screen in normalized pixels. "+
-                        "Pixels are normalized so that the smaller value of width and the height is at least 1000.");
+                        "Pixels are normalized so that the smaller value of width and the height is at least 100.");
         TYPE.addProperty(1, "height", TYPE.NUMBER, false,
                 "The height of the usable area of the screen in normalized pixels. "+
-                        "Pixels are normalized so that the smaller value of width and the height is at least 1000.");
+                        "Pixels are normalized so that the smaller value of width and the height is at least 100.");
         TYPE.addProperty(2, "top", TYPE.NUMBER, false,
-                "The top boundary of the usable screen are, counted from the center. At least 500.");
+                "The top boundary of the usable screen are, counted from the center. At least 50.");
         TYPE.addProperty(3, "bottom", TYPE.NUMBER, false,
                 "The bottom boundary of the usable screen area, counted from the center. " +
                         "This value is always negative.");
@@ -27,19 +27,19 @@ public class Screen implements Tuple {
                 "The left boundary of the usable screen area, counted from the center. " +
                 "This value is always negative.");
         TYPE.addProperty(5, "right", TYPE.NUMBER, false,
-                "The right boundary of the usable screen are, counted from the center. At least 500.");
+                "The right boundary of the usable screen are, counted from the center. At least 50.");
         TYPE.addProperty(6, "frame", TYPE.NUMBER, false,
                 "A counter that is incremented every time the screen content is updated.");
     }
 
-    MaterialProperty<Double> width = new MaterialProperty<>(1000.0);
-    MaterialProperty<Double> height = new MaterialProperty<>(1000.0);
+    MaterialProperty<Double> width = new MaterialProperty<>(100.0);
+    MaterialProperty<Double> height = new MaterialProperty<>(100.0);
 
-    MaterialProperty<Double> top = new MaterialProperty<>(-500.0);
-    MaterialProperty<Double> bottom = new MaterialProperty<>(-500.0);
+    MaterialProperty<Double> top = new MaterialProperty<>(-50.0);
+    MaterialProperty<Double> bottom = new MaterialProperty<>(-50.0);
 
-    MaterialProperty<Double> left = new MaterialProperty<>(500.0);
-    MaterialProperty<Double> right = new MaterialProperty<>(500.0);
+    MaterialProperty<Double> left = new MaterialProperty<>(50.0);
+    MaterialProperty<Double> right = new MaterialProperty<>(50.0);
 
     public MaterialProperty<Double> frame = new MaterialProperty<>(0.0);
 
@@ -73,11 +73,11 @@ public class Screen implements Tuple {
             double scaledHeight;
 
             if (nativeWidth > nativeHeight) {
-                scaledHeight = 1000;
-                scaledWidth = Math.round((500.0 * nativeWidth) / nativeHeight) * 2;
+                scaledHeight = 100;
+                scaledWidth = Math.round((50.0 * nativeWidth) / nativeHeight) * 2;
             } else {
-                scaledWidth = 1000;
-                scaledHeight = Math.round((500.0 * nativeHeight) / nativeWidth) * 2;
+                scaledWidth = 100;
+                scaledHeight = Math.round((50.0 * nativeHeight) / nativeWidth) * 2;
             }
 
             left.set(-scaledWidth / 2);
