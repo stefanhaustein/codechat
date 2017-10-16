@@ -11,6 +11,7 @@ import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,30 +30,34 @@ import org.kobjects.codechat.type.Type;
 
 public class Environment {
 
-    static final String HELPTEXT = "CodeChat is an application for 'casual' coding on mobile devices using a " +
-            "'chat-like' interface. Emojis are supplied by EmojiOne.\n" +
-            "Type \"help <object>\" to get help on <object>.";
+    static final String ABOUT_TEXT = "" +
+            "CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n" +
+            "Type 'help' for help on how to use this app and builtin functionionality.\n\n" +
+            "Copyright (C) 2017 Stefan Haustein.";
+
+
+    static final String HELP_TEXT = "" +
+            "CodeChat is an application for 'casual' coding on mobile devices using a " +
+            "'chat-like' interface. Type \"help <object>\" to get help on <object>. " +
+            "Type 'about' for copyright information and contributors. ";
 
     static final Map<String,TextLink> helpMap = new TreeMap<>();
     static void addHelp(String what, String text) {
         helpMap.put(what, new TextLink(text));
     }
 
-    static final String[] OPERATOR_LIST = {
-            "new",
-            ".",
-            "^", "\u221a",
-            "not", "\u00ac", "°",
-            "*", "/", "\u00d7", "\u22C5", "%",
-            "+", "-",
-            "<", "\u2264", "<=", ">", "≥", ">=",
-            "=", "\u2261", "==", "\u2260", "!=",
-            "and", "\u2227",
-            "or", "\u2228"};
-
-    static final String[] CONTROL_STRUCTURE_LIST = {
-            "count", "for", "function", "if", "on", "onchange", "var"
-    };
+    static final LinkedHashMap<String, String[]> HELP_LISTS = new LinkedHashMap<String, String[]>(){{
+        put("Mathematical operators", new String[]{"^", "\u221a","°",
+                "*", "/", "\u00d7", "\u22C5", "%",
+                "+", "-",});
+        put("Logical operators", new String[]{"and", "or", "not"});
+        put("Relational operators", new String[]{"<", "\u2264", "<=", ">", "≥", ">=",
+                "=", "\u2261", "==", "\u2260", "!="});
+        put("Other operators", new String[]{"new",
+                ".",});
+        put("Control structures", new String[] {
+                "count", "for", "function", "if", "on", "onchange", "var"});
+    }};
 
     static {
         addHelp("new", "'new creates a new 'new' creates a new object of a given type, e.g. new Sprite");
@@ -147,12 +152,20 @@ public class Environment {
             }
         });
 
+        addNativeFunction(new NativeFunction("about", Type.VOID, "Prints copyright information for this application.") {
+            @Override
+            protected Object eval(Object[] params) {
+                environmentListener.print(ABOUT_TEXT);
+                return null;
+            }
+        });
+
         addNativeFunction(new NativeFunction("help", Type.VOID, "Prints a help text describing the argument.", Type.ANY) {
             @Override
             protected Object eval(Object[] params) {
                 if (params[0] == null) {
                     AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-                    asb.append(HELPTEXT);
+                    asb.append(HELP_TEXT);
 
                     LinkedHashSet<RootVariable>[] builtins = new LinkedHashSet[3];
                     for (int i = 0; i < 3; i++) {
@@ -193,24 +206,16 @@ public class Environment {
                         }
                     }
 
-                    asb.append("\nOperators: ");
+                    for (Map.Entry<String,String[]> entry : HELP_LISTS.entrySet()) {
+                        asb.append("\n").append(entry.getKey()).append(":");
 
-                    for (int i = 0; i < OPERATOR_LIST.length; i++) {
-                        if (i > 0) {
-                            asb.append(", ");
+                        for (int i = 0; i < entry.getValue().length; i++) {
+                            if (i > 0) {
+                                asb.append(", ");
+                            }
+                            String op = entry.getValue()[i];
+                            asb.append(op, helpMap.get(op));
                         }
-                        String op = OPERATOR_LIST[i];
-                        asb.append(op, helpMap.get(op));
-                    }
-
-                    asb.append("\nControl structures:");
-
-                    for (int i = 0; i < CONTROL_STRUCTURE_LIST.length; i++) {
-                        if (i > 0) {
-                            asb.append(", ");
-                        }
-                        String op = CONTROL_STRUCTURE_LIST[i];
-                        asb.append(op, helpMap.get(op));
                     }
 
                     environmentListener.print(asb);
