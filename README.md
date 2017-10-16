@@ -12,55 +12,55 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 ### Bouncing Ball
 
     ball = new Sprite;
-    ball.size = 250;
+    ball.size = 25;
     ball.dx = -1;
     ball.xAlign = LEFT;
     ball.yAlign = BOTTOM;
     on ball.x > screen.width - ball.size:
-      ball.dx = -100.0;
-      ball.rotation = 3.0;
+      ball.dx = -10.0;
+      ball.rotation = -90.0;
     end;
     on ball.y < 0.0:
-      ball.dy = 1000.0;
+      ball.dy = 100.0;
       ball.face = "😲";
       wait 0.2;
       ball.face = "😄";
     end;
     on ball.x < 0.0:
-      ball.dx = 100.0;
-      ball.rotation = -3.0;
+      ball.dx = 10.0;
+      ball.rotation = 90.0;
     end;
     onchange screen.frame:
-      ball.dy = ball.dy - 15.0;
+      ball.dy = ball.dy - 1.5;
     end;
 
 ### Rotating Spaceship
 
     ship = new Sprite;
     ship.face = "🚀";
-    ship.size = 250.0;
+    ship.size = 25;
 
     leftButton = new Sprite;
     leftButton.face = "↪️";
-    leftButton.size = 250;
+    leftButton.size = 25;
     leftButton.xAlign = LEFT;
     leftButton.yAlign = BOTTOM;
 
     rightButton = new Sprite;
     rightButton.face = "↩️";
-    rightButton.size = 250.0;
-    rightButton.x = 250.0;
+    rightButton.size = 25;
+    rightButton.x = 25;
     rightButton.xAlign = LEFT;
     rightButton.yAlign = BOTTOM;
 
     on leftButton.touch:
-      ship.rotation = 3.0;
+      ship.rotation = -90;
     end;
     on rightButton.touch:
-      ship.rotation = -3.0;
+      ship.rotation = 90;
     end;
     on not rightButton.touch and not leftButton.touch:
-      ship.rotation = 0.0;
+      ship.rotation = 0;
     end;
     
 #### Shooting
@@ -68,8 +68,8 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     function shoot(): Void :
       var shot = new Sprite;
       shot.face = "⭐";
-      shot.speed = 1000.0;
-      shot.direction = ship.angle + 45.0°;
+      shot.speed = 100;
+      shot.direction = ship.angle - 45.0;
       on ¬shot.visible:
         delete shot;
       end;
@@ -77,7 +77,7 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
     
     fireButton = new Sprite;
     fireButton.face = "⏺️";
-    fireButton.size = 250.0;
+    fireButton.size = 25;
     fireButton.xAlign = RIGHT;
     fireButton.yAlign = BOTTOM;
     
