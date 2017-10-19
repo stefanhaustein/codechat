@@ -20,7 +20,7 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
 
     @Override
     public AnnotatedStringBuilder append(CharSequence csq) {
-        sb.append(csq, 0, csq.length());
+        this.append(csq, 0, csq.length());
         return this;
     }
 

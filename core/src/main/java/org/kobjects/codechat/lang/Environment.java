@@ -21,6 +21,7 @@ import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.ExecLink;
 import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -30,16 +31,18 @@ import org.kobjects.codechat.type.Type;
 
 public class Environment {
 
-    static final String ABOUT_TEXT = "" +
-            "CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n" +
-            "Type 'help' for help on how to use this app and builtin functionionality.\n\n" +
-            "Copyright (C) 2017 Stefan Haustein.";
+    static final CharSequence ABOUT_TEXT = new AnnotatedStringBuilder()
+            .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n Type '")
+            .append("help", new ExecLink("help"))
+            .append("' for help on how to use this app and builtin functionionality.\n\n Copyright (C) 2017 Stefan Haustein.")
+            .build();
 
 
-    static final String HELP_TEXT = "" +
-            "CodeChat is an application for 'casual' coding on mobile devices using a " +
-            "'chat-like' interface. Type \"help <object>\" to get help on <object>. " +
-            "Type 'about' for copyright information and contributors. ";
+    static final CharSequence HELP_TEXT = new AnnotatedStringBuilder()
+            .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface. ")
+            .append("Type 'help <object>' to get help on <object>. Type '")
+            .append("about", new ExecLink("about"))
+            .append("' for copyright information and contributors. ").build();
 
     static final Map<String,TextLink> helpMap = new TreeMap<>();
     static void addHelp(String what, String text) {
@@ -156,6 +159,22 @@ public class Environment {
             @Override
             protected Object eval(Object[] params) {
                 environmentListener.print(ABOUT_TEXT);
+                return null;
+            }
+        });
+
+        addNativeFunction(new NativeFunction("dir", Type.VOID, "Prints the directory of the application file system.") {
+            @Override
+            protected Object eval(Object[] params) {
+                AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+                for (File file: codeDir.listFiles()) {
+                    String name = file.getName();
+                    if (!name.equals("CodeChat")) {
+                        asb.append(name, new ExecLink("load \"" + name + "\""));
+                        asb.append("\n");
+                    }
+                }
+                environmentListener.print(asb.build());
                 return null;
             }
         });
@@ -469,12 +488,7 @@ public class Environment {
                     String statement = pending.toString();
                     if (!statement.isEmpty()) {
                         try {
-                            ParsingContext parsingContext = new ParsingContext(this);
-                            Statement e = parse(parsingContext, statement);
-                            if (e != null) {
-                                EvaluationContext evaluationContext = parsingContext.createEvaluationContext();
-                                e.eval(evaluationContext);
-                            }
+                            exec(statement);
                         } catch (Exception e) {
                             parsingErrors.add(e);
                         }
@@ -506,6 +520,16 @@ public class Environment {
         }
 
     }
+
+    public void exec(String s) {
+        ParsingContext parsingContext = new ParsingContext(this);
+        Statement e = parse(parsingContext, s);
+        if (e != null) {
+            EvaluationContext evaluationContext = parsingContext.createEvaluationContext();
+            e.eval(evaluationContext);
+        }
+    }
+
 
     public void pause(boolean paused) {
         if (paused != this.paused) {
