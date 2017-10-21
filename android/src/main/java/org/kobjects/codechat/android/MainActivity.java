@@ -646,17 +646,23 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     String s = expression.toString();
                     printInput(s);
                     printed = true;
+                    int count = chatView.getCount();
                     Object result = expression.eval(parsingContext.createEvaluationContext());
                     if (Type.VOID.equals(expression.getType())) {
-                        print("ok");
+                        if (chatView.getCount() == count) {
+                            print("ok");
+                        }
                     } else {
                         print(Formatting.toLiteral(result), editAction);
                     }
                 } else {
                     printInput(statement.toString());
                     printed = true;
+                    int count = chatView.getCount();
                     statement.eval(parsingContext.createEvaluationContext());
-                    print("ok");
+                    if (chatView.getCount() == count) {
+                        print("ok");
+                    }
                 }
 
                 if (environment.autoSave) {

@@ -1,5 +1,7 @@
 package org.kobjects.codechat.lang;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.expr.Expression;
@@ -14,38 +16,60 @@ import org.kobjects.codechat.type.Type;
 public class OnInstance implements Instance, Property.PropertyListener {
     public static final OnInstanceType ON_TYPE = new OnInstanceType("on");
     public static final OnInstanceType ONCHANGE_TYPE = new OnInstanceType("onchange");
+    public static final OnInstanceType EVERY_TYPE = new OnInstanceType("every");
 
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
     private OnExpression onExpression;
     private EvaluationContext contextTemplate;
     private int id;
+    private Timer timer;
 
     public OnInstance(Environment environment, int id) {
         this.id = id;
     }
 
-    public void init(OnExpression onExpression, EvaluationContext contextTemplate) {
+    public void init(OnExpression onExpression, final EvaluationContext contextTemplate) {
         detach();
         this.onExpression = onExpression;
         this.contextTemplate = contextTemplate;
-        addAll(onExpression.expression, contextTemplate);
+        if (onExpression.kind == OnExpression.Kind.EVERY) {
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (contextTemplate.environment.paused) {
+                        EvaluationContext evalContext = OnInstance.this.contextTemplate.clone();
+                        OnInstance.this.onExpression.body.eval(evalContext);
+                    }
+                }
+            }, 0, Math.round(((Number) onExpression.expression.eval(contextTemplate)).doubleValue()*1000));
+        } else {
+            addAll(onExpression.expression, contextTemplate);
+        }
     }
 
     @Override
     public void valueChanged(Property property, Object oldValue, Object newValue) {
-        if (onExpression.onChange) {
-            EvaluationContext evalContext = contextTemplate.clone();
-            onExpression.body.eval(evalContext);
-        } else {
-            Object conditionValue = onExpression.expression.eval(contextTemplate);
-            if (!conditionValue.equals(lastValue)) {
-                lastValue = conditionValue;
-                if (Boolean.TRUE.equals(conditionValue)) {
-                    EvaluationContext evalContext = contextTemplate.clone();
-                    onExpression.body.eval(evalContext);
-                }
+        switch (onExpression.kind) {
+            case ON_CHANGE: {
+                EvaluationContext evalContext = contextTemplate.clone();
+                onExpression.body.eval(evalContext);
+                break;
             }
+            case ON: {
+                Object conditionValue = onExpression.expression.eval(contextTemplate);
+                if (!conditionValue.equals(lastValue)) {
+                    lastValue = conditionValue;
+                    if (Boolean.TRUE.equals(conditionValue)) {
+                        EvaluationContext evalContext = contextTemplate.clone();
+                        onExpression.body.eval(evalContext);
+                    }
+                }
+                break;
+            }
+            case EVERY:
+                throw new RuntimeException("NYI");
         }
     }
 
@@ -84,7 +108,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
     @Override
     public OnInstanceType getType() {
-        return onExpression.onChange ? ONCHANGE_TYPE : ON_TYPE;
+        return onExpression.kind.type;
     }
 
     @Override
@@ -101,7 +125,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
         boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
 
-        asb.append((onExpression.onChange ? "onchange#" : "on#") + String.valueOf(getId()), new EntityLink(this));
+        asb.append(onExpression.getType().getName().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
         asb.append(" ").append(onExpression.expression.toString()).append(":\n");
         onExpression.body.toString(asb, wrap ? 2 : 1);
         if (wrap) {
@@ -113,7 +137,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
     public static class OnInstanceType extends Type {
         private final String name;
 
-        OnInstanceType(String name) {
+        public OnInstanceType(String name) {
             this.name = name;
         }
 

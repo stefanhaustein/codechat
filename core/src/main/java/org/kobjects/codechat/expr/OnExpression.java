@@ -10,14 +10,27 @@ import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 
 public class OnExpression extends Expression {
-    public final boolean onChange;
+
+    public enum Kind {
+        ON(new OnInstance.OnInstanceType("On")),
+        ON_CHANGE(new OnInstance.OnInstanceType("OnChange")),
+        EVERY(new OnInstance.OnInstanceType("Every"));
+
+        public final OnInstance.OnInstanceType type;
+
+        Kind(OnInstance.OnInstanceType type) {
+            this.type = type;
+        }
+    }
+
+    public final Kind kind;
     private final int id;
     public final Expression expression;
     public final Statement body;
     public final Closure closure;
 
-    public OnExpression(boolean onChange, int id, Expression condition, Statement body, Closure closure) {
-        this.onChange = onChange;
+    public OnExpression(Kind kind, int id, Expression condition, Statement body, Closure closure) {
+        this.kind = kind;
         this.id = id;
         this.expression = condition;
         this.body = body;
@@ -26,8 +39,7 @@ public class OnExpression extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        OnInstance result = (OnInstance) context.environment.getInstance(
-                onChange ? OnInstance.ONCHANGE_TYPE : OnInstance.ON_TYPE, id, true);
+        OnInstance result = (OnInstance) context.environment.getInstance(kind.type, id, true);
         EvaluationContext template = closure.createEvalContext(context);
         result.init(this, template);
         return result;
@@ -35,7 +47,7 @@ public class OnExpression extends Expression {
 
     @Override
     public Type getType() {
-        return onChange ? OnInstance.ONCHANGE_TYPE : OnInstance.ON_TYPE;
+        return kind.type;
     }
 
     @Override
@@ -45,7 +57,7 @@ public class OnExpression extends Expression {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        sb.append(onChange ? "onchange" : "on");
+        sb.append(kind.type.getName().toLowerCase());
         if (id != -1) {
             sb.append('#').append(id);
         }

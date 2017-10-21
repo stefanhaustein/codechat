@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import javax.jws.Oneway;
 import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.expr.unresolved.UnresolvedArrayExpression;
 import org.kobjects.codechat.expr.OnExpression;
@@ -203,23 +204,31 @@ public class Parser {
         return new UnresolvedFunctionExpression(start, tokenizer.currentPosition, id, functionType, parameterNames.toArray(new String[parameterNames.size()]), bodyContext.getClosure(), body);
     }
 
-    OnExpression parseOn(ParsingContext parsingContext, boolean onChange, ExpressionParser.Tokenizer tokenizer, int id) {
+    OnExpression parseOnExpression(ParsingContext parsingContext, OnExpression.Kind kind, ExpressionParser.Tokenizer tokenizer, int id) {
         ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
         int p0 = tokenizer.currentPosition;
         final Expression expression = parseExpression(closureParsingContext, tokenizer);
 
-        if (onChange) {
-            if (!(expression instanceof PropertyAccess)) {
-                throw new ParsingException(p0, tokenizer.currentPosition, "property expected.", null);
-            }
-        } else {
-            if (!expression.getType().equals(Type.BOOLEAN)) {
-                throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
-            }
+        switch(kind) {
+            case ON_CHANGE:
+                if (!(expression instanceof PropertyAccess)) {
+                    throw new ParsingException(p0, tokenizer.currentPosition, "property expected.", null);
+                }
+                break;
+            case ON:
+                if (!expression.getType().equals(Type.BOOLEAN)) {
+                    throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
+                }
+                break;
+            case EVERY:
+                if (!expression.getType().equals(Type.NUMBER)) {
+                    throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
+                }
+                break;
         }
 
         final Statement body = parseBody(closureParsingContext, tokenizer);
-        OnExpression result = new OnExpression(onChange, id, expression, body, closureParsingContext.getClosure());
+        OnExpression result = new OnExpression(kind, id, expression, body, closureParsingContext.getClosure());
         return result;
     }
 
@@ -322,10 +331,17 @@ public class Parser {
         if (tokenizer.tryConsume("if")) {
             return parseIf(parsingContext, tokenizer);
         }
-        if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#") ||
-                tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
+        if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOn(parsingContext, name.startsWith("onchange"), tokenizer, extractId(name)));
+            return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.ON, tokenizer, extractId(name)));
+        }
+        if (tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
+            String name = tokenizer.consumeIdentifier();
+            return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.ON_CHANGE, tokenizer, extractId(name)));
+        }
+        if (tokenizer.currentValue.equals("every") || tokenizer.currentValue.startsWith("every#")) {
+            String name = tokenizer.consumeIdentifier();
+            return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.EVERY, tokenizer, extractId(name)));
         }
         if (tokenizer.tryConsume("var") || tokenizer.tryConsume("variable") || tokenizer.tryConsume("mutable")) {
             return parseVar(parsingContext, tokenizer, false, interactive);
