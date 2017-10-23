@@ -23,6 +23,7 @@ import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.annotation.ExecLink;
 import org.kobjects.codechat.annotation.TextLink;
+import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.Statement;
@@ -34,7 +35,8 @@ public class Environment {
     static final CharSequence ABOUT_TEXT = new AnnotatedStringBuilder()
             .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n Type '")
             .append("help", new ExecLink("help"))
-            .append("' for help on how to use this app and builtin functionionality.\n\n Copyright (C) 2017 Stefan Haustein.")
+            .append("' for help on how to use this app and builtin functionionality.\n\n Copyright (C) 2017 Stefan Haustein.\n\n")
+            .append("Explosion sound by ryansnook licensed under CC BY-NC 3.0\n")
             .build();
 
 
@@ -132,6 +134,10 @@ public class Environment {
         this.codeDir = codeDir;
 
         addType(Type.BOOLEAN, Type.NUMBER, Type.STRING, Type.VOID);
+
+        for (OnExpression.Kind kind : OnExpression.Kind.values()) {
+            addType(kind.type);
+        }
 
         addBuiltins();
     }
@@ -539,12 +545,6 @@ public class Environment {
     }
 
     public Type resolveType(String name) {
-        if (name.equals("on")) {
-            return OnInstance.ON_TYPE;
-        }
-        if (name.equals("onchange")) {
-            return OnInstance.ONCHANGE_TYPE;
-        }
         RootVariable var = rootVariables.get(name);
         if (!(var.type instanceof MetaType)) {
             throw new RuntimeException("Not a type: " + name);

@@ -1,12 +1,17 @@
 package org.kobjects.codechat.android;
 
+import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import org.kobjects.codechat.lang.Entity;
@@ -20,18 +25,55 @@ import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
+    private static final String[] SOUND_EXTENSIONS = {".mp3", ".wav"};
     public FrameLayout rootView;
     public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
-    Handler handler = new Handler();
     public Screen screen = new Screen();
     public double scale;
     public static EnumType YAlign = new EnumType("YAlign", "TOP", "CENTER", "BOTTOM");
     public static EnumType XAlign = new EnumType("XAlign", "LEFT", "CENTER", "RIGHT");
+    Handler handler = new Handler();
+    final Context context;
+    private HashSet<String> sounds = new HashSet<String>();
+
+    void playSound(String s) {
+        try {
+            String name = Integer.toHexString(Character.codePointAt(s,0));
+            if (sounds.contains(name + ".mp3")) {
+                name += ".mp3";
+            } else if (sounds.contains(name + ".wav")) {
+                name += ".wav";
+            } else {
+                throw new RuntimeException("Sound '" + name + "' not found");
+            }
+            AssetFileDescriptor descriptor = rootView.getContext().getAssets().openFd("sound/" +  name);
+            final MediaPlayer m = new MediaPlayer();
+            m.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+            descriptor.close();
+
+            m.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    m.release();
+                }
+            });
+
+            m.prepare();
+            m.setVolume(1f, 1f);
+            m.setLooping(false);
+            m.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public AndroidEnvironment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
         super(environmentListener, codeDir);
         this.rootView = rootView;
+        this.context = rootView.getContext();
         handler.postDelayed(this, 100);
+
 
         addType(Screen.TYPE);
         addType(Sprite.TYPE);
@@ -52,6 +94,21 @@ public class AndroidEnvironment extends Environment implements Runnable {
                 return null;
             }
         });
+        addNativeFunction(new NativeFunction("playSound", Type.VOID,  "Plays the given sound", Type.STRING) {
+            @Override
+            protected Object eval(Object[] params) {
+                playSound((String) params[0]);
+                return null;
+            }
+        });
+
+        try {
+            for (String s : context.getAssets().list("sound")) {
+                sounds.add(s);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

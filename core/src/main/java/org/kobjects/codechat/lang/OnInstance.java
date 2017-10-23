@@ -14,10 +14,6 @@ import java.util.List;
 import org.kobjects.codechat.type.Type;
 
 public class OnInstance implements Instance, Property.PropertyListener {
-    public static final OnInstanceType ON_TYPE = new OnInstanceType("on");
-    public static final OnInstanceType ONCHANGE_TYPE = new OnInstanceType("onchange");
-    public static final OnInstanceType EVERY_TYPE = new OnInstanceType("every");
-
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
     private OnExpression onExpression;
@@ -33,12 +29,12 @@ public class OnInstance implements Instance, Property.PropertyListener {
         detach();
         this.onExpression = onExpression;
         this.contextTemplate = contextTemplate;
-        if (onExpression.kind == OnExpression.Kind.EVERY) {
+        if (onExpression.kind == OnExpression.Kind.ON_INTERVAL) {
             timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    if (contextTemplate.environment.paused) {
+                    if (!contextTemplate.environment.paused) {
                         EvaluationContext evalContext = OnInstance.this.contextTemplate.clone();
                         OnInstance.this.onExpression.body.eval(evalContext);
                     }
@@ -68,12 +64,16 @@ public class OnInstance implements Instance, Property.PropertyListener {
                 }
                 break;
             }
-            case EVERY:
+            case ON_INTERVAL:
                 throw new RuntimeException("NYI");
         }
     }
 
     public void detach() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
         for (Property property : properties) {
             property.removeListener(this);
         }

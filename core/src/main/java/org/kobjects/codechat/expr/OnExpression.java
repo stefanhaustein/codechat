@@ -14,7 +14,7 @@ public class OnExpression extends Expression {
     public enum Kind {
         ON(new OnInstance.OnInstanceType("On")),
         ON_CHANGE(new OnInstance.OnInstanceType("OnChange")),
-        EVERY(new OnInstance.OnInstanceType("Every"));
+        ON_INTERVAL(new OnInstance.OnInstanceType("OnInterval"));
 
         public final OnInstance.OnInstanceType type;
 

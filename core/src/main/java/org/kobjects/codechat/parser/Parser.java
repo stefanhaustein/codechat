@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import javax.jws.Oneway;
 import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.expr.unresolved.UnresolvedArrayExpression;
 import org.kobjects.codechat.expr.OnExpression;
@@ -220,7 +219,7 @@ public class Parser {
                     throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
                 }
                 break;
-            case EVERY:
+            case ON_INTERVAL:
                 if (!expression.getType().equals(Type.NUMBER)) {
                     throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
                 }
@@ -341,7 +340,7 @@ public class Parser {
         }
         if (tokenizer.currentValue.equals("every") || tokenizer.currentValue.startsWith("every#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.EVERY, tokenizer, extractId(name)));
+            return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.ON_INTERVAL, tokenizer, extractId(name)));
         }
         if (tokenizer.tryConsume("var") || tokenizer.tryConsume("variable") || tokenizer.tryConsume("mutable")) {
             return parseVar(parsingContext, tokenizer, false, interactive);
