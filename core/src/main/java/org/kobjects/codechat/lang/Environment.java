@@ -478,8 +478,7 @@ public class Environment {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), "utf-8"));
 
-            environmentListener.setName(file.getName());
-            ArrayList<Exception> parsingErrors = new ArrayList<>();
+            ArrayList<RuntimeException> parsingErrors = new ArrayList<>();
             clearAll();
 
             StringBuilder pending = new StringBuilder();
@@ -495,7 +494,7 @@ public class Environment {
                     if (!statement.isEmpty()) {
                         try {
                             exec(statement);
-                        } catch (Exception e) {
+                        } catch (RuntimeException e) {
                             parsingErrors.add(e);
                         }
                         pending.setLength(0);
@@ -506,17 +505,18 @@ public class Environment {
                 }
                 pending.append(line).append('\n');
             }
+            autoSave = parsingErrors.size() == 0;
             if (parsingErrors.size() == 1) {
                 throw parsingErrors.get(0);
             } else if (parsingErrors.size() > 0) {
                 throw new RuntimeException(parsingErrors.toString());
             }
-            autoSave = true;
-        } catch (Exception e) {
+        } catch (IOException e) {
             autoSave = false;
             throw new RuntimeException(e);
         } finally {
-            for (Instance instance: anonymousInstances) {
+            environmentListener.setName(file.getName());
+            for (Instance instance : anonymousInstances) {
                 int id = ++lastId;
                 instance.setId(id);
                 everything.put(id, new WeakReference<Instance>(instance));
@@ -524,7 +524,6 @@ public class Environment {
             loading = false;
             anonymousInstances = null;
         }
-
     }
 
     public void exec(String s) {

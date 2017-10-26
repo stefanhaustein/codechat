@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -68,7 +69,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
 
     private final ImageView view;
     private boolean syncRequested;
-    static List<Sprite> allVisibleSprites = new ArrayList();
+    static List<WeakReference<Sprite>> allSprites = new ArrayList();
     AndroidEnvironment environment;
     enum Command {NONE, ADD, REMOVE};
     private Command command = Command.ADD;
@@ -87,9 +88,10 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             double x = Sprite.this.x.get();
             double y = Sprite.this.y.get();
             double size = Sprite.this.size.get();
-            synchronized (allVisibleSprites) {
-                for (Sprite other : allVisibleSprites) {
-                    if (other != Sprite.this) {
+            synchronized (allSprites) {
+                for (WeakReference<Sprite> otherRef : allSprites) {
+                    Sprite other = otherRef.get();
+                    if (other != null && other != Sprite.this) {
                         double distX = other.x.get() - x;
                         double distY = other.y.get() - y;
                         double minDist = (other.size.get() + size) / 2;
@@ -155,6 +157,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         view.setAdjustViewBounds(true);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
         // view.setDrawingCacheEnabled(true);
+        view.setTag(this);
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -169,8 +172,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 return false;
             }
         });
-        synchronized (allVisibleSprites) {
-            allVisibleSprites.add(this);
+        synchronized (allSprites) {
+            allSprites.add(new WeakReference(this));
         }
         syncView();
     }
@@ -327,11 +330,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             command = Command.REMOVE;
             syncView();
         }
-        synchronized (environment.ticking) {
-            environment.ticking.remove(this);
-        }
-        synchronized (allVisibleSprites) {
-            allVisibleSprites.remove(this);
+        synchronized (allSprites) {
+            allSprites.remove(this);
         }
     }
 
@@ -379,6 +379,6 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
 
 
     public static void clearAll() {
-        allVisibleSprites.clear();
+        allSprites.clear();
     }
 }

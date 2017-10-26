@@ -340,7 +340,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             try {
                 environment.load(fileName);
             } catch (Exception e) {
-                e.printStackTrace();
+                print(e.getMessage());
             }
         }
 
@@ -557,6 +557,10 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         print(ChatView.BubbleType.LEFT, s);
     }
 
+    void printException(Exception e) {
+        print(e.getMessage());
+    }
+
     @Override
     public void showError(CharSequence s) {
         if (s == null) {
@@ -682,7 +686,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     printInput(line);
                 }
             }
-            print(e.getMessage());
+            printException(e);
         }
     }
 
@@ -695,10 +699,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     @Override
     public void setName(String name) {
-        if (!name.equals(toolbar.getTitle().toString())) {
-            toolbar.setTitle(name + (environment.autoSave ? "" : "*"));
-            settings.edit().putString(SETTINGS_FILE_NAME, name).commit();
-        }
+        toolbar.setTitle(name + (environment.autoSave ? "" : "*"));
+        settings.edit().putString(SETTINGS_FILE_NAME, name).commit();
     }
 
 }

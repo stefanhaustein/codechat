@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -178,29 +179,36 @@ public class AndroidEnvironment extends Environment implements Runnable {
         boolean force = newScale != scale;
         scale = newScale;
         if (!paused || force) {
-            List<Ticking> copy = new ArrayList<>();
-            synchronized (ticking) {
-                for (Ticking t : ticking) {
-                    copy.add(t);
+            List<Sprite> copy = new ArrayList<>();
+            synchronized (Sprite.allSprites) {
+                for (WeakReference<Sprite> ref : Sprite.allSprites) {
+                    Sprite sprite = ref.get();
+                    if (sprite != null) {
+                        copy.add(sprite);
+                    }
                 }
             }
-            for (Ticking t : copy) {
+            for (Sprite sprite : copy) {
                 try {
-                    t.tick(0.017, force);
+                    sprite.tick(0.017, force);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             screen.frame.set(screen.frame.get() + 1);
         }
+        // TODO: Use Choreographer instead?
         handler.postDelayed(this, 17);
     }
 
 
 
     protected void addExtraRootEntities(SerializationContext serializationContext) {
-        for (Entity entity : Sprite.allVisibleSprites) {
-            serializationContext.enqueue(entity);
+        for (WeakReference<Sprite> spriteRef : Sprite.allSprites) {
+            Sprite sprite = spriteRef.get();
+            if (sprite != null) {
+                serializationContext.enqueue(sprite);
+            }
         }
     }
 
@@ -209,11 +217,6 @@ public class AndroidEnvironment extends Environment implements Runnable {
     public void clearAll() {
         for (TupleType.PropertyDescriptor propertyDescriptor : screen.getType().properties()) {
             screen.getProperty(propertyDescriptor.index).removeAllListeners();
-        }
-        if (ticking != null) {
-            synchronized (ticking) {
-                ticking.clear();
-            }
         }
         Sprite.clearAll();
         super.clearAll();
@@ -225,15 +228,5 @@ public class AndroidEnvironment extends Environment implements Runnable {
                 }
             }
         }
-    }
-
-    public Instance instantiate(Type type, int id) {
-        Instance instance = super.instantiate(type, id);
-        if (instance instanceof Ticking) {
-            synchronized (ticking) {
-                ticking.add((Ticking) instance);
-            }
-        }
-        return instance;
     }
 }
