@@ -204,6 +204,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
 
     protected void addExtraRootEntities(SerializationContext serializationContext) {
+        super.addExtraRootEntities(serializationContext);
         for (WeakReference<Sprite> spriteRef : Sprite.allSprites) {
             Sprite sprite = spriteRef.get();
             if (sprite != null) {

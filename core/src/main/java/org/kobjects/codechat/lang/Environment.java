@@ -391,7 +391,11 @@ public class Environment {
 
 
     protected void addExtraRootEntities(SerializationContext serializationContext) {
-
+        synchronized (OnInstance.allOnInterval) {
+            for (OnInstance onInterval : OnInstance.allOnInterval) {
+                serializationContext.enqueue(onInterval);
+            }
+        }
     }
 
     public void dump(AnnotatedStringBuilder asb) {
@@ -445,6 +449,9 @@ public class Environment {
             if (var.builtin) {
                 systemVariables.put(var.name, var);
             }
+        }
+        for (OnInstance onInterval : OnInstance.allOnInterval) {
+            onInterval.detach();
         }
         rootVariables = systemVariables;
         everything.clear();

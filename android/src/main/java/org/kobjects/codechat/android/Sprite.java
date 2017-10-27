@@ -71,8 +71,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     private boolean syncRequested;
     static List<WeakReference<Sprite>> allSprites = new ArrayList();
     AndroidEnvironment environment;
-    enum Command {NONE, ADD, REMOVE};
-    private Command command = Command.ADD;
+    // True if this sprite was deleted.
+    private boolean detached;
 
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
@@ -139,12 +139,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public LazyProperty<Boolean> visible = new LazyProperty<Boolean>() {
         @Override
         protected Boolean compute() {
-            Screen screen = environment.screen;
-            double size2 = size.get() / 2;
-            return x.get() >= screen.left.get() - size2 &&
-                    x.get() <= screen.right.get() + size2 &&
-                    y.get() >= screen.bottom.get() - size2 &&
-                    y.get() <= screen.top.get() + size2;
+            return view.getParent() != null;
         }
     };
 
@@ -197,51 +192,61 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
 
     public void run() {
         syncRequested = false;
-        switch (command) {
-            case ADD:
-                command = Command.NONE;
-                environment.rootView.addView(view);
-                break;
-            case REMOVE:
-                command = Command.NONE;
+        if (detached) {
+            if (view.getParent() != null) {
                 environment.rootView.removeView(view);
-                return;
+            }
+            return;
         }
+        int screenWidth = environment.rootView.getMeasuredWidth();
+        int screenHeight = environment.rootView.getMeasuredHeight();
         double size = this.size.get();
+        double scale = environment.scale;
+        double scaledSize = scale * size;
+        float scaledX;
         switch (xAlign.get().getName()) {
             case "LEFT":
-                view.setX((float) (environment.scale * (x.get())));
-                break;
-            case "CENTER":
-                view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - size / 2)));
+                scaledX = (float) (scale * x.get());
                 break;
             case "RIGHT":
-                view.setX((float) (environment.rootView.getMeasuredWidth() - environment.scale * (x.get() + size)));
+                scaledX = ((float) (screenWidth - scale * (x.get() + size)));
+                break;
+            default:
+                scaledX = ((float) (screenWidth/2 + scale * (x.get() - size / 2)));
                 break;
         }
-
+        float scaledY;
         switch (yAlign.get().getName()) {
             case "TOP":
-                view.setY((float) (environment.scale * (y.get())));
-                break;
-            case "CENTER":
-                view.setY(environment.rootView.getMeasuredHeight() / 2 - (float) (environment.scale * (y.get() + size / 2)));
+                scaledY = (float) (scale * (y.get()));
                 break;
             case "BOTTOM":
-                view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y.get() + size)));
+                scaledY = screenHeight - (float) (environment.scale * (y.get() + size));
+                break;
+            default:
+                scaledY = (screenHeight / 2 - (float) (environment.scale * (y.get() + size / 2)));
                 break;
         }
 
-        view.setRotation(angle.get().floatValue());
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-        params.width = Math.round((float) (environment.scale * size));
-        if (params.height != params.width) {
-            params.height = params.width;
-            view.requestLayout();
-        }
-        if (face.get() != lastFace) {
-            lastFace = face.get();
-            view.setImageDrawable(new EmojiDrawable(lastFace));
+        if (scaledX >= -scaledSize && scaledY >= -scaledSize && scaledX <= screenWidth && scaledY <= screenHeight) {
+            if (view.getParent() == null) {
+                environment.rootView.addView(view);
+            }
+            view.setX(scaledX);
+            view.setY(scaledY);
+            view.setRotation(angle.get().floatValue());
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            params.width = Math.round((float) (environment.scale * size));
+            if (params.height != params.width) {
+                params.height = params.width;
+                view.requestLayout();
+            }
+            if (face.get() != lastFace) {
+                lastFace = face.get();
+                view.setImageDrawable(new EmojiDrawable(lastFace));
+            }
+        } else if (view.getParent() != null) {
+            environment.rootView.removeView(view);
         }
     }
 
@@ -263,50 +268,11 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             double sizeValue = size.get();
 
             if (dxValue != 0 || force) {
-                double xMin;
-                double xMax;
-                switch (xAlign.get().getName()) {
-                    case "LEFT":
-                    case "RIGHT":
-                        xMin = -sizeValue * 3 / 2;
-                        xMax = screen.width.get() + sizeValue * 3 / 2;
-                        break;
-                    default:
-                        xMin = screen.left.get() - sizeValue;
-                        xMax = screen.right.get() + sizeValue;
-                        break;
-                }
-                // System.out.println("xMin: " + xMin + " xMax: " + xMax + " x: " + x.get() + " size: " + size.get() + " screenWidth: " + screen.width.get());
-                if (dxValue > 0 && xValue > xMax) {
-                    x.set(xMin);
-                } else if (dxValue < 0 && xValue < xMin) {
-                    x.set(xMax);
-                } else {
-                    x.set(xValue + dxValue);
-                }
+                x.set(xValue + dxValue);
             }
 
             if (dyValue != 0 || force) {
-                double yMin;
-                double yMax;
-                switch (yAlign.get().getName()) {
-                    case "TOP":
-                    case "BOTTOM":
-                        yMin = -sizeValue * 3 / 2;
-                        yMax = screen.height.get() + sizeValue * 3 / 2;
-                        break;
-                    default:
-                        yMin = screen.bottom.get() - sizeValue;
-                        yMax = screen.top.get() + sizeValue;
-                        break;
-                }
-                if (dyValue > 0 && yValue > yMax) {
-                    y.set(yMin);
-                } else if (dyValue < 0 && yValue < yMin) {
-                    y.set(yMax);
-                } else {
-                    y.set(yValue + dyValue);
-                }
+                y.set(yValue + dyValue);
             }
 
             visible.invalidate();
@@ -325,11 +291,11 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     }
 
     public void delete() {
-        ViewParent parent = view.getParent();
-        if (parent instanceof ViewGroup) {
-            command = Command.REMOVE;
-            syncView();
+        if (detached) {
+            return;
         }
+        detached = true;
+        syncView();
         synchronized (allSprites) {
             allSprites.remove(this);
         }

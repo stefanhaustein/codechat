@@ -1,5 +1,7 @@
 package org.kobjects.codechat.lang;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -20,6 +22,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
     private EvaluationContext contextTemplate;
     private int id;
     private Timer timer;
+    static Set<OnInstance> allOnInterval = new HashSet<OnInstance>();
 
     public OnInstance(Environment environment, int id) {
         this.id = id;
@@ -40,6 +43,9 @@ public class OnInstance implements Instance, Property.PropertyListener {
                     }
                 }
             }, 0, Math.round(((Number) onExpression.expression.eval(contextTemplate)).doubleValue()*1000));
+            synchronized (allOnInterval) {
+                allOnInterval.add(this);
+            }
         } else {
             addAll(onExpression.expression, contextTemplate);
         }
@@ -64,8 +70,8 @@ public class OnInstance implements Instance, Property.PropertyListener {
                 }
                 break;
             }
-            case ON_INTERVAL:
-                throw new RuntimeException("NYI");
+            default:
+                throw new IllegalStateException();
         }
     }
 
@@ -73,6 +79,9 @@ public class OnInstance implements Instance, Property.PropertyListener {
         if (timer != null) {
             timer.cancel();
             timer = null;
+            synchronized (allOnInterval) {
+                allOnInterval.remove(this);
+            }
         }
         for (Property property : properties) {
             property.removeListener(this);
