@@ -70,9 +70,7 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
       shot.face = "⭐";
       shot.speed = 100;
       shot.direction = ship.angle - 45.0;
-      on ¬shot.visible:
-        delete shot;
-      end;
+      play "🔫";
     end;
     
     fireButton = new Sprite;
