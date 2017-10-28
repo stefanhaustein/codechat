@@ -44,6 +44,8 @@ public class Tone {
             while (audioTrack.getPlaybackHeadPosition() < sample.length) {
                 Thread.sleep(10);
             }
+
+            audioTrack.release();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
