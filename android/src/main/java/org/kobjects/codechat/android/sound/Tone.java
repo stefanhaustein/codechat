@@ -1,4 +1,4 @@
-package org.kobjects.codechat.android;
+package org.kobjects.codechat.android.sound;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -6,15 +6,14 @@ import android.media.AudioTrack;
 
 public class Tone {
     private static final int SAMPLE_RATE = 44100;
-    short[] sample;
 
-    public Tone(double freqOfTone, double duration) {
+    public static void play(double freqOfTone, double duration) {
         if (freqOfTone > SAMPLE_RATE / 3 || freqOfTone < 8) {
             throw new IllegalArgumentException("frequency out of range (8..." + SAMPLE_RATE/3 + ")");
         }
 
         int length = (int) (SAMPLE_RATE * duration);
-        sample = new short[length];
+        short[] sample = new short[length];
         int ramp = Math.min(length / 20, 800);
 
         for (int i = 0; i < ramp; i++) {
@@ -26,10 +25,7 @@ public class Tone {
         for (int i = length - ramp; i < length; ++i) {
             sample[i] = (short) ((Math.sin(freqOfTone * 2 * Math.PI * i / SAMPLE_RATE) * 0.9 * Short.MAX_VALUE * (length-i))/ramp);
         }
-    }
 
-
-    public void play() {
         final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, 2 * sample.length,

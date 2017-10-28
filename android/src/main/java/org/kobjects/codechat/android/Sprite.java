@@ -65,6 +65,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         TYPE.addProperty(14, "yAlign", AndroidEnvironment.YAlign, true,
                 "Determines whether the y property is relative to the top, " +
                 "center or bottom of the screen.");
+        TYPE.addProperty(15, "screenBounds", AndroidEnvironment.ScreenBounds, true,
+                "Determines behavior when the sprite hits the bounds of the screen.");
     }
 
     private final ImageView view;
@@ -109,6 +111,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public MaterialProperty<Double> dy = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
     public MaterialProperty<Boolean> touch = new MaterialProperty<>(false);
+    public MaterialProperty<EnumLiteral> screenBounds = new MaterialProperty<>(AndroidEnvironment.ScreenBounds.getValue("NONE"));
 
     public Property<Double> direction = new Property<Double>() {
         @Override
@@ -255,6 +258,48 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
         return new Emoji(view.getText().toString());
     }
 */
+    private static double wrapValue(double position, double size, double delta, double max, EnumLiteral align) {
+        if (delta > 0) {
+            if ("CENTER".equals(align.getName())) {
+                if (position + delta > (max + size) / 2) {
+                    return -(max + size) / 2;
+                }
+            } else {
+                if (position + delta > max) {
+                    return -size;
+                }
+            }
+        } else if (delta < 0) {
+            if ("CENTER".equals(align.getName())) {
+                if (position + delta < -(max + size) / 2) {
+                    return (max + size) / 2;
+                }
+            } else {
+                if (position + delta < -size) {
+                    return max;
+                }
+            }
+        }
+        return position + delta;
+    }
+
+    private static boolean needsBounce(double position, double size, double delta, double max, EnumLiteral align) {
+        if (delta > 0) {
+            if ("CENTER".equals(align.getName())) {
+                return (position + delta > (max - size) / 2);
+            }
+            return (position + delta + size > max);
+        }
+        if (delta < 0) {
+            if ("CENTER".equals(align.getName())) {
+                return (position + delta < -(max - size) / 2);
+            }
+            return position + delta < 0;
+        }
+        return false;
+    }
+
+
     @Override
     public void tick(double s, boolean force) {
         double dxValue = dx.get() * s;
@@ -268,11 +313,37 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             double sizeValue = size.get();
 
             if (dxValue != 0 || force) {
-                x.set(xValue + dxValue);
+                switch (screenBounds.get().getName()) {
+                    case "WRAP":
+                        x.set(wrapValue(xValue, sizeValue, dxValue, screen.width.get(), xAlign.get()));
+                        break;
+                    case "BOUNCE":
+                        if (needsBounce(xValue, sizeValue, dxValue, screen.width.get(), xAlign.get())) {
+                            dx.set(-dx.get());
+                        }
+                        x.set(xValue + dxValue);
+                        break;
+                    default:
+                        x.set(xValue + dxValue);
+                        break;
+                }
             }
 
             if (dyValue != 0 || force) {
-                y.set(yValue + dyValue);
+                switch (screenBounds.get().getName()) {
+                    case "WRAP":
+                        y.set(wrapValue(yValue, sizeValue, dyValue, screen.height.get(), yAlign.get()));
+                        break;
+                    case "BOUNCE":
+                        if (needsBounce(yValue, sizeValue, dyValue, screen.height.get(), yAlign.get())) {
+                            dy.set(-dy.get());
+                        }
+                        y.set(yValue + dyValue);
+                        break;
+                    default:
+                        y.set(yValue + dyValue);
+                        break;
+                }
             }
 
             visible.invalidate();
@@ -324,6 +395,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
             case 12: return visible;
             case 13: return xAlign;
             case 14: return yAlign;
+            case 15: return screenBounds;
             default:
                 throw new IllegalArgumentException();
         }
