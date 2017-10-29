@@ -6,7 +6,7 @@ public class LocalVariable {
     private final String name;
     private final int index;
     private final Type type;
-    private final boolean constant;
+    public final boolean constant;
 
     public LocalVariable(String name, Type type, int index, boolean constant) {
         this.name = name;
