@@ -22,6 +22,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
     private EvaluationContext contextTemplate;
     private int id;
     private Timer timer;
+    private String unparsed;
     static Set<OnInstance> allOnInterval = new HashSet<OnInstance>();
 
     public OnInstance(Environment environment, int id) {
@@ -107,6 +108,16 @@ public class OnInstance implements Instance, Property.PropertyListener {
     @Override
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public void setUnparsed(String unparsed) {
+        this.unparsed = unparsed;
+    }
+
+    @Override
+    public String getUnparsed() {
+        return unparsed;
     }
 
 

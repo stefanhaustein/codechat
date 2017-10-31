@@ -10,6 +10,7 @@ public class RootVariable implements Entity, HasDependencies {
     public Object value;
     public boolean constant;
     public boolean builtin;
+    public String unparsed;
 
     public void dump(StringBuilder sb) {
         sb.append(name);
@@ -85,6 +86,16 @@ public class RootVariable implements Entity, HasDependencies {
         }
 
         serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
+    }
+
+    @Override
+    public void setUnparsed(String unparsed) {
+        this.unparsed = unparsed;
+    }
+
+    @Override
+    public String getUnparsed() {
+        return unparsed;
     }
 
     @Override

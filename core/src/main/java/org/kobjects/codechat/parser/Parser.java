@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.expr.unresolved.UnresolvedArrayExpression;
 import org.kobjects.codechat.expr.OnExpression;
@@ -18,9 +19,12 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedInstanceReference;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedMultiAssignment;
 import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.lang.RootVariable;
+import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.statement.Assignment;
 import org.kobjects.codechat.expr.unresolved.UnresolvedInvocation;
 import org.kobjects.codechat.expr.Expression;
@@ -152,24 +156,20 @@ public class Parser {
         return parseBlock(parsingContext, tokenizer, false, "end", "");
     }
 
-    Type parseType(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer) {
+    Type parseType(ExpressionParser.Tokenizer tokenizer) {
         String typeName = tokenizer.consumeIdentifier();
-        Type type = parsingContext.environment.resolveType(typeName);
+        Type type = environment.resolveType(typeName);
         return type;
     }
 
-    UnresolvedFunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue) {
-        int start = tokenizer.currentPosition;
+    FunctionType parseSignature(ExpressionParser.Tokenizer tokenizer, boolean returnsValue, List<String> parameterNames) {
         tokenizer.consume("(");
-        ParsingContext bodyContext = new ParsingContext(parsingContext, true);
-        ArrayList<String> parameterNames = new ArrayList<String>();
         ArrayList<Type> parameterTypes = new ArrayList<Type>();
         if (!tokenizer.tryConsume(")")) {
             do {
                 String paramName = tokenizer.consumeIdentifier();
                 tokenizer.consume(":");
-                Type type = parseType(parsingContext, tokenizer);
-                bodyContext.addVariable(paramName, type, true);
+                Type type = parseType(tokenizer);
                 parameterNames.add(paramName);
                 parameterTypes.add(type);
             } while (tokenizer.tryConsume(","));
@@ -182,12 +182,23 @@ public class Parser {
             if (tokenizer.tryConsume("void") || tokenizer.tryConsume("Void")) {
                 returnType = null;
             } else {
-                returnType = parseType(parsingContext, tokenizer);
+                returnType = parseType(tokenizer);
             }
         } else {
             returnType = null;
         }
-        FunctionType functionType = new FunctionType(returnType, parameterTypes.toArray(new Type[parameterTypes.size()]));
+        return new FunctionType(returnType, parameterTypes.toArray(new Type[parameterTypes.size()]));
+    }
+
+    UnresolvedFunctionExpression parseFunction(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue) {
+        int start = tokenizer.currentPosition;
+        ParsingContext bodyContext = new ParsingContext(parsingContext, true);
+
+        ArrayList<String> parameterNames = new ArrayList<String>();
+        FunctionType functionType = parseSignature(tokenizer, returnsValue, parameterNames);
+        for (int i = 0; i < parameterNames.size(); i++) {
+            bodyContext.addVariable(parameterNames.get(i), functionType.parameterTypes[i], true);
+        }
 
         Statement body;
         if (tokenizer.tryConsume("fwd") || tokenizer.tryConsume(";") || tokenizer.tryConsume("")) {
@@ -260,7 +271,7 @@ public class Parser {
         int p0 = tokenizer.currentPosition;
         Type type = null;
         if (tokenizer.tryConsume(":")) {
-            type = parseType(parsingContext, tokenizer);
+            type = parseType(tokenizer);
         }
 
         Expression init = null;
@@ -297,6 +308,89 @@ public class Parser {
         }
         LocalVariable variable = parsingContext.addVariable(varName, type, constant);
         return new LocalVarDeclarationStatement(variable, init);
+    }
+
+    Instance parseNewStub(ExpressionParser.Tokenizer tokenizer) {
+        String name = tokenizer.consumeIdentifier();
+        int id = extractId(name);
+        if (id != -1) {
+            name = name.substring(0, name.indexOf('#'));
+        }
+        Type type = environment.resolveType(name);
+        return (Instance) environment.getInstance(type, id, true);
+    }
+
+    RootVariable parseVarStub(ExpressionParser.Tokenizer tokenizer, boolean mutable, String content) {
+        String name = tokenizer.consumeIdentifier();
+        Type type;
+        Object value;
+        if (tokenizer.tryConsume(":")) {
+            type = parseType(tokenizer);
+            value = null;
+        } else if (tokenizer.tryConsume("=")) {
+            if (tokenizer.tryConsume("new")) {
+                value = parseNewStub(tokenizer);
+            } else {
+                Expression expression = parseExpression(new ParsingContext(environment), tokenizer);
+                if (!(expression instanceof Literal)) {
+                    throw new RuntimeException("Literal expected for variable without explicit type.");
+                }
+                value = ((Literal) expression).value;
+            }
+            type = Type.of(value);
+        } else {
+            throw new RuntimeException("':' or '=' expected after varname.");
+        }
+        RootVariable var = new RootVariable();
+        var.name = tokenizer.consumeIdentifier();
+        var.type = type;
+        var.constant = !mutable;
+        var.value = value;
+        environment.rootVariables.put(name, var);
+
+        if (!tokenizer.currentValue.isEmpty() && tokenizer.currentValue.equals(";")) {
+            var.setUnparsed(content);
+        }
+        return var;
+    }
+
+    UserFunction parseFunctionStub(ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue, String content) {
+        String name = tokenizer.consumeIdentifier();
+        FunctionType type = parseSignature(tokenizer, returnsValue, null);
+        RootVariable var = new RootVariable();
+        UserFunction value = new UserFunction(type, id);
+        value.unparsed = content;
+        var.name = tokenizer.consumeIdentifier();
+        var.type = type;
+        var.constant = true;
+        environment.rootVariables.put(name, var);
+        return value;
+    }
+
+
+    Entity parseStub(Environment environment, String content) {
+        ExpressionParser.Tokenizer tokenizer = createTokenizer(content);
+        Entity result;
+        if (tokenizer.tryConsume("var")) {
+            result = parseVarStub(tokenizer, true, content);
+        } else if (tokenizer.tryConsume("let")) {
+            result = parseVarStub(tokenizer, false, content);
+        } else if (tokenizer.tryConsume("func")) {
+            result = parseFunctionStub(tokenizer, -1, true, content);
+        } else if (tokenizer.tryConsume("proc")) {
+            return parseFunctionStub(tokenizer, -1, true, content);
+        } else if (tokenizer.tryConsume("new")) {
+            result = parseNewStub(tokenizer);
+        } else {
+            throw new RuntimeException("Unrecognized token: " + tokenizer.currentValue);
+        }
+        while (tokenizer.tryConsume(";")) {
+        }
+        if (!tokenizer.currentValue.isEmpty()) {
+            result.setUnparsed(content);
+        }
+        return result;
+
     }
 
 
@@ -338,7 +432,7 @@ public class Parser {
             String name = tokenizer.consumeIdentifier();
             return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.ON_CHANGE, tokenizer, extractId(name)));
         }
-        if (tokenizer.currentValue.equals("every") || tokenizer.currentValue.startsWith("every#")) {
+        if (tokenizer.currentValue.equals("oninterval") || tokenizer.currentValue.startsWith("oninterval#")) {
             String name = tokenizer.consumeIdentifier();
             return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.ON_INTERVAL, tokenizer, extractId(name)));
         }

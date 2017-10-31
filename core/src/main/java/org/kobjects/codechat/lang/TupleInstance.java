@@ -28,6 +28,8 @@ public abstract class TupleInstance implements Tuple, Instance {
 
     private int id;
     private Environment environment;
+    private String unparsed;
+
     protected TupleInstance(Environment environment, int id) {
         this.environment = environment;
         this.id = id;
@@ -106,4 +108,16 @@ public abstract class TupleInstance implements Tuple, Instance {
     public int getId() {
         return id;
     }
+
+
+    @Override
+    public void setUnparsed(String unparsed) {
+        this.unparsed = unparsed;
+    }
+
+    @Override
+    public String getUnparsed() {
+        return unparsed;
+    }
+
 }

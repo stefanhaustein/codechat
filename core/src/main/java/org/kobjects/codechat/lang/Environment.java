@@ -36,7 +36,7 @@ public class Environment {
             .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n Type '")
             .append("help", new ExecLink("help"))
             .append("' for help on how to use this app and builtin functionionality.\n\n Copyright (C) 2017 Stefan Haustein.\n\n")
-            .append("Explosion sound by ryansnook licensed under CC BY-NC 3.0\n")
+            .append("Explosion sound by Ryan Snook licensed under CC BY-NC 3.0\n")
             .build();
 
 

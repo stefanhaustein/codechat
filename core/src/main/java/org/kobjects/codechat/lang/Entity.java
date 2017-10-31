@@ -10,4 +10,8 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 public interface Entity {
     void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext);
     void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext);
+
+    void setUnparsed(String unparsed);
+
+    String getUnparsed();
 }

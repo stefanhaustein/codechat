@@ -14,6 +14,7 @@ public class UserFunction implements Function, Instance {
     private Statement body;
     private Closure closure;
     private String[] parameterNames;
+    public String unparsed;
 
     public UserFunction(FunctionType functionType, int id) {
         this.functionType = functionType;
@@ -48,6 +49,16 @@ public class UserFunction implements Function, Instance {
     @Override
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public void setUnparsed(String unparsed) {
+        this.unparsed = unparsed;
+    }
+
+    @Override
+    public String getUnparsed() {
+        return unparsed;
     }
 
     @Override

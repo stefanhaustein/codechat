@@ -7,7 +7,7 @@ import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.Type;
 
 public class Literal extends Expression {
-    final Object value;
+    public final Object value;
 
     public Literal(Object value) {
         this.value = value;
