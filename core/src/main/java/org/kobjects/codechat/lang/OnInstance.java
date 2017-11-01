@@ -23,10 +23,12 @@ public class OnInstance implements Instance, Property.PropertyListener {
     private int id;
     private Timer timer;
     private String unparsed;
+    private OnExpression.Kind kind;
     static Set<OnInstance> allOnInterval = new HashSet<OnInstance>();
 
-    public OnInstance(Environment environment, int id) {
+    public OnInstance(Environment environment, int id, OnExpression.Kind kind) {
         this.id = id;
+        this.kind = kind;
     }
 
     public void init(OnExpression onExpression, final EvaluationContext contextTemplate) {
@@ -128,7 +130,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
     @Override
     public OnInstanceType getType() {
-        return onExpression.kind.type;
+        return kind.type;
     }
 
     @Override
@@ -156,6 +158,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
     public static class OnInstanceType extends Type {
         private final String name;
+        public OnExpression.Kind kind;
 
         public OnInstanceType(String name) {
             this.name = name;
@@ -163,7 +166,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
         @Override
         public OnInstance createInstance(Environment environment, int id) {
-            return new OnInstance(environment, id);
+            return new OnInstance(environment, id, kind);
         }
 
         @Override
@@ -179,6 +182,8 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
     @Override
     public void getDependencies(DependencyCollector result) {
-        onExpression.getDependencies(result);
+        if (onExpression != null) {
+            onExpression.getDependencies(result);
+        }
     }
 }

@@ -20,6 +20,7 @@ public class OnExpression extends Expression {
 
         Kind(OnInstance.OnInstanceType type) {
             this.type = type;
+            type.kind = this;
         }
     }
 

@@ -23,6 +23,7 @@ import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.LocalVariable;
+import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.statement.Assignment;
@@ -170,7 +171,9 @@ public class Parser {
                 String paramName = tokenizer.consumeIdentifier();
                 tokenizer.consume(":");
                 Type type = parseType(tokenizer);
-                parameterNames.add(paramName);
+                if (parameterNames != null) {
+                    parameterNames.add(paramName);
+                }
                 parameterTypes.add(type);
             } while (tokenizer.tryConsume(","));
             tokenizer.consume(")");
@@ -320,7 +323,7 @@ public class Parser {
         return (Instance) environment.getInstance(type, id, true);
     }
 
-    RootVariable parseVarStub(ExpressionParser.Tokenizer tokenizer, boolean mutable, String content) {
+    RootVariable parseVarStub(ExpressionParser.Tokenizer tokenizer, boolean mutable) {
         String name = tokenizer.consumeIdentifier();
         Type type;
         Object value;
@@ -329,38 +332,35 @@ public class Parser {
             value = null;
         } else if (tokenizer.tryConsume("=")) {
             if (tokenizer.tryConsume("new")) {
-                value = parseNewStub(tokenizer);
+                type = parseType(tokenizer);
+                value = null;
             } else {
                 Expression expression = parseExpression(new ParsingContext(environment), tokenizer);
                 if (!(expression instanceof Literal)) {
                     throw new RuntimeException("Literal expected for variable without explicit type.");
                 }
                 value = ((Literal) expression).value;
+                type = Type.of(value);
             }
-            type = Type.of(value);
         } else {
             throw new RuntimeException("':' or '=' expected after varname.");
         }
         RootVariable var = new RootVariable();
-        var.name = tokenizer.consumeIdentifier();
+        var.name = name;
         var.type = type;
         var.constant = !mutable;
         var.value = value;
         environment.rootVariables.put(name, var);
 
-        if (!tokenizer.currentValue.isEmpty() && tokenizer.currentValue.equals(";")) {
-            var.setUnparsed(content);
-        }
         return var;
     }
 
-    UserFunction parseFunctionStub(ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue, String content) {
+    UserFunction parseFunctionStub(ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue) {
         String name = tokenizer.consumeIdentifier();
         FunctionType type = parseSignature(tokenizer, returnsValue, null);
         RootVariable var = new RootVariable();
         UserFunction value = new UserFunction(type, id);
-        value.unparsed = content;
-        var.name = tokenizer.consumeIdentifier();
+        var.name = name;
         var.type = type;
         var.constant = true;
         environment.rootVariables.put(name, var);
@@ -368,27 +368,42 @@ public class Parser {
     }
 
 
-    Entity parseStub(Environment environment, String content) {
+    public Entity parseStub(String content) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(content);
+        tokenizer.nextToken();
         Entity result;
-        if (tokenizer.tryConsume("var")) {
-            result = parseVarStub(tokenizer, true, content);
+        if (tokenizer.tryConsume("variable")) {
+            result = parseVarStub(tokenizer, true);
         } else if (tokenizer.tryConsume("let")) {
-            result = parseVarStub(tokenizer, false, content);
+            result = parseVarStub(tokenizer, false);
         } else if (tokenizer.tryConsume("func")) {
-            result = parseFunctionStub(tokenizer, -1, true, content);
+            result = parseFunctionStub(tokenizer, -1, true);
         } else if (tokenizer.tryConsume("proc")) {
-            return parseFunctionStub(tokenizer, -1, true, content);
+            result = parseFunctionStub(tokenizer, -1, false);
         } else if (tokenizer.tryConsume("new")) {
             result = parseNewStub(tokenizer);
+            while (tokenizer.tryConsume(";")) {
+            }
+            if (!tokenizer.currentValue.isEmpty()) {
+                return result;
+            }
+        } else if (tokenizer.currentValue.startsWith("on")) {
+            String name = tokenizer.consumeIdentifier();
+            int id = extractId(name);
+            if (id != -1) {
+                name = name.substring(0, name.indexOf('#'));
+            }
+            name = "On" + (name.length() > 2 ? Character.toUpperCase(name.charAt(2)) + name.substring(3) : "");
+            Type type = environment.resolveType(name);
+            result = environment.instantiate(type, id);
         } else {
-            throw new RuntimeException("Unrecognized token: " + tokenizer.currentValue);
+            throw new RuntimeException("Unrecognized token: '" + tokenizer.currentValue + "' in '" + content + "'");
         }
-        while (tokenizer.tryConsume(";")) {
+
+        if ((result instanceof RootVariable) && ((RootVariable) result).value != null) {
+            return result;
         }
-        if (!tokenizer.currentValue.isEmpty()) {
-            result.setUnparsed(content);
-        }
+        result.setUnparsed(content);
         return result;
 
     }

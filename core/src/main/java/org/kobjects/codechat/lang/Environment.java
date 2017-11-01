@@ -375,8 +375,13 @@ public class Environment {
             }
         } else {
             lastId = Math.max(id, lastId);
-            if (everything.get(id) != null) {
-                throw new RuntimeException("instance with id " + id + " exists already.");
+            WeakReference<Instance> ref = everything.get(id);
+            Instance existing = ref == null ? null : ref.get();
+            if (existing != null) {
+                 if (!(existing instanceof Entity) || ((Entity) existing).getUnparsed() == null) {
+                     throw new RuntimeException("instance with id " + id + " exists already: " + existing);
+                 }
+                return existing;
             }
         }
         Instance instance = type.createInstance(this, id);
@@ -485,9 +490,10 @@ public class Environment {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), "utf-8"));
 
-            ArrayList<RuntimeException> parsingErrors = new ArrayList<>();
             clearAll();
 
+            ArrayList<RuntimeException> parsingErrors = new ArrayList<>();
+            ArrayList<Entity> unparsedEntities = new ArrayList<>();
             StringBuilder pending = new StringBuilder();
             int lineNumber = 0;
 
@@ -495,13 +501,16 @@ public class Environment {
                 lineNumber++;
 
                 String line = reader.readLine();
-
                 if (line == null || (!line.startsWith(" ") && !line.equals("}") && !line.equals("end") && !line.equals("end;"))) {
                     String statement = pending.toString();
                     if (!statement.isEmpty()) {
                         try {
-                            exec(statement);
+                            Entity entity = parser.parseStub(statement);
+                            if (entity.getUnparsed() != null) {
+                                unparsedEntities.add(entity);
+                            }
                         } catch (RuntimeException e) {
+                            e.printStackTrace();
                             parsingErrors.add(e);
                         }
                         pending.setLength(0);
@@ -512,6 +521,17 @@ public class Environment {
                 }
                 pending.append(line).append('\n');
             }
+
+            for (Entity entity : unparsedEntities) {
+                try {
+                    exec(entity.getUnparsed());
+                    entity.setUnparsed(null);
+                } catch (RuntimeException e) {
+                    parsingErrors.add(e);
+                    e.printStackTrace();
+                }
+            }
+
             autoSave = parsingErrors.size() == 0;
             if (parsingErrors.size() == 1) {
                 throw parsingErrors.get(0);
@@ -552,6 +572,9 @@ public class Environment {
 
     public Type resolveType(String name) {
         RootVariable var = rootVariables.get(name);
+        if (var == null) {
+            throw new RuntimeException("Unknown type: " + name);
+        }
         if (!(var.type instanceof MetaType)) {
             throw new RuntimeException("Not a type: " + name);
         }
