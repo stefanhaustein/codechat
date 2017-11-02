@@ -60,6 +60,6 @@ public class RootVariableNode extends Expression {
 
     @Override
     public void getDependencies(DependencyCollector result) {
-        result.addStrong(rootVariable);
+        result.add(rootVariable);
     }
 }

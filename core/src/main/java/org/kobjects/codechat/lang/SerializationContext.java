@@ -1,48 +1,42 @@
 package org.kobjects.codechat.lang;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 
 public class SerializationContext {
+    public enum Mode {SAVE, EDIT}
 
-    public enum SerializationState {
-        UNVISITED,             //
-        STUB_SERIALIZED,       // A stub was serialized
-        FULLY_SERIALIZED       // Fully serialized
-    }
-
-    private final SerializationState defaultState;
-    private final Map<Entity, SerializationState> stateMap = new HashMap<>();
+    private final HashSet<Entity> serialized = new HashSet<>();
     private final LinkedHashSet<Entity> queue = new LinkedHashSet<>();
     private final Environment environment;
+    private final Mode mode;
 
-    public SerializationContext(Environment environment) {
-        this(environment, SerializationState.UNVISITED);
-    }
-
-    public SerializationContext(Environment environment, SerializationState defaultState) {
+    public SerializationContext(Environment environment, Mode mode) {
         this.environment = environment;
-        this.defaultState = defaultState;
+        this.mode = mode;
     }
 
-    // Map<Entity, String> nameMap = new HashMap<>();
-
-    public SerializationState getState(Entity value) {
-        SerializationState state = stateMap.get(value);
-        return state == null ? defaultState : state;
+    public boolean isSerialized(Entity entity) {
+        return serialized.contains(entity);
     }
 
-
-    public void setState(Entity entity, SerializationState state) {
-        stateMap.put(entity, state);
+    public void setSerialized(Entity entity) {
+        serialized.add(entity);
         queue.remove(entity);
     }
 
     public void enqueue(Entity entity) {
-        if (!stateMap.containsKey(entity)) {
+        if (!serialized.contains(entity) && !queue.contains(entity)) {
             queue.add(entity);
+
+            if (entity instanceof HasDependencies) {
+                HasDependencies hasDependencies = (HasDependencies) entity;
+                DependencyCollector dependencyCollector = new DependencyCollector(environment);
+                hasDependencies.getDependencies(dependencyCollector);
+                for (Entity dep: dependencyCollector.get()) {
+                    enqueue(dep);
+                }
+            }
         }
     }
 
@@ -59,20 +53,8 @@ public class SerializationContext {
         return environment;
     }
 
-    public void serializeDependencies(AnnotatedStringBuilder asb, HasDependencies hasDependencies) {
-        DependencyCollector dependencyCollector = new DependencyCollector(environment);
-        hasDependencies.getDependencies(dependencyCollector);
-        for (Entity entity: dependencyCollector.getStrong()) {
-            if (getState(entity) == SerializationContext.SerializationState.UNVISITED
-                    && (!(entity instanceof RootVariable) || !((RootVariable) entity).builtin)) {
-                entity.serializeStub(asb, this);
-                setState(entity, SerializationContext.SerializationState.STUB_SERIALIZED);
-            }
-        }
-        for (Entity entity: dependencyCollector.getWeak()) {
-            enqueue(entity);
-        }
-
+    public Mode getMode() {
+        return mode;
     }
 
 }

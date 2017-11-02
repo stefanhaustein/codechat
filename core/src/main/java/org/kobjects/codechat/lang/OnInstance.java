@@ -134,16 +134,8 @@ public class OnInstance implements Instance, Property.PropertyListener {
     }
 
     @Override
-    public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        asb.append("new ");
-        Formatting.toLiteral(asb, this);
-        asb.append(";\n");
-        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
-    }
-
-    @Override
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        serializationContext.serializeDependencies(asb, this);
+        serializationContext.setSerialized(this);
 
         boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
 

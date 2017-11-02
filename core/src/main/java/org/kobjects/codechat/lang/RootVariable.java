@@ -20,72 +20,32 @@ public class RootVariable implements Entity, HasDependencies {
     }
 
     @Override
-    public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
-        if (constant) {
-            asb.append("let ").append(name).append(" = ");
-            if (value instanceof Instance) {
-                ((Instance) value).serializeStub(asb, serializationContext);
-            } else {
-                Formatting.toLiteral(asb, value);
-                serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
-            }
-        } else {
-            asb.append(constant ? "const " : "variable ");
-            asb.append(name);
-            asb.append(": ");
-            asb.append(type.toString());
-            asb.append(";\n");
-        }
-    }
-
-    @Override
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        SerializationContext.SerializationState state = serializationContext.getState(this);
-        if (state == SerializationContext.SerializationState.FULLY_SERIALIZED) {
-            System.err.println("Double serialization of root identifier " + name);
+        if (serializationContext.isSerialized(this)) {
             return;
         }
-
-        serializationContext.serializeDependencies(asb, this);
-
+        serializationContext.setSerialized(this);
         if (builtin || value == null) {
-            serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
             return;
         }
 
-        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
-
-        if (value instanceof UserFunction && constant) {
-            UserFunction fn = (UserFunction) value;
-            fn.serialize(asb, serializationContext);
+        if (constant && ((value instanceof UserFunction) || (value instanceof TupleInstance && serializationContext.getMode() == SerializationContext.Mode.EDIT))) {
+            Entity entity = (Entity) value;
+            entity.serialize(asb, serializationContext);
         } else {
-            if (state == SerializationContext.SerializationState.UNVISITED) {
+            if (serializationContext.getMode() == SerializationContext.Mode.SAVE) {
                 asb.append(constant ? "let " : "variable ");
             }
-            if (value instanceof Entity) {
-                Entity entity = (Entity) value;
-
-                switch (serializationContext.getState(entity)) {
-                    case UNVISITED:
-                        asb.append(name, new EntityLink(this));
-                        asb.append(" = ");
-                        entity.serialize(asb, serializationContext);
-                        break;
-                    case STUB_SERIALIZED:
-                        entity.serialize(asb, serializationContext);
-                        break;
-                    default:
-                        Formatting.toLiteral(asb, value);
-                        asb.append(";\n");
-                }
+            asb.append(name, new EntityLink(this));
+            asb.append(" = ");
+            if (value instanceof Entity && !serializationContext.isSerialized((Entity) value)) {
+               Entity entity = (Entity) value;
+               entity.serialize(asb, serializationContext);
             } else {
-                Formatting.toLiteral(asb, value);
-                asb.append(";\n");
+               Formatting.toLiteral(asb, value);
+               asb.append(";\n");
             }
         }
-
-        serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
     }
 
     @Override

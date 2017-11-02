@@ -406,10 +406,10 @@ public class Environment {
     public void dump(AnnotatedStringBuilder asb) {
         System.gc();
 
-        SerializationContext serializationContext = new SerializationContext(this);
+        SerializationContext serializationContext = new SerializationContext(this, SerializationContext.Mode.SAVE);
 
         for (RootVariable variable : rootVariables.values()) {
-            variable.serialize(asb, serializationContext);
+            serializationContext.enqueue(variable);
         }
 
         addExtraRootEntities(serializationContext);
@@ -619,8 +619,7 @@ public class Environment {
     }
 
     private void validate(Entity dependent) {
-        SerializationContext serializationContext = new SerializationContext(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
-        serializationContext.setState(dependent, SerializationContext.SerializationState.UNVISITED);
+        SerializationContext serializationContext = new SerializationContext(this, SerializationContext.Mode.EDIT);
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
         dependent.serialize(asb, serializationContext);
         String serialized = asb.toString();

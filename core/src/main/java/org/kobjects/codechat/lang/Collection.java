@@ -84,7 +84,7 @@ public class Collection implements Tuple, Iterable, HasDependencies {
     public void getDependencies(DependencyCollector result) {
         for (Object o : data) {
             if (o instanceof Entity) {
-                result.addStrong((Entity) o);
+                result.add((Entity) o);
             } else if (o instanceof HasDependencies) {
                 ((HasDependencies) o).getDependencies(result);
             }

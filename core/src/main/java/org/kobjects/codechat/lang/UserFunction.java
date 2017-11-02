@@ -62,16 +62,8 @@ public class UserFunction implements Function, Instance {
     }
 
     @Override
-    public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        functionType.serializeSignature(asb, id, serializationContext.getEnvironment().constants.get(this), parameterNames, new EntityLink(this));
-        asb.append(" : fwd;\n");
-        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
-    }
-
-    @Override
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        serializationContext.serializeDependencies(asb,this);
-        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
+        serializationContext.setSerialized(this);
 
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
         int indent = wrap ? 1 : 0;
@@ -86,7 +78,6 @@ public class UserFunction implements Function, Instance {
         if (wrap) {
             asb.append("end;\n");
         }
-        serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
     }
 
     @Override

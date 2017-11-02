@@ -13,14 +13,14 @@ public abstract class TupleInstance implements Tuple, Instance {
             if (property instanceof MaterialProperty) {
                 Object value = property.get();
                 if (value instanceof Entity) {
-                    result.addStrong((Entity) value);
+                    result.add((Entity) value);
                 } else if (value instanceof HasDependencies) {
                     ((HasDependencies) value).getDependencies(result);
                 }
             }
             for (Object listener : property.getListeners()) {
                 if (listener instanceof OnInstance) {
-                    result.addWeak((OnInstance) listener);
+                    result.add((OnInstance) listener);
                 }
             }
         }
@@ -44,41 +44,24 @@ public abstract class TupleInstance implements Tuple, Instance {
         return  name != null ? name : (getType() + "#" + id);
     }
 
-    private void appendConstructor(AnnotatedStringBuilder asb) {
-        asb.append("new ");
+    @Override
+    public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
+        serializationContext.setSerialized(this);
+
+        if (serializationContext.getMode() == SerializationContext.Mode.SAVE) {
+            asb.append("new ");
+        }
         if (environment.constants.containsKey(this)) {
-            asb.append(getType().toString(), new DocumentedLink(getType()));
+            if (serializationContext.getMode() == SerializationContext.Mode.SAVE) {
+                asb.append(getType().toString(), new DocumentedLink(getType()));
+            } else {
+                asb.append(environment.constants.get(this));
+            }
         } else {
             asb.append(getType() + "#" + id, new EntityLink(this));
         }
-    }
-
-    @Override
-    public void serializeStub(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        appendConstructor(asb);
-        asb.append(";\n");
-        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
-    }
-
-    @Override
-    public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        serializationContext.serializeDependencies(asb, this);
-
-        switch (serializationContext.getState(this)) {
-            case UNVISITED:
-                appendConstructor(asb);
-                break;
-            case STUB_SERIALIZED:
-                asb.append(toString(), new EntityLink(this));
-                break;
-            default:
-                System.err.println("Redundant serialization of " + toString());
-                asb.append(toString()).append("\n");
-                return;
-        }
 
         asb.append(" :: \n");
-        serializationContext.setState(this, SerializationContext.SerializationState.STUB_SERIALIZED);
         for (TupleType.PropertyDescriptor propertyDescriptor: getType().properties()) {
             Property property = getProperty(propertyDescriptor.index);
             if (property instanceof MaterialProperty) {
@@ -96,7 +79,6 @@ public abstract class TupleInstance implements Tuple, Instance {
             }
         }
         asb.append("end;\n");
-        serializationContext.setState(this, SerializationContext.SerializationState.FULLY_SERIALIZED);
     }
 
 

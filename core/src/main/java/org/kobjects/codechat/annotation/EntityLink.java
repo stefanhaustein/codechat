@@ -21,7 +21,7 @@ public class EntityLink implements Link {
         if (entity == null) {
             environment.environmentListener.print("(deleted)");
         } else {
-            entity.serialize(new AnnotatedStringBuilder(sb, null), new SerializationContext(environment, SerializationContext.SerializationState.STUB_SERIALIZED));
+            entity.serialize(new AnnotatedStringBuilder(sb, null), new SerializationContext(environment, SerializationContext.Mode.EDIT));
             environment.environmentListener.edit(sb.toString());
         }
     }
