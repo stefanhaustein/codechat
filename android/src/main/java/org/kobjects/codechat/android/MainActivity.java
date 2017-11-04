@@ -37,6 +37,7 @@ import java.util.SortedMap;
 import org.kobjects.codechat.android.chatview.BubbleAction;
 import org.kobjects.codechat.android.chatview.ChatView;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.ErrorLink;
 import org.kobjects.codechat.expr.Expression;
@@ -44,6 +45,7 @@ import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
+import org.kobjects.codechat.lang.MetaException;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
@@ -558,6 +560,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     void printException(Exception e) {
+        if (e instanceof MetaException) {
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+            ((MetaException) e).toString(asb);
+            print(asb.build());
+        }
         print(e.getMessage());
     }
 

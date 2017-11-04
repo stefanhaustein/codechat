@@ -387,6 +387,23 @@ public class Parser {
             if (!tokenizer.currentValue.isEmpty()) {
                 return result;
             }
+        } else if (tokenizer.tryConsume("begin")) {
+            String[] lines = content.split("\n");
+            int found = 0;
+            for (int i = 1; i < lines.length; i++) {
+                if (!lines[i].startsWith("  let ") && !lines[i].startsWith("   ")) {
+                    found = i;
+                    break;
+                }
+            }
+            if (found == 0) {
+                throw new RuntimeException("Closure main content not found.");
+            }
+            StringBuilder sb = new StringBuilder();
+            for (int i = found; i < lines.length; i++) {
+                sb.append(lines[i]).append('\n');
+            }
+            result = parseStub(sb.toString());
         } else if (tokenizer.currentValue.startsWith("on")) {
             String name = tokenizer.consumeIdentifier();
             int id = extractId(name);

@@ -16,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.WeakHashMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -128,6 +129,7 @@ public class Environment {
     public boolean autoSave = true;
     boolean loading;
     List<Instance> anonymousInstances;
+    TreeMap<Entity,Exception> errors = new TreeMap<>();
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
@@ -181,6 +183,20 @@ public class Environment {
                     }
                 }
                 environmentListener.print(asb.build());
+                return null;
+            }
+        });
+
+        addNativeFunction(new NativeFunction("errors", Type.VOID, "Prints all errors.") {
+            @Override
+            protected Object eval(Object[] params) {
+                if (errors.size() == 0) {
+                    environmentListener.print("(no errors)");
+                } else {
+                    AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+                    MetaException.toString(errors, asb);
+                    environmentListener.print(asb.build());
+                }
                 return null;
             }
         });
@@ -424,8 +440,6 @@ public class Environment {
 
     }
 
-
-
     public Statement parse(ParsingContext parsingContext, String line) {
         return parser.parse(parsingContext, line);
     }
@@ -461,6 +475,7 @@ public class Environment {
         rootVariables = systemVariables;
         everything.clear();
         constants.clear();
+        errors.clear();
         lastId = 0;
     }
 
@@ -527,16 +542,15 @@ public class Environment {
                     exec(entity.getUnparsed());
                     entity.setUnparsed(null);
                 } catch (RuntimeException e) {
-                    parsingErrors.add(e);
-                    e.printStackTrace();
+                    errors.put(entity, e);
                 }
             }
 
-            autoSave = parsingErrors.size() == 0;
-            if (parsingErrors.size() == 1) {
+            autoSave = parsingErrors.size() == 0 && errors.size() == 0;
+            if (parsingErrors.size() == 1 && errors.size() == 0) {
                 throw parsingErrors.get(0);
-            } else if (parsingErrors.size() > 0) {
-                throw new RuntimeException(parsingErrors.toString());
+            } else if (parsingErrors.size() > 0 || errors.size() > 0) {
+                throw new MetaException("Multiple errors loading '" + fileName + "'.", parsingErrors, errors);
             }
         } catch (IOException e) {
             autoSave = false;
