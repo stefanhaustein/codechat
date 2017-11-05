@@ -56,4 +56,6 @@ public abstract class Expression implements HasDependencies {
             getChild(i).getDependencies(result);
         }
     }
+
+    public abstract Expression reconstruct(Expression... children);
 }

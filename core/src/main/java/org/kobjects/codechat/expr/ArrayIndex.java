@@ -46,4 +46,9 @@ public class ArrayIndex extends Expression {
     public int getChildCount() {
         return 2;
     }
+
+    @Override
+    public Expression reconstruct(Expression... children) {
+        return new ArrayIndex(children[0], children[1]);
+    }
 }

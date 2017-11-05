@@ -33,4 +33,10 @@ public class BinaryMathOperator extends AbstractBinaryOperator {
     public Type getType() {
         return left.getType();
     }
+
+
+    @Override
+    public BinaryMathOperator reconstruct(Expression[] children) {
+        return new BinaryMathOperator(name, children[0], children[1]);
+    }
 }

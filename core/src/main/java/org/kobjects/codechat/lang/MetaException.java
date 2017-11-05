@@ -11,8 +11,8 @@ public class MetaException extends RuntimeException {
 
     public static void toString(Map<Entity, Exception> errors, AnnotatedStringBuilder asb) {
         for (Map.Entry<Entity, Exception> entry : errors.entrySet()) {
-            Formatting.toLiteral(entry.getKey());
-            asb.append(": ").append(entry.getValue().getMessage());
+            Formatting.toLiteral(asb, entry.getKey());
+            asb.append(": ").append(entry.getValue().getMessage()).append("\n");
         }
     }
 

@@ -61,5 +61,8 @@ public class MultiAssignment extends Expression {
         return elements.size();
     }
 
-
+    @Override
+    public MultiAssignment reconstruct(Expression... children) {
+        return new MultiAssignment(children[0], elements);
+    }
 }

@@ -17,7 +17,6 @@ public class TupleType extends Type implements Documented {
     private final String documentation;
     private final boolean singleton;
 
-
     public TupleType(String name, String documentation) {
         this(name, documentation, false);
     }

@@ -129,7 +129,7 @@ public class Environment {
     public boolean autoSave = true;
     boolean loading;
     List<Instance> anonymousInstances;
-    TreeMap<Entity,Exception> errors = new TreeMap<>();
+    LinkedHashMap<Entity,Exception> errors = new LinkedHashMap<>();
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
@@ -421,6 +421,9 @@ public class Environment {
 
     public void dump(AnnotatedStringBuilder asb) {
         System.gc();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {}
 
         SerializationContext serializationContext = new SerializationContext(this, SerializationContext.Mode.SAVE);
 
@@ -476,6 +479,7 @@ public class Environment {
         everything.clear();
         constants.clear();
         errors.clear();
+        autoSave = true;
         lastId = 0;
     }
 
@@ -496,6 +500,10 @@ public class Environment {
     public void load(String fileName) {
         anonymousInstances = new ArrayList<>();
         loading = true;
+
+        boolean pausedBefore = paused;
+        paused = true;
+
         File file = new File(codeDir, fileName);
         if (!file.exists()) {
             throw new RuntimeException("File '" + file.getName() + "' does not exist.");
@@ -537,11 +545,14 @@ public class Environment {
                 pending.append(line).append('\n');
             }
 
+            System.err.println("root variables: " + rootVariables.toString().replace(",", "\n  "));
+
             for (Entity entity : unparsedEntities) {
                 try {
                     exec(entity.getUnparsed());
                     entity.setUnparsed(null);
                 } catch (RuntimeException e) {
+                    e.printStackTrace();
                     errors.put(entity, e);
                 }
             }
@@ -553,6 +564,7 @@ public class Environment {
                 throw new MetaException("Multiple errors loading '" + fileName + "'.", parsingErrors, errors);
             }
         } catch (IOException e) {
+            e.printStackTrace();
             autoSave = false;
             throw new RuntimeException(e);
         } finally {
@@ -564,6 +576,7 @@ public class Environment {
             }
             loading = false;
             anonymousInstances = null;
+            paused = pausedBefore;
         }
     }
 

@@ -10,7 +10,7 @@ import org.kobjects.codechat.type.Type;
 
 public class PropertyAccess extends Expression {
     Expression base;
-    TupleType.PropertyDescriptor property;
+    public TupleType.PropertyDescriptor property;
 
     public PropertyAccess(Expression left, TupleType.PropertyDescriptor property) {
         this.base = left;
@@ -23,7 +23,15 @@ public class PropertyAccess extends Expression {
     }
 
     public Property getProperty(EvaluationContext context) {
-        return property.getProperty((Tuple) base.eval(context));
+        try {
+            return property.getProperty((Tuple) base.eval(context));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("property: " + property);
+            System.err.println("base: " +base);
+            System.err.println("context: " + context);
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean isAssignable() {
@@ -67,5 +75,8 @@ public class PropertyAccess extends Expression {
         return base;
     }
 
-
+    @Override
+    public PropertyAccess reconstruct(Expression... children) {
+        return new PropertyAccess(children[0], property);
+    }
 }

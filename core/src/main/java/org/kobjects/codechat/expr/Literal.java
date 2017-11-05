@@ -37,4 +37,9 @@ public class Literal extends Expression {
     public Object eval(EvaluationContext context) {
         return value;
     }
+
+    @Override
+    public Literal reconstruct(Expression... children) {
+        return new Literal(value);
+    }
 }

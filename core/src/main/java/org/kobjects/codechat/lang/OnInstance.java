@@ -7,24 +7,50 @@ import java.util.TimerTask;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.expr.InstanceReference;
+import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.PropertyAccess;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.Type;
 
 public class OnInstance implements Instance, Property.PropertyListener {
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
-    private OnExpression onExpression;
+//    private OnExpression onExpression;
     private EvaluationContext contextTemplate;
     private int id;
     private Timer timer;
     private String unparsed;
     private OnExpression.Kind kind;
+    private Expression trigger;
+    private Statement body;
+    private Closure closure;
     static Set<OnInstance> allOnInterval = new HashSet<OnInstance>();
+
+    static Expression resolve(Expression expression, EvaluationContext context) {
+        if (expression instanceof PropertyAccess) {
+            PropertyAccess propertyAccess = (PropertyAccess) expression;
+            Object base = propertyAccess.getChild(0).eval(context);
+            Expression baseExpr;
+          /*  if (base instanceof Instance) {
+                baseExpr = new InstanceReference(((Instance) base).getType(), ((Instance) base).getId());
+            } else { */
+                baseExpr = new Literal(base);
+            //}
+            return new PropertyAccess(baseExpr, propertyAccess.property);
+        } else {
+            Expression[] children = new Expression[expression.getChildCount()];
+            for (int i = 0; i < children.length; i++) {
+                children[i] = resolve(expression.getChild(i), context);
+            }
+            return expression.reconstruct(children);
+        }
+    }
 
     public OnInstance(Environment environment, int id, OnExpression.Kind kind) {
         this.id = id;
@@ -33,8 +59,10 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
     public void init(OnExpression onExpression, final EvaluationContext contextTemplate) {
         detach();
-        this.onExpression = onExpression;
+        this.closure = onExpression.closure;
         this.contextTemplate = contextTemplate;
+        this.body = onExpression.body;
+        this.trigger = resolve(onExpression.expression, contextTemplate);
         if (onExpression.kind == OnExpression.Kind.ON_INTERVAL) {
             timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -42,33 +70,34 @@ public class OnInstance implements Instance, Property.PropertyListener {
                 public void run() {
                     if (!contextTemplate.environment.paused) {
                         EvaluationContext evalContext = OnInstance.this.contextTemplate.clone();
-                        OnInstance.this.onExpression.body.eval(evalContext);
+                        OnInstance.this.body.eval(evalContext);
                     }
                 }
-            }, 0, Math.round(((Number) onExpression.expression.eval(contextTemplate)).doubleValue()*1000));
+            }, 0, Math.round(((Number) trigger.eval(contextTemplate)).doubleValue()*1000));
             synchronized (allOnInterval) {
                 allOnInterval.add(this);
             }
         } else {
-            addAll(onExpression.expression, contextTemplate);
+            System.err.println("AddAll for trigger: " + trigger);
+            addAll(trigger, contextTemplate);
         }
     }
 
     @Override
     public void valueChanged(Property property, Object oldValue, Object newValue) {
-        switch (onExpression.kind) {
+        switch (kind) {
             case ON_CHANGE: {
                 EvaluationContext evalContext = contextTemplate.clone();
-                onExpression.body.eval(evalContext);
+                body.eval(evalContext);
                 break;
             }
             case ON: {
-                Object conditionValue = onExpression.expression.eval(contextTemplate);
+                Object conditionValue = trigger.eval(contextTemplate);
                 if (!conditionValue.equals(lastValue)) {
                     lastValue = conditionValue;
                     if (Boolean.TRUE.equals(conditionValue)) {
                         EvaluationContext evalContext = contextTemplate.clone();
-                        onExpression.body.eval(evalContext);
+                        body.eval(evalContext);
                     }
                 }
                 break;
@@ -137,11 +166,11 @@ public class OnInstance implements Instance, Property.PropertyListener {
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
         serializationContext.setSerialized(this);
 
-        boolean wrap = onExpression.closure.toString(asb.getStringBuilder(), contextTemplate);
+        boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
 
-        asb.append(onExpression.getType().getName().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
-        asb.append(" ").append(onExpression.expression.toString()).append(":\n");
-        onExpression.body.toString(asb, wrap ? 2 : 1);
+        asb.append(kind.type.getName().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
+        asb.append(" ").append(trigger.toString()).append(":\n");
+        body.toString(asb, wrap ? 2 : 1);
         if (wrap) {
             asb.append("  end;\n");
         }
@@ -174,8 +203,11 @@ public class OnInstance implements Instance, Property.PropertyListener {
 
     @Override
     public void getDependencies(DependencyCollector result) {
-        if (onExpression != null) {
-            onExpression.getDependencies(result);
+        if (trigger != null) {
+            trigger.getDependencies(result);
+        }
+        if (body != null) {
+            body.getDependencies(result);
         }
     }
 }

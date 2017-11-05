@@ -84,5 +84,10 @@ public class CompoundAssignment extends Expression {
         return i == 0 ? left : right;
     }
 
+    @Override
+    public Expression reconstruct(Expression... children) {
+        return new CompoundAssignment(name, children[0], children[1]);
+    }
+
 
 }

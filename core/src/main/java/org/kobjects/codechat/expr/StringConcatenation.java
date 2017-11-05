@@ -19,4 +19,9 @@ public class StringConcatenation extends AbstractBinaryOperator {
         return Type.STRING;
     }
 
+    @Override
+    public Expression reconstruct(Expression... children) {
+        return new StringConcatenation(children[0], children[1]);
+    }
+
 }

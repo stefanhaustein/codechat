@@ -75,4 +75,9 @@ public class FunctionExpression extends Expression {
         }
     }
 
+    @Override
+    public FunctionExpression reconstruct(Expression... children) {
+        return new FunctionExpression(id, functionType, parameterNames, closure, body);
+    }
+
 }

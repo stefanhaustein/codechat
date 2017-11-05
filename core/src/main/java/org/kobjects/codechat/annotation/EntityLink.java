@@ -16,13 +16,17 @@ public class EntityLink implements Link {
 
     @Override
     public void execute(Environment environment) {
-        StringBuilder sb = new StringBuilder();
         Entity entity = this.entity.get();
         if (entity == null) {
             environment.environmentListener.print("(deleted)");
         } else {
-            entity.serialize(new AnnotatedStringBuilder(sb, null), new SerializationContext(environment, SerializationContext.Mode.EDIT));
-            environment.environmentListener.edit(sb.toString());
+            if (entity.getUnparsed() != null) {
+                environment.environmentListener.edit(entity.getUnparsed());
+            } else {
+                AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
+                entity.serialize(asb, new SerializationContext(environment, SerializationContext.Mode.EDIT));
+                environment.environmentListener.edit(asb.toString());
+            }
         }
     }
 }

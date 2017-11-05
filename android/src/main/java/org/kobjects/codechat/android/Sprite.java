@@ -69,7 +69,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                 "Determines behavior when the sprite hits the bounds of the screen.");
     }
 
-    private final ImageView view;
+    final ImageView view;
     private boolean syncRequested;
     static List<WeakReference<Sprite>> allSprites = new ArrayList();
     AndroidEnvironment environment;

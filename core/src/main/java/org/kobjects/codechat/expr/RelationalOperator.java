@@ -41,4 +41,10 @@ public class RelationalOperator extends AbstractBinaryOperator {
     public Type getType() {
         return Type.BOOLEAN;
     }
+
+    @Override
+    public RelationalOperator reconstruct(Expression... children) {
+        return new RelationalOperator(name, children[0], children[1]);
+    }
+
 }

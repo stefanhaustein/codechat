@@ -29,4 +29,8 @@ public class BinaryLogicalOperator extends AbstractBinaryOperator {
         return Type.BOOLEAN;
     }
 
+    @Override
+    public BinaryLogicalOperator reconstruct(Expression[] children) {
+        return new BinaryLogicalOperator(name, children[0], children[1]);
+    }
 }

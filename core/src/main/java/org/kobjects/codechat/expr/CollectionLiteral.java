@@ -76,4 +76,9 @@ public class CollectionLiteral extends Expression {
     public Expression getChild(int index) {
         return elements[index];
     }
+
+    @Override
+    public CollectionLiteral reconstruct(Expression... children) {
+        return new CollectionLiteral(collectionTypeClass, children);
+    }
 }

@@ -564,8 +564,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
             ((MetaException) e).toString(asb);
             print(asb.build());
+        } else {
+            print(e.getMessage());
         }
-        print(e.getMessage());
     }
 
     @Override

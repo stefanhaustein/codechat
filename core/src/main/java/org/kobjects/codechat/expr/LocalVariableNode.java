@@ -49,7 +49,13 @@ public class LocalVariableNode extends Expression {
         return 0;
     }
 
+    @Override
     public boolean isAssignable() {
         return true;
+    }
+
+    @Override
+    public LocalVariableNode reconstruct(Expression... children) {
+        return new LocalVariableNode(variable);
     }
 }

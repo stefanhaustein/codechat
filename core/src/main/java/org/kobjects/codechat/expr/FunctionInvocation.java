@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import java.util.Arrays;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Function;
@@ -62,6 +63,11 @@ public class FunctionInvocation extends Expression {
     @Override
     public Expression getChild(int index) {
         return index == 0 ? base : parameters[index - 1];
+    }
+
+    @Override
+    public FunctionInvocation reconstruct(Expression... children) {
+        return new FunctionInvocation(children[0], parens, Arrays.copyOfRange(children, 1, children.length));
     }
 
 }

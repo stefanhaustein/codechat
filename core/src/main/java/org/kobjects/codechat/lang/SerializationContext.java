@@ -28,15 +28,6 @@ public class SerializationContext {
     public void enqueue(Entity entity) {
         if (!serialized.contains(entity) && !queue.contains(entity)) {
             queue.add(entity);
-
-            if (entity instanceof HasDependencies) {
-                HasDependencies hasDependencies = (HasDependencies) entity;
-                DependencyCollector dependencyCollector = new DependencyCollector(environment);
-                hasDependencies.getDependencies(dependencyCollector);
-                for (Entity dep: dependencyCollector.get()) {
-                    enqueue(dep);
-                }
-            }
         }
     }
 
@@ -45,6 +36,19 @@ public class SerializationContext {
             return null;
         }
         Entity result = queue.iterator().next();
+
+        // Enrichment This is here so "on..." gets resolved last as it depends on.
+        // The problems is that parts of the trigger expressions need to get resolved immmediately.
+        // A cleaner solution would be to postpone the initialization part to the end in loading somehow,
+        // as on expressions can be assigned to variables, and in this case this code does not help.
+        if (result instanceof HasDependencies) {
+            HasDependencies hasDependencies = (HasDependencies) result;
+            DependencyCollector dependencyCollector = new DependencyCollector(environment);
+            hasDependencies.getDependencies(dependencyCollector);
+            for (Entity dep: dependencyCollector.get()) {
+                enqueue(dep);
+            }
+        }
         queue.remove(result);
         return result;
     }

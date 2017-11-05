@@ -68,4 +68,11 @@ public class UnaryOperator extends Expression {
     public Expression getChild(int index) {
         return operand;
     }
+
+    @Override
+    public Expression reconstruct(Expression... children) {
+        return new UnaryOperator(name, children[0]);
+    }
+
+
 }

@@ -47,4 +47,9 @@ public class InstanceReference extends Expression {
     public void getDependencies(Environment environment, Collection<Entity> result) {
         result.add((Instance) environment.getInstance(type, id, false));
     }
+
+    @Override
+    public InstanceReference reconstruct(Expression... children) {
+        return new InstanceReference(type, id);
+    }
 }

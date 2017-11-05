@@ -84,4 +84,9 @@ public class OnExpression extends Expression {
         super.getDependencies(result);
         body.getDependencies(result);
     }
+
+    @Override
+    public Expression reconstruct(Expression... children) {
+        return new OnExpression(kind, id, children[0], body, closure);
+    }
 }

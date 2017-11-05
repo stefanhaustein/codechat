@@ -62,4 +62,9 @@ public class RootVariableNode extends Expression {
     public void getDependencies(DependencyCollector result) {
         result.add(rootVariable);
     }
+
+    @Override
+    public RootVariableNode reconstruct(Expression... children) {
+        return new RootVariableNode(rootVariable);
+    }
 }

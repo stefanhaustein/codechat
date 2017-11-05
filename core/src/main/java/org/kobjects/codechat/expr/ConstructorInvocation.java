@@ -39,4 +39,9 @@ public class ConstructorInvocation extends Expression {
     public int getChildCount() {
         return 0;
     }
+
+    @Override
+    public ConstructorInvocation reconstruct(Expression... children) {
+        return new ConstructorInvocation(type, id);
+    }
 }
