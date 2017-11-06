@@ -41,6 +41,7 @@ import org.kobjects.codechat.statement.IfStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.FunctionType;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 import org.kobjects.expressionparser.ExpressionParser.ParsingException;
@@ -217,31 +218,29 @@ public class Parser {
         return new UnresolvedFunctionExpression(start, tokenizer.currentPosition, id, functionType, parameterNames.toArray(new String[parameterNames.size()]), bodyContext.getClosure(), body);
     }
 
-    OnExpression parseOnExpression(ParsingContext parsingContext, OnExpression.Kind kind, ExpressionParser.Tokenizer tokenizer, int id) {
+    OnExpression parseOnExpression(ParsingContext parsingContext, OnInstance.OnInstanceType type, ExpressionParser.Tokenizer tokenizer, int id) {
         ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
         int p0 = tokenizer.currentPosition;
         final Expression expression = parseExpression(closureParsingContext, tokenizer);
 
-        switch(kind) {
-            case ON_CHANGE:
-                if (!(expression instanceof PropertyAccess)) {
-                    throw new ParsingException(p0, tokenizer.currentPosition, "property expected.", null);
-                }
-                break;
-            case ON:
-                if (!expression.getType().equals(Type.BOOLEAN)) {
-                    throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
-                }
-                break;
-            case ON_INTERVAL:
-                if (!expression.getType().equals(Type.NUMBER)) {
-                    throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
-                }
-                break;
+        if (type == OnInstance.ON_CHANGE_TYPE) {
+            if (!(expression instanceof PropertyAccess)) {
+                throw new ParsingException(p0, tokenizer.currentPosition, "property expected.", null);
+            }
+        } else if (type == OnInstance.ON_TYPE) {
+            if (!expression.getType().equals(Type.BOOLEAN)) {
+                throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
+            }
+        } else if (type == OnInstance.ON_INTERVAL_TYPE) {
+           if (!expression.getType().equals(Type.NUMBER)) {
+               throw new ParsingException(p0, tokenizer.currentPosition, "Boolean expression expected.", null);
+           }
+        } else {
+            throw new IllegalArgumentException();
         }
 
         final Statement body = parseBody(closureParsingContext, tokenizer);
-        OnExpression result = new OnExpression(kind, id, expression, body, closureParsingContext.getClosure());
+        OnExpression result = new OnExpression(type, id, expression, body, closureParsingContext.getClosure());
         return result;
     }
 
@@ -319,7 +318,7 @@ public class Parser {
         if (id != -1) {
             name = name.substring(0, name.indexOf('#'));
         }
-        Type type = environment.resolveType(name);
+        InstanceType type = (InstanceType) environment.resolveType(name);
         return (Instance) environment.getInstance(type, id, true);
     }
 
@@ -411,7 +410,7 @@ public class Parser {
                 name = name.substring(0, name.indexOf('#'));
             }
             name = "On" + (name.length() > 2 ? Character.toUpperCase(name.charAt(2)) + name.substring(3) : "");
-            Type type = environment.resolveType(name);
+            InstanceType type = environment.resolveInstanceType(name);
             result = environment.instantiate(type, id);
         } else {
             throw new RuntimeException("Unrecognized token: '" + tokenizer.currentValue + "' in '" + content + "'");
@@ -458,15 +457,15 @@ public class Parser {
         }
         if (tokenizer.currentValue.equals("on") || tokenizer.currentValue.startsWith("on#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.ON, tokenizer, extractId(name)));
+            return new ExpressionStatement(parseOnExpression(parsingContext, OnInstance.ON_TYPE, tokenizer, extractId(name)));
         }
         if (tokenizer.currentValue.equals("onchange") || tokenizer.currentValue.startsWith("onchange#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.ON_CHANGE, tokenizer, extractId(name)));
+            return new ExpressionStatement(parseOnExpression(parsingContext, OnInstance.ON_CHANGE_TYPE, tokenizer, extractId(name)));
         }
         if (tokenizer.currentValue.equals("oninterval") || tokenizer.currentValue.startsWith("oninterval#")) {
             String name = tokenizer.consumeIdentifier();
-            return new ExpressionStatement(parseOnExpression(parsingContext, OnExpression.Kind.ON_INTERVAL, tokenizer, extractId(name)));
+            return new ExpressionStatement(parseOnExpression(parsingContext, OnInstance.ON_INTERVAL_TYPE, tokenizer, extractId(name)));
         }
         if (tokenizer.tryConsume("var") || tokenizer.tryConsume("variable") || tokenizer.tryConsume("mutable")) {
             return parseVar(parsingContext, tokenizer, false, interactive);

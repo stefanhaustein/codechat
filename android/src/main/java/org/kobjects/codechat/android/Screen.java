@@ -11,7 +11,7 @@ import org.kobjects.codechat.type.InstanceType;
 
 public class Screen extends Instance {
 
-    public static final InstanceType TYPE = new InstanceType(true) {
+    public static final InstanceType<Screen> TYPE = new InstanceType<Screen>(true) {
         @Override
         public String getName() {
             return "Screen";
@@ -64,7 +64,7 @@ public class Screen extends Instance {
     }
 
     @Override
-    public InstanceType getType() {
+    public InstanceType<Screen> getType() {
         return TYPE;
     }
 

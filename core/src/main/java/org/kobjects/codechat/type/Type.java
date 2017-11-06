@@ -1,10 +1,5 @@
 package org.kobjects.codechat.type;
 
-
-import org.kobjects.codechat.lang.Documented;
-import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
-
 public abstract class Type implements Typed {
     public static final Type NUMBER = new SimpleType("Number", Double.class, "Number: A 64 bit IEEE floating point number.");
     public static final Type STRING = new SimpleType("String", String.class, "String: A string of characters.");
@@ -42,13 +37,6 @@ public abstract class Type implements Typed {
         return Type.ANY;
     }
 
-    public boolean isInstantiable() {
-        return false;
-    }
-
-    public Instance createInstance(Environment environment, int id) {
-        throw new UnsupportedOperationException(getName() + " is not instantiable.");
-    }
 
     public abstract boolean isAssignableFrom(Type other);
 

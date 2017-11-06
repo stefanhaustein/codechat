@@ -48,10 +48,8 @@ public final class Formatting {
     }
 
     public static void toLiteral(AnnotatedStringBuilder asb, Object value) {
-        if (value instanceof ToLiteral) {
-            ((ToLiteral) value).toLiteral(asb);
-        } else if (value instanceof Number) {
-            asb.append(String.valueOf(((Number) value).doubleValue()));
+        if (value instanceof Number) {
+            asb.append(numberToString(((Number) value).doubleValue()));
         } else if (value instanceof String) {
             asb.append(Formatting.quote((String) value));
         } else if (value instanceof Instance) {

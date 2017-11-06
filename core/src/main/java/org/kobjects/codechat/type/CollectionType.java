@@ -6,9 +6,8 @@ import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
 
-public abstract class CollectionType extends InstanceType {
+public abstract class CollectionType extends InstanceType<Collection> {
 
     public final Type elementType;
     private final String name;
@@ -45,7 +44,7 @@ public abstract class CollectionType extends InstanceType {
     }
 
 
-    public Instance createInstance(Environment environment, int id) {
+    public Collection createInstance(Environment environment, int id) {
         return new Collection(environment, id, this);
     }
 }

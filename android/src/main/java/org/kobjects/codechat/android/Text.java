@@ -47,10 +47,10 @@ public class Text extends Instance implements Runnable {
         TYPE.addProperty(2, "y", Type.NUMBER, true,
                 "The vertical position of the text in normalized pixels relative to the top, " +
                         "center or bottom of the screen, depending on the value of the yAlign property. ");
-        TYPE.addProperty(3, "horizontalAlignment", AndroidEnvironment.XAlign, true,
+        TYPE.addProperty(3, "horizontalAlignment", AndroidEnvironment.XAlign.TYPE, true,
                 "Determines whether the x property is relative to the left side, " +
                         "center or right side of the screen.");
-        TYPE.addProperty(4, "yAlign", AndroidEnvironment.YAlign, true,
+        TYPE.addProperty(4, "yAlign", AndroidEnvironment.YAlign.TYPE, true,
                 "Determines whether the x property is relative to the left side, " +
                         "center or right side of the screen.");
         TYPE.addProperty(5, "text", Type.STRING, true, "The displayed text string.");
@@ -64,8 +64,8 @@ public class Text extends Instance implements Runnable {
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<String> text = new VisualMaterialProperty<>("");
-    public VisualMaterialProperty<EnumLiteral> horizonalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.getValue("CENTER"));
-    public VisualMaterialProperty<EnumLiteral> verticalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.getValue("CENTER"));
+    public VisualMaterialProperty<AndroidEnvironment.XAlign> horizonalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.CENTER);
+    public VisualMaterialProperty<AndroidEnvironment.YAlign> verticalAlignment = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.CENTER);
 
 
     public Text(Environment environment, int id) {
@@ -104,26 +104,26 @@ public class Text extends Instance implements Runnable {
         double height = bounds.height() / environment.scale;
         double width = bounds.width() / environment.scale;
 
-        switch (horizonalAlignment.get().getName()) {
-            case "LEFT":
+        switch (horizonalAlignment.get()) {
+            case LEFT:
                 view.setX((float) (environment.scale * (x.get())));
                 break;
-            case "CENTER":
+            case CENTER:
                 view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - width / 2)));
                 break;
-            case "RIGHT":
+            case RIGHT:
                 view.setX((float) (environment.rootView.getMeasuredWidth() - environment.scale * (x.get() + width)));
                 break;
         }
 
-        switch (verticalAlignment.get().getName()) {
-            case "TOP":
+        switch (verticalAlignment.get()) {
+            case TOP:
                 view.setY((float) (environment.scale * (y.get())));
                 break;
-            case "CENTER":
+            case CENTER:
                 view.setY(environment.rootView.getMeasuredHeight() / 2 - (float) (environment.scale * (y.get() + height / 2)));
                 break;
-            case "BOTTOM":
+            case BOTTOM:
                 view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y.get() + height)));
                 break;
         }

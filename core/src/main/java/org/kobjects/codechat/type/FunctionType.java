@@ -8,7 +8,7 @@ import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.UserFunction;
 
-public class FunctionType extends InstanceType {
+public class FunctionType extends InstanceType<UserFunction> {
 
     public final Type returnType;
     public final Type[] parameterTypes;

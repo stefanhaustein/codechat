@@ -11,12 +11,9 @@ public class EnumType extends Type implements Documented {
     private final String name;
     private final EnumLiteral[] values;
 
-    public EnumType(String name, String... values) {
+    public EnumType(String name, EnumLiteral... values) {
         this.name = name;
-        this.values = new EnumLiteral[values.length];
-        for (int i = 0; i < values.length; i++) {
-            this.values[i] = new EnumLiteral(this, values[i]);
-        }
+        this.values = values;
     }
 
     @Override
@@ -35,7 +32,7 @@ public class EnumType extends Type implements Documented {
 
     public EnumLiteral getValue(String name) {
         for (EnumLiteral literal: values) {
-            if (literal.getName().equals(name)) {
+            if (literal.name().equals(name)) {
                 return literal;
             }
         }
@@ -54,7 +51,7 @@ public class EnumType extends Type implements Documented {
             } else if (i > 0) {
                 asb.append(", ");
             }
-            asb.append(values[i].getName());
+            asb.append(values[i].name());
         }
         return asb.build();
     }

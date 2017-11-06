@@ -5,10 +5,11 @@ import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.lang.Documented;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Property;
 
-public abstract class InstanceType extends Type implements Documented {
+public abstract class InstanceType<T extends Instance> extends Type implements Documented {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
     private final boolean singleton;
 
@@ -99,4 +100,11 @@ public abstract class InstanceType extends Type implements Documented {
     }
 
 
+    public boolean isInstantiable() {
+        return !singleton;
+    }
+
+    public T createInstance(Environment environment, int id) {
+        throw new UnsupportedOperationException();
+    }
 }

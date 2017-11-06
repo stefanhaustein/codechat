@@ -7,13 +7,14 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.parser.Parser;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 public class InstanceReference extends Expression {
     public final int id;
-    public final Type type;
+    public final InstanceType type;
 
-    public InstanceReference(Type type, int id) {
+    public InstanceReference(InstanceType type, int id) {
         this.type = type;
         this.id = id;
     }

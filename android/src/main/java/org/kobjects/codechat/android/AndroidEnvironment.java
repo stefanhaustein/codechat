@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import org.kobjects.codechat.android.sound.Sound;
 import org.kobjects.codechat.android.sound.SampleManager;
+import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.NativeFunction;
@@ -22,14 +23,39 @@ import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
+
+    enum XAlign implements EnumLiteral {
+        LEFT, CENTER, RIGHT;
+        public static EnumType TYPE = new EnumType("XAlign", LEFT, CENTER, RIGHT);
+        @Override
+        public Type getType() {
+            return TYPE;
+        }
+    };
+
+    enum YAlign implements EnumLiteral {
+        TOP, CENTER, BOTTOM;
+        public static EnumType TYPE = new EnumType("YAlign", TOP, CENTER, BOTTOM);
+        @Override
+        public Type getType() {
+            return TYPE;
+        }
+    };
+
+    enum EdgeMode implements EnumLiteral {
+        NONE, BOUNCE, WRAP;
+        public static EnumType TYPE = new EnumType("EdgeMode", NONE, BOUNCE, WRAP);
+        @Override
+        public Type getType() {
+            return TYPE;
+        }
+    };
+
     private static final String[] SOUND_EXTENSIONS = {".mp3", ".wav"};
     public FrameLayout rootView;
     public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
     public Screen screen = new Screen(this);
     public double scale;
-    public static EnumType YAlign = new EnumType("YAlign", "TOP", "CENTER", "BOTTOM");
-    public static EnumType XAlign = new EnumType("XAlign", "LEFT", "CENTER", "RIGHT");
-    public static EnumType ScreenBounds = new EnumType("ScreenBounds", "NONE", "BOUNCE", "WRAP");
     Handler handler = new Handler();
     final Context context;
 
@@ -44,9 +70,9 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addType(Screen.TYPE);
         addType(Sprite.TYPE);
         addType(Text.TYPE);
-        addType(XAlign);
-        addType(YAlign);
-        addType(ScreenBounds);
+        addType(XAlign.TYPE);
+        addType(YAlign.TYPE);
+        addType(EdgeMode.TYPE);
 
         addType(Sensors.TYPE);
 

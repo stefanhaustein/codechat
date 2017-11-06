@@ -16,7 +16,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.WeakHashMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -24,10 +23,10 @@ import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.annotation.ExecLink;
 import org.kobjects.codechat.annotation.TextLink;
-import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 
@@ -136,10 +135,7 @@ public class Environment {
         this.codeDir = codeDir;
 
         addType(Type.BOOLEAN, Type.NUMBER, Type.STRING, Type.VOID);
-
-        for (OnExpression.Kind kind : OnExpression.Kind.values()) {
-            addType(kind.type);
-        }
+        addType(OnInstance.ON_CHANGE_TYPE, OnInstance.ON_INTERVAL_TYPE, OnInstance.ON_TYPE);
 
         addBuiltins();
     }
@@ -382,7 +378,7 @@ public class Environment {
         rootVariables.put(name, var);
     }
 
-    public Instance instantiate(Type type, int id) {
+    public <T extends Instance> T instantiate(InstanceType<T> type, int id) {
         if (id == -1) {
             if (loading) {
                 id = -2;
@@ -394,13 +390,13 @@ public class Environment {
             WeakReference<Instance> ref = everything.get(id);
             Instance existing = ref == null ? null : ref.get();
             if (existing != null) {
-                 if (!(existing instanceof Entity) || ((Entity) existing).getUnparsed() == null) {
+                 if (!(existing instanceof Entity) || (existing).getUnparsed() == null) {
                      throw new RuntimeException("instance with id " + id + " exists already: " + existing);
                  }
-                return existing;
+                return (T) existing;
             }
         }
-        Instance instance = type.createInstance(this, id);
+        T instance = type.createInstance(this, id);
         if (id == -2) {
             anonymousInstances.add(instance);
         } else {
@@ -451,9 +447,9 @@ public class Environment {
         return ++lastId;
     }
 
-    public Object getInstance(Type type, int id, boolean force) {
+    public <T extends Instance> T getInstance(InstanceType<T> type, int id, boolean force) {
         WeakReference reference = everything.get(id);
-        Object result = reference != null ? reference.get() : null;
+        T result = reference != null ? (T) reference.get() : null;
         if (result == null) {
             if (!force) {
                 throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
@@ -674,13 +670,12 @@ public class Environment {
         addSystemVariable(function.name, function);
     }
 
-    public void addFunction(String name, Function function) {
-        RootVariable var = new RootVariable();
-        var.name = name;
-        var.constant = true;
-        var.type = function.getType();
-        var.value = function;
-        rootVariables.put(name, var);
+    public InstanceType resolveInstanceType(String name) {
+        Type result = resolveType(name);
+        if (!(result instanceof InstanceType)) {
+            throw new RuntimeException(name + " is not an instance type.");
+        }
+        return (InstanceType) result;
     }
 
 

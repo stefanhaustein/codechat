@@ -70,14 +70,15 @@ public class Sprite extends Instance implements Ticking, Runnable {
                 "The current speed in units per second.");
         TYPE.addProperty(12, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently withing the usable screen boundaries.");
-        TYPE.addProperty(13, "xAlign", AndroidEnvironment.XAlign, true,
+        TYPE.addProperty(13, "xAlign", AndroidEnvironment.XAlign.TYPE, true,
                 "Determines whether the x property is relative to the left side, " +
                 "center or right side of the screen.");
-        TYPE.addProperty(14, "yAlign", AndroidEnvironment.YAlign, true,
+        TYPE.addProperty(14, "yAlign", AndroidEnvironment.YAlign.TYPE
+                , true,
                 "Determines whether the y property is relative to the top, " +
                 "center or bottom of the screen.");
-        TYPE.addProperty(15, "screenBounds", AndroidEnvironment.ScreenBounds, true,
-                "Determines behavior when the sprite hits the bounds of the screen.");
+        TYPE.addProperty(15, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
+                "Determines behavior when the sprite hits the edge of the screen.");
     }
 
     final ImageView view;
@@ -91,8 +92,8 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
-    public VisualMaterialProperty<EnumLiteral> xAlign = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.getValue("CENTER"));
-    public VisualMaterialProperty<EnumLiteral> yAlign = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.getValue("CENTER"));
+    public VisualMaterialProperty<AndroidEnvironment.XAlign> xAlign = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.CENTER);
+    public VisualMaterialProperty<AndroidEnvironment.YAlign> yAlign = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.CENTER);
     public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
     public LazyProperty<Collection> collisions = new LazyProperty<Collection>() {
         @Override
@@ -123,7 +124,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public MaterialProperty<Double> dy = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
     public MaterialProperty<Boolean> touch = new MaterialProperty<>(false);
-    public MaterialProperty<EnumLiteral> screenBounds = new MaterialProperty<>(AndroidEnvironment.ScreenBounds.getValue("NONE"));
+    public MaterialProperty<AndroidEnvironment.EdgeMode> screenBounds = new MaterialProperty<>(AndroidEnvironment.EdgeMode.NONE);
 
     public Property<Double> direction = new Property<Double>() {
         @Override
@@ -219,11 +220,11 @@ public class Sprite extends Instance implements Ticking, Runnable {
         double scale = environment.scale;
         double scaledSize = scale * size;
         float scaledX;
-        switch (xAlign.get().getName()) {
-            case "LEFT":
+        switch (xAlign.get()) {
+            case LEFT:
                 scaledX = (float) (scale * x.get());
                 break;
-            case "RIGHT":
+            case RIGHT:
                 scaledX = ((float) (screenWidth - scale * (x.get() + size)));
                 break;
             default:
@@ -231,11 +232,11 @@ public class Sprite extends Instance implements Ticking, Runnable {
                 break;
         }
         float scaledY;
-        switch (yAlign.get().getName()) {
-            case "TOP":
+        switch (yAlign.get()) {
+            case TOP:
                 scaledY = (float) (scale * (y.get()));
                 break;
-            case "BOTTOM":
+            case BOTTOM:
                 scaledY = screenHeight - (float) (environment.scale * (y.get() + size));
                 break;
             default:
@@ -272,7 +273,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
 */
     private static double wrapValue(double position, double size, double delta, double max, EnumLiteral align) {
         if (delta > 0) {
-            if ("CENTER".equals(align.getName())) {
+            if ("CENTER".equals(align.name())) {
                 if (position + delta > (max + size) / 2) {
                     return -(max + size) / 2;
                 }
@@ -282,7 +283,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
                 }
             }
         } else if (delta < 0) {
-            if ("CENTER".equals(align.getName())) {
+            if ("CENTER".equals(align.name())) {
                 if (position + delta < -(max + size) / 2) {
                     return (max + size) / 2;
                 }
@@ -297,13 +298,13 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
     private static boolean needsBounce(double position, double size, double delta, double max, EnumLiteral align) {
         if (delta > 0) {
-            if ("CENTER".equals(align.getName())) {
+            if ("CENTER".equals(align.name())) {
                 return (position + delta > (max - size) / 2);
             }
             return (position + delta + size > max);
         }
         if (delta < 0) {
-            if ("CENTER".equals(align.getName())) {
+            if ("CENTER".equals(align.name())) {
                 return (position + delta < -(max - size) / 2);
             }
             return position + delta < 0;
@@ -325,11 +326,11 @@ public class Sprite extends Instance implements Ticking, Runnable {
             double sizeValue = size.get();
 
             if (dxValue != 0 || force) {
-                switch (screenBounds.get().getName()) {
-                    case "WRAP":
+                switch (screenBounds.get()) {
+                    case WRAP:
                         x.set(wrapValue(xValue, sizeValue, dxValue, screen.width.get(), xAlign.get()));
                         break;
-                    case "BOUNCE":
+                    case BOUNCE:
                         if (needsBounce(xValue, sizeValue, dxValue, screen.width.get(), xAlign.get())) {
                             dx.set(-dx.get());
                         }
@@ -342,11 +343,11 @@ public class Sprite extends Instance implements Ticking, Runnable {
             }
 
             if (dyValue != 0 || force) {
-                switch (screenBounds.get().getName()) {
-                    case "WRAP":
+                switch (screenBounds.get()) {
+                    case WRAP:
                         y.set(wrapValue(yValue, sizeValue, dyValue, screen.height.get(), yAlign.get()));
                         break;
-                    case "BOUNCE":
+                    case BOUNCE:
                         if (needsBounce(yValue, sizeValue, dyValue, screen.height.get(), yAlign.get())) {
                             dy.set(-dy.get());
                         }

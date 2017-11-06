@@ -9,6 +9,7 @@ import org.kobjects.codechat.expr.InstanceReference;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.Type;
@@ -51,7 +52,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
             if (("create".equals(name) || "new".equals(name)) && children[0] instanceof UnresolvedIdentifier) {
                 String argName = ((UnresolvedIdentifier) children[0]).name;
 
-                Type type = parsingContext.environment.resolveType(argName);
+                InstanceType type = parsingContext.environment.resolveInstanceType(argName);
                 return new ConstructorInvocation(type, -1);
             }
             if ("new".equals(name) && children[0] instanceof UnresolvedInstanceReference) {

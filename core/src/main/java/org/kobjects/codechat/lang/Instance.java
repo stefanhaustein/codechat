@@ -87,7 +87,7 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
     public abstract Property getProperty(int index);
 
     @Override
-    public abstract InstanceType getType();
+    public abstract InstanceType<?> getType();
 
     @Override
     public void getDependencies(DependencyCollector result) {

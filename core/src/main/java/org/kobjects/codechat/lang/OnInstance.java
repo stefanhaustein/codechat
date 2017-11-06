@@ -19,12 +19,18 @@ import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 public class OnInstance extends Instance implements Property.PropertyListener {
+
+    public static final OnInstanceType ON_TYPE = new OnInstanceType("On");
+    public static final OnInstanceType ON_CHANGE_TYPE = new OnInstanceType("OnChange");
+    public static final OnInstanceType ON_INTERVAL_TYPE = new OnInstanceType("OnInterval");
+
+
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
 //    private OnExpression onExpression;
     private EvaluationContext contextTemplate;
     private Timer timer;
-    private OnExpression.Kind kind;
+    private OnInstanceType type;
     private Expression trigger;
     private Statement body;
     private Closure closure;
@@ -50,9 +56,9 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         }
     }
 
-    public OnInstance(Environment environment, int id, OnExpression.Kind kind) {
+    public OnInstance(Environment environment, int id, OnInstanceType type) {
         super(environment, id);
-        this.kind = kind;
+        this.type = type;
     }
 
     public void init(OnExpression onExpression, final EvaluationContext contextTemplate) {
@@ -61,7 +67,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         this.contextTemplate = contextTemplate;
         this.body = onExpression.body;
         this.trigger = resolve(onExpression.expression, contextTemplate);
-        if (onExpression.kind == OnExpression.Kind.ON_INTERVAL) {
+        if (type == ON_INTERVAL_TYPE) {
             timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
@@ -83,25 +89,20 @@ public class OnInstance extends Instance implements Property.PropertyListener {
 
     @Override
     public void valueChanged(Property property, Object oldValue, Object newValue) {
-        switch (kind) {
-            case ON_CHANGE: {
-                EvaluationContext evalContext = contextTemplate.clone();
-                body.eval(evalContext);
-                break;
-            }
-            case ON: {
-                Object conditionValue = trigger.eval(contextTemplate);
-                if (!conditionValue.equals(lastValue)) {
-                    lastValue = conditionValue;
-                    if (Boolean.TRUE.equals(conditionValue)) {
-                        EvaluationContext evalContext = contextTemplate.clone();
-                        body.eval(evalContext);
-                    }
+        if (type == ON_CHANGE_TYPE) {
+            EvaluationContext evalContext = contextTemplate.clone();
+            body.eval(evalContext);
+        } else if (type == ON_TYPE) {
+            Object conditionValue = trigger.eval(contextTemplate);
+            if (!conditionValue.equals(lastValue)) {
+                lastValue = conditionValue;
+                if (Boolean.TRUE.equals(conditionValue)) {
+                    EvaluationContext evalContext = contextTemplate.clone();
+                    body.eval(evalContext);
                 }
-                break;
             }
-            default:
-                throw new IllegalStateException();
+        } else {
+            throw new IllegalStateException();
         }
     }
 
@@ -135,7 +136,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
 
     @Override
     public OnInstanceType getType() {
-        return kind.type;
+        return type;
     }
 
     @Override
@@ -144,7 +145,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
 
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
 
-        asb.append(kind.type.getName().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
+        asb.append(type.getName().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
         asb.append(" ").append(trigger.toString()).append(":\n");
         body.toString(asb, wrap ? 2 : 1);
         if (wrap) {
@@ -158,9 +159,20 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         return null;
     }
 
-    public static class OnInstanceType extends InstanceType {
+
+
+    @Override
+    public void getDependencies(DependencyCollector result) {
+        if (trigger != null) {
+            trigger.getDependencies(result);
+        }
+        if (body != null) {
+            body.getDependencies(result);
+        }
+    }
+
+    public static class OnInstanceType extends InstanceType<OnInstance> {
         private String name;
-        public OnExpression.Kind kind;
 
         public OnInstanceType(String name) {
             this.name = name;
@@ -168,7 +180,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
 
         @Override
         public OnInstance createInstance(Environment environment, int id) {
-            return new OnInstance(environment, id, kind);
+            return new OnInstance(environment, id, this);
         }
 
         @Override
@@ -181,15 +193,5 @@ public class OnInstance extends Instance implements Property.PropertyListener {
             return name;
         }
 
-    }
-
-    @Override
-    public void getDependencies(DependencyCollector result) {
-        if (trigger != null) {
-            trigger.getDependencies(result);
-        }
-        if (body != null) {
-            body.getDependencies(result);
-        }
     }
 }

@@ -11,27 +11,14 @@ import org.kobjects.codechat.statement.Statement;
 
 public class OnExpression extends Expression {
 
-    public enum Kind {
-        ON(new OnInstance.OnInstanceType("On")),
-        ON_CHANGE(new OnInstance.OnInstanceType("OnChange")),
-        ON_INTERVAL(new OnInstance.OnInstanceType("OnInterval"));
-
-        public final OnInstance.OnInstanceType type;
-
-        Kind(OnInstance.OnInstanceType type) {
-            this.type = type;
-            type.kind = this;
-        }
-    }
-
-    public final Kind kind;
+    public final OnInstance.OnInstanceType type;
     private final int id;
     public final Expression expression;
     public final Statement body;
     public final Closure closure;
 
-    public OnExpression(Kind kind, int id, Expression condition, Statement body, Closure closure) {
-        this.kind = kind;
+    public OnExpression(OnInstance.OnInstanceType type, int id, Expression condition, Statement body, Closure closure) {
+        this.type = type;
         this.id = id;
         this.expression = condition;
         this.body = body;
@@ -40,7 +27,7 @@ public class OnExpression extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        OnInstance result = (OnInstance) context.environment.getInstance(kind.type, id, true);
+        OnInstance result = (OnInstance) context.environment.getInstance(type, id, true);
         EvaluationContext template = closure.createEvalContext(context);
         result.init(this, template);
         return result;
@@ -48,7 +35,7 @@ public class OnExpression extends Expression {
 
     @Override
     public Type getType() {
-        return kind.type;
+        return type;
     }
 
     @Override
@@ -58,7 +45,7 @@ public class OnExpression extends Expression {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        sb.append(kind.type.getName().toLowerCase());
+        sb.append(type.getName().toLowerCase());
         if (id != -1) {
             sb.append('#').append(id);
         }
@@ -87,6 +74,6 @@ public class OnExpression extends Expression {
 
     @Override
     public Expression reconstruct(Expression... children) {
-        return new OnExpression(kind, id, children[0], body, closure);
+        return new OnExpression(type, id, children[0], body, closure);
     }
 }

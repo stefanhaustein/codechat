@@ -5,6 +5,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.InstanceReference;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -21,7 +22,7 @@ public class UnresolvedInstanceReference extends UnresolvedExpression {
 
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
-        Type type = parsingContext.environment.resolveType(typeName);
+        InstanceType type = parsingContext.environment.resolveInstanceType(typeName);
         if (type == null) {
             throw new ExpressionParser.ParsingException(start, end, "Can't resolve type '" + typeName + "'", null);
         }
