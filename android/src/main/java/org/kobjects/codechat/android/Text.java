@@ -7,19 +7,35 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import android.widget.TextView;
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.TupleInstance;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
-public class Text extends TupleInstance implements Runnable {
-    public final static TupleType TYPE = new TupleType("Text", "A text object displayed on the screen.") {
+public class Text extends Instance implements Runnable {
+    public final static InstanceType TYPE = new InstanceType() {
+
         @Override
         public Text createInstance(Environment environment, int id) {
             return new Text(environment, id);
+        }
+
+        @Override
+        public String getName() {
+            return "Text";
+        }
+
+        @Override
+        public AnnotatedCharSequence getDocumentation() {
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+            asb.append("A text object displayed on the screen.");
+            asb.append(super.getDocumentation());
+            return asb.build();
         }
     };
     static {
@@ -129,7 +145,7 @@ public class Text extends TupleInstance implements Runnable {
     }
 
     @Override
-    public TupleType getType() {
+    public InstanceType getType() {
         return TYPE;
     }
 

@@ -1,7 +1,5 @@
 package org.kobjects.codechat.expr.unresolved;
 
-import java.util.LinkedHashMap;
-
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.CollectionLiteral;
 import org.kobjects.codechat.expr.ConstructorInvocation;
@@ -12,9 +10,7 @@ import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.ListType;
-import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.SetType;
-import org.kobjects.codechat.type.TupleType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 

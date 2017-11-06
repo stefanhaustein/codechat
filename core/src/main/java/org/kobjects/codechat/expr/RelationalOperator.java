@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.TupleInstance;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.type.Type;
 
 public class RelationalOperator extends AbstractBinaryOperator {
@@ -16,7 +16,7 @@ public class RelationalOperator extends AbstractBinaryOperator {
         Object r = right.eval(context);
         switch (name) {
             case '\u2261':
-                if (l instanceof TupleInstance) {
+                if (l instanceof Instance) {
                     return l == r;
                 }
                 // Fallthrough intended.

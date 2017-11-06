@@ -1,18 +1,14 @@
 package org.kobjects.codechat.type;
 
 
-import java.util.List;
-import javax.print.Doc;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.UserFunction;
 
-public class FunctionType extends Type {
+public class FunctionType extends InstanceType {
 
     public final Type returnType;
     public final Type[] parameterTypes;
@@ -63,7 +59,7 @@ public class FunctionType extends Type {
 
     @Override
     public UserFunction createInstance(Environment environment, int id) {
-        return new UserFunction(this, id);
+        return new UserFunction(environment, this, id);
     }
 
     public int serializeSignature(AnnotatedStringBuilder asb, int id, String name, String[] parameterNames, EntityLink link) {

@@ -54,8 +54,8 @@ public final class Formatting {
             asb.append(String.valueOf(((Number) value).doubleValue()));
         } else if (value instanceof String) {
             asb.append(Formatting.quote((String) value));
-        } else if (value instanceof TupleInstance) {
-            TupleInstance instance = (TupleInstance) value;
+        } else if (value instanceof Instance) {
+            Instance instance = (Instance) value;
             asb.append(instance.toString(), new EntityLink(instance));
         } else if (value instanceof Instance) {
             Instance instance = (Instance) value;

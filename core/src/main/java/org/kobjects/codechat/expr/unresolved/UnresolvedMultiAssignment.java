@@ -7,7 +7,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.MultiAssignment;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -29,14 +29,14 @@ public class UnresolvedMultiAssignment extends UnresolvedExpression {
     public MultiAssignment resolve(ParsingContext parsingContext, Type expectedType) {
         Expression resolvedBase = base.resolve(parsingContext, expectedType);
 
-        if (!(resolvedBase.getType() instanceof TupleType)) {
+        if (!(resolvedBase.getType() instanceof InstanceType)) {
             throw new ExpressionParser.ParsingException(base.start, base.end, "Multi-assignment base expression must be of tupe type (is: " + resolvedBase.getType() + ")", null);
         }
-        TupleType type = (TupleType) resolvedBase.getType();
+        InstanceType type = (InstanceType) resolvedBase.getType();
 
         LinkedHashMap<String, Expression> resolvedElements = new LinkedHashMap<>();
         for (String key: elements.keySet()) {
-            TupleType.PropertyDescriptor property = type.getProperty(key);
+            InstanceType.PropertyDescriptor property = type.getProperty(key);
 
             UnresolvedExpression unresolved = elements.get(key);
             if (!property.writable) {

@@ -359,7 +359,7 @@ public class Parser {
         String name = tokenizer.consumeIdentifier();
         FunctionType type = parseSignature(tokenizer, returnsValue, null);
         RootVariable var = new RootVariable();
-        UserFunction value = new UserFunction(type, id);
+        UserFunction value = new UserFunction(environment, type, id);
         var.name = name;
         var.type = type;
         var.constant = true;

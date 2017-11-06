@@ -7,7 +7,6 @@ import java.util.TimerTask;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.InstanceReference;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.PropertyAccess;
@@ -16,16 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
-public class OnInstance implements Instance, Property.PropertyListener {
+public class OnInstance extends Instance implements Property.PropertyListener {
     private List<Property> properties = new ArrayList<>();
     private Object lastValue = Boolean.FALSE;
 //    private OnExpression onExpression;
     private EvaluationContext contextTemplate;
-    private int id;
     private Timer timer;
-    private String unparsed;
     private OnExpression.Kind kind;
     private Expression trigger;
     private Statement body;
@@ -53,7 +51,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
     }
 
     public OnInstance(Environment environment, int id, OnExpression.Kind kind) {
-        this.id = id;
+        super(environment, id);
         this.kind = kind;
     }
 
@@ -131,31 +129,9 @@ public class OnInstance implements Instance, Property.PropertyListener {
         }
     }
 
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Override
-    public void setUnparsed(String unparsed) {
-        this.unparsed = unparsed;
-    }
-
-    @Override
-    public String getUnparsed() {
-        return unparsed;
-    }
-
-
     public void delete() {
         detach();
     }
-
 
     @Override
     public OnInstanceType getType() {
@@ -177,8 +153,13 @@ public class OnInstance implements Instance, Property.PropertyListener {
         asb.append("end;\n");
     }
 
-    public static class OnInstanceType extends Type {
-        private final String name;
+    @Override
+    public Property getProperty(int index) {
+        return null;
+    }
+
+    public static class OnInstanceType extends InstanceType {
+        private String name;
         public OnExpression.Kind kind;
 
         public OnInstanceType(String name) {
@@ -199,6 +180,7 @@ public class OnInstance implements Instance, Property.PropertyListener {
         public String getName() {
             return name;
         }
+
     }
 
     @Override

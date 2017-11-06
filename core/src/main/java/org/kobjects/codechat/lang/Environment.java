@@ -447,6 +447,9 @@ public class Environment {
         return parser.parse(parsingContext, line);
     }
 
+    public synchronized int createId() {
+        return ++lastId;
+    }
 
     public Object getInstance(Type type, int id, boolean force) {
         WeakReference reference = everything.get(id);
@@ -460,7 +463,9 @@ public class Environment {
             if (!Type.of(result).equals(type)) {
                 throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + Type.of(result));
             }
-            lastId = Math.max(lastId, id);
+            synchronized (this) {
+                lastId = Math.max(lastId, id);
+            }
         }
         return result;
     }

@@ -2,29 +2,29 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Tuple;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 public class PropertyAccess extends Expression {
     Expression base;
-    public TupleType.PropertyDescriptor property;
+    public InstanceType.PropertyDescriptor property;
 
-    public PropertyAccess(Expression left, TupleType.PropertyDescriptor property) {
+    public PropertyAccess(Expression left, InstanceType.PropertyDescriptor property) {
         this.base = left;
         this.property = property;
     }
 
     @Override
     public Object eval(EvaluationContext context) {
-        return property.get((Tuple) base.eval(context));
+        return property.get((Instance) base.eval(context));
     }
 
     public Property getProperty(EvaluationContext context) {
         try {
-            return property.getProperty((Tuple) base.eval(context));
+            return property.getProperty((Instance) base.eval(context));
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("property: " + property);
@@ -40,12 +40,12 @@ public class PropertyAccess extends Expression {
 
     @Override
     public Property getLock(EvaluationContext context) {
-        return property.getProperty((Tuple) base.eval(context));
+        return property.getProperty((Instance) base.eval(context));
     }
 
     @Override
     public void assign(EvaluationContext context, Object value) {
-        property.set((Tuple) base.eval(context), value);
+        property.set((Instance) base.eval(context), value);
     }
 
     @Override

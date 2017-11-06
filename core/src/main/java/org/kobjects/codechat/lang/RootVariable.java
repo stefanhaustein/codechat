@@ -29,7 +29,7 @@ public class RootVariable implements Entity, HasDependencies {
             return;
         }
 
-        if (constant && ((value instanceof UserFunction) || (value instanceof TupleInstance && serializationContext.getMode() == SerializationContext.Mode.EDIT))) {
+        if (constant && ((value instanceof UserFunction) || (value instanceof Instance && serializationContext.getMode() == SerializationContext.Mode.EDIT))) {
             Entity entity = (Entity) value;
             entity.serialize(asb, serializationContext);
         } else {

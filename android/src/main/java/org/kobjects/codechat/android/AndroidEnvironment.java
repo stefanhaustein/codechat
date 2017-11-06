@@ -18,14 +18,14 @@ import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.NativeFunction;
 import org.kobjects.codechat.lang.SerializationContext;
 import org.kobjects.codechat.type.EnumType;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
     private static final String[] SOUND_EXTENSIONS = {".mp3", ".wav"};
     public FrameLayout rootView;
     public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
-    public Screen screen = new Screen();
+    public Screen screen = new Screen(this);
     public double scale;
     public static EnumType YAlign = new EnumType("YAlign", "TOP", "CENTER", "BOTTOM");
     public static EnumType XAlign = new EnumType("XAlign", "LEFT", "CENTER", "RIGHT");
@@ -51,7 +51,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addType(Sensors.TYPE);
 
         addSystemVariable("screen", screen);
-        addSystemVariable("sensors", new Sensors(rootView.getContext()));
+        addSystemVariable("sensors", new Sensors(this, rootView.getContext()));
 
         addNativeFunction(new NativeFunction("move", Type.VOID,
                 "Sets the speed and direction for the given sprite", Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
@@ -117,7 +117,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
     @Override
     public void clearAll() {
-        for (TupleType.PropertyDescriptor propertyDescriptor : screen.getType().properties()) {
+        for (InstanceType.PropertyDescriptor propertyDescriptor : screen.getType().properties()) {
             screen.getProperty(propertyDescriptor.index).removeAllListeners();
         }
         Sprite.clearAll();

@@ -4,31 +4,42 @@ import android.app.Activity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.LazyProperty;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.TupleInstance;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.type.SetType;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
-public class Sprite extends TupleInstance implements Ticking, Runnable {
-    public final static TupleType TYPE = new TupleType("Sprite",
-            "A sprite is an emoji displayed on a particular position on the screen. "
-             + "It is able to move and rotate at a given speed by setting the corresponding properties.") {
+public class Sprite extends Instance implements Ticking, Runnable {
+    public final static InstanceType TYPE = new InstanceType() {
         @Override
         public Sprite createInstance(Environment environment, int id) {
             return new Sprite(environment, id);
+        }
+
+        @Override
+        public String getName() {
+            return "Sprite";
+        }
+
+        public AnnotatedCharSequence getDocumentation() {
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+            asb.append("A sprite is an emoji displayed on a particular position on the screen. "
+                            + "It is able to move and rotate at a given speed by setting the corresponding properties.");
+            asb.append(super.getDocumentation());
+            return asb.build();
         }
     };
     static {
@@ -86,7 +97,8 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     public LazyProperty<Collection> collisions = new LazyProperty<Collection>() {
         @Override
         protected Collection compute() {
-            LinkedHashSet<Object> result = new LinkedHashSet<>();
+            Collection result = (Collection) environment.instantiate(new SetType(Sprite.TYPE), -1);
+
             double x = Sprite.this.x.get();
             double y = Sprite.this.y.get();
             double size = Sprite.this.size.get();
@@ -103,7 +115,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
                     }
                 }
             }
-            return new Collection(new SetType(Sprite.TYPE), result);
+            return result;
         }
     };
 
@@ -373,7 +385,7 @@ public class Sprite extends TupleInstance implements Ticking, Runnable {
     }
 
     @Override
-    public TupleType getType() {
+    public InstanceType getType() {
         return TYPE;
     }
 

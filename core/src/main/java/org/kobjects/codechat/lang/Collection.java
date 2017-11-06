@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 import static org.kobjects.codechat.lang.Formatting.toLiteral;
 
 
-public class Collection implements Tuple, Iterable, HasDependencies {
+public class Collection extends Instance implements Iterable, HasDependencies {
 
     final CollectionType type;
     final java.util.Collection<Object> data;
@@ -22,24 +22,17 @@ public class Collection implements Tuple, Iterable, HasDependencies {
         }
     };
 
-    public Collection(SetType type, LinkedHashSet<Object> data) {
-        this.type = type;
-        this.data = data;
-    }
 
-
-    public Collection(CollectionType type, Object[] values) {
+    public Collection(Environment environment, int id, CollectionType type) {
+        super(environment, id);
         this.type = type;
 
         if (type instanceof SetType) {
             data = new LinkedHashSet<>();
         } else if (type instanceof ListType) {
-            data = new ArrayList<>(values.length);
+            data = new ArrayList<>(0);
         } else {
             throw new IllegalArgumentException("Unrecognized type: " + type);
-        }
-        for (Object value: values) {
-            data.add(value);
         }
     }
 
@@ -58,6 +51,9 @@ public class Collection implements Tuple, Iterable, HasDependencies {
         return ((ArrayList) data).get(i);
     }
 
+    public void add(Object o) {
+        data.add(o);
+    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder(type.getName());
@@ -88,6 +84,18 @@ public class Collection implements Tuple, Iterable, HasDependencies {
             } else if (o instanceof HasDependencies) {
                 ((HasDependencies) o).getDependencies(result);
             }
+        }
+    }
+
+    @Override
+    public void delete() {
+
+    }
+
+
+    public void addAll(Object[] data) {
+        for (Object o : data) {
+            this.data.add(o);
         }
     }
 }

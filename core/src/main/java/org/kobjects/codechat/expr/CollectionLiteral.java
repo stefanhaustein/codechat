@@ -37,11 +37,11 @@ public class CollectionLiteral extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        Object[] data = new Object[elements.length];
+        Collection collection = (Collection) context.environment.instantiate(type, -1);
         for (int i = 0; i < elements.length; i++) {
-            data[i] = elements[i].eval(context);
+            collection.add(elements[i].eval(context));
         }
-        return new Collection(type, data);
+        return collection;
     }
 
     @Override

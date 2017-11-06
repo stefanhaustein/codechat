@@ -12,7 +12,7 @@ import org.kobjects.codechat.expr.RelationalOperator;
 import org.kobjects.codechat.expr.StringConcatenation;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.EnumType;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -43,9 +43,9 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
             Type type = left.getType();
             if (type.getType() instanceof EnumType) {
                 return new Literal(((EnumType) type.getType()).getValue(propertyName));
-            } else if (type instanceof TupleType) {
-                TupleType instanceType = (TupleType) left.getType();
-                TupleType.PropertyDescriptor property = instanceType.getProperty(propertyName);
+            } else if (type instanceof InstanceType) {
+                InstanceType instanceType = (InstanceType) left.getType();
+                InstanceType.PropertyDescriptor property = instanceType.getProperty(propertyName);
                 return new PropertyAccess(left, property);
             } else {
                 throw new ExpressionParser.ParsingException(this.left.start, end, "Base type must be tuple type or Enum metatype, but was: " + type, null);

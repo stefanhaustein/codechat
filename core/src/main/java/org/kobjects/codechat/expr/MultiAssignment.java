@@ -3,11 +3,10 @@ package org.kobjects.codechat.expr;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
-import org.kobjects.codechat.lang.TupleInstance;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
@@ -24,8 +23,8 @@ public class MultiAssignment extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        TupleInstance instance = (TupleInstance) base.eval(context);
-        TupleType type = (TupleType) base.getType();
+        Instance instance = (Instance) base.eval(context);
+        InstanceType type = (InstanceType) base.getType();
         for (Map.Entry<String,Expression> entry : elements.entrySet()) {
             type.getProperty(entry.getKey()).set(instance, entry.getValue().eval(context));
         }

@@ -1,16 +1,29 @@
 package org.kobjects.codechat.android;
 
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Tuple;
-import org.kobjects.codechat.lang.TupleInstance;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.type.InstanceType;
 
-public class Screen implements Tuple {
+public class Screen extends Instance {
 
-    public static final TupleType TYPE = new TupleType("Screen",
-            "The screen object contains information about the visible device screen such as the dimensions.", true);
+    public static final InstanceType TYPE = new InstanceType(true) {
+        @Override
+        public String getName() {
+            return "Screen";
+        }
+        @Override
+        public AnnotatedCharSequence getDocumentation() {
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+            asb.append("The screen object contains information about the visible device screen such as the dimensions.");
+            asb.append(super.getDocumentation());
+            return asb.build();
+        }
+    };
     static {
         TYPE.addProperty(0, "width", TYPE.NUMBER, false,
                 "The width of the usable area of the screen in normalized pixels. "+
@@ -46,8 +59,12 @@ public class Screen implements Tuple {
     int oldNativeHeight;
     int oldNativeWidth;
 
+    protected Screen(Environment environment) {
+        super(environment, NO_ID);
+    }
+
     @Override
-    public TupleType getType() {
+    public InstanceType getType() {
         return TYPE;
     }
 
@@ -98,6 +115,11 @@ public class Screen implements Tuple {
 
     @Override
     public void getDependencies(DependencyCollector result) {
-        TupleInstance.getDependencies(this, result);
+        Instance.getDependencies(this, result);
+    }
+
+    @Override
+    public void delete() {
+
     }
 }

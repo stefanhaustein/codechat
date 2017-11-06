@@ -10,21 +10,35 @@ import android.os.HandlerThread;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Tuple;
 import org.kobjects.codechat.type.ListType;
-import org.kobjects.codechat.type.TupleType;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 import static android.content.Context.SENSOR_SERVICE;
 
-public class Sensors implements Tuple {
+public class Sensors extends Instance {
     static final private ListType TYPE_VECTOR = new ListType(Type.NUMBER);
 
-    static TupleType TYPE = new TupleType("Sensors",
-            "Hardware sensors are available as properties of the system variable 'sensors'. " +
-                    "The set of supportes sensors is likely to change in the future.", true)
+    static InstanceType TYPE = new InstanceType(true) {
+        @Override
+        public String getName() {
+            return "Sensors";
+        }
+
+        public AnnotatedCharSequence getDocumentation() {
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+            asb.append("Hardware sensors are available as properties of the system variable 'sensors'. " +
+                    "The set of supportes sensors is likely to change in the future.");
+            asb.append(super.getDocumentation());
+            return asb.build();
+        }
+    }
             .addProperty(0, "temperature", Type.NUMBER, false,
                     "The current room temperature in degree Celsius")
             .addProperty(1, "light", Type.NUMBER, false,
@@ -75,7 +89,8 @@ public class Sensors implements Tuple {
     public VectorSensorProperty rotation = new VectorSensorProperty(Sensor.TYPE_ROTATION_VECTOR, 4);
     public VectorSensorProperty compass = new VectorSensorProperty(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR, 3);
 
-    Sensors(Context context) {
+    Sensors(Environment environment, Context context) {
+        super(environment, 0);
         sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
         sensorHandlerThread = new HandlerThread("SensorHandlerThread");
         sensorHandlerThread.start();
@@ -83,7 +98,7 @@ public class Sensors implements Tuple {
     }
 
     @Override
-    public TupleType getType() {
+    public InstanceType getType() {
         return TYPE;
     }
 
@@ -112,6 +127,11 @@ public class Sensors implements Tuple {
 
     @Override
     public void getDependencies(DependencyCollector result) {
+
+    }
+
+    @Override
+    public void delete() {
 
     }
 

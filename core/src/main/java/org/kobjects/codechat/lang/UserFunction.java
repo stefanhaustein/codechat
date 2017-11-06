@@ -7,18 +7,17 @@ import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 
-public class UserFunction implements Function, Instance {
+public class UserFunction extends Instance implements Function {
     private EvaluationContext contextTemplate;
     private int id;
     private FunctionType functionType;
     private Statement body;
     private Closure closure;
     private String[] parameterNames;
-    public String unparsed;
 
-    public UserFunction(FunctionType functionType, int id) {
+    public UserFunction(Environment environment, FunctionType functionType, int id) {
+        super(environment, id);
         this.functionType = functionType;
-        this.id = id;
     }
 
     public void init(FunctionExpression definition, EvaluationContext contextTemplate) {
@@ -41,25 +40,6 @@ public class UserFunction implements Function, Instance {
         return functionType;
     }
 
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Override
-    public void setUnparsed(String unparsed) {
-        this.unparsed = unparsed;
-    }
-
-    @Override
-    public String getUnparsed() {
-        return unparsed;
-    }
 
     @Override
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
@@ -78,6 +58,11 @@ public class UserFunction implements Function, Instance {
         if (wrap) {
             asb.append("end;\n");
         }
+    }
+
+    @Override
+    public Property getProperty(int index) {
+        return null;
     }
 
     @Override
