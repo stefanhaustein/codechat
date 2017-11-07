@@ -1,5 +1,6 @@
 package org.kobjects.codechat.android;
 
+import java.lang.ref.WeakReference;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
@@ -115,7 +116,13 @@ public class Screen extends Instance {
 
     @Override
     public void getDependencies(DependencyCollector result) {
-        Instance.getDependencies(this, result);
+        super.getDependencies(result);
+        for (WeakReference<Sprite> spriteRef : Sprite.allSprites) {
+            Sprite sprite = spriteRef.get();
+            if (sprite != null && sprite.view.getParent() != null) {
+                result.add(sprite);
+            }
+        }
     }
 
     @Override

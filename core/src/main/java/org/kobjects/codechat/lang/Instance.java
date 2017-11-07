@@ -10,27 +10,8 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
 
     public static final int NO_ID = 0;
 
-    public static void getDependencies(Instance tuple, DependencyCollector result) {
-        for (InstanceType.PropertyDescriptor propertyDescriptor : tuple.getType ().properties()) {
-            Property property = tuple.getProperty(propertyDescriptor.index);
-            if (property instanceof MaterialProperty) {
-                Object value = property.get();
-                if (value instanceof Entity) {
-                    result.add((Entity) value);
-                } else if (value instanceof HasDependencies) {
-                    ((HasDependencies) value).getDependencies(result);
-                }
-            }
-            for (Object listener : property.getListeners()) {
-                if (listener instanceof OnInstance) {
-                    result.add((OnInstance) listener);
-                }
-            }
-        }
-    }
-
+    private final Environment environment;
     private int id;
-    private Environment environment;
     private String unparsed;
 
     protected Instance(Environment environment, int id) {
@@ -91,7 +72,22 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
 
     @Override
     public void getDependencies(DependencyCollector result) {
-        getDependencies(this, result);
+        for (InstanceType.PropertyDescriptor propertyDescriptor : getType().properties()) {
+            Property property = getProperty(propertyDescriptor.index);
+            if (property instanceof MaterialProperty) {
+                Object value = property.get();
+                if (value instanceof Entity) {
+                    result.add((Entity) value);
+                } else if (value instanceof HasDependencies) {
+                    ((HasDependencies) value).getDependencies(result);
+                }
+            }
+            for (Object listener : property.getListeners()) {
+                if (listener instanceof OnInstance) {
+                    result.add((OnInstance) listener);
+                }
+            }
+        }
     }
 
     public int getId() {

@@ -128,19 +128,6 @@ public class AndroidEnvironment extends Environment implements Runnable {
         handler.postDelayed(this, 17);
     }
 
-
-
-    protected void addExtraRootEntities(SerializationContext serializationContext) {
-        super.addExtraRootEntities(serializationContext);
-        for (WeakReference<Sprite> spriteRef : Sprite.allSprites) {
-            Sprite sprite = spriteRef.get();
-            if (sprite != null && sprite.view.getParent() != null) {
-                serializationContext.enqueue(sprite);
-            }
-        }
-    }
-
-
     @Override
     public void clearAll() {
         for (InstanceType.PropertyDescriptor propertyDescriptor : screen.getType().properties()) {

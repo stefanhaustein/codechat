@@ -406,15 +406,6 @@ public class Environment {
     }
 
 
-
-    protected void addExtraRootEntities(SerializationContext serializationContext) {
-        synchronized (OnInstance.allOnInterval) {
-            for (OnInstance onInterval : OnInstance.allOnInterval) {
-                serializationContext.enqueue(onInterval);
-            }
-        }
-    }
-
     public void dump(AnnotatedStringBuilder asb) {
         System.gc();
         try {
@@ -427,7 +418,11 @@ public class Environment {
             serializationContext.enqueue(variable);
         }
 
-        addExtraRootEntities(serializationContext);
+        synchronized (OnInstance.allOnInterval) {
+            for (OnInstance onInterval : OnInstance.allOnInterval) {
+                serializationContext.enqueue(onInterval);
+            }
+        }
 
         while (true) {
             Entity entity = serializationContext.pollPending();
