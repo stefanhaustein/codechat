@@ -268,7 +268,7 @@ public class Parser {
         return new IfStatement(condition, ifBody, elseBody);
     }
 
-    Statement parseVar(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean constant, boolean rootLevel) {
+    Statement parseVar(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean constant, boolean rootLevel, String documentation) {
         String varName = tokenizer.consumeIdentifier();
         int p0 = tokenizer.currentPosition;
         Type type = null;
@@ -287,16 +287,17 @@ public class Parser {
             }
         }
 
-        return processDeclaration(parsingContext, p0, tokenizer.currentPosition, constant, rootLevel, varName, type, init);
+        return processDeclaration(parsingContext, p0, tokenizer.currentPosition, constant, rootLevel, varName, type, init, documentation);
     }
 
-    Statement processDeclaration(ParsingContext parsingContext, int p0, int currentPosition, boolean constant, boolean rootLevel, String varName, Type type, Expression init) {
+    Statement processDeclaration(ParsingContext parsingContext, int p0, int currentPosition, boolean constant, boolean rootLevel, String varName, Type type, Expression init, String documentation) {
         if (rootLevel) {
             if (type == null) {
                 throw new ParsingException(p0, currentPosition,
                         "Explicit type or initializer required for root constants and variables.", null);
             }
             RootVariable rootVariable = environment.declareRootVariable(varName, type, constant);
+            rootVariable.documentation = documentation;
             Expression left = new RootVariableNode(rootVariable);
             if (init == null) {
                 return new ExpressionStatement(left);
@@ -349,6 +350,7 @@ public class Parser {
         var.type = type;
         var.constant = !mutable;
         var.value = value;
+        var.documentation = consumeComments(tokenizer);
         environment.rootVariables.put(name, var);
 
         return var;
@@ -366,6 +368,28 @@ public class Parser {
         return value;
     }
 
+    public String consumeComments(ExpressionParser.Tokenizer tokenizer) {
+        String documentation = tokenizer.consumeComments();
+        if (documentation != null && documentation.length() > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (String s : documentation.split("\n")) {
+                s = s.trim();
+                if (s.startsWith("# ")) {
+                    s = s.substring(2);
+                } else if (s.startsWith("#")) {
+                    s = s.substring(1);
+                }
+                if (s.isEmpty()) {
+                    sb.append("\n\n");
+                } else {
+                    sb.append(s);
+                    sb.append(' ');
+                }
+            }
+            documentation = sb.toString();
+        }
+        return documentation;
+    }
 
     public Entity parseStub(String content) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(content);
@@ -426,6 +450,7 @@ public class Parser {
 
 
     Statement parseStatement(ParsingContext parsingContext, ExpressionParser.Tokenizer tokenizer, boolean interactive) {
+        String documentation = consumeComments(tokenizer);
         if (tokenizer.tryConsume("count")) {
             return parseCount(parsingContext, tokenizer);
         }
@@ -440,14 +465,14 @@ public class Parser {
 
             Expression functionExpr = parseFunction(parsingContext, tokenizer, id, true).resolve(parsingContext, null);
 
-            return processDeclaration(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr);
+            return processDeclaration(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr, documentation);
         }
         if (tokenizer.currentValue.equals("proc") || tokenizer.currentValue.startsWith("proc#") ) {
             int p0 = tokenizer.currentPosition;
             int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();
             Expression functionExpr = parseFunction(parsingContext, tokenizer, id, false).resolve(parsingContext, null);
-            return processDeclaration(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr);
+            return processDeclaration(parsingContext, p0, tokenizer.currentPosition, true, interactive, name, functionExpr.getType(), functionExpr, documentation);
         }
         if (tokenizer.tryConsume("for")) {
             return parseFor(parsingContext, tokenizer);
@@ -468,10 +493,10 @@ public class Parser {
             return new ExpressionStatement(parseOnExpression(parsingContext, OnInstance.ON_INTERVAL_TYPE, tokenizer, extractId(name)));
         }
         if (tokenizer.tryConsume("var") || tokenizer.tryConsume("variable") || tokenizer.tryConsume("mutable")) {
-            return parseVar(parsingContext, tokenizer, false, interactive);
+            return parseVar(parsingContext, tokenizer, false, interactive, documentation);
         }
         if (tokenizer.tryConsume("let") || tokenizer.tryConsume("const")) {
-            return parseVar(parsingContext, tokenizer, true, interactive);
+            return parseVar(parsingContext, tokenizer, true, interactive, documentation);
         }
         if (tokenizer.tryConsume("return")) {
             return new ReturnStatement(parseExpression(parsingContext, tokenizer));
@@ -494,7 +519,7 @@ public class Parser {
                 String name = ((UnresolvedIdentifier) op.left).name;
                 if (parsingContext.resolve(name) == null) {
                     Expression right = op.right.resolve(parsingContext, null);
-                    environment.declareRootVariable(name, right.getType(), true);
+                    environment.declareRootVariable(name, right.getType(), true).documentation = documentation;
                 }
             }
             Expression left = op.left.resolve(parsingContext, null);

@@ -11,6 +11,7 @@ public class RootVariable implements Entity, HasDependencies {
     public boolean constant;
     public boolean builtin;
     public String unparsed;
+    public String documentation;
 
     public void dump(StringBuilder sb) {
         sb.append(name);
@@ -27,6 +28,12 @@ public class RootVariable implements Entity, HasDependencies {
         serializationContext.setSerialized(this);
         if (builtin || value == null) {
             return;
+        }
+
+        if (documentation != null) {
+            for (String s: documentation.split("\n")) {
+                asb.append("# ").append(s).append('\n');
+            }
         }
 
         if (constant && ((value instanceof UserFunction) || (value instanceof Instance && serializationContext.getMode() == SerializationContext.Mode.EDIT))) {

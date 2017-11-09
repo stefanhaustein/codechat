@@ -513,15 +513,24 @@ public class Environment {
 
             ArrayList<RuntimeException> parsingErrors = new ArrayList<>();
             ArrayList<Entity> unparsedEntities = new ArrayList<>();
-            StringBuilder pending = new StringBuilder();
             int lineNumber = 0;
+            boolean commentsOnly = true;
 
-            while (true) {
-                lineNumber++;
-
-                String line = reader.readLine();
-                if (line == null || (!line.startsWith(" ") && !line.equals("}") && !line.equals("end") && !line.equals("end;"))) {
-                    String statement = pending.toString();
+            String line = reader.readLine();
+            while (line != null) {
+                StringBuilder sb = new StringBuilder();
+                while (line != null && (line.startsWith("#") || line.trim().isEmpty())) {
+                    sb.append(line).append('\n');
+                    line = reader.readLine();
+                }
+                if (line != null) {
+                    sb.append(line).append('\n');
+                    line = reader.readLine();
+                    while (line != null && (line.startsWith(" ") || line.equals("end") || line.equals("end;"))) {
+                        sb.append(line).append('\n');
+                        line = reader.readLine();
+                    }
+                    String statement = sb.toString();
                     if (!statement.isEmpty()) {
                         try {
                             Entity entity = parser.parseStub(statement);
@@ -532,13 +541,9 @@ public class Environment {
                             e.printStackTrace();
                             parsingErrors.add(e);
                         }
-                        pending.setLength(0);
+                        sb.setLength(0);
                     }
                 }
-                if (line == null) {
-                    break;
-                }
-                pending.append(line).append('\n');
             }
 
             System.err.println("root variables: " + rootVariables.toString().replace(",", "\n  "));
