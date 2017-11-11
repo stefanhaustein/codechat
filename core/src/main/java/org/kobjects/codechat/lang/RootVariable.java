@@ -4,6 +4,8 @@ import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.type.FunctionType;
+import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 
 public class RootVariable implements Entity, HasDependencies, Documented {
@@ -77,15 +79,25 @@ public class RootVariable implements Entity, HasDependencies, Documented {
     @Override
     public AnnotatedCharSequence getDocumentation() {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        if (documentation != null) {
-            asb.append(documentation);
+        if (value instanceof Function) {
+            ((FunctionType) type).serializeSignature(asb, -1, name, null, null);
+            asb.append("\n");
+        } else if (!(type instanceof MetaType)) {
+            asb.append(constant ? "constant ": "variable ");
+            asb.append(name).append(": ");
+            asb.append(type.getName(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
+            if (constant) {
+                asb.append(" = ");
+                Formatting.toLiteral(asb, value);
+            }
             asb.append("\n");
         }
         if (value instanceof Documented) {
             asb.append(((Documented) value).getDocumentation());
-        } else {
-            asb.append(name + " is an instance of the type ");
-            asb.append(type.getName(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
+        }
+        if (documentation != null) {
+            asb.append(documentation);
+            asb.append("\n");
         }
         return asb.build();
     }

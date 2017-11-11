@@ -4,14 +4,10 @@ public abstract class Type implements Typed {
     public static final Type NUMBER = new SimpleType("Number", Double.class, "Number: A 64 bit IEEE floating point number.");
     public static final Type STRING = new SimpleType("String", String.class, "String: A string of characters.");
     public static final Type BOOLEAN = new SimpleType("Boolean", Boolean.class, "Boolean: true or false.");
-    public static final Type VOID = new SimpleType("Void", Void.TYPE, "Used as a replacement for the return type for functions that don't return a value.");
+    //public static final Type VOID = new SimpleType("Void", Void.TYPE, "Used as a replacement for the return type for functions that don't return a value.");
     public static final Type ANY = new SimpleType("Any", Object.class, "Any type.h");
 
     public static Type of(Object o) {
-        // Fixme: Add "typed" interface.
-        if (o == null) {
-            return VOID;
-        }
         if (o instanceof Type) {
             return new MetaType((Type) o);
         }

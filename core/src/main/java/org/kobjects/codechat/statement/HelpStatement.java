@@ -135,7 +135,7 @@ public class HelpStatement extends AbstractStatement {
                 } else {
                     asb.append(", ");
                 }
-                asb.append(var.name, i == 2 ? new TextLink(String.valueOf(var.value)) : new DocumentedLink((Documented) var.value));
+                asb.append(var.name, new DocumentedLink(var));
             }
         }
 

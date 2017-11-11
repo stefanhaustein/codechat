@@ -12,17 +12,14 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.annotation.ExecLink;
-import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.Statement;
@@ -57,7 +54,7 @@ public class Environment {
         this.environmentListener = environmentListener;
         this.codeDir = codeDir;
 
-        addType(Type.BOOLEAN, Type.NUMBER, Type.STRING, Type.VOID);
+        addType(Type.BOOLEAN, Type.NUMBER, Type.STRING);
         addType(OnInstance.ON_CHANGE_TYPE, OnInstance.ON_INTERVAL_TYPE, OnInstance.ON_TYPE);
 
         addBuiltins();
@@ -65,50 +62,50 @@ public class Environment {
 
     private void addBuiltins() {
         for (MathFnType mathFnType : MathFnType.values()) {
-            addNativeFunction(new MathFn(mathFnType));
+            addSystemConstant(mathFnType.name().toLowerCase(), new MathFn(mathFnType), mathFnType.documentation);
         }
 
-        addSystemVariable("PI", Math.PI);
-        addSystemVariable("\u03c0", Math.PI);
-        addSystemVariable("TAU", 2 * Math.PI);
-        addSystemVariable("\u03c4", 2 * Math.PI);
+        addSystemConstant("PI", Math.PI, null);
+        addSystemConstant("\u03c0", Math.PI, null);
+        addSystemConstant("TAU", 2 * Math.PI, null);
+        addSystemConstant("\u03c4", 2 * Math.PI, null);
 
         final Type type = Type.ANY;
-        addNativeFunction(new NativeFunction("print", Type.VOID, "", type) {
-            @Override
-            protected Object eval(Object[] params) {
-                environmentListener.print(String.valueOf(params[0]));
-                return null;
-            }
-        });
-
-        addNativeFunction(new NativeFunction("about", Type.VOID, "Prints copyright information for this application.") {
-            @Override
-            protected Object eval(Object[] params) {
-                environmentListener.print(ABOUT_TEXT);
-                return null;
-            }
-        });
-
-        addNativeFunction(new NativeFunction("dir", Type.VOID, "Prints the directory of the application file system.") {
-            @Override
-            protected Object eval(Object[] params) {
-                AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-                for (File file: codeDir.listFiles()) {
-                    String name = file.getName();
-                    if (!name.equals("CodeChat")) {
-                        asb.append(name, new ExecLink("load \"" + name + "\""));
-                        asb.append("\n");
+        addSystemConstant("print", new NativeFunction(null,  type) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        environmentListener.print(String.valueOf(params[0]));
+                        return null;
                     }
-                }
-                environmentListener.print(asb.build());
-                return null;
-            }
-        });
+                }, "Prints the argument.");
 
-        addNativeFunction(new NativeFunction("errors", Type.VOID, "Prints all errors.") {
-            @Override
-            protected Object eval(Object[] params) {
+        addSystemConstant("about", new NativeFunction(null) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        environmentListener.print(ABOUT_TEXT);
+                        return null;
+                    }
+                }, "Prints copyright information for this application.");
+
+        addSystemConstant("dir", new NativeFunction(null) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+                        for (File file: codeDir.listFiles()) {
+                            String name = file.getName();
+                            if (!name.equals("CodeChat")) {
+                                asb.append(name, new ExecLink("load \"" + name + "\""));
+                                asb.append("\n");
+                            }
+                        }
+                        environmentListener.print(asb.build());
+                        return null;
+                    }
+                }, "Prints the directory of the application file system.");
+
+        addSystemConstant("errors", new NativeFunction(null) {
+                   @Override
+                protected Object eval(Object[] params) {
                 if (errors.size() == 0) {
                     environmentListener.print("(no errors)");
                 } else {
@@ -118,85 +115,82 @@ public class Environment {
                 }
                 return null;
             }
-        });
+        }, "Prints all errors.");
 
-        addNativeFunction(new NativeFunction("atan2", Type.NUMBER,
-                "Computes the angle in radians of the line through (0,0) and (y, x) relative to the x-axis",
-                Type.NUMBER, Type.NUMBER) {
-            @Override
-            protected Object eval(Object[] params) {
-                return Math.atan2((Double) params[0], (Double) params[1]);
-            }
-        });
-        addNativeFunction(new NativeFunction("clearAll", Type.VOID,
-                "Deletes everything and resets the state to the initial state. Use with care.") {
-            @Override
-            protected Object eval(Object[] params) {
-                clearAll();
-                environmentListener.setName("CodeChat");
-                return null;
-            }
-        });
-        addNativeFunction(new NativeFunction("continue", Type.VOID,
-                "Resumes after pause was called. Has no effect otherwise.") {
-            @Override
-            protected Object eval(Object[] params) {
-                pause(false);
-                return null;
-            }
-        });
-        addNativeFunction(new NativeFunction("list", Type.VOID,
-                "Lists the current program and state.") {
-            @Override
-            protected Object eval(Object[] params) {
-                list();
-                return null;
-            }
-        });
+        addSystemConstant("atan2", new NativeFunction(Type.NUMBER, Type.NUMBER, Type.NUMBER) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        return Math.atan2((Double) params[0], (Double) params[1]);
+                    }
+                }, "Computes the angle in radians of the line through (0,0) and (y, x) relative to the x-axis");
 
+        addSystemConstant("clearAll", new NativeFunction(null) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        clearAll();
+                        environmentListener.setName("CodeChat");
+                        return null;
+                    }
+                }, "Deletes everything and resets the state to the initial state. Use with care.");
 
-        addNativeFunction(new NativeFunction("load", Type.VOID,
-                "Loads the program and state previously saved under the given name.", Type.STRING) {
-            @Override
-            protected Object eval(Object[] params) {
-                load(String.valueOf(params[0]));
-                return null;
-            }
-        });
-        addNativeFunction(new NativeFunction("pause", Type.VOID,  "Pause all events.") {
-            @Override
-            protected Object eval(Object[] params) {
-                pause(true);
-                return null;
-            }
-        });
-        addNativeFunction(new NativeFunction("random", Type.NUMBER,
-                "Return a pseudorandom number >= 0 and < 1.") {
-            @Override
-            protected Object eval(Object[] params) {
-                return Math.random();
-            }
-        });
-        addNativeFunction(new NativeFunction("save", Type.VOID,
-                "Saves the current program and state under the given name.", Type.STRING) {
-            @Override
-            protected Object eval(Object[] params) {
-                save((String) params[0]);
-                return null;
-            }
-        });
-        addNativeFunction(new NativeFunction("wait", Type.VOID,
-                "Waits for a the given number of seconds.", Type.NUMBER) {
-            @Override
-            protected Object eval(Object[] params) {
-                try {
-                    Thread.sleep((long) (((Double) params[0]) * 1000));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        addSystemConstant("continue", new NativeFunction(null) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        pause(false);
+                        return null;
+                    }
+                }, "Resumes after pause was called. Has no effect otherwise.");
+
+        addSystemConstant("list", new NativeFunction(null) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        list();
+                        return null;
+                    }
+                }, "Lists the current program and state.");
+
+        addSystemConstant("load", new NativeFunction(null, Type.STRING) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        load(String.valueOf(params[0]));
+                        return null;
+                    }
+                }, "Loads the program and state previously saved under the given name.");
+
+        addSystemConstant("pause", new NativeFunction(null) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        pause(true);
+                        return null;
+                    }
+                }, "Pause all events.");
+
+        addSystemConstant("random", new NativeFunction(Type.NUMBER) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        return Math.random();
+                    }
+                }, "Return a pseudorandom number >= 0 and < 1.");
+
+        addSystemConstant("save", new NativeFunction(null, Type.STRING) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        save((String) params[0]);
+                        return null;
+                    }
+                }, "Saves the current program and state under the given name.");
+
+        addSystemConstant("wait", new NativeFunction(null, Type.NUMBER) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                    try {
+                        Thread.sleep((long) (((Double) params[0]) * 1000));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return null;
                 }
-                return null;
-            }
-        });
+            }, "Waits for a the given number of seconds.");
     }
 
 
@@ -212,18 +206,19 @@ public class Environment {
 
     public void addType(Type... types) {
         for (Type type : types) {
-            addSystemVariable(type.toString(), type);
-//            addSystemVariable(type.toString().toLowerCase(), type);
+            addSystemConstant(type.toString(), type, null);
+//            addSystemConstant(type.toString().toLowerCase(), type);
         }
     }
 
-    public void addSystemVariable(String name, Object value) {
+    public void addSystemConstant(String name, Object value, String documentaion) {
         RootVariable var = new RootVariable();
         var.name = name;
         var.type = Type.of(value);
         var.value = value;
         var.builtin = true;
-
+        var.documentation = documentaion;
+        var.constant = true;
         if (rootVariables.containsKey(name)) {
             throw new RuntimeException("Already declared: " + name);
         }
@@ -519,10 +514,6 @@ public class Environment {
         }
     }
 
-    public void addNativeFunction(NativeFunction function) {
-        addSystemVariable(function.name, function);
-    }
-
     public InstanceType resolveInstanceType(String name) {
         Type result = resolveType(name);
         if (!(result instanceof InstanceType)) {
@@ -561,7 +552,7 @@ public class Environment {
     static class MathFn extends NativeFunction {
         MathFnType type;
         MathFn(MathFnType type) {
-            super(type.name().toLowerCase(), Type.NUMBER, type.documentation, Type.NUMBER);
+            super(Type.NUMBER, Type.NUMBER);
             this.type = type;
         }
 

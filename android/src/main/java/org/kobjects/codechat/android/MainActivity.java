@@ -660,7 +660,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     printed = true;
                     int count = chatView.getCount();
                     Object result = expression.eval(parsingContext.createEvaluationContext());
-                    if (Type.VOID.equals(expression.getType())) {
+                    if (expression.getType() == null) {
                         if (chatView.getCount() == count) {
                             print("ok");
                         }

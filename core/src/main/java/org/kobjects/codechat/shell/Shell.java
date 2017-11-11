@@ -48,7 +48,7 @@ public class Shell implements EnvironmentListener {
                 print(s);
                 printed = true;
                 Object result = expression.eval(parsingContext.createEvaluationContext());
-                if (Type.VOID.equals(expression.getType())) {
+                if (expression.getType() == null) {
                     print("ok");
                 } else {
                     print(Formatting.toLiteral(result));

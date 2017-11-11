@@ -7,15 +7,11 @@ import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
-public abstract class NativeFunction implements Function, Documented {
+public abstract class NativeFunction implements Function {
     private final FunctionType type;
-    public final String name;
-    private final String documentation;
 
-    public NativeFunction(String name, Type returnType, String documentation, Type... parameterTypes) {
+    public NativeFunction(Type returnType, Type... parameterTypes) {
         this.type = new FunctionType(returnType, parameterTypes);
-        this.name = name;
-        this.documentation = documentation;
     }
 
     @Override
@@ -35,12 +31,4 @@ public abstract class NativeFunction implements Function, Documented {
         return type;
     }
 
-    @Override
-    public AnnotatedCharSequence getDocumentation() {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        type.serializeSignature(asb, -1, name, null, null);
-        asb.append("\n");
-        asb.append(documentation);
-        return asb.build();
-    }
 }

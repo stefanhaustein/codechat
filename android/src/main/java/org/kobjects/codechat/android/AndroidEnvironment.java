@@ -17,7 +17,6 @@ import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.NativeFunction;
-import org.kobjects.codechat.lang.SerializationContext;
 import org.kobjects.codechat.type.EnumType;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
@@ -76,24 +75,16 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
         addType(Sensors.TYPE);
 
-        addSystemVariable("screen", screen);
-        addSystemVariable("sensors", new Sensors(this, rootView.getContext()));
+        addSystemConstant("screen", screen, null);
+        addSystemConstant("sensors", new Sensors(this, rootView.getContext()), null);
 
-        addNativeFunction(new NativeFunction("move", Type.VOID,
-                "Sets the speed and direction for the given sprite", Sprite.TYPE, Type.NUMBER, Type.NUMBER) {
-            @Override
-            protected Object eval(Object[] params) {
-                ((Sprite) params[0]).move((Double) params[1], (Double) params[2]);
-                return null;
-            }
-        });
-        addNativeFunction(new NativeFunction("play", Type.VOID,  "Plays the given sound", Type.STRING) {
-            @Override
-            protected Object eval(Object[] params) {
-                new Sound(soundManager, (String) params[0]).play();
-                return null;
-            }
-        });
+        addSystemConstant("play", new NativeFunction( null, Type.STRING) {
+                    @Override
+                    protected Object eval(Object[] params) {
+                        new Sound(soundManager, (String) params[0]).play();
+                        return null;
+                    }
+                }, "Plays the given sound");
 
     }
 
