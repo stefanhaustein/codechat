@@ -33,6 +33,7 @@ import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.CountStatement;
 import org.kobjects.codechat.statement.ForStatement;
+import org.kobjects.codechat.statement.HelpStatement;
 import org.kobjects.codechat.statement.ReturnStatement;
 import org.kobjects.codechat.statement.LocalVarDeclarationStatement;
 import org.kobjects.codechat.statement.DeleteStatement;
@@ -388,7 +389,7 @@ public class Parser {
             }
             documentation = sb.toString();
         }
-        return documentation;
+        return documentation == null || documentation.trim().isEmpty() ? null : documentation;
     }
 
     public Entity parseStub(String content) {
@@ -505,6 +506,16 @@ public class Parser {
             ParsingContext blockContext = new ParsingContext(parsingContext, false);
             return parseBlock(blockContext, tokenizer, false, "}");
         }*/
+
+        if (tokenizer.tryConsume("help")) {
+            String what = tokenizer.currentValue;
+            if ("".equals(what) || ";".equals(what)) {
+                return new HelpStatement(null);
+            }
+            tokenizer.nextToken();
+            return new HelpStatement(what);
+        }
+
         if (tokenizer.tryConsume("begin")) {
             ParsingContext blockContext = new ParsingContext(parsingContext, false);
             return parseBlock(blockContext, tokenizer, false, "end", "");

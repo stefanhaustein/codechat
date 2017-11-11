@@ -1,10 +1,12 @@
 package org.kobjects.codechat.lang;
 
+import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.type.Type;
 
-public class RootVariable implements Entity, HasDependencies {
+public class RootVariable implements Entity, HasDependencies, Documented {
     public String name;
     public Type type;
     public Object value;
@@ -70,5 +72,21 @@ public class RootVariable implements Entity, HasDependencies {
         if (value instanceof HasDependencies) {
             ((HasDependencies) value).getDependencies(result);
         }
+    }
+
+    @Override
+    public AnnotatedCharSequence getDocumentation() {
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        if (documentation != null) {
+            asb.append(documentation);
+            asb.append("\n");
+        }
+        if (value instanceof Documented) {
+            asb.append(((Documented) value).getDocumentation());
+        } else {
+            asb.append(name + " is an instance of the type ");
+            asb.append(type.getName(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
+        }
+        return asb.build();
     }
 }

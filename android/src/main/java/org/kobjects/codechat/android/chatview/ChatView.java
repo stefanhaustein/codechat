@@ -154,6 +154,10 @@ public class ChatView extends ListView {
 
             }
             CharSequence cs = ((Entry) getItem(i)).text;
+            if (cs == null) {
+                System.err.println("text is null for entry " + i + ": " + getItem(i));
+                cs = "";
+            }
             int cut = cs.length();
             while (cut > 0 && cs.charAt(cut-1) == '\n') {
                 cut--;
