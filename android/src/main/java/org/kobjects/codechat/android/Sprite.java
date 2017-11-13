@@ -17,16 +17,15 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.LazyProperty;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
-public class Sprite extends Instance implements Ticking, Runnable {
-    public final static InstanceType TYPE = new InstanceType() {
+public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, Runnable {
+    public final static InstanceType TYPE = new ViewWrapperType<Sprite>() {
         @Override
         public Sprite createInstance(Environment environment, int id) {
-            return new Sprite(environment, id);
+            return new Sprite((AndroidEnvironment) environment, id);
         }
 
         @Override
@@ -43,57 +42,37 @@ public class Sprite extends Instance implements Ticking, Runnable {
         }
     };
     static {
-        TYPE.addProperty(0, "size", Type.NUMBER, true,
+        TYPE.addProperty(4, "size", Type.NUMBER, true,
                 "The size of this sprite.");
-        TYPE.addProperty(1, "x", Type.NUMBER, true,
-                "The horizontal position of the sprite, relative to the left side, " +
-                "center or right side of the screen, depending on the value of the xAlign property.");
-        TYPE.addProperty(2, "y", Type.NUMBER, true,
-                "The vertical position of the sprite relative to the top, " +
-                        "center or bottom of the screen, depending on the value of the yAlign property. ");
-        TYPE.addProperty(3, "angle", Type.NUMBER, true,
+        TYPE.addProperty(5, "angle", Type.NUMBER, true,
                 "The clockwise rotation angle of this sprite in degree.");
-        TYPE.addProperty(4, "face", Type.STRING, true, "The emoji displayed for this sprite.");
-        TYPE.addProperty(5, "collisions", new SetType(Sprite.TYPE), true,
+        TYPE.addProperty(6, "face", Type.STRING, true, "The emoji displayed for this sprite.");
+        TYPE.addProperty(7, "collisions", new SetType(Sprite.TYPE), true,
                 "The set of other sprites this sprite is currently colliding with");
-        TYPE.addProperty(6, "dx", Type.NUMBER, true,
+        TYPE.addProperty(8, "dx", Type.NUMBER, true,
                 "The current horizontal speed of this sprite in units per second.");
-        TYPE.addProperty(7, "dy", Type.NUMBER, true,
+        TYPE.addProperty(9, "dy", Type.NUMBER, true,
                 "The current vertical speed of this sprite in units per second.");
-        TYPE.addProperty(8, "rotation", Type.NUMBER, true,
+        TYPE.addProperty(10, "rotation", Type.NUMBER, true,
                 "The current clockwise rotation speed in degree per second.");
-        TYPE.addProperty(9, "touch", Type.BOOLEAN, false,
+        TYPE.addProperty(11, "touch", Type.BOOLEAN, false,
                 "True if this sprite is currently touched.");
-        TYPE.addProperty(10, "direction", Type.NUMBER, true,
+        TYPE.addProperty(12, "direction", Type.NUMBER, true,
                 "The movement direction of this sprite in degree; 0 if the sprite is not moving.");
-        TYPE.addProperty(11, "speed", Type.NUMBER, true,
+        TYPE.addProperty(13, "speed", Type.NUMBER, true,
                 "The current speed in units per second.");
-        TYPE.addProperty(12, "visible", Type.BOOLEAN, false,
+        TYPE.addProperty(14, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently withing the usable screen boundaries.");
-        TYPE.addProperty(13, "xAlign", AndroidEnvironment.XAlign.TYPE, true,
-                "Determines whether the x property is relative to the left side, " +
-                "center or right side of the screen.");
-        TYPE.addProperty(14, "yAlign", AndroidEnvironment.YAlign.TYPE
-                , true,
-                "Determines whether the y property is relative to the top, " +
-                "center or bottom of the screen.");
         TYPE.addProperty(15, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
                 "Determines behavior when the sprite hits the edge of the screen.");
     }
 
-    final ImageView view;
-    private boolean syncRequested;
     static List<WeakReference<Sprite>> allSprites = new ArrayList();
-    AndroidEnvironment environment;
-    // True if this sprite was deleted.
+       // True if this sprite was deleted.
     private boolean detached;
 
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
-    public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
-    public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
-    public VisualMaterialProperty<AndroidEnvironment.XAlign> xAlign = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.CENTER);
-    public VisualMaterialProperty<AndroidEnvironment.YAlign> yAlign = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.CENTER);
     public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
     public LazyProperty<Collection> collisions = new LazyProperty<Collection>() {
         @Override
@@ -124,7 +103,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
     public MaterialProperty<Double> dy = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
     public MaterialProperty<Boolean> touch = new MaterialProperty<>(false);
-    public MaterialProperty<AndroidEnvironment.EdgeMode> screenBounds = new MaterialProperty<>(AndroidEnvironment.EdgeMode.NONE);
+    public MaterialProperty<AndroidEnvironment.EdgeMode> edgeMode = new MaterialProperty<>(AndroidEnvironment.EdgeMode.NONE);
 
     public Property<Double> direction = new Property<Double>() {
         @Override
@@ -161,10 +140,8 @@ public class Sprite extends Instance implements Ticking, Runnable {
 
     private String lastFace;
 
-    public Sprite(Environment environment, int id) {
-        super(environment, id);
-        this.environment = (AndroidEnvironment) environment;
-        view = new ImageView(this.environment.rootView.getContext());
+    public Sprite(AndroidEnvironment environment, int id) {
+        super(environment, id, new ImageView(environment.rootView.getContext()));
         view.setAdjustViewBounds(true);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
         // view.setDrawingCacheEnabled(true);
@@ -326,7 +303,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
             double sizeValue = size.get();
 
             if (dxValue != 0 || force) {
-                switch (screenBounds.get()) {
+                switch (edgeMode.get()) {
                     case WRAP:
                         x.set(wrapValue(xValue, sizeValue, dxValue, screen.width.get(), xAlign.get()));
                         break;
@@ -343,7 +320,7 @@ public class Sprite extends Instance implements Ticking, Runnable {
             }
 
             if (dyValue != 0 || force) {
-                switch (screenBounds.get()) {
+                switch (edgeMode.get()) {
                     case WRAP:
                         y.set(wrapValue(yValue, sizeValue, dyValue, screen.height.get(), yAlign.get()));
                         break;
@@ -393,38 +370,20 @@ public class Sprite extends Instance implements Ticking, Runnable {
     @Override
     public Property getProperty(int index) {
         switch (index) {
-            case 0: return size;
-            case 1: return x;
-            case 2: return y;
-            case 3: return angle;
-            case 4: return face;
-            case 5: return collisions;
-            case 6: return dx;
-            case 7: return dy;
-            case 8: return rotation;
-            case 9: return touch;
-            case 10: return direction;
-            case 11: return speed;
-            case 12: return visible;
-            case 13: return xAlign;
-            case 14: return yAlign;
-            case 15: return screenBounds;
+            case 4: return size;
+            case 5: return angle;
+            case 6: return face;
+            case 7: return collisions;
+            case 8: return dx;
+            case 9: return dy;
+            case 10: return rotation;
+            case 11: return touch;
+            case 12: return direction;
+            case 13: return speed;
+            case 14: return visible;
+            case 15: return edgeMode;
             default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    class VisualMaterialProperty<T> extends MaterialProperty<T> {
-
-        public VisualMaterialProperty(T value) {
-            super(value);
-        }
-
-
-        @Override
-        public void set(T newValue) {
-            super.set(newValue);
-            syncView();
+                return super.getProperty(index);
         }
     }
 
