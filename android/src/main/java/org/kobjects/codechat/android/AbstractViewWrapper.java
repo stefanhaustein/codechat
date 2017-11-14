@@ -13,6 +13,9 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
     protected final AndroidEnvironment environment;
     protected boolean syncRequested;
 
+    // True if this sprite was deleted.
+    protected boolean detached;
+
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<AndroidEnvironment.XAlign> xAlign = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.CENTER);
@@ -42,6 +45,14 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
             syncRequested = true;
             view.post(this);
         }
+    }
+
+    public void delete() {
+        if (detached) {
+            return;
+        }
+        detached = true;
+        syncView();
     }
 
     public static abstract class ViewWrapperType<T extends AbstractViewWrapper> extends InstanceType<T> {

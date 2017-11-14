@@ -68,8 +68,6 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     }
 
     static List<WeakReference<Sprite>> allSprites = new ArrayList();
-       // True if this sprite was deleted.
-    private boolean detached;
 
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
@@ -352,11 +350,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     }
 
     public void delete() {
-        if (detached) {
-            return;
-        }
-        detached = true;
-        syncView();
+       super.delete();
         synchronized (allSprites) {
             allSprites.remove(this);
         }

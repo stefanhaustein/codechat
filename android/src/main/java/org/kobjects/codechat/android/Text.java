@@ -56,6 +56,12 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
 
     public void run() {
         syncRequested = false;
+        if (detached) {
+            if (view.getParent() != null) {
+                environment.rootView.removeView(view);
+            }
+            return;
+        }
         double size = this.size.get();
         view.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) (size / environment.scale));
         if (!text.get().equals(view.getText())) {
@@ -108,13 +114,6 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
             params.height = params.width;
             view.requestLayout();
         }*/
-    }
-
-    public void delete() {
-        ViewParent parent = view.getParent();
-        if (parent instanceof ViewGroup) {
-            ((ViewGroup) parent).removeView(view);
-        }
     }
 
     @Override
