@@ -72,9 +72,13 @@ public class OnInstance extends Instance implements Property.PropertyListener {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    if (!contextTemplate.environment.paused) {
-                        EvaluationContext evalContext = OnInstance.this.contextTemplate.clone();
-                        OnInstance.this.body.eval(evalContext);
+                    try {
+                        if (!contextTemplate.environment.paused) {
+                            EvaluationContext evalContext = OnInstance.this.contextTemplate.clone();
+                            OnInstance.this.body.eval(evalContext);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }, 0, Math.round(((Number) trigger.eval(contextTemplate)).doubleValue()*1000));
