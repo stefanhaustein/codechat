@@ -408,7 +408,7 @@ public class Parser {
             result = parseNewStub(tokenizer);
             while (tokenizer.tryConsume(";")) {
             }
-            if (!tokenizer.currentValue.isEmpty()) {
+            if (tokenizer.currentValue.isEmpty()) {
                 return result;
             }
         } else if (tokenizer.tryConsume("begin")) {
