@@ -83,16 +83,16 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
      shoot;
     end;
     
-    #### Adding asteroids
+#### Adding asteroids
 
- proc addAsteroid():
-  let a = new Sprite;
-  a.face = "🥔";
-  a.edgeMode = WRAP;
-  a.xAlign = LEFT;
-  a.dx = 5 - (random()) × 10;
-  a.dy = 5 - (random()) × 10;
-  a.yAlign = TOP;
-  a.size = 30;
-  a.rotation = 10 - 20 × (random());
-end;
+    proc addAsteroid():
+      let a = new Sprite;
+      a.face = "🥔";
+      a.edgeMode = WRAP;     
+      a.xAlign = LEFT;
+      a.dx = 5 - (random()) × 10; 
+      a.dy = 5 - (random()) × 10;
+      a.yAlign = TOP;
+      a.size = 30;
+      a.rotation = 10 - 20 × (random());
+    end;
