@@ -43,7 +43,7 @@ public abstract class Expression implements HasDependencies {
     public abstract int getChildCount();
 
     public Expression getChild(int i) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("In: " + this.getClass());
     }
 
     public boolean isAssignable() {

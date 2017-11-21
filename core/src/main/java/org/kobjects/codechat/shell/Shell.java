@@ -65,6 +65,11 @@ public class Shell implements EnvironmentListener {
     }
 
     @Override
+    public void clearAll() {
+        System.out.println("\u000c");
+    }
+
+    @Override
     public void paused(boolean paused) {
         print(paused ? "(paused)" : "(unpaused)");
     }

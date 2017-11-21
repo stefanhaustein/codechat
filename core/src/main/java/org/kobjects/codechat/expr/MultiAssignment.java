@@ -1,5 +1,6 @@
 package org.kobjects.codechat.expr;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -57,7 +58,19 @@ public class MultiAssignment extends Expression {
 
     @Override
     public int getChildCount() {
-        return elements.size();
+        return 1 + elements.size();
+    }
+
+    @Override
+    public Expression getChild(int index) {
+        if (index == 0) {
+            return base;
+        }
+        Iterator<Expression> iterator = elements.values().iterator();
+        for (int i = 1; i < index; i++) {
+            iterator.next();
+        }
+        return iterator.next();
     }
 
     @Override

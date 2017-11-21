@@ -65,6 +65,11 @@ public class ChatView extends ListView {
         chatAdapter.notifyDataSetChanged();
     }
 
+    public void clear() {
+        entries.clear();
+        chatAdapter.notifyDataSetChanged();
+    }
+
     class ChatAdapter extends BaseAdapter {
 
         @Override

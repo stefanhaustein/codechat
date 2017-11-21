@@ -700,6 +700,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
 
     @Override
+    public void clearAll() {
+        chatView.clear();
+    }
+
+    @Override
     public void paused(boolean paused) {
         pauseItem.setIcon(paused ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
         pauseItem.setTitle(paused ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
