@@ -51,10 +51,10 @@ public class MultiAssignment extends Expression {
             sb.append(materializedIndent);
             sb.append(entry.getKey()).append(" = ");
             entry.getValue().toString(sb, indent + 2);
-            sb.append(";\n");
+            sb.append("\n");
         }
         sb.append(Formatting.space(indent));
-        sb.append("end;\n");    }
+        sb.append("end ");    }
 
     @Override
     public int getChildCount() {

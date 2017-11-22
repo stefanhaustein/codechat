@@ -21,8 +21,8 @@ public class ExpressionStatement extends AbstractStatement {
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
         AbstractStatement.indent(sb, indent);
-        expression.toString(sb, indent);
-        sb.append(";\n");
+        expression.toString(sb, indent + 4);
+        sb.append("\n");
     }
 
     @Override

@@ -38,7 +38,7 @@ public class Assignment extends AbstractStatement {
         if (left instanceof RootVariableNode) {
             RootVariable variable = ((RootVariableNode) left).rootVariable;
             if (variable.constant && variable.type instanceof FunctionType && right instanceof FunctionExpression) {
-                ((FunctionExpression) right).toString(sb, indent, variable.name);
+                ((FunctionExpression) right).toString(sb, indent + 4, variable.name);
                 return;
             }
         }
@@ -46,7 +46,7 @@ public class Assignment extends AbstractStatement {
         left.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
         sb.append(" = ");
         right.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
-        sb.append(";\n");
+        sb.append("\n");
 
     }
 
