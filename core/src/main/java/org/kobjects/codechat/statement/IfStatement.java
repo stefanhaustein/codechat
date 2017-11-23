@@ -51,7 +51,7 @@ public class IfStatement extends AbstractStatement {
             elseBody.toString(sb, indent + 1);
             AbstractStatement.indent(sb, indent);
         }
-        sb.append("end;\n");
+        sb.append("end\n");
     }
 
     @Override

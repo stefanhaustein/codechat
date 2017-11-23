@@ -22,7 +22,7 @@ public class ReturnStatement extends AbstractStatement {
         AbstractStatement.indent(sb, indent);
         sb.append("return ");
         expression.toString(sb, indent);
-        sb.append(";\n");
+        sb.append('\n');
     }
 
     @Override

@@ -62,7 +62,7 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
                 }
             }
         }
-        asb.append("end;\n");
+        asb.append("end\n");
     }
 
     public abstract Property getProperty(int index);

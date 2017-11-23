@@ -155,7 +155,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         if (wrap) {
             asb.append("  end;\n");
         }
-        asb.append("end;\n");
+        asb.append("end\n");
     }
 
     @Override

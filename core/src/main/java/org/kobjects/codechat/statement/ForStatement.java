@@ -45,7 +45,7 @@ public class ForStatement extends AbstractStatement {
         body.toString(sb, indent + 1);
 
         indent(sb, indent);
-        sb.append("end;\n");
+        sb.append("end\n");
     }
 
     @Override
