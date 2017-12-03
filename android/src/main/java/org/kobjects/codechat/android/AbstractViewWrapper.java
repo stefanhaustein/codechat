@@ -40,6 +40,32 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
         }
     }
 
+    public abstract double getWidth();
+
+    public abstract double getHeight();
+
+    public double getNormalizedX() {
+        switch (xAlign.get()) {
+            case LEFT:
+                return x.get();
+            case RIGHT:
+                return environment.screen.width.get() - x.get() - getWidth();
+            default:
+                return environment.screen.width.get() / 2 + x.get() - getWidth()/2;
+        }
+    }
+
+    public double getNormalizedY() {
+        switch (yAlign.get()) {
+            case TOP:
+                return y.get();
+            case BOTTOM:
+                return environment.screen.height.get() - y.get() - getHeight();
+            default:
+                return environment.screen.height.get() / 2 - y.get() - getHeight() / 2;
+        }
+    }
+
     public void syncView() {
         if (!syncRequested) {
             syncRequested = true;

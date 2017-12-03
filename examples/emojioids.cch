@@ -1,0 +1,88 @@
+proc addAsteroid():
+  let a = new Sprite
+  a.face = "🥔"
+  a.edgeMode = WRAP
+  a.xAlign = LEFT
+  a.dx = 5 - (random()) × 10
+  a.dy = 5 - (random()) × 10
+  a.yAlign = TOP
+  a.size = 30
+  a.rotation = 10 - 20 × (random())
+end
+proc explodeAsteroid(a: Sprite):
+  if a.size > 20:
+    count i to 2:
+      let b = new Sprite ::
+         x = a.x
+         y = a.y
+         size = a.size / 2
+         edgeMode = a.edgeMode
+         xAlign = a.xAlign
+         yAlign = a.yAlign
+         speed = a.speed × 1.5
+         direction = a.direction + i × 100 - 50
+         face = "🥔"
+         rotation = a.rotation × 1.5
+       end
+    end
+  end
+  a.face = "💥"
+  play "💥"
+  wait 0.2
+  delete a;
+end
+let fireButton = new Sprite ::
+  face = "⏺️";
+  size = 25;
+  xAlign = RIGHT;
+  yAlign = BOTTOM;
+end
+proc handleShot(shot: Sprite, other: Sprite):
+  if other.face = "🥔":
+    delete shot;
+    explodeAsteroid(other)
+  end
+end
+let leftButton = new Sprite ::
+  face = "↪️";
+  size = 25;
+  xAlign = LEFT;
+  yAlign = BOTTOM;
+end
+let rightButton = new Sprite ::
+  face = "↩️";
+  size = 25;
+  x = 25;
+  xAlign = LEFT;
+  yAlign = BOTTOM;
+end
+let ship = new Sprite ::
+  angle = 273.5099999999811;
+  face = "🚀";
+  rotation = 0;
+  size = 25;
+end
+proc shoot():
+  variable shot = new Sprite
+  shot.face = "⭐"
+  shot.speed = 100
+  shot.direction = ship.angle - 45
+  play "🔫"
+  onchange shot.collisions:
+            for other in shot.collisions:
+              handleShot(shot, other)
+            end
+          end
+end
+on#9 fireButton.touch:
+  shoot
+end
+on#4 leftButton.touch:
+  ship.rotation = -90
+end
+on#6 not rightButton.touch and not leftButton.touch:
+  ship.rotation = 0
+end
+on#5 rightButton.touch:
+  ship.rotation = 90
+end

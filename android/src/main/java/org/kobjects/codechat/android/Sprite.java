@@ -76,16 +76,18 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         @Override
         protected Collection compute() {
             Collection result = (Collection) environment.instantiate(new SetType(Sprite.TYPE), -1);
-
-            double x = Sprite.this.x.get();
-            double y = Sprite.this.y.get();
+            if (detached) {
+                return result;
+            }
+            double x = Sprite.this.getNormalizedX();
+            double y = Sprite.this.getNormalizedY();
             double size = Sprite.this.size.get();
             synchronized (allSprites) {
                 for (WeakReference<Sprite> otherRef : allSprites) {
                     Sprite other = otherRef.get();
-                    if (other != null && other != Sprite.this) {
-                        double distX = other.x.get() - x;
-                        double distY = other.y.get() - y;
+                    if (other != null && other != Sprite.this && !other.detached) {
+                        double distX = other.getNormalizedX() - x;
+                        double distY = other.getNormalizedY() - y;
                         double minDist = (other.size.get() + size) / 2;
                         if (distX * distX + distY * distY < minDist * minDist) {
                             result.add(other);
@@ -194,30 +196,8 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         double size = this.size.get();
         double scale = environment.scale;
         double scaledSize = scale * size;
-        float scaledX;
-        switch (xAlign.get()) {
-            case LEFT:
-                scaledX = (float) (scale * x.get());
-                break;
-            case RIGHT:
-                scaledX = ((float) (screenWidth - scale * (x.get() + size)));
-                break;
-            default:
-                scaledX = ((float) (screenWidth/2 + scale * (x.get() - size / 2)));
-                break;
-        }
-        float scaledY;
-        switch (yAlign.get()) {
-            case TOP:
-                scaledY = (float) (scale * (y.get()));
-                break;
-            case BOTTOM:
-                scaledY = screenHeight - (float) (environment.scale * (y.get() + size));
-                break;
-            default:
-                scaledY = (screenHeight / 2 - (float) (environment.scale * (y.get() + size / 2)));
-                break;
-        }
+        float scaledX = (float) (getNormalizedX() * scale);
+        float scaledY = (float) (getNormalizedY() * scale);
 
         if (scaledX >= -scaledSize && scaledY >= -scaledSize && scaledX <= screenWidth && scaledY <= screenHeight) {
             if (view.getParent() == null) {
@@ -379,6 +359,16 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
             default:
                 return super.getProperty(index);
         }
+    }
+
+    @Override
+    public double getWidth() {
+        return size.get();
+    }
+
+    @Override
+    public double getHeight() {
+        return size.get();
     }
 
 

@@ -44,6 +44,9 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
                 .addProperty(5, "text", Type.STRING, true, "The displayed text string.");
         }
 
+
+    private double width;
+    private double height;
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
     public VisualMaterialProperty<String> text = new VisualMaterialProperty<>("");
 
@@ -76,32 +79,11 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
         Rect bounds = new Rect();
         Paint textPaint = view.getPaint();
         textPaint.getTextBounds(text.get(),0,text.get().length(),bounds);
-        double height = bounds.height() / environment.scale;
-        double width = bounds.width() / environment.scale;
+        height = bounds.height() / environment.scale;
+        width = bounds.width() / environment.scale;
 
-        switch (xAlign.get()) {
-            case LEFT:
-                view.setX((float) (environment.scale * (x.get())));
-                break;
-            case CENTER:
-                view.setX((float) (environment.rootView.getMeasuredWidth()/2 + environment.scale * (x.get() - width / 2)));
-                break;
-            case RIGHT:
-                view.setX((float) (environment.rootView.getMeasuredWidth() - environment.scale * (x.get() + width)));
-                break;
-        }
-
-        switch (yAlign.get()) {
-            case TOP:
-                view.setY((float) (environment.scale * (y.get())));
-                break;
-            case CENTER:
-                view.setY(environment.rootView.getMeasuredHeight() / 2 - (float) (environment.scale * (y.get() + height / 2)));
-                break;
-            case BOTTOM:
-                view.setY(environment.rootView.getMeasuredHeight() - (float) (environment.scale * (y.get() + height)));
-                break;
-        }
+        view.setX((float) (environment.scale * getNormalizedX()));
+        view.setY((float) (environment.scale * getNormalizedY()));
 
         if (view.getParent() == null) {
             this.environment.rootView.addView(view);
@@ -129,6 +111,16 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
             default:
                 return super.getProperty(index);
         }
+    }
+
+    @Override
+    public double getWidth() {
+        return width;
+    }
+
+    @Override
+    public double getHeight() {
+        return height;
     }
 
 
