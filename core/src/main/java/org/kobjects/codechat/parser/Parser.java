@@ -675,7 +675,7 @@ public class Parser {
             int end = tokenizer.currentPosition - tokenizer.leadingWhitespace.length();
             int start = end - name.length();
 
-            System.out.println("identifier start: " + start + " end: " + end);
+            // System.out.println("identifier start: " + start + " end: " + end);
 
             if (EMOJI_PATTERN.matcher(name).matches()) {
                 return new UnresolvedLiteral(start, end, name);

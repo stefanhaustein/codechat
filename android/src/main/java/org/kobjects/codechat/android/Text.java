@@ -3,10 +3,14 @@ package org.kobjects.codechat.android;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import android.widget.TextView;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EnumLiteral;
@@ -45,6 +49,8 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
         }
 
 
+    static List<WeakReference<Text>> allTexts = new ArrayList();
+
     private double width;
     private double height;
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
@@ -54,10 +60,13 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
     public Text(AndroidEnvironment environment, int id) {
         super(environment, id, new TextView(environment.rootView.getContext()));
         this.text.set("Text#" + id);
+        System.out.println("***************** Text.ctor()");
+        allTexts.add(new WeakReference<Text>(this));
         syncView();
     }
 
     public void run() {
+        System.out.println("***************** Text.run()");
         syncRequested = false;
         if (detached) {
             if (view.getParent() != null) {
@@ -66,7 +75,10 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
             return;
         }
         double size = this.size.get();
-        view.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) (size / environment.scale));
+    //    view.setBackgroundColor(0x88ff8888);
+        view.setTextColor(0x0ff000000);
+
+        view.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) (size * environment.scale));
         if (!text.get().equals(view.getText())) {
             view.setText(text.get());
         }
@@ -76,26 +88,27 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
         double height = view.getMeasuredHeight() / environment.scale;
         */
 
-        Rect bounds = new Rect();
-        Paint textPaint = view.getPaint();
-        textPaint.getTextBounds(text.get(),0,text.get().length(),bounds);
-        height = bounds.height() / environment.scale;
-        width = bounds.width() / environment.scale;
 
-        view.setX((float) (environment.scale * getNormalizedX()));
-        view.setY((float) (environment.scale * getNormalizedY()));
+        int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        view.measure(widthMeasureSpec, heightMeasureSpec);
+
+        height = view.getMeasuredHeight() / environment.scale;
+        width =  view.getMeasuredWidth() / environment.scale;
+
+        float screenX = (float) (environment.scale * getNormalizedX());
+        float screenY = (float) (environment.scale * getNormalizedY());
+
+        view.setX(screenX);
+        view.setY(screenY);
+
+       // System.out.println("********************************* View: " + view + " text: "+ view.getText());
 
         if (view.getParent() == null) {
             this.environment.rootView.addView(view);
         }
-
-        /*
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-        params.width = Math.round((float) (environment.scale * size));
-        if (params.height != params.width) {
-            params.height = params.width;
-            view.requestLayout();
-        }*/
+        view.getLayoutParams().height = view.getMeasuredHeight();
+        view.getLayoutParams().width = view.getMeasuredWidth();
     }
 
     @Override
@@ -110,6 +123,13 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
             case 5: return text;
             default:
                 return super.getProperty(index);
+        }
+    }
+
+    public void delete() {
+        super.delete();
+        synchronized (allTexts) {
+            allTexts.remove(new WeakReference<>(this));
         }
     }
 

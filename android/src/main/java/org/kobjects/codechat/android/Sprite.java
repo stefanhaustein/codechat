@@ -176,12 +176,6 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     }
 
 
-    public void syncView() {
-        if (!syncRequested) {
-            syncRequested = true;
-            ((Activity) environment.rootView.getContext()).runOnUiThread(this);
-        }
-    }
 
     public void run() {
         syncRequested = false;
@@ -332,7 +326,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     public void delete() {
        super.delete();
         synchronized (allSprites) {
-            allSprites.remove(this);
+            allSprites.remove(new WeakReference<>(this));
         }
     }
 

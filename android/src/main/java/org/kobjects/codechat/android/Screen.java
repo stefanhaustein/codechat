@@ -107,6 +107,16 @@ public class Screen extends Instance {
 
             oldNativeHeight = nativeHeight;
             oldNativeWidth = nativeWidth;
+
+            synchronized (Text.allTexts) {
+                for (WeakReference<Text> textRef : Text.allTexts) {
+                    Text t = textRef.get();
+                    if (t != null) {
+                        t.syncView();
+                    }
+                }
+            }
+
         }
     }
 

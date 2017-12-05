@@ -1,5 +1,6 @@
 package org.kobjects.codechat.android;
 
+import android.app.Activity;
 import android.view.View;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.MaterialProperty;
@@ -69,7 +70,7 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
     public void syncView() {
         if (!syncRequested) {
             syncRequested = true;
-            view.post(this);
+            ((Activity) environment.rootView.getContext()).runOnUiThread(this);
         }
     }
 
