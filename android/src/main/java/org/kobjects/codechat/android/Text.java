@@ -48,9 +48,6 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
                 .addProperty(5, "text", Type.STRING, true, "The displayed text string.");
         }
 
-
-    static List<WeakReference<Text>> allTexts = new ArrayList();
-
     private double width;
     private double height;
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
@@ -61,7 +58,6 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
         super(environment, id, new TextView(environment.rootView.getContext()));
         this.text.set("Text#" + id);
         System.out.println("***************** Text.ctor()");
-        allTexts.add(new WeakReference<Text>(this));
         syncView();
     }
 
@@ -123,13 +119,6 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
             case 5: return text;
             default:
                 return super.getProperty(index);
-        }
-    }
-
-    public void delete() {
-        super.delete();
-        synchronized (allTexts) {
-            allTexts.remove(new WeakReference<>(this));
         }
     }
 

@@ -27,6 +27,7 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
         super(environment, id);
         this.environment = environment;
         this.view = view;
+        view.setTag(this);
     }
 
     @Override

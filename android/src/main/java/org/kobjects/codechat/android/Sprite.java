@@ -145,7 +145,6 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         view.setAdjustViewBounds(true);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
         // view.setDrawingCacheEnabled(true);
-        view.setTag(this);
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {

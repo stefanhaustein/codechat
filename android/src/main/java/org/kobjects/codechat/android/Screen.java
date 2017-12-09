@@ -1,5 +1,7 @@
 package org.kobjects.codechat.android;
 
+import android.view.View;
+import android.view.ViewGroup;
 import java.lang.ref.WeakReference;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -60,8 +62,11 @@ public class Screen extends Instance {
     int oldNativeHeight;
     int oldNativeWidth;
 
-    protected Screen(Environment environment) {
+    ViewGroup view;
+
+    protected Screen(AndroidEnvironment environment) {
         super(environment, NO_ID);
+        this.view = environment.rootView;
     }
 
     @Override
@@ -108,15 +113,12 @@ public class Screen extends Instance {
             oldNativeHeight = nativeHeight;
             oldNativeWidth = nativeWidth;
 
-            synchronized (Text.allTexts) {
-                for (WeakReference<Text> textRef : Text.allTexts) {
-                    Text t = textRef.get();
-                    if (t != null) {
-                        t.syncView();
-                    }
-                }
+            for (int i = 0; i < view.getChildCount(); i++) {
+               Object tag = view.getChildAt(i).getTag();
+               if (tag instanceof AbstractViewWrapper) {
+                   ((AbstractViewWrapper) tag).syncView();
+               }
             }
-
         }
     }
 

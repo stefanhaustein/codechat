@@ -53,7 +53,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
     private static final String[] SOUND_EXTENSIONS = {".mp3", ".wav"};
     public FrameLayout rootView;
     public LinkedHashSet<Ticking> ticking = new LinkedHashSet<>();
-    public Screen screen = new Screen(this);
+    public Screen screen;
     public double scale;
     Handler handler = new Handler();
     final Context context;
@@ -63,6 +63,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
         super(environmentListener, codeDir);
         this.rootView = rootView;
         this.context = rootView.getContext();
+        this.screen = new Screen(this);
         handler.postDelayed(this, 100);
         final SampleManager soundManager = new SampleManager(context);
 
