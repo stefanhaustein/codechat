@@ -1,14 +1,11 @@
 package org.kobjects.codechat.android;
 
-import android.app.Activity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
@@ -47,7 +44,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         TYPE.addProperty(5, "angle", Type.NUMBER, true,
                 "The clockwise rotation angle of this sprite in degree.");
         TYPE.addProperty(6, "face", Type.STRING, true, "The emoji displayed for this sprite.");
-        TYPE.addProperty(7, "collisions", new SetType(Sprite.TYPE), true,
+        TYPE.addProperty(7, "collisions", new SetType(Sprite.TYPE), false,
                 "The set of other sprites this sprite is currently colliding with");
         TYPE.addProperty(8, "dx", Type.NUMBER, true,
                 "The current horizontal speed of this sprite in units per second.");
@@ -67,8 +64,6 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
                 "Determines behavior when the sprite hits the edge of the screen.");
     }
 
-    static List<WeakReference<Sprite>> allSprites = new ArrayList();
-
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
     public VisualMaterialProperty<Double> angle = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<String> face = new VisualMaterialProperty<>(new String(Character.toChars(0x1f603)));
@@ -79,19 +74,18 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
             if (detached) {
                 return result;
             }
-            double x = Sprite.this.getNormalizedX();
-            double y = Sprite.this.getNormalizedY();
             double size = Sprite.this.size.get();
-            synchronized (allSprites) {
-                for (WeakReference<Sprite> otherRef : allSprites) {
-                    Sprite other = otherRef.get();
-                    if (other != null && other != Sprite.this && !other.detached) {
-                        double distX = other.getNormalizedX() - x;
-                        double distY = other.getNormalizedY() - y;
-                        double minDist = (other.size.get() + size) / 2;
-                        if (distX * distX + distY * distY < minDist * minDist) {
-                            result.add(other);
-                        }
+            double x = Sprite.this.getNormalizedX() + size / 2;
+            double y = Sprite.this.getNormalizedY() + size / 2;
+            for (Object o: environment.screen.sprites.get()) {
+                Sprite other = (Sprite) o;
+                if (other != null && other != Sprite.this && !other.detached) {
+                    double otherSize = other.size.get();
+                    double distX = other.getNormalizedX() + otherSize / 2 - x;
+                    double distY = other.getNormalizedY() + otherSize / 2 - y;
+                    double minDist = (other.size.get() + size) / 2;
+                    if (distX * distX + distY * distY < minDist * minDist) {
+                        result.add(other);
                     }
                 }
             }
@@ -159,9 +153,8 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
                 return false;
             }
         });
-        synchronized (allSprites) {
-            allSprites.add(new WeakReference(this));
-        }
+
+        environment.screen.addSprite(this);
         syncView();
     }
 
@@ -322,12 +315,6 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         }
     }
 
-    public void delete() {
-       super.delete();
-        synchronized (allSprites) {
-            allSprites.remove(new WeakReference<>(this));
-        }
-    }
 
     @Override
     public InstanceType getType() {
@@ -364,8 +351,4 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         return size.get();
     }
 
-
-    public static void clearAll() {
-        allSprites.clear();
-    }
 }

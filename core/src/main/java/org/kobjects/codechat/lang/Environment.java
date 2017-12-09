@@ -141,10 +141,10 @@ public class Environment {
                     }
                 }, "Resumes after pause was called. Has no effect otherwise.");
 
-        addSystemConstant("list", new NativeFunction(null) {
+        addSystemConstant("dump", new NativeFunction(null) {
                     @Override
                     protected Object eval(Object[] params) {
-                        list();
+                        dump();
                         return null;
                     }
                 }, "Lists the current program and state.");
@@ -194,7 +194,7 @@ public class Environment {
     }
 
 
-    private void list() {
+    private void dump() {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
         dump(asb);
         String list = asb.toString();

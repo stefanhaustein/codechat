@@ -1,16 +1,19 @@
 package org.kobjects.codechat.android;
 
-import android.view.View;
 import android.view.ViewGroup;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.DependencyCollector;
-import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.LazyProperty;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.SetType;
 
 public class Screen extends Instance {
 
@@ -27,6 +30,7 @@ public class Screen extends Instance {
             return asb.build();
         }
     };
+
     static {
         TYPE.addProperty(0, "width", TYPE.NUMBER, false,
                 "The width of the usable area of the screen in normalized pixels. "+
@@ -44,8 +48,9 @@ public class Screen extends Instance {
                 "This value is always negative.");
         TYPE.addProperty(5, "right", TYPE.NUMBER, false,
                 "The right boundary of the usable screen are, counted from the center. At least 50.");
-        TYPE.addProperty(6, "frame", TYPE.NUMBER, false,
-                "A counter that is incremented every time the screen content is updated.");
+        TYPE.addProperty(6, "sprites", new SetType(Sprite.TYPE), false,
+                "The set of all sprites.");
+
     }
 
     MaterialProperty<Double> width = new MaterialProperty<>(100.0);
@@ -57,7 +62,27 @@ public class Screen extends Instance {
     MaterialProperty<Double> left = new MaterialProperty<>(50.0);
     MaterialProperty<Double> right = new MaterialProperty<>(50.0);
 
-    public MaterialProperty<Double> frame = new MaterialProperty<>(0.0);
+    LazyProperty<Collection> sprites = new LazyProperty<Collection>() {
+        @Override
+        protected Collection compute() {
+            Collection result = environment.instantiate(new SetType(Sprite.TYPE), -1);
+            synchronized (allSprites) {
+                for (int i = allSprites.size() - 1; i >= 0; i--) {
+                    WeakReference<Sprite> ref = allSprites.get(i);
+                    Sprite sprite = ref.get();
+                    if (sprite == null) {
+                        allSprites.remove(i);
+                    } else if (!sprite.detached) {
+                       result.add(sprite);
+                    }
+                }
+            }
+            return result;
+        }
+    };
+
+    AndroidEnvironment environment;
+    private List<WeakReference<Sprite>> allSprites = new ArrayList();
 
     int oldNativeHeight;
     int oldNativeWidth;
@@ -66,7 +91,17 @@ public class Screen extends Instance {
 
     protected Screen(AndroidEnvironment environment) {
         super(environment, NO_ID);
+        this.environment = environment;
         this.view = environment.rootView;
+    }
+
+
+    void clearAll() {
+        for (InstanceType.PropertyDescriptor propertyDescriptor : getType().properties()) {
+            getProperty(propertyDescriptor.index).removeAllListeners();
+        }
+        allSprites.clear();
+        sprites.invalidate();
     }
 
     @Override
@@ -83,7 +118,7 @@ public class Screen extends Instance {
             case 3: return bottom;
             case 4: return left;
             case 5: return right;
-            case 6: return frame;
+            case 6: return sprites;
             default:
                 throw new IllegalArgumentException();
         }
@@ -129,7 +164,7 @@ public class Screen extends Instance {
     @Override
     public void getDependencies(DependencyCollector result) {
         super.getDependencies(result);
-        for (WeakReference<Sprite> spriteRef : Sprite.allSprites) {
+        for (WeakReference<Sprite> spriteRef : allSprites) {
             Sprite sprite = spriteRef.get();
             if (sprite != null && sprite.view.getParent() != null) {
                 result.add(sprite);
@@ -139,6 +174,12 @@ public class Screen extends Instance {
 
     @Override
     public void delete() {
+    }
 
+    public void addSprite(Sprite sprite) {
+        synchronized (allSprites) {
+            allSprites.add(new WeakReference<>(sprite));
+        }
+        sprites.invalidate();
     }
 }

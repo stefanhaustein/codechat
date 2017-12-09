@@ -98,23 +98,13 @@ public class AndroidEnvironment extends Environment implements Runnable {
         boolean force = newScale != scale;
         scale = newScale;
         if (!paused || force) {
-            List<Sprite> copy = new ArrayList<>();
-            synchronized (Sprite.allSprites) {
-                for (WeakReference<Sprite> ref : Sprite.allSprites) {
-                    Sprite sprite = ref.get();
-                    if (sprite != null) {
-                        copy.add(sprite);
-                    }
-                }
-            }
-            for (Sprite sprite : copy) {
+           for (Object sprite : screen.sprites.get()) {
                 try {
-                    sprite.tick(0.017, force);
+                    ((Sprite) sprite).tick(0.017, force);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            screen.frame.set(screen.frame.get() + 1);
         }
         // TODO: Use Choreographer instead?
         handler.postDelayed(this, 17);
@@ -122,10 +112,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
     @Override
     public void clearAll() {
-        for (InstanceType.PropertyDescriptor propertyDescriptor : screen.getType().properties()) {
-            screen.getProperty(propertyDescriptor.index).removeAllListeners();
-        }
-        Sprite.clearAll();
+        screen.clearAll();
         super.clearAll();
         if (rootView != null) {
             for (int i = rootView.getChildCount() - 1; i >= 0; i--) {

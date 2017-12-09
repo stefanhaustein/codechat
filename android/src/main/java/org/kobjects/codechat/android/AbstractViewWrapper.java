@@ -71,7 +71,7 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
     public void syncView() {
         if (!syncRequested) {
             syncRequested = true;
-            ((Activity) environment.rootView.getContext()).runOnUiThread(this);
+            ((Activity) environment.context).runOnUiThread(this);
         }
     }
 

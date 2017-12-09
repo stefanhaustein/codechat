@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import static org.kobjects.codechat.lang.Formatting.toLiteral;
 
 
+
 public class Collection extends Instance implements Iterable, HasDependencies {
 
     final CollectionType type;
