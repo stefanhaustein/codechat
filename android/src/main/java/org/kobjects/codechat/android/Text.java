@@ -43,9 +43,9 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
     };
 
     static {
-        TYPE    .addProperty(4, "size", Type.NUMBER, true,
+        TYPE    .addProperty(5, "size", Type.NUMBER, true,
                     "The font size in normalized pixels.")
-                .addProperty(5, "text", Type.STRING, true, "The displayed text string.");
+                .addProperty(6, "text", Type.STRING, true, "The displayed text string.");
         }
 
     private double width;
@@ -57,12 +57,10 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
     public Text(AndroidEnvironment environment, int id) {
         super(environment, id, new TextView(environment.rootView.getContext()));
         this.text.set("Text#" + id);
-        System.out.println("***************** Text.ctor()");
         syncView();
     }
 
     public void run() {
-        System.out.println("***************** Text.run()");
         syncRequested = false;
         if (detached) {
             if (view.getParent() != null) {
@@ -73,6 +71,7 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
         double size = this.size.get();
     //    view.setBackgroundColor(0x88ff8888);
         view.setTextColor(0x0ff000000);
+        view.setZ(z.get().floatValue());
 
         view.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) (size * environment.scale));
         if (!text.get().equals(view.getText())) {
@@ -115,8 +114,8 @@ public class Text extends AbstractViewWrapper<TextView> implements Runnable {
     @Override
     public Property getProperty(int index) {
         switch (index) {
-            case 4: return size;
-            case 5: return text;
+            case 5: return size;
+            case 6: return text;
             default:
                 return super.getProperty(index);
         }

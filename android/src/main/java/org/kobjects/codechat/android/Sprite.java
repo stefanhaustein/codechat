@@ -39,28 +39,28 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         }
     };
     static {
-        TYPE.addProperty(4, "size", Type.NUMBER, true,
+        TYPE.addProperty(5, "size", Type.NUMBER, true,
                 "The size of this sprite.");
-        TYPE.addProperty(5, "angle", Type.NUMBER, true,
+        TYPE.addProperty(6, "angle", Type.NUMBER, true,
                 "The clockwise rotation angle of this sprite in degree.");
-        TYPE.addProperty(6, "face", Type.STRING, true, "The emoji displayed for this sprite.");
-        TYPE.addProperty(7, "collisions", new SetType(Sprite.TYPE), false,
+        TYPE.addProperty(7, "face", Type.STRING, true, "The emoji displayed for this sprite.");
+        TYPE.addProperty(8, "collisions", new SetType(Sprite.TYPE), false,
                 "The set of other sprites this sprite is currently colliding with");
-        TYPE.addProperty(8, "dx", Type.NUMBER, true,
+        TYPE.addProperty(9, "dx", Type.NUMBER, true,
                 "The current horizontal speed of this sprite in units per second.");
-        TYPE.addProperty(9, "dy", Type.NUMBER, true,
+        TYPE.addProperty(10, "dy", Type.NUMBER, true,
                 "The current vertical speed of this sprite in units per second.");
-        TYPE.addProperty(10, "rotation", Type.NUMBER, true,
+        TYPE.addProperty(11, "rotation", Type.NUMBER, true,
                 "The current clockwise rotation speed in degree per second.");
-        TYPE.addProperty(11, "touch", Type.BOOLEAN, false,
+        TYPE.addProperty(12, "touch", Type.BOOLEAN, false,
                 "True if this sprite is currently touched.");
-        TYPE.addProperty(12, "direction", Type.NUMBER, true,
+        TYPE.addProperty(13, "direction", Type.NUMBER, true,
                 "The movement direction of this sprite in degree; 0 if the sprite is not moving.");
-        TYPE.addProperty(13, "speed", Type.NUMBER, true,
+        TYPE.addProperty(14, "speed", Type.NUMBER, true,
                 "The current speed in units per second.");
-        TYPE.addProperty(14, "visible", Type.BOOLEAN, false,
+        TYPE.addProperty(15, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently withing the usable screen boundaries.");
-        TYPE.addProperty(15, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
+        TYPE.addProperty(16, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
                 "Determines behavior when the sprite hits the edge of the screen.");
     }
 
@@ -184,6 +184,8 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         double scaledSize = scale * size;
         float scaledX = (float) (getNormalizedX() * scale);
         float scaledY = (float) (getNormalizedY() * scale);
+
+        view.setZ(z.get().floatValue());
 
         if (scaledX >= -scaledSize && scaledY >= -scaledSize && scaledX <= screenWidth && scaledY <= screenHeight) {
             if (view.getParent() == null) {
@@ -324,18 +326,18 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     @Override
     public Property getProperty(int index) {
         switch (index) {
-            case 4: return size;
-            case 5: return angle;
-            case 6: return face;
-            case 7: return collisions;
-            case 8: return dx;
-            case 9: return dy;
-            case 10: return rotation;
-            case 11: return touch;
-            case 12: return direction;
-            case 13: return speed;
-            case 14: return visible;
-            case 15: return edgeMode;
+            case 5: return size;
+            case 6: return angle;
+            case 7: return face;
+            case 8: return collisions;
+            case 9: return dx;
+            case 10: return dy;
+            case 11: return rotation;
+            case 12: return touch;
+            case 13: return direction;
+            case 14: return speed;
+            case 15: return visible;
+            case 16: return edgeMode;
             default:
                 return super.getProperty(index);
         }
