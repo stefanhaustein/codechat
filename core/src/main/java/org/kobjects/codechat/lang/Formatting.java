@@ -76,4 +76,8 @@ public final class Formatting {
         Arrays.fill(chars, ' ');
         return new String(chars);
     }
+
+    public static String toString(Object o) {
+        return o instanceof Number ? numberToString(((Number) o).doubleValue()) : String.valueOf(o);
+    }
 }
