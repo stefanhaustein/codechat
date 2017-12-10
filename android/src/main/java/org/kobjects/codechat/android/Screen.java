@@ -67,12 +67,13 @@ public class Screen extends Instance {
         protected Collection compute() {
             Collection result = environment.instantiate(new SetType(Sprite.TYPE), -1);
             synchronized (allSprites) {
+                System.out.println("************************ allsprites size: " + allSprites.size());
                 for (int i = allSprites.size() - 1; i >= 0; i--) {
                     WeakReference<Sprite> ref = allSprites.get(i);
                     Sprite sprite = ref.get();
                     if (sprite == null) {
                         allSprites.remove(i);
-                    } else if (!sprite.detached) {
+                    } else if (sprite.view.getParent() != null) {
                        result.add(sprite);
                     }
                 }

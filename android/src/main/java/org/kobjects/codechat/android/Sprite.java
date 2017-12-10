@@ -174,6 +174,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         if (detached) {
             if (view.getParent() != null) {
                 environment.rootView.removeView(view);
+                environment.screen.sprites.invalidate();
             }
             return;
         }
@@ -182,14 +183,19 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         double size = this.size.get();
         double scale = environment.scale;
         double scaledSize = scale * size;
+
+        double normalizedX = getNormalizedX();
+        double normalizedY = getNormalizedY();
+
         float scaledX = (float) (getNormalizedX() * scale);
         float scaledY = (float) (getNormalizedY() * scale);
 
         view.setZ(z.get().floatValue());
 
-        if (scaledX >= -scaledSize && scaledY >= -scaledSize && scaledX <= screenWidth && scaledY <= screenHeight) {
+        if (normalizedX > -100 && normalizedY >= -100 && normalizedX < 300 && normalizedY < 300) {
             if (view.getParent() == null) {
                 environment.rootView.addView(view);
+                environment.screen.sprites.invalidate();
             }
             view.setX(scaledX);
             view.setY(scaledY);
@@ -205,7 +211,9 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
                 view.setImageDrawable(new EmojiDrawable(lastFace));
             }
         } else if (view.getParent() != null) {
+            System.out.println("###################################### View removed ##############################################:" + this);
             environment.rootView.removeView(view);
+            environment.screen.sprites.invalidate();
         }
     }
 
