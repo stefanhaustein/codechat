@@ -20,9 +20,9 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> z = new VisualMaterialProperty<>(0.0);
+    public VisualMaterialProperty<Double> opacity = new VisualMaterialProperty<>(1.0);
     public VisualMaterialProperty<AndroidEnvironment.XAlign> xAlign = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.CENTER);
     public VisualMaterialProperty<AndroidEnvironment.YAlign> yAlign = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.CENTER);
-
 
     protected AbstractViewWrapper(AndroidEnvironment environment, int id, T view) {
         super(environment, id);
@@ -37,8 +37,9 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
             case 0: return x;
             case 1: return y;
             case 2: return z;
-            case 3: return xAlign;
-            case 4: return yAlign;
+            case 3: return opacity;
+            case 4: return xAlign;
+            case 5: return yAlign;
             default:
                 throw new IllegalArgumentException();
         }
@@ -96,10 +97,12 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
                             "center or bottom of the screen, depending on the value of the yAlign property. ");
             addProperty(2, "z", Type.NUMBER, true,
                     "The z position of the object; objects with a higher value will be displayed on top.");
-            addProperty(3, "xAlign", AndroidEnvironment.XAlign.TYPE, true,
+            addProperty(3, "opacity", Type.NUMBER, true,
+                    "The z position of the object; objects with a higher value will be displayed on top.");
+            addProperty(4, "xAlign", AndroidEnvironment.XAlign.TYPE, true,
                     "Determines whether the x property is relative to the left side, " +
                             "center or right side of the screen.");
-            addProperty(4, "yAlign", AndroidEnvironment.YAlign.TYPE, true,
+            addProperty(5, "yAlign", AndroidEnvironment.YAlign.TYPE, true,
                     "Determines whether the y property is relative to the top, " +
                             "center or bottom of the screen.");
         }

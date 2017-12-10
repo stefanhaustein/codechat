@@ -39,28 +39,28 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         }
     };
     static {
-        TYPE.addProperty(5, "size", Type.NUMBER, true,
+        TYPE.addProperty(6, "size", Type.NUMBER, true,
                 "The size of this sprite.");
-        TYPE.addProperty(6, "angle", Type.NUMBER, true,
+        TYPE.addProperty(7, "angle", Type.NUMBER, true,
                 "The clockwise rotation angle of this sprite in degree.");
-        TYPE.addProperty(7, "face", Type.STRING, true, "The emoji displayed for this sprite.");
-        TYPE.addProperty(8, "collisions", new SetType(Sprite.TYPE), false,
+        TYPE.addProperty(8, "face", Type.STRING, true, "The emoji displayed for this sprite.");
+        TYPE.addProperty(9, "collisions", new SetType(Sprite.TYPE), false,
                 "The set of other sprites this sprite is currently colliding with");
-        TYPE.addProperty(9, "dx", Type.NUMBER, true,
+        TYPE.addProperty(10, "dx", Type.NUMBER, true,
                 "The current horizontal speed of this sprite in units per second.");
-        TYPE.addProperty(10, "dy", Type.NUMBER, true,
+        TYPE.addProperty(11, "dy", Type.NUMBER, true,
                 "The current vertical speed of this sprite in units per second.");
-        TYPE.addProperty(11, "rotation", Type.NUMBER, true,
+        TYPE.addProperty(12, "rotation", Type.NUMBER, true,
                 "The current clockwise rotation speed in degree per second.");
-        TYPE.addProperty(12, "touch", Type.BOOLEAN, false,
+        TYPE.addProperty(13, "touch", Type.BOOLEAN, false,
                 "True if this sprite is currently touched.");
-        TYPE.addProperty(13, "direction", Type.NUMBER, true,
+        TYPE.addProperty(14, "direction", Type.NUMBER, true,
                 "The movement direction of this sprite in degree; 0 if the sprite is not moving.");
-        TYPE.addProperty(14, "speed", Type.NUMBER, true,
+        TYPE.addProperty(15, "speed", Type.NUMBER, true,
                 "The current speed in units per second.");
-        TYPE.addProperty(15, "visible", Type.BOOLEAN, false,
+        TYPE.addProperty(16, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently withing the usable screen boundaries.");
-        TYPE.addProperty(16, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
+        TYPE.addProperty(17, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
                 "Determines behavior when the sprite hits the edge of the screen.");
     }
 
@@ -102,7 +102,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     public Property<Double> direction = new Property<Double>() {
         @Override
         public Double get() {
-            return Math.atan2(dy.get(), dx.get()) * 180 / Math.PI;
+            return - Math.atan2(dy.get(), dx.get()) * 180 / Math.PI;
         }
 
         @Override
@@ -159,12 +159,12 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     }
 
     private static double toRad(double deg) {
-        return -deg * Math.PI / 180;
+        return deg * Math.PI / 180;
     }
 
-    public void move(double speed, double angle) {
-        this.dx.set(speed * Math.cos(toRad(angle)));
-        this.dy.set(speed * Math.sin(toRad(angle)));
+    private void move(double speed, double angle) {
+        this.dx.set(speed * Math.cos(-toRad(angle)));
+        this.dy.set(speed * Math.sin(-toRad(angle)));
     }
 
 
@@ -178,11 +178,8 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
             }
             return;
         }
-        int screenWidth = environment.rootView.getMeasuredWidth();
-        int screenHeight = environment.rootView.getMeasuredHeight();
         double size = this.size.get();
         double scale = environment.scale;
-        double scaledSize = scale * size;
 
         double normalizedX = getNormalizedX();
         double normalizedY = getNormalizedY();
@@ -191,6 +188,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         float scaledY = (float) (getNormalizedY() * scale);
 
         view.setZ(z.get().floatValue());
+        view.setAlpha(opacity.get().floatValue());
 
         if (normalizedX + size > -50 && normalizedY + size >= -50 && normalizedX < 250 && normalizedY < 250) {
             if (view.getParent() == null) {
@@ -333,18 +331,18 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     @Override
     public Property getProperty(int index) {
         switch (index) {
-            case 5: return size;
-            case 6: return angle;
-            case 7: return face;
-            case 8: return collisions;
-            case 9: return dx;
-            case 10: return dy;
-            case 11: return rotation;
-            case 12: return touch;
-            case 13: return direction;
-            case 14: return speed;
-            case 15: return visible;
-            case 16: return edgeMode;
+            case 6: return size;
+            case 7: return angle;
+            case 8: return face;
+            case 9: return collisions;
+            case 10: return dx;
+            case 11: return dy;
+            case 12: return rotation;
+            case 13: return touch;
+            case 14: return direction;
+            case 15: return speed;
+            case 16: return visible;
+            case 17: return edgeMode;
             default:
                 return super.getProperty(index);
         }
