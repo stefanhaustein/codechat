@@ -45,24 +45,28 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
             asb.append(getType() + "#" + id, new EntityLink(this));
         }
 
-        asb.append(" :: \n");
-        for (InstanceType.PropertyDescriptor propertyDescriptor: getType().properties()) {
-            Property property = getProperty(propertyDescriptor.index);
-            if (property instanceof MaterialProperty) {
-                MaterialProperty materialProperty = (MaterialProperty) property;
-                if (materialProperty.modified()) {
-                    Object value = property.get();
-                    if (value != null) {
-                        asb.append("  ");
-                        asb.append(propertyDescriptor.name);
-                        asb.append(" = ");
-                        asb.append(Formatting.toLiteral(value));
-                        asb.append(";\n");
+        if (serializationContext.getMode() == SerializationContext.Mode.LIST) {
+            asb.append("\n");
+        } else {
+            asb.append(" :: \n");
+            for (InstanceType.PropertyDescriptor propertyDescriptor : getType().properties()) {
+                Property property = getProperty(propertyDescriptor.index);
+                if (property instanceof MaterialProperty) {
+                    MaterialProperty materialProperty = (MaterialProperty) property;
+                    if (materialProperty.modified()) {
+                        Object value = property.get();
+                        if (value != null) {
+                            asb.append("  ");
+                            asb.append(propertyDescriptor.name);
+                            asb.append(" = ");
+                            asb.append(Formatting.toLiteral(value));
+                            asb.append(";\n");
+                        }
                     }
                 }
             }
+            asb.append("end\n");
         }
-        asb.append("end\n");
     }
 
     public abstract Property getProperty(int index);

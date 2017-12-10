@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 public class SerializationContext {
-    public enum Mode {SAVE, EDIT}
+    public enum Mode {SAVE, EDIT, LIST}
 
     private final HashSet<Entity> serialized = new HashSet<>();
     private final LinkedHashSet<Entity> queue = new LinkedHashSet<>();

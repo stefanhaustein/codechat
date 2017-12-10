@@ -44,17 +44,23 @@ public class RootVariable implements Entity, HasDependencies, Documented {
             Entity entity = (Entity) value;
             entity.serialize(asb, serializationContext);
         } else {
-            if (serializationContext.getMode() == SerializationContext.Mode.SAVE) {
+            if (serializationContext.getMode() != SerializationContext.Mode.EDIT) {
                 asb.append(constant ? "let " : "variable ");
             }
             asb.append(name, new EntityLink(this));
-            asb.append(" = ");
-            if (value instanceof Entity && !serializationContext.isSerialized((Entity) value)) {
-               Entity entity = (Entity) value;
-               entity.serialize(asb, serializationContext);
+            if (value instanceof Entity && serializationContext.getMode() == SerializationContext.Mode.LIST) {
+                asb.append(": ");
+                asb.append(Formatting.toLiteral(type));
+                asb.append('\n');serializationContext.setSerialized((Entity) value);
             } else {
-               Formatting.toLiteral(asb, value);
-               asb.append(";\n");
+                asb.append(" = ");
+                if (value instanceof Entity && !serializationContext.isSerialized((Entity) value)) {
+                    Entity entity = (Entity) value;
+                    entity.serialize(asb, serializationContext);
+                } else {
+                    Formatting.toLiteral(asb, value);
+                    asb.append('\n');
+                }
             }
         }
     }

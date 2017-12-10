@@ -23,6 +23,7 @@ import org.kobjects.codechat.annotation.ExecLink;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
@@ -144,10 +145,18 @@ public class Environment {
         addSystemConstant("dump", new NativeFunction(null) {
                     @Override
                     protected Object eval(Object[] params) {
-                        dump();
+                        dump(SerializationContext.Mode.SAVE);
                         return null;
                     }
-                }, "Lists the current program and state.");
+                }, "Prints the current program and state.");
+
+        addSystemConstant("list", new NativeFunction(null) {
+            @Override
+            protected Object eval(Object[] params) {
+                dump(SerializationContext.Mode.LIST);
+                return null;
+            }
+        }, "Lists constants, variables, functions, procedures and state.");
 
         addSystemConstant("load", new NativeFunction(null, Type.STRING) {
                     @Override
@@ -194,9 +203,9 @@ public class Environment {
     }
 
 
-    private void dump() {
+    private void dump(SerializationContext.Mode mode) {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        dump(asb);
+        dump(asb, mode);
         String list = asb.toString();
         while (list.endsWith("\n")) {
             list = list.substring(0, list.length() - 1);
@@ -254,16 +263,27 @@ public class Environment {
     }
 
 
-    public void dump(AnnotatedStringBuilder asb) {
+    public void dump(AnnotatedStringBuilder asb, SerializationContext.Mode mode) {
         System.gc();
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {}
 
-        SerializationContext serializationContext = new SerializationContext(this, SerializationContext.Mode.SAVE);
+        SerializationContext serializationContext = new SerializationContext(this, mode);
 
-        for (RootVariable variable : rootVariables.values()) {
-            serializationContext.enqueue(variable);
+        for (int i = 0; i < 3; i++) {
+            for (RootVariable variable : rootVariables.values()) {
+                if (variable.constant) {
+                    if (i == 1) {
+                        continue;
+                    } else if (variable.type instanceof FunctionType != (i == 2)) {
+                        continue;
+                    }
+                } else if (i != 1) {
+                    continue;
+                }
+                serializationContext.enqueue(variable);
+            }
         }
 
         synchronized (OnInstance.allOnInterval) {
@@ -330,7 +350,7 @@ public class Environment {
     public void save(String fileName) {
         try {
             AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
-            dump(asb);
+            dump(asb, SerializationContext.Mode.SAVE);
             Writer writer = new OutputStreamWriter(new FileOutputStream(new File(codeDir, fileName)), "utf-8");
             writer.write(asb.toString());
             writer.close();

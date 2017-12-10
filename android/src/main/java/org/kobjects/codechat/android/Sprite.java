@@ -192,7 +192,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
 
         view.setZ(z.get().floatValue());
 
-        if (normalizedX > -100 && normalizedY >= -100 && normalizedX < 300 && normalizedY < 300) {
+        if (normalizedX + size > -50 && normalizedY + size >= -50 && normalizedX < 250 && normalizedY < 250) {
             if (view.getParent() == null) {
                 environment.rootView.addView(view);
                 environment.screen.sprites.invalidate();
@@ -211,7 +211,6 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
                 view.setImageDrawable(new EmojiDrawable(lastFace));
             }
         } else if (view.getParent() != null) {
-            System.out.println("###################################### View removed ##############################################:" + this);
             environment.rootView.removeView(view);
             environment.screen.sprites.invalidate();
         }

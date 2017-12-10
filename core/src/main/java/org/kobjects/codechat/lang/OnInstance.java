@@ -150,12 +150,18 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
 
         asb.append(type.getName().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
-        asb.append(" ").append(trigger.toString()).append(":\n");
-        body.toString(asb, wrap ? 2 : 1);
-        if (wrap) {
-            asb.append("  end;\n");
+        asb.append(" ").append(trigger.toString());
+
+        if (serializationContext.getMode() == SerializationContext.Mode.LIST) {
+            asb.append('\n');
+        } else {
+            asb.append(":\n");
+            body.toString(asb, wrap ? 2 : 1);
+            if (wrap) {
+                asb.append("  end;\n");
+            }
+            asb.append("end\n");
         }
-        asb.append("end\n");
     }
 
     @Override
