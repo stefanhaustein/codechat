@@ -712,6 +712,20 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (environment.isSuspended()) {
+            environment.resume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        environment.suspend();
+    }
+
+    @Override
     public void setName(String name) {
         toolbar.setTitle(name + (environment.autoSave ? "" : "*"));
         settings.edit().putString(SETTINGS_FILE_NAME, name).commit();
