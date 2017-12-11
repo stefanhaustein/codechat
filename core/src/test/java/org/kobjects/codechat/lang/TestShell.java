@@ -27,7 +27,7 @@ public class TestShell implements EnvironmentListener {
     }
 
     @Override
-    public void paused(boolean paused) {
+    public void suspended(boolean paused) {
     }
 
     @Override

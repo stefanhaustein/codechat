@@ -91,7 +91,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
         int height = rootView.getHeight();
         boolean force = screen.update(width, height);
         scale = Math.min(width, height) / 100f;
-        if (!suspended) {
+        if (!isSuspended()) {
            for (Object sprite : screen.sprites.get()) {
                 try {
                     ((Sprite) sprite).tick(0.017, true);

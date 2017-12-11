@@ -75,6 +75,10 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
         }
     }
 
+    public void delete() {
+        opacity.set(0.0);
+    }
+
     public static abstract class ViewWrapperType<T extends AbstractViewWrapper> extends InstanceType<T> {
 
         protected ViewWrapperType() {

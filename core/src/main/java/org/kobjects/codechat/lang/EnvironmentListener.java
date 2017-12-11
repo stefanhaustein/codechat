@@ -6,7 +6,7 @@ import org.kobjects.codechat.annotation.AnnotationSpan;
 public interface EnvironmentListener {
     void clearAll();
 
-    void paused(boolean paused);
+    void suspended(boolean paused);
 
     void setName(String name);
 

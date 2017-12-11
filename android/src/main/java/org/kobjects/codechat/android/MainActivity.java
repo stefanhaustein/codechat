@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     static final String SETTINGS_FILE_NAME = "fileName";
     static final String SETTINGS_FILE_NAME_DEFAULT = "CodeChat";
 
-    static final String MENU_ITEM_CONTINUE = "Continue";
-    static final String MENU_ITEM_PAUSE = "Pause";
+    static final String MENU_ITEM_RESUME = "Resume";
+    static final String MENU_ITEM_SUSPEND = "Suspend";
     static final String MENU_ITEM_WINDOW_MODE = "Window mode";
 
     static final int SHOW_TOOLBAR_HEIGHT_DP = 620;
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     Toolbar toolbar;
     ImageButton menuButton;
 
-    MenuItem pauseItem;
+    MenuItem suspendItem;
     Object errorSpan;
     ImageButton emojiInputButton;
 
@@ -341,6 +341,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 environment.load(fileName);
             } catch (Exception e) {
                 print(e.getMessage());
+                e.printStackTrace();
             }
         }
 
@@ -509,11 +510,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     public void fillMenu(final Menu menu, boolean isOptionsMenu) {
-        MenuItem pause = menu.add(environment.suspended ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
+        MenuItem suspend = menu.add(environment.isSuspended()? MENU_ITEM_RESUME : MENU_ITEM_SUSPEND);
         if (isOptionsMenu) {
-            pauseItem = pause;
-            pauseItem.setIcon(environment.suspended ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
-            pauseItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            suspendItem = suspend;
+            suspendItem.setIcon(environment.isSuspended() ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
+            suspendItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
         menu.add("About");
         menu.add("Help");
@@ -532,11 +533,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     public boolean onMenuItemClick(MenuItem item) {
         String title = item.getTitle().toString();
         switch (title) {
-            case MENU_ITEM_PAUSE:
-                environment.suspend(true);
+            case MENU_ITEM_SUSPEND:
+                environment.suspend();
                 break;
-            case MENU_ITEM_CONTINUE:
-                environment.suspend(false);
+            case MENU_ITEM_RESUME:
+                environment.resume();
                 break;
             case MENU_ITEM_WINDOW_MODE:
                 windowMode = !windowMode;
@@ -703,9 +704,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     @Override
-    public void paused(boolean paused) {
-        pauseItem.setIcon(paused ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
-        pauseItem.setTitle(paused ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
+    public void suspended(boolean suspended) {
+        if (suspendItem != null) {
+            suspendItem.setIcon(suspended ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
+            suspendItem.setTitle(suspended ? MENU_ITEM_RESUME : MENU_ITEM_SUSPEND);
+        }
     }
 
     @Override

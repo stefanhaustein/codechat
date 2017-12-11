@@ -109,4 +109,6 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
         return unparsed;
     }
 
+    public void delete() {
+    }
 }

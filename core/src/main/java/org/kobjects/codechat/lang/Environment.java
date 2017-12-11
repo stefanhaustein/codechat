@@ -38,7 +38,7 @@ public class Environment {
             .build();
 
 
-    public boolean suspended;
+    private int suspended;
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
     public Map<Instance,String> constants = new WeakHashMap<>();
@@ -137,7 +137,7 @@ public class Environment {
         addSystemConstant("resume", new NativeFunction(null) {
                     @Override
                     protected Object eval(Object[] params) {
-                        suspend(false);
+                        resume();
                         return null;
                     }
                 }, "Resumes after suspend was called. Has no effect otherwise.");
@@ -169,7 +169,7 @@ public class Environment {
         addSystemConstant("suspend", new NativeFunction(null) {
                     @Override
                     protected Object eval(Object[] params) {
-                        suspend(true);
+                        suspend();
                         return null;
                     }
                 }, "Pause all events.");
@@ -365,8 +365,7 @@ public class Environment {
         anonymousInstances = new ArrayList<>();
         loading = true;
 
-        boolean pausedBefore = suspended;
-        suspended = true;
+        suspend();
 
         File file = new File(codeDir, fileName);
         if (!file.exists()) {
@@ -445,7 +444,8 @@ public class Environment {
             }
             loading = false;
             anonymousInstances = null;
-            suspended = pausedBefore;
+
+            resume();
         }
     }
 
@@ -459,10 +459,15 @@ public class Environment {
     }
 
 
-    public void suspend(boolean suspend) {
-        if (suspend != this.suspended) {
-            this.suspended = suspend;
-            environmentListener.paused(suspend);
+    public synchronized void suspend() {
+        if (suspended++ == 0) {
+            environmentListener.suspended(true);
+        }
+    }
+
+    public synchronized void resume() {
+        if (--suspended == 0) {
+            environmentListener.suspended(false);
         }
     }
 
@@ -540,6 +545,10 @@ public class Environment {
             throw new RuntimeException(name + " is not an instance type.");
         }
         return (InstanceType) result;
+    }
+
+    public boolean isSuspended() {
+        return suspended > 0;
     }
 
 
