@@ -69,10 +69,6 @@ public class UserFunction extends Instance implements Function {
         return null;
     }
 
-    @Override
-    public void delete() {
-
-    }
 
     @Override
     public void getDependencies(DependencyCollector result) {

@@ -71,7 +71,7 @@ public class Shell implements EnvironmentListener {
 
     @Override
     public void paused(boolean paused) {
-        print(paused ? "(paused)" : "(unpaused)");
+        print(paused ? "(suspended)" : "(resumed)");
     }
 
     @Override

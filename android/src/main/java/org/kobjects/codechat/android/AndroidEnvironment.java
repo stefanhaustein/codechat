@@ -7,10 +7,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import org.kobjects.codechat.android.sound.Sound;
 import org.kobjects.codechat.android.sound.SampleManager;
 import org.kobjects.codechat.lang.EnumLiteral;
@@ -18,7 +15,6 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.NativeFunction;
 import org.kobjects.codechat.type.EnumType;
-import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
@@ -93,14 +89,12 @@ public class AndroidEnvironment extends Environment implements Runnable {
     public void run() {
         int width = rootView.getWidth();
         int height = rootView.getHeight();
-        screen.update(width, height);
-        float newScale = Math.min(rootView.getWidth(), rootView.getHeight()) / 100f;
-        boolean force = newScale != scale;
-        scale = newScale;
-        if (!paused || force) {
+        boolean force = screen.update(width, height);
+        scale = Math.min(width, height) / 100f;
+        if (!suspended) {
            for (Object sprite : screen.sprites.get()) {
                 try {
-                    ((Sprite) sprite).tick(0.017, force);
+                    ((Sprite) sprite).tick(0.017, true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

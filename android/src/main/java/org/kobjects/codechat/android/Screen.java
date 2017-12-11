@@ -125,8 +125,11 @@ public class Screen extends Instance {
         }
     }
 
-    public void update(int nativeWidth, int nativeHeight) {
-        if (nativeWidth != oldNativeWidth || nativeHeight != oldNativeHeight) {
+    public boolean update(int nativeWidth, int nativeHeight) {
+
+        if (nativeWidth == oldNativeWidth && nativeHeight == oldNativeHeight) {
+            return false;
+        }
 
             double scaledWidth;
             double scaledHeight;
@@ -155,7 +158,8 @@ public class Screen extends Instance {
                    ((AbstractViewWrapper) tag).syncView();
                }
             }
-        }
+
+        return true;
     }
 
     public String toString() {
@@ -171,10 +175,6 @@ public class Screen extends Instance {
                 result.add(sprite);
             }
         }
-    }
-
-    @Override
-    public void delete() {
     }
 
     public void addSprite(Sprite sprite) {

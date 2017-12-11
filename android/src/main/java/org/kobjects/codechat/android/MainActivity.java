@@ -37,7 +37,6 @@ import java.util.SortedMap;
 import org.kobjects.codechat.android.chatview.BubbleAction;
 import org.kobjects.codechat.android.chatview.ChatView;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.ErrorLink;
 import org.kobjects.codechat.expr.Expression;
@@ -48,7 +47,6 @@ import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.MetaException;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser.ParsingException;
@@ -511,10 +509,10 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     public void fillMenu(final Menu menu, boolean isOptionsMenu) {
-        MenuItem pause = menu.add(environment.paused ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
+        MenuItem pause = menu.add(environment.suspended ? MENU_ITEM_CONTINUE : MENU_ITEM_PAUSE);
         if (isOptionsMenu) {
             pauseItem = pause;
-            pauseItem.setIcon(environment.paused ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
+            pauseItem.setIcon(environment.suspended ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
             pauseItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
         menu.add("About");
@@ -535,10 +533,10 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         String title = item.getTitle().toString();
         switch (title) {
             case MENU_ITEM_PAUSE:
-                environment.pause(true);
+                environment.suspend(true);
                 break;
             case MENU_ITEM_CONTINUE:
-                environment.pause(false);
+                environment.suspend(false);
                 break;
             case MENU_ITEM_WINDOW_MODE:
                 windowMode = !windowMode;

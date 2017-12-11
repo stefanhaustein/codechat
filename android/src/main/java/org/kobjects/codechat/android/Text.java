@@ -68,12 +68,6 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
 
     public void run() {
         syncRequested = false;
-        if (detached) {
-            if (view.getParent() != null) {
-                environment.rootView.removeView(view);
-            }
-            return;
-        }
         double size = this.size.get();
     //    view.setBackgroundColor(0x88ff8888);
 
@@ -102,8 +96,8 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
 
         System.out.println("************************** new w/h: " + width + ", " + height);
 
-        float screenX = (float) (environment.scale * getNormalizedX());
-        float screenY = (float) (environment.scale * getNormalizedY());
+        float screenX = (float) (environment.scale * getNormalizedX(environment.screen.width.get()));
+        float screenY = (float) (environment.scale * getNormalizedY(environment.screen.height.get()));
 
         view.setX(screenX);
         view.setY(screenY);

@@ -59,9 +59,14 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         TYPE.addProperty(15, "speed", Type.NUMBER, true,
                 "The current speed in units per second.");
         TYPE.addProperty(16, "visible", Type.BOOLEAN, false,
-                "True if the sprite is currently withing the usable screen boundaries.");
+                "True if the sprite is currently within the screen boundaries.");
         TYPE.addProperty(17, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
                 "Determines behavior when the sprite hits the edge of the screen.");
+        TYPE.addProperty(18, "grow", Type.NUMBER, true,
+                "The current growth in units per second. Use negative numbers to shrink");
+        TYPE.addProperty(19, "fade", Type.NUMBER, true,
+                "The current fading per second. Use negative numbers to fade out.");
+
     }
 
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
@@ -71,18 +76,18 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         @Override
         protected Collection compute() {
             Collection result = (Collection) environment.instantiate(new SetType(Sprite.TYPE), -1);
-            if (detached) {
-                return result;
-            }
-            double size = Sprite.this.size.get();
-            double x = Sprite.this.getNormalizedX() + size / 2;
-            double y = Sprite.this.getNormalizedY() + size / 2;
+
+            double size = Sprite.this.size.get() * 0.8;
+            double virtualScreenWidth = environment.screen.width.get();
+            double virtualScreenHeight = environment.screen.height.get();
+            double x = Sprite.this.getNormalizedX(virtualScreenWidth) + size / 2;
+            double y = Sprite.this.getNormalizedY(virtualScreenHeight) + size / 2;
             for (Object o: environment.screen.sprites.get()) {
                 Sprite other = (Sprite) o;
-                if (other != null && other != Sprite.this && !other.detached) {
-                    double otherSize = other.size.get();
-                    double distX = other.getNormalizedX() + otherSize / 2 - x;
-                    double distY = other.getNormalizedY() + otherSize / 2 - y;
+                if (other != null && other != Sprite.this && other.view.getParent() != null) {
+                    double otherSize = other.size.get() * 0.8;
+                    double distX = other.getNormalizedX(virtualScreenWidth) + otherSize / 2 - x;
+                    double distY = other.getNormalizedY(virtualScreenHeight) + otherSize / 2 - y;
                     double minDist = (other.size.get() + size) / 2;
                     if (distX * distX + distY * distY < minDist * minDist) {
                         result.add(other);
@@ -98,6 +103,8 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
     public MaterialProperty<Boolean> touch = new MaterialProperty<>(false);
     public MaterialProperty<AndroidEnvironment.EdgeMode> edgeMode = new MaterialProperty<>(AndroidEnvironment.EdgeMode.NONE);
+    public MaterialProperty<Double> grow = new MaterialProperty<>(0.0);
+    public MaterialProperty<Double> fade = new MaterialProperty<>(0.0);
 
     public Property<Double> direction = new Property<Double>() {
         @Override
@@ -171,26 +178,23 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
 
     public void run() {
         syncRequested = false;
-        if (detached) {
-            if (view.getParent() != null) {
-                environment.rootView.removeView(view);
-                environment.screen.sprites.invalidate();
-            }
-            return;
-        }
+
         double size = this.size.get();
         double scale = environment.scale;
+        double virtualScreenWidth = environment.screen.width.get();
+        double virtualScreenHeight = environment.screen.height.get();
 
-        double normalizedX = getNormalizedX();
-        double normalizedY = getNormalizedY();
+        double normalizedX = getNormalizedX(virtualScreenWidth);
+        double normalizedY = getNormalizedY(virtualScreenHeight);
 
-        float scaledX = (float) (getNormalizedX() * scale);
-        float scaledY = (float) (getNormalizedY() * scale);
+        float scaledX = (float) (normalizedX * scale);
+        float scaledY = (float) (normalizedY * scale);
 
         view.setZ(z.get().floatValue());
         view.setAlpha(opacity.get().floatValue());
 
-        if (normalizedX + size > -50 && normalizedY + size >= -50 && normalizedX < 250 && normalizedY < 250) {
+        if (normalizedX + size > -50 && normalizedY + size > -50 && normalizedX < virtualScreenWidth + 50 && normalizedY < virtualScreenHeight + 50 &&
+                opacity.get() > 0 && size > 0) {
             if (view.getParent() == null) {
                 environment.rootView.addView(view);
                 environment.screen.sprites.invalidate();
@@ -209,6 +213,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
                 view.setImageDrawable(new EmojiDrawable(lastFace));
             }
         } else if (view.getParent() != null) {
+            // TODO: Wait some cycles before punting...
             environment.rootView.removeView(view);
             environment.screen.sprites.invalidate();
         }
@@ -320,6 +325,15 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
             }
             angle.set(rotationValue);
         }
+
+        double grow = this.grow.get();
+        if (grow != 0) {
+            size.set(size.get() + s * grow);
+        }
+        double fade = this.fade.get();
+        if (fade != 0) {
+            opacity.set(opacity.get() + s * fade);
+        }
     }
 
 
@@ -343,6 +357,8 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
             case 15: return speed;
             case 16: return visible;
             case 17: return edgeMode;
+            case 18: return grow;
+            case 19: return fade;
             default:
                 return super.getProperty(index);
         }

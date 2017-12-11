@@ -38,7 +38,7 @@ public class Environment {
             .build();
 
 
-    public boolean paused;
+    public boolean suspended;
     int lastId;
     Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
     public Map<Instance,String> constants = new WeakHashMap<>();
@@ -134,13 +134,13 @@ public class Environment {
                     }
                 }, "Deletes everything and resets the state to the initial state. Use with care.");
 
-        addSystemConstant("continue", new NativeFunction(null) {
+        addSystemConstant("resume", new NativeFunction(null) {
                     @Override
                     protected Object eval(Object[] params) {
-                        pause(false);
+                        suspend(false);
                         return null;
                     }
-                }, "Resumes after pause was called. Has no effect otherwise.");
+                }, "Resumes after suspend was called. Has no effect otherwise.");
 
         addSystemConstant("dump", new NativeFunction(null) {
                     @Override
@@ -166,10 +166,10 @@ public class Environment {
                     }
                 }, "Loads the program and state previously saved under the given name.");
 
-        addSystemConstant("pause", new NativeFunction(null) {
+        addSystemConstant("suspend", new NativeFunction(null) {
                     @Override
                     protected Object eval(Object[] params) {
-                        pause(true);
+                        suspend(true);
                         return null;
                     }
                 }, "Pause all events.");
@@ -365,8 +365,8 @@ public class Environment {
         anonymousInstances = new ArrayList<>();
         loading = true;
 
-        boolean pausedBefore = paused;
-        paused = true;
+        boolean pausedBefore = suspended;
+        suspended = true;
 
         File file = new File(codeDir, fileName);
         if (!file.exists()) {
@@ -445,7 +445,7 @@ public class Environment {
             }
             loading = false;
             anonymousInstances = null;
-            paused = pausedBefore;
+            suspended = pausedBefore;
         }
     }
 
@@ -459,10 +459,10 @@ public class Environment {
     }
 
 
-    public void pause(boolean paused) {
-        if (paused != this.paused) {
-            this.paused = paused;
-            environmentListener.paused(paused);
+    public void suspend(boolean suspend) {
+        if (suspend != this.suspended) {
+            this.suspended = suspend;
+            environmentListener.paused(suspend);
         }
     }
 

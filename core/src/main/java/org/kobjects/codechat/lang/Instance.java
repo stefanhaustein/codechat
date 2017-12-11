@@ -98,8 +98,6 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
         return id;
     }
 
-    public abstract void delete();
-
 
     @Override
     public void setUnparsed(String unparsed) {

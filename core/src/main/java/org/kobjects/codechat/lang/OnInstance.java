@@ -73,7 +73,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
                 @Override
                 public void run() {
                     try {
-                        if (!contextTemplate.environment.paused) {
+                        if (!contextTemplate.environment.suspended) {
                             EvaluationContext evalContext = OnInstance.this.contextTemplate.clone();
                             OnInstance.this.body.eval(evalContext);
                         }

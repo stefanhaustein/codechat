@@ -130,11 +130,6 @@ public class Sensors extends Instance {
 
     }
 
-    @Override
-    public void delete() {
-
-    }
-
 
     abstract class SensorProperty<T> extends Property<T> implements SensorEventListener {
         T value;

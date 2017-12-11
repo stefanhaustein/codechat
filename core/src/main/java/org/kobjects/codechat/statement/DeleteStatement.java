@@ -20,9 +20,7 @@ public class DeleteStatement extends AbstractStatement {
     @Override
     public Object eval(EvaluationContext context) {
         Object o = expr.eval(context);
-        if (o instanceof Instance) {
-            ((Instance) o).delete();
-        }
+
         if (expr instanceof RootVariableNode) {
             RootVariableNode varNode = (RootVariableNode) expr;
             varNode.rootVariable.value = null;

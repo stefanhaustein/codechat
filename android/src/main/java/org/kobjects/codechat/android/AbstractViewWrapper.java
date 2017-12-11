@@ -14,9 +14,6 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
     protected final AndroidEnvironment environment;
     protected boolean syncRequested;
 
-    // True if this sprite was deleted.
-    protected boolean detached;
-
     public VisualMaterialProperty<Double> x = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> z = new VisualMaterialProperty<>(0.0);
@@ -49,25 +46,25 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
 
     public abstract double getHeight();
 
-    public double getNormalizedX() {
+    public double getNormalizedX(double virtalScreenWidth) {
         switch (xAlign.get()) {
             case LEFT:
                 return x.get();
             case RIGHT:
-                return environment.screen.width.get() - x.get() - getWidth();
+                return virtalScreenWidth - x.get() - getWidth();
             default:
-                return environment.screen.width.get() / 2 + x.get() - getWidth()/2;
+                return virtalScreenWidth / 2 + x.get() - getWidth()/2;
         }
     }
 
-    public double getNormalizedY() {
+    public double getNormalizedY(double virtualScreenHeight) {
         switch (yAlign.get()) {
             case TOP:
                 return y.get();
             case BOTTOM:
-                return environment.screen.height.get() - y.get() - getHeight();
+                return virtualScreenHeight - y.get() - getHeight();
             default:
-                return environment.screen.height.get() / 2 - y.get() - getHeight() / 2;
+                return virtualScreenHeight / 2 - y.get() - getHeight() / 2;
         }
     }
 
@@ -76,14 +73,6 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
             syncRequested = true;
             ((Activity) environment.context).runOnUiThread(this);
         }
-    }
-
-    public void delete() {
-        if (detached) {
-            return;
-        }
-        detached = true;
-        syncView();
     }
 
     public static abstract class ViewWrapperType<T extends AbstractViewWrapper> extends InstanceType<T> {

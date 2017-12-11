@@ -88,11 +88,6 @@ public class Collection extends Instance implements Iterable, HasDependencies {
         }
     }
 
-    @Override
-    public void delete() {
-
-    }
-
 
     public void addAll(Object[] data) {
         for (Object o : data) {
