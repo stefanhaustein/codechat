@@ -14,7 +14,7 @@ public abstract class AbstractStatement implements Statement {
 
     public static void indent(AnnotatedStringBuilder sb, int indent) {
         for (int i = 0; i < indent; i++) {
-            sb.append("  ");
+            sb.append(" ");
         }
     }
 }

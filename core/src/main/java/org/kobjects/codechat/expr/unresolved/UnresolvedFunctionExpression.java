@@ -46,7 +46,7 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
             asb.append(";\n");
         } else {
             asb.append(" :\n");
-            body.toString(asb, indent + 1);
+            body.toString(asb, indent + 2);
             AbstractStatement.indent(asb, indent);
             asb.append("end\n");
         }

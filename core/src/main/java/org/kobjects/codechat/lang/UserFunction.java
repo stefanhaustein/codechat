@@ -46,7 +46,7 @@ public class UserFunction extends Instance implements Function {
         serializationContext.setSerialized(this);
 
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
-        int indent = wrap ? 1 : 0;
+        int indent = wrap ? 2 : 0;
 
         functionType.serializeSignature(asb, id, serializationContext.getEnvironment().constants.get(this), parameterNames, new EntityLink(this));
 
@@ -54,7 +54,7 @@ public class UserFunction extends Instance implements Function {
             asb.append("\n");
         } else {
             asb.append(":\n");
-            body.toString(asb, indent + 1);
+            body.toString(asb, indent + 2);
             AbstractStatement.indent(asb, indent);
             asb.append("end\n");
 

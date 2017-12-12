@@ -156,7 +156,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
             asb.append('\n');
         } else {
             asb.append(":\n");
-            body.toString(asb, wrap ? 2 : 1);
+            body.toString(asb, wrap ? 4 : 2);
             if (wrap) {
                 asb.append("  end;\n");
             }

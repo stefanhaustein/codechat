@@ -42,13 +42,13 @@ public class IfStatement extends AbstractStatement {
         }
         condition.toString(sb, indent);
         sb.append(":\n");
-        ifBody.toString(sb, indent + 1);
+        ifBody.toString(sb, indent + 2);
         AbstractStatement.indent(sb, indent);
         if (elseBody instanceof IfStatement) {
             ((IfStatement) elseBody).toString(sb, indent, true);
         } else if (elseBody != null) {
             sb.append("else:\n");
-            elseBody.toString(sb, indent + 1);
+            elseBody.toString(sb, indent + 2);
             AbstractStatement.indent(sb, indent);
         }
         sb.append("end\n");

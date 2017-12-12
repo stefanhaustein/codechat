@@ -35,7 +35,7 @@ public class CountStatement extends AbstractStatement {
         expression.toString(sb, 0);
         sb.append(":\n");
 
-        body.toString(sb, indent + 1);
+        body.toString(sb, indent + 2);
 
         indent(sb, indent);
         sb.append("end\n");

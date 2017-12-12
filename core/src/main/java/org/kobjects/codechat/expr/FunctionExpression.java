@@ -58,7 +58,7 @@ public class FunctionExpression extends Expression {
             sb.append(";\n");
         } else {
             sb.append(" :\n");
-            body.toString(sb, indent + 1);
+            body.toString(sb, indent + 2);
             AbstractStatement.indent(sb, indent);
             sb.append("end\n");
         }

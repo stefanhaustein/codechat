@@ -40,7 +40,7 @@ public class Environment {
 
     private int suspended;
     int lastId;
-    Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
+    private Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
     public Map<Instance,String> constants = new WeakHashMap<>();
     public TreeMap<String,RootVariable> rootVariables = new TreeMap<>();
     public File codeDir;
@@ -244,7 +244,10 @@ public class Environment {
             }
         } else {
             lastId = Math.max(id, lastId);
-            WeakReference<Instance> ref = everything.get(id);
+            WeakReference<Instance> ref;
+            synchronized (everything) {
+                ref = everything.get(id);
+            }
             Instance existing = ref == null ? null : ref.get();
             if (existing != null) {
                  if (!(existing instanceof Entity) || (existing).getUnparsed() == null) {
@@ -257,7 +260,9 @@ public class Environment {
         if (id == -2) {
             anonymousInstances.add(instance);
         } else {
-            everything.put(id, new WeakReference<Instance>(instance));
+            synchronized (everything) {
+                everything.put(id, new WeakReference<Instance>(instance));
+            }
         }
         return instance;
     }
@@ -311,7 +316,10 @@ public class Environment {
     }
 
     public <T extends Instance> T getInstance(InstanceType<T> type, int id, boolean force) {
-        WeakReference reference = everything.get(id);
+        WeakReference reference;
+        synchronized (everything) {
+            reference = everything.get(id);
+        }
         T result = reference != null ? (T) reference.get() : null;
         if (result == null) {
             if (!force) {
@@ -340,7 +348,9 @@ public class Environment {
             onInterval.detach();
         }
         rootVariables = systemVariables;
-        everything.clear();
+        synchronized (everything) {
+            everything.clear();
+        }
         constants.clear();
         errors.clear();
         autoSave = true;
@@ -440,7 +450,9 @@ public class Environment {
             for (Instance instance : anonymousInstances) {
                 int id = ++lastId;
                 instance.setId(id);
-                everything.put(id, new WeakReference<Instance>(instance));
+                synchronized (everything) {
+                    everything.put(id, new WeakReference<Instance>(instance));
+                }
             }
             loading = false;
             anonymousInstances = null;
@@ -484,13 +496,15 @@ public class Environment {
 
     Iterable<Entity> findDependencies(Entity entity) {
         HashSet<Entity> result = new HashSet<>();
-        for (WeakReference<Instance> ref: everything.values()) {
-            Instance instance = ref.get();
-            if (instance != null) {
-                DependencyCollector localDependencies = new DependencyCollector(this);
-                instance.getDependencies(localDependencies);
-                if (localDependencies.contains(entity)) {
-                    result.add(instance);
+        synchronized (everything) {
+            for (WeakReference<Instance> ref : everything.values()) {
+                Instance instance = ref.get();
+                if (instance != null) {
+                    DependencyCollector localDependencies = new DependencyCollector(this);
+                    instance.getDependencies(localDependencies);
+                    if (localDependencies.contains(entity)) {
+                        result.add(instance);
+                    }
                 }
             }
         }

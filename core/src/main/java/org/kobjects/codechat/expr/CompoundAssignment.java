@@ -71,11 +71,11 @@ public class CompoundAssignment extends Expression {
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
         int precedence = getPrecedence();
-        left.toString(sb, 0, precedence);
+        left.toString(sb, indent, precedence);
         sb.append(' ');
         sb.append(name);
         sb.append("=  ");
-        right.toString(sb, 0, precedence);
+        right.toString(sb, indent, precedence);
     }
 
 

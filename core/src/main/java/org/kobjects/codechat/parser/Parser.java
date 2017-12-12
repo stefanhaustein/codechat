@@ -357,6 +357,7 @@ public class Parser {
         return var;
     }
 
+
     UserFunction parseFunctionStub(ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue) {
         String name = tokenizer.consumeIdentifier();
         FunctionType type = parseSignature(tokenizer, returnsValue, null);
@@ -368,6 +369,7 @@ public class Parser {
         environment.rootVariables.put(name, var);
         return value;
     }
+
 
     public String consumeComments(ExpressionParser.Tokenizer tokenizer) {
         String documentation = tokenizer.consumeComments();
@@ -391,6 +393,7 @@ public class Parser {
         }
         return documentation == null || documentation.trim().isEmpty() ? null : documentation;
     }
+
 
     public Entity parseStub(String content) {
         ExpressionParser.Tokenizer tokenizer = createTokenizer(content);
@@ -441,12 +444,10 @@ public class Parser {
             throw new RuntimeException("Unrecognized token: '" + tokenizer.currentValue + "' in '" + content + "'");
         }
 
-        if ((result instanceof RootVariable) && ((RootVariable) result).value != null) {
-            return result;
+        if (!(result instanceof RootVariable) || ((RootVariable) result).value == null) {
+            result.setUnparsed(content);
         }
-        result.setUnparsed(content);
         return result;
-
     }
 
 
@@ -597,6 +598,16 @@ public class Parser {
         tokenizer.identifierPattern = IDENTIFIER_PATTERN;
         tokenizer.insertSemicolons = true;
         return tokenizer;
+    }
+
+
+
+    public void parseTwoPhase(String content) {
+        ExpressionParser.Tokenizer tokenizer = createTokenizer(content);
+
+
+
+
     }
 
 
