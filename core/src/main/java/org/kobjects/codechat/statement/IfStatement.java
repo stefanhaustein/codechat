@@ -7,7 +7,6 @@ import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Environment;
 
 public class IfStatement extends AbstractStatement {
-    Environment environment;
     public Expression condition;
     public Statement ifBody;
     public Statement elseBody;
