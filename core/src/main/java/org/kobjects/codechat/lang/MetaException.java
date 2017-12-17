@@ -7,19 +7,16 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 public class MetaException extends RuntimeException {
 
     List<? extends Exception> exceptions;
-    Map<Entity, Exception> errors;
 
-    public static void toString(Map<Entity, Exception> errors, AnnotatedStringBuilder asb) {
-        for (Map.Entry<Entity, Exception> entry : errors.entrySet()) {
-            Formatting.toLiteral(asb, entry.getKey());
-            asb.append(": ").append(entry.getValue().getMessage()).append("\n");
-        }
-    }
-
-    MetaException(String msg, List<? extends Exception> exceptions, Map<Entity,Exception> errors) {
+    MetaException(String msg, List<? extends Exception> exceptions) {
         super(msg);
         this.exceptions = exceptions;
-        this.errors = errors;
+    }
+
+    public String toString() {
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        toString(asb);
+        return asb.toString();
     }
 
 
@@ -28,6 +25,5 @@ public class MetaException extends RuntimeException {
         for (Exception e : exceptions) {
             asb.append(e.getMessage()).append('\n');
         }
-        toString(errors, asb);
     }
 }

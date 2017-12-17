@@ -6,6 +6,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.LocalVariable;
+import org.kobjects.codechat.type.CollectionType;
 
 public class ForStatement extends AbstractStatement {
     LocalVariable variable;
@@ -13,6 +14,9 @@ public class ForStatement extends AbstractStatement {
     Statement body;
 
     public ForStatement(LocalVariable var, Expression expression, Statement body) {
+        if (!(expression.getType() instanceof CollectionType)) {
+            throw new RuntimeException("For expression must be a list.");
+        }
         this.variable = var;
         this.expression = expression;
         this.body = body;

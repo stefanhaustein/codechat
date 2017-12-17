@@ -27,6 +27,11 @@ public class TestShell implements EnvironmentListener {
     }
 
     @Override
+    public void clearAll() {
+
+    }
+
+    @Override
     public void suspended(boolean paused) {
     }
 
@@ -35,8 +40,19 @@ public class TestShell implements EnvironmentListener {
     }
 
     @Override
-    public void print(String s, List<AnnotationSpan> annotations) {
-        output.add(s);
+    public void print(CharSequence s) {
+        output.add(s.toString());
     }
+
+    @Override
+    public void showError(CharSequence s) {
+
+    }
+
+    @Override
+    public void edit(String s) {
+
+    }
+
 
 }

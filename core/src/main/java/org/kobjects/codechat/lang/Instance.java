@@ -25,7 +25,7 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
 
     public String toString() {
         String name = environment.constants.get(this);
-        return  name != null ? name : (getType() + "#" + id);
+        return  name != null ? name : (getType() + "#" + getId());
     }
 
     @Override
@@ -42,7 +42,7 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
                 asb.append(environment.constants.get(this));
             }
         } else {
-            asb.append(getType() + "#" + id, new EntityLink(this));
+            asb.append(getType() + "#" + getId(), new EntityLink(this));
         }
 
         if (serializationContext.getMode() == SerializationContext.Mode.LIST) {
@@ -94,7 +94,10 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
         }
     }
 
-    public int getId() {
+    public synchronized int getId() {
+        if (id < 0) {
+            id = environment.createId(this);
+        }
         return id;
     }
 

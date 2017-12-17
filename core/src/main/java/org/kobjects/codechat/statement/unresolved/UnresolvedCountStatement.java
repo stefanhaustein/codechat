@@ -1,10 +1,15 @@
 package org.kobjects.codechat.statement.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
+import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.AbstractStatement;
+import org.kobjects.codechat.statement.CountStatement;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.type.Type;
+import org.kobjects.expressionparser.ExpressionParser;
 
 public class UnresolvedCountStatement extends UnresolvedStatement {
     String variableName;
@@ -34,6 +39,15 @@ public class UnresolvedCountStatement extends UnresolvedStatement {
 
     @Override
     public Statement resolve(ParsingContext parsingContext) {
-        throw new RuntimeException("NYI");
+        ParsingContext countParsingContext = new ParsingContext(parsingContext, false);
+
+        LocalVariable counter = countParsingContext.addVariable(variableName, Type.NUMBER, true);
+
+        Expression resolvedExpression = expression.resolve(parsingContext, Type.NUMBER);
+        if (!resolvedExpression.getType().equals(Type.NUMBER)) {
+            throw new ExpressionParser.ParsingException(expression.start, expression.end, "Count expression must be a number.", null);
+        }
+
+        return new CountStatement(counter, expression.resolve(parsingContext, Type.NUMBER), body.resolve(countParsingContext));
     }
 }

@@ -9,8 +9,8 @@ import org.kobjects.codechat.type.Type;
 
 public abstract class UnresolvedExpression {
 
-    final int start;
-    final int end;
+    public final int start;
+    public final int end;
 
     public UnresolvedExpression(int start, int end) {
         this.start = start;

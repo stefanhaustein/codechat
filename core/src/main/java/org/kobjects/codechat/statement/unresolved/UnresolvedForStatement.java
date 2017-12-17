@@ -1,10 +1,15 @@
 package org.kobjects.codechat.statement.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
+import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.AbstractStatement;
+import org.kobjects.codechat.statement.ForStatement;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.type.CollectionType;
+import org.kobjects.codechat.type.Type;
 
 public class UnresolvedForStatement extends UnresolvedStatement {
     String variableName;
@@ -32,6 +37,17 @@ public class UnresolvedForStatement extends UnresolvedStatement {
 
     @Override
     public Statement resolve(ParsingContext parsingContext) {
-        throw new RuntimeException("NYI");
+        Expression resolved = expression.resolve(parsingContext, null);
+
+        if (!(resolved.getType() instanceof CollectionType)) {
+            throw new RuntimeException("For expression must be a list.");
+        }
+        Type elementType = ((CollectionType) resolved.getType()).elementType;
+
+        ParsingContext foreachParsingContext = new ParsingContext(parsingContext, false);
+
+        LocalVariable counter = foreachParsingContext.addVariable(variableName, elementType, true);
+
+        return new ForStatement(counter, resolved, body.resolve(foreachParsingContext));
     }
 }

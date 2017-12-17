@@ -15,8 +15,8 @@ import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
 
 public class UnresolvedMultiAssignment extends UnresolvedExpression {
 
-    UnresolvedExpression base;
-    LinkedHashMap<String, UnresolvedExpression> elements;
+    public final UnresolvedExpression base;
+    public final LinkedHashMap<String, UnresolvedExpression> elements;
 
     public UnresolvedMultiAssignment(UnresolvedExpression base, LinkedHashMap<String, UnresolvedExpression> elements, int end) {
         super(base.start, end);

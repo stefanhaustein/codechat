@@ -46,21 +46,6 @@ public class UnresolvedInvocation extends UnresolvedExpression {
 
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
-        if (base instanceof UnresolvedIdentifier) {
-            String name = ((UnresolvedIdentifier) base).name;
-
-            if (("create".equals(name) || "new".equals(name)) && children[0] instanceof UnresolvedIdentifier) {
-                String argName = ((UnresolvedIdentifier) children[0]).name;
-
-                InstanceType type = parsingContext.environment.resolveInstanceType(argName);
-                return new ConstructorInvocation(type, -1);
-            }
-            if ("new".equals(name) && children[0] instanceof UnresolvedInstanceReference) {
-                InstanceReference resolvedRef = (InstanceReference) children[0].resolve(parsingContext, null);
-                return new ConstructorInvocation(resolvedRef.type, resolvedRef.id);
-            }
-        }
-
         Expression[] resolved = new Expression[children.length];
         Type[] paramTypes = new Type[resolved.length];
         for (int i = 0; i < resolved.length; i++) {

@@ -9,7 +9,7 @@ import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.Type;
 
 public class UnresolvedLiteral extends UnresolvedExpression {
-    final Object value;
+    public final Object value;
 
     public UnresolvedLiteral(int start, int end, Object value) {
         super(start, end);

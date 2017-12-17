@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -111,7 +112,10 @@ public class Environment {
                     environmentListener.print("(no errors)");
                 } else {
                     AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-                    MetaException.toString(errors, asb);
+                    for (Map.Entry<Entity, Exception> entry : errors.entrySet()) {
+                       Formatting.toLiteral(asb, entry.getKey());
+                       asb.append(": ").append(entry.getValue().getMessage()).append("\n");
+                    }
                     environmentListener.print(asb.build());
                 }
                 return null;
@@ -236,16 +240,10 @@ public class Environment {
     }
 
     public <T extends Instance> T instantiate(InstanceType<T> type, int id) {
-        if (id == -1) {
-            if (loading) {
-                id = -2;
-            } else {
-                id = ++lastId;
-            }
-        } else {
-            lastId = Math.max(id, lastId);
+        if (id != -1) {
             WeakReference<Instance> ref;
             synchronized (everything) {
+                lastId = Math.max(id, lastId);
                 ref = everything.get(id);
             }
             Instance existing = ref == null ? null : ref.get();
@@ -257,9 +255,7 @@ public class Environment {
             }
         }
         T instance = type.createInstance(this, id);
-        if (id == -2) {
-            anonymousInstances.add(instance);
-        } else {
+        if (id != -1) {
             synchronized (everything) {
                 everything.put(id, new WeakReference<Instance>(instance));
             }
@@ -311,30 +307,32 @@ public class Environment {
         return parser.parse(parsingContext, line);
     }
 
-    public synchronized int createId() {
-        return ++lastId;
+    public int createId(Instance instance) {
+        synchronized (everything) {
+            int id = ++lastId;
+            everything.put(id, new WeakReference<Instance>(instance));
+            return id;
+        }
     }
 
     public <T extends Instance> T getInstance(InstanceType<T> type, int id, boolean force) {
         WeakReference reference;
         synchronized (everything) {
             reference = everything.get(id);
-        }
-        T result = reference != null ? (T) reference.get() : null;
-        if (result == null) {
-            if (!force) {
-                throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
-            }
-            result = instantiate(type, id);
-        } else {
-            if (!Type.of(result).equals(type)) {
-                throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + Type.of(result));
-            }
-            synchronized (this) {
+            T result = reference != null ? (T) reference.get() : null;
+            if (result == null) {
+                if (!force) {
+                    throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
+                }
+                result = instantiate(type, id);
+            } else {
+                if (!Type.of(result).equals(type)) {
+                    throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + Type.of(result));
+                }
                 lastId = Math.max(lastId, id);
             }
+            return result;
         }
-        return result;
     }
 
     public void clearAll() {
@@ -372,9 +370,6 @@ public class Environment {
     }
 
     public void load(String fileName) {
-        anonymousInstances = new ArrayList<>();
-        loading = true;
-
         suspend();
 
         File file = new File(codeDir, fileName);
@@ -383,80 +378,34 @@ public class Environment {
         }
 
         try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(file), "utf-8"));
+            byte[] data = new byte[(int) file.length()];
+            DataInputStream stream = new DataInputStream(new FileInputStream(file));
+            stream.readFully(data);
+            stream.close();
+
+            String content = new String(data, "utf-8");
+
+            System.out.println(content);
 
             clearAll();
+            autoSave = false;
+            environmentListener.setName(fileName);
 
-            ArrayList<RuntimeException> parsingErrors = new ArrayList<>();
-            ArrayList<Entity> unparsedEntities = new ArrayList<>();
-            int lineNumber = 0;
-            boolean commentsOnly = true;
+            ArrayList<Exception> errors = new ArrayList<>();
+            ParsingContext parsingContext = new ParsingContext(this);
+            Statement statement = parser.parse(parsingContext, content, errors);
+            statement.eval(parsingContext.createEvaluationContext());
 
-            String line = reader.readLine();
-            while (line != null) {
-                StringBuilder sb = new StringBuilder();
-                while (line != null && (line.startsWith("#") || line.trim().isEmpty())) {
-                    sb.append(line).append('\n');
-                    line = reader.readLine();
-                }
-                if (line != null) {
-                    sb.append(line).append('\n');
-                    line = reader.readLine();
-                    while (line != null && (line.startsWith(" ") || line.equals("end") || line.equals("end;"))) {
-                        sb.append(line).append('\n');
-                        line = reader.readLine();
-                    }
-                    String statement = sb.toString();
-                    if (!statement.isEmpty()) {
-                        try {
-                            Entity entity = parser.parseStub(statement);
-                            if (entity.getUnparsed() != null) {
-                                unparsedEntities.add(entity);
-                            }
-                        } catch (RuntimeException e) {
-                            e.printStackTrace();
-                            parsingErrors.add(e);
-                        }
-                        sb.setLength(0);
-                    }
-                }
+            if (errors.size() > 0) {
+                throw new MetaException("Multiple errors:", errors);
             }
 
-            System.err.println("root variables: " + rootVariables.toString().replace(",", "\n  "));
+//            autoSave = true;
 
-            for (Entity entity : unparsedEntities) {
-                try {
-                    exec(entity.getUnparsed());
-                    entity.setUnparsed(null);
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                    errors.put(entity, e);
-                }
-            }
-
-            autoSave = parsingErrors.size() == 0 && errors.size() == 0;
-            if (parsingErrors.size() == 1 && errors.size() == 0) {
-                throw parsingErrors.get(0);
-            } else if (parsingErrors.size() > 0 || errors.size() > 0) {
-                throw new MetaException("Multiple errors loading '" + fileName + "'.", parsingErrors, errors);
-            }
         } catch (IOException e) {
             e.printStackTrace();
-            autoSave = false;
             throw new RuntimeException(e);
         } finally {
-            environmentListener.setName(file.getName());
-            for (Instance instance : anonymousInstances) {
-                int id = ++lastId;
-                instance.setId(id);
-                synchronized (everything) {
-                    everything.put(id, new WeakReference<Instance>(instance));
-                }
-            }
-            loading = false;
-            anonymousInstances = null;
-
             resume();
         }
     }
@@ -564,6 +513,7 @@ public class Environment {
     public boolean isSuspended() {
         return suspended > 0;
     }
+
 
 
     enum MathFnType {

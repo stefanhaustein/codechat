@@ -10,8 +10,8 @@ import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public class UnresolvedInstanceReference extends UnresolvedExpression {
-    int id;
-    String typeName;
+    public final int id;
+    public final String typeName;
 
     public UnresolvedInstanceReference(int start, int end, String name) {
         super(start, end);

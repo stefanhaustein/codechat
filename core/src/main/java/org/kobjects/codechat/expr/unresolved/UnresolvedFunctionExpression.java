@@ -7,30 +7,33 @@ import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
+import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
 public class UnresolvedFunctionExpression extends UnresolvedExpression {
-    public Closure closure;
-    public Statement body;
-    private FunctionType functionType;
-    public String[] parameterNames;
+    public final UnresolvedStatement body;
+    public final FunctionType functionType;
+    public final String[] parameterNames;
+    public final int id;
 
-    int id;
-
-    public UnresolvedFunctionExpression(int start, int end, int id, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
+    public UnresolvedFunctionExpression(int start, int end, int id, FunctionType functionType, String[] parameterNames, UnresolvedStatement body) {
         super(start, end);
         this.id = id;
 
         this.functionType = functionType;
         this.parameterNames = parameterNames;
-        this.closure = closure;
         this.body = body;
     }
 
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
-        return new FunctionExpression(id, functionType, parameterNames, closure, body);
+        ParsingContext bodyContext = new ParsingContext(parsingContext, true);
+        for (int i = 0; i < parameterNames.length; i++) {
+            bodyContext.addVariable(parameterNames[i], functionType.parameterTypes[i], true);
+        }
+        Statement resolvedBody = body.resolve(bodyContext);
+        return new FunctionExpression(id, functionType, parameterNames, bodyContext.getClosure(), resolvedBody);
     }
 
     @Override
