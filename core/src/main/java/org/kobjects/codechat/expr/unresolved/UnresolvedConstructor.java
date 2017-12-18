@@ -21,8 +21,8 @@ public class UnresolvedConstructor extends UnresolvedExpression {
 
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
-        Type type = parsingContext.environment.resolveType(typeName);
-        return new ConstructorInvocation((InstanceType) type, id);
+        InstanceType type = parsingContext.environment.resolveInstanceType(typeName);
+        return new ConstructorInvocation(type, id);
     }
 
     @Override

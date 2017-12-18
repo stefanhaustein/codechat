@@ -359,7 +359,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
                     }
                     try {
-                        ParsingContext parsingContext = new ParsingContext(environment);
+                        ParsingContext parsingContext = new ParsingContext(environment, ParsingContext.Mode.SYNTAX_CHECK);
                         environment.parse(parsingContext, input.getText().toString());
 
                     } catch (ParsingException e) {
@@ -649,7 +649,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     print(sb.toString());
                 }
             } else {
-                ParsingContext parsingContext = new ParsingContext(environment);
+                ParsingContext parsingContext = new ParsingContext(environment, ParsingContext.Mode.INTERACTIVE);
                 Statement statement = environment.parse(parsingContext, line);
 
                 if (statement instanceof ExpressionStatement) {

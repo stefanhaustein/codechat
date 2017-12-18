@@ -11,7 +11,7 @@ public abstract class UnresolvedStatement {
 
     public abstract Statement resolve(ParsingContext parsingContext);
 
-    public void prepareInstances(ParsingContext parsingContext) {
+    public void resolveTypes(ParsingContext parsingContext) {
     }
 
     public final String toString() {

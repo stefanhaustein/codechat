@@ -2,17 +2,13 @@ package org.kobjects.codechat.statement;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.FunctionExpression;
-import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.parser.Parser;
-import org.kobjects.codechat.type.FunctionType;
 
 public class Assignment extends AbstractStatement {
-    public Expression left;
-    public Expression right;
+    private final Expression left;
+    private final Expression right;
 
     public Assignment(Expression left, Expression right) {
         if (!left.isAssignable()) {
@@ -35,13 +31,6 @@ public class Assignment extends AbstractStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        if (left instanceof RootVariableNode) {
-            RootVariable variable = ((RootVariableNode) left).rootVariable;
-            if (variable.constant && variable.type instanceof FunctionType && right instanceof FunctionExpression) {
-                ((FunctionExpression) right).toString(sb, indent + 4, variable.name);
-                return;
-            }
-        }
         indent(sb, indent);
         left.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
         sb.append(" = ");

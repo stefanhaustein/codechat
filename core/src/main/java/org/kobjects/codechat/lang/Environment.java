@@ -1,12 +1,10 @@
 package org.kobjects.codechat.lang;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
@@ -23,6 +21,7 @@ import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.annotation.ExecLink;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
+import org.kobjects.codechat.parser.ParsingEnvironment;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.InstanceType;
@@ -303,8 +302,8 @@ public class Environment implements ParsingEnvironment {
 
     }
 
-    public Statement parse(ParsingContext parsingContext, String line) {
-        return parser.parse(parsingContext, line);
+    public Statement parse(ParsingContext parsingContext, String code) {
+        return parser.parse(parsingContext, code);
     }
 
     public int createId(Instance instance) {
@@ -392,7 +391,7 @@ public class Environment implements ParsingEnvironment {
             environmentListener.setName(fileName);
 
             ArrayList<Exception> errors = new ArrayList<>();
-            ParsingContext parsingContext = new ParsingContext(this);
+            ParsingContext parsingContext = new ParsingContext(this, ParsingContext.Mode.LOAD);
             Statement statement = parser.parse(parsingContext, content, errors);
             statement.eval(parsingContext.createEvaluationContext(this));
 
@@ -411,7 +410,7 @@ public class Environment implements ParsingEnvironment {
     }
 
     public void exec(String s) {
-        ParsingContext parsingContext = new ParsingContext(this);
+        ParsingContext parsingContext = new ParsingContext(this, ParsingContext.Mode.INTERACTIVE);
         Statement e = parse(parsingContext, s);
         if (e != null) {
             EvaluationContext evaluationContext = parsingContext.createEvaluationContext(this);
@@ -494,7 +493,7 @@ public class Environment implements ParsingEnvironment {
         String serialized = asb.toString();
 
         try {
-            parse(new ParsingContext(this), serialized);
+            parse(new ParsingContext(this, ParsingContext.Mode.INTERACTIVE), serialized);
         } catch (Exception e) {
             asb = new AnnotatedStringBuilder();
 

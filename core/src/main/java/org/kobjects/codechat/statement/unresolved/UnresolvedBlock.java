@@ -1,12 +1,9 @@
 package org.kobjects.codechat.statement.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.expr.unresolved.UnresolvedConstructor;
-import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.codechat.type.InstanceType;
 
 public class UnresolvedBlock extends UnresolvedStatement {
     public UnresolvedStatement[] statements;
@@ -33,9 +30,9 @@ public class UnresolvedBlock extends UnresolvedStatement {
     }
 
     @Override
-    public void prepareInstances(ParsingContext parsingContext) {
+    public void resolveTypes(ParsingContext parsingContext) {
         for (UnresolvedStatement statement : statements) {
-            statement.prepareInstances(parsingContext);
+            statement.resolveTypes(parsingContext);
         }
     }
 

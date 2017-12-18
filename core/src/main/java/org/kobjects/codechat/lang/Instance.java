@@ -56,11 +56,16 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
                     if (materialProperty.modified()) {
                         Object value = property.get();
                         if (value != null) {
-                            asb.append("  ");
-                            asb.append(propertyDescriptor.name);
-                            asb.append(" = ");
-                            asb.append(Formatting.toLiteral(value));
-                            asb.append(";\n");
+                            if (serializationContext.getMode() == SerializationContext.Mode.EDIT ||
+                                    (value instanceof Instance) == (serializationContext.getMode() == SerializationContext.Mode.SAVE2)) {
+                                asb.append("  ");
+                                asb.append(propertyDescriptor.name);
+                                asb.append(" = ");
+                                asb.append(Formatting.toLiteral(value));
+                                asb.append(";\n");
+                            } else if (serializationContext.getMode() == SerializationContext.Mode.SAVE) {
+                                serializationContext.setNeedsPhase2(this);
+                            }
                         }
                     }
                 }

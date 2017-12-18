@@ -4,12 +4,13 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 public class SerializationContext {
-    public enum Mode {SAVE, EDIT, LIST}
+    public enum Mode {SAVE, EDIT, LIST, SAVE2}
 
     private final HashSet<Entity> serialized = new HashSet<>();
     private final LinkedHashSet<Entity> queue = new LinkedHashSet<>();
+    private final LinkedHashSet<Entity> queue2 = new LinkedHashSet<>();
     private final Environment environment;
-    private final Mode mode;
+    private Mode mode;
 
     public SerializationContext(Environment environment, Mode mode) {
         this.environment = environment;
@@ -25,6 +26,14 @@ public class SerializationContext {
         queue.remove(entity);
     }
 
+    public void setNeedsPhase2(Entity entity) {
+        if (mode != Mode.SAVE) {
+            throw new IllegalStateException("Phase two can only be requested in mode SAVE.");
+        }
+        setSerialized(entity);
+        queue2.add(entity);
+    }
+
     public void enqueue(Entity entity) {
         if (!serialized.contains(entity) && !queue.contains(entity)) {
             queue.add(entity);
@@ -33,6 +42,12 @@ public class SerializationContext {
 
     public Entity pollPending() {
         if (queue.isEmpty()) {
+            if (mode == Mode.SAVE) {
+                queue.addAll(queue2);
+                queue2.clear();
+                mode = Mode.SAVE2;
+                return pollPending();
+            }
             return null;
         }
         Entity result = queue.iterator().next();

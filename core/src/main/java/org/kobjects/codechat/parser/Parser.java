@@ -7,10 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import org.kobjects.codechat.expr.Literal;
-import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.expr.unresolved.UnresolvedArrayExpression;
-import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedBinaryOperator;
 import org.kobjects.codechat.expr.unresolved.UnresolvedConstructor;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
@@ -21,26 +18,10 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedMultiAssignment;
 import org.kobjects.codechat.expr.unresolved.UnresolvedOnExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
-import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.lang.OnInstance;
-import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.lang.UserFunction;
-import org.kobjects.codechat.statement.Assignment;
 import org.kobjects.codechat.expr.unresolved.UnresolvedInvocation;
-import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.statement.Block;
-import org.kobjects.codechat.statement.CountStatement;
-import org.kobjects.codechat.statement.ForStatement;
-import org.kobjects.codechat.statement.HelpStatement;
-import org.kobjects.codechat.statement.ReturnStatement;
-import org.kobjects.codechat.statement.LocalVarDeclarationStatement;
-import org.kobjects.codechat.statement.DeleteStatement;
-import org.kobjects.codechat.statement.ExpressionStatement;
-import org.kobjects.codechat.statement.IfStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedAssignment;
 import org.kobjects.codechat.statement.unresolved.UnresolvedBlock;
@@ -52,14 +33,13 @@ import org.kobjects.codechat.statement.unresolved.UnresolvedIfStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedSimpleStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedVarDeclarationStatement;
-import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
 public class Parser {
+
     // public static final int PRECEDENCE_HASH = 8;
     public static final int PRECEDENCE_PREFIX = 11;
     public static final int PRECEDENCE_APPLY = 10;
@@ -97,12 +77,12 @@ public class Parser {
         this.environment = environment;
     }
 
-    public Statement parse(ParsingContext parsingContext, String line) {
-        return parse(parsingContext, line, null);
+    public Statement parse(ParsingContext parsingContext, String code) {
+        return parse(parsingContext, code, null);
     }
 
-    public Statement parse(ParsingContext parsingContext, String line, List<Exception> errors) {
-        ExpressionParser.Tokenizer tokenizer = createTokenizer(line);
+    public Statement parse(ParsingContext parsingContext, String code, List<Exception> errors) {
+        ExpressionParser.Tokenizer tokenizer = createTokenizer(code);
         tokenizer.nextToken();
         UnresolvedStatement unresolved = parseBlock(tokenizer, true, "");
         while (tokenizer.tryConsume(";"))
@@ -114,7 +94,7 @@ public class Parser {
             UnresolvedBlock block = (UnresolvedBlock) unresolved;
             for (UnresolvedStatement statement : block.statements) {
                 try {
-                    statement.prepareInstances(parsingContext);
+                    statement.resolveTypes(parsingContext);
                 } catch (Exception e) {
                     errors.add(e);
                 }
@@ -129,7 +109,7 @@ public class Parser {
             }
             result = new Block(list.toArray(new Statement[list.size()]));
         } else {
-            unresolved.prepareInstances(parsingContext);
+            unresolved.resolveTypes(parsingContext);
             result = unresolved.resolve(parsingContext);
         }
         return result;
@@ -316,7 +296,7 @@ public class Parser {
         return documentation == null || documentation.trim().isEmpty() ? null : documentation;
     }
 
-    UnresolvedStatement parseStatement(ExpressionParser.Tokenizer tokenizer, boolean interactive) {
+    UnresolvedStatement parseStatement(ExpressionParser.Tokenizer tokenizer, boolean rootLevel) {
         String documentation = consumeComments(tokenizer);
         if (tokenizer.tryConsume("count")) {
             return parseCount(tokenizer);
@@ -332,14 +312,14 @@ public class Parser {
 
             UnresolvedFunctionExpression functionExpr = parseFunction(tokenizer, id, true);
 
-            return processDeclaration(true, interactive, name, null, functionExpr, documentation);
+            return processDeclaration(true, rootLevel, name, null, functionExpr, documentation);
         }
         if (tokenizer.currentValue.equals("proc") || tokenizer.currentValue.startsWith("proc#") ) {
             int p0 = tokenizer.currentPosition;
             int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();
             UnresolvedFunctionExpression functionExpr = parseFunction(tokenizer, id, false);
-            return processDeclaration(true, interactive, name, null, functionExpr, documentation);
+            return processDeclaration(true, rootLevel, name, null, functionExpr, documentation);
         }
         if (tokenizer.tryConsume("for")) {
             return parseFor(tokenizer);
@@ -360,10 +340,10 @@ public class Parser {
             return new UnresolvedExpressionStatement(parseOnExpression(OnInstance.ON_INTERVAL_TYPE, tokenizer, extractId(name)));
         }
         if (tokenizer.tryConsume("var") || tokenizer.tryConsume("variable") || tokenizer.tryConsume("mutable")) {
-            return parseVar(tokenizer, false, interactive, documentation);
+            return parseVar(tokenizer, false, rootLevel, documentation);
         }
         if (tokenizer.tryConsume("let") || tokenizer.tryConsume("const")) {
-            return parseVar(tokenizer, true, interactive, documentation);
+            return parseVar(tokenizer, true, rootLevel, documentation);
         }
         if (tokenizer.tryConsume("return")) {
             return new UnresolvedSimpleStatement(UnresolvedSimpleStatement.Kind.RETURN, parseExpression(tokenizer));
@@ -396,7 +376,6 @@ public class Parser {
             UnresolvedBinaryOperator op = (UnresolvedBinaryOperator) unresolved;
             return new UnresolvedAssignment(op.left, op.right);
         }
-
 
         if (unresolved instanceof UnresolvedIdentifier) {
             ArrayList<UnresolvedExpression> params = new ArrayList<>();
@@ -514,7 +493,6 @@ public class Parser {
                     return super.suffixOperator(context, tokenizer, name, argument);
             }
         }
-
 
         @Override
         public UnresolvedExpression numberLiteral(Void context, ExpressionParser.Tokenizer tokenizer, String value) {

@@ -36,11 +36,11 @@ public class Shell implements EnvironmentListener {
         }
     }
 
-    private void process(String line) {
-        ParsingContext parsingContext = new ParsingContext(environment);
+    private void process(String code) {
+        ParsingContext parsingContext = new ParsingContext(environment, ParsingContext.Mode.INTERACTIVE);
         boolean printed = false;
         try {
-            Statement statement = environment.parse(parsingContext, line);
+            Statement statement = environment.parse(parsingContext, code);
 
             if (statement instanceof ExpressionStatement) {
                 Expression expression = ((ExpressionStatement) statement).expression;
