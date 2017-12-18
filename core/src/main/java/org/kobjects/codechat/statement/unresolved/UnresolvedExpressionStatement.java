@@ -54,8 +54,10 @@ public class UnresolvedExpressionStatement extends  UnresolvedStatement {
         if (potentialCtor instanceof UnresolvedConstructor) {
             UnresolvedConstructor ctor = (UnresolvedConstructor) potentialCtor;
             if (ctor.id != -1) {
-                 InstanceType type = (InstanceType) parsingContext.environment.resolveType(ctor.typeName);
-                 parsingContext.environment.getInstance(type, ctor.id, true);
+                // Needed because there may be references before it's instantiated
+                // Alternatives might be to just allow implicit creation or going back to 2-phase init
+                InstanceType type = (InstanceType) parsingContext.environment.resolveType(ctor.typeName);
+                parsingContext.environment.getInstance(type, ctor.id, true);
             }
         }
     }

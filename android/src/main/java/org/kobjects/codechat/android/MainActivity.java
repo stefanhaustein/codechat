@@ -658,7 +658,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     printInput(s);
                     printed = true;
                     int count = chatView.getCount();
-                    Object result = expression.eval(parsingContext.createEvaluationContext());
+                    Object result = expression.eval(parsingContext.createEvaluationContext(environment));
                     if (expression.getType() == null) {
                         if (chatView.getCount() == count) {
                             print("ok");
@@ -670,7 +670,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     printInput(statement.toString());
                     printed = true;
                     int count = chatView.getCount();
-                    statement.eval(parsingContext.createEvaluationContext());
+                    statement.eval(parsingContext.createEvaluationContext(environment));
                     if (chatView.getCount() == count) {
                         print("ok");
                     }

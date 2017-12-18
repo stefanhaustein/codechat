@@ -8,10 +8,11 @@ import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.LocalVariable;
+import org.kobjects.codechat.lang.ParsingEnvironment;
 import org.kobjects.codechat.type.Type;
 
 public class ParsingContext {
-    public Environment environment;
+    public ParsingEnvironment environment;
     ParsingContext parent;
     public Map<String, LocalVariable> variables = new TreeMap<>();
     int[] nextIndex;
@@ -22,7 +23,7 @@ public class ParsingContext {
     Closure closure;
 
 
-    public ParsingContext(Environment environment) {
+    public ParsingContext(ParsingEnvironment environment) {
         this.environment = environment;
         nextIndex = new int[1];
     }
@@ -74,7 +75,7 @@ public class ParsingContext {
         return closure;
     }
 
-    public EvaluationContext createEvaluationContext() {
+    public EvaluationContext createEvaluationContext(Environment environment) {
         if (parent != null) {
             throw new RuntimeException("Can create evaluationContext only for root parsing context");
         }

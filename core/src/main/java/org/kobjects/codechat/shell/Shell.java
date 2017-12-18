@@ -47,7 +47,7 @@ public class Shell implements EnvironmentListener {
                 String s = expression.toString();
                 print(s);
                 printed = true;
-                Object result = expression.eval(parsingContext.createEvaluationContext());
+                Object result = expression.eval(parsingContext.createEvaluationContext(environment));
                 if (expression.getType() == null) {
                     print("ok");
                 } else {
@@ -56,7 +56,7 @@ public class Shell implements EnvironmentListener {
             } else {
                 print(statement.toString());
                 printed = true;
-                statement.eval(parsingContext.createEvaluationContext());
+                statement.eval(parsingContext.createEvaluationContext(environment));
                 print("ok");
             }
         } catch (Exception e) {

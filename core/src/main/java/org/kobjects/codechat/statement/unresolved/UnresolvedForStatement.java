@@ -22,6 +22,7 @@ public class UnresolvedForStatement extends UnresolvedStatement {
         this.expression = expression;
         this.body = body;
     }
+
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
         AbstractStatement.indent(sb, indent);

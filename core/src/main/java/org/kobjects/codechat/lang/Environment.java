@@ -29,7 +29,7 @@ import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 
-public class Environment {
+public class Environment implements ParsingEnvironment {
 
     static final CharSequence ABOUT_TEXT = new AnnotatedStringBuilder()
             .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n Type '")
@@ -394,7 +394,7 @@ public class Environment {
             ArrayList<Exception> errors = new ArrayList<>();
             ParsingContext parsingContext = new ParsingContext(this);
             Statement statement = parser.parse(parsingContext, content, errors);
-            statement.eval(parsingContext.createEvaluationContext());
+            statement.eval(parsingContext.createEvaluationContext(this));
 
             if (errors.size() > 0) {
                 throw new MetaException("Multiple errors:", errors);
@@ -414,7 +414,7 @@ public class Environment {
         ParsingContext parsingContext = new ParsingContext(this);
         Statement e = parse(parsingContext, s);
         if (e != null) {
-            EvaluationContext evaluationContext = parsingContext.createEvaluationContext();
+            EvaluationContext evaluationContext = parsingContext.createEvaluationContext(this);
             e.eval(evaluationContext);
         }
     }
@@ -441,6 +441,11 @@ public class Environment {
             throw new RuntimeException("Not a type: " + name);
         }
         return (Type) var.value;
+    }
+
+    @Override
+    public RootVariable getRootVariable(String name) {
+        return rootVariables.get(name);
     }
 
     Iterable<Entity> findDependencies(Entity entity) {

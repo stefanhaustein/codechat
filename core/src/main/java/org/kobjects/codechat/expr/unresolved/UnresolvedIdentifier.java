@@ -29,7 +29,7 @@ public class UnresolvedIdentifier extends UnresolvedExpression {
         if (variable != null) {
             return new LocalVariableNode(variable);
         }
-        RootVariable rootVariable = parsingContext.environment.rootVariables.get(name);
+        RootVariable rootVariable = parsingContext.environment.getRootVariable(name);
         if (rootVariable != null) {
             return new RootVariableNode(rootVariable);
         }
