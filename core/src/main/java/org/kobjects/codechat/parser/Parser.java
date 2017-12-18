@@ -30,6 +30,7 @@ import org.kobjects.codechat.statement.unresolved.UnresolvedExpressionStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedForStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedHelpStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedIfStatement;
+import org.kobjects.codechat.statement.unresolved.UnresolvedScope;
 import org.kobjects.codechat.statement.unresolved.UnresolvedSimpleStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedVarDeclarationStatement;
@@ -115,8 +116,8 @@ public class Parser {
         return result;
     }
 
-    UnresolvedStatement parseBlock(ExpressionParser.Tokenizer tokenizer, boolean interactive, String... end) {
-        UnresolvedStatement block = parseBlockLeaveEnd(tokenizer, interactive, end);
+    UnresolvedStatement parseBlock(ExpressionParser.Tokenizer tokenizer, boolean rootLevel, String... end) {
+        UnresolvedStatement block = parseBlockLeaveEnd(tokenizer, rootLevel, end);
         tokenizer.nextToken();
         return block;
     }
@@ -362,10 +363,9 @@ public class Parser {
             return new UnresolvedHelpStatement(what);
         }
 
-        // TOOD: return unparsed closure or similar?
-        if (tokenizer.tryConsume("begin")) {
-            // ParsingContext blockContext = new ParsingContext(parsingContext, false);
-            return parseBlock(tokenizer, false, "end", "");
+        if (tokenizer.tryConsume("begin") || tokenizer.tryConsume("scope")) {
+            tokenizer.tryConsume(":");
+            return new UnresolvedScope(parseBlock(tokenizer, false, "end", ""));
         }
 
 
