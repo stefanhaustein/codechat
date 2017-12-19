@@ -34,6 +34,7 @@ public class UnresolvedSimpleStatement extends UnresolvedStatement {
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
         AbstractStatement.indent(sb, indent);
+        sb.append(kind.toString().toLowerCase()).append(' ');
         expression.toString(sb, indent + 4);
         sb.append("\n");
     }

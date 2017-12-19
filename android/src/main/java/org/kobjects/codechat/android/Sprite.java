@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import java.lang.ref.WeakReference;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
@@ -75,7 +74,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     public LazyProperty<Collection> collisions = new LazyProperty<Collection>() {
         @Override
         protected Collection compute() {
-            Collection result = (Collection) environment.instantiate(new SetType(Sprite.TYPE), -1);
+            Collection result = (Collection) environment.createInstance(new SetType(Sprite.TYPE), -1);
 
             double size = Sprite.this.size.get() * 0.8;
             double virtualScreenWidth = environment.screen.width.get();

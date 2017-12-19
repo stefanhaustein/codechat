@@ -11,6 +11,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -49,7 +50,6 @@ public class Environment implements ParsingEnvironment {
     public boolean autoSave = true;
     boolean loading;
     List<Instance> anonymousInstances;
-    LinkedHashMap<Entity,Exception> errors = new LinkedHashMap<>();
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
@@ -59,6 +59,16 @@ public class Environment implements ParsingEnvironment {
         addType(OnInstance.ON_CHANGE_TYPE, OnInstance.ON_INTERVAL_TYPE, OnInstance.ON_TYPE);
 
         addBuiltins();
+    }
+
+    public List<RootVariable> getErrors() {
+        ArrayList<RootVariable> result = new ArrayList<>();
+        for (RootVariable var : rootVariables.values()) {
+            if (var.error != null) {
+                result.add(var);
+            }
+        }
+        return result;
     }
 
     private void addBuiltins() {
@@ -107,13 +117,16 @@ public class Environment implements ParsingEnvironment {
         addSystemConstant("errors", new NativeFunction(null) {
                    @Override
                 protected Object eval(Object[] params) {
+                       List<RootVariable> errors = getErrors();
                 if (errors.size() == 0) {
                     environmentListener.print("(no errors)");
                 } else {
                     AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-                    for (Map.Entry<Entity, Exception> entry : errors.entrySet()) {
-                       Formatting.toLiteral(asb, entry.getKey());
-                       asb.append(": ").append(entry.getValue().getMessage()).append("\n");
+                    for (RootVariable errorVar : errors) {
+                       asb.append(errorVar.name, new EntityLink(errorVar));
+                       asb.append(": ");
+                       Formatting.exceptionToString(asb, errorVar.error);
+                       asb.append('\n');
                     }
                     environmentListener.print(asb.build());
                 }
@@ -238,28 +251,23 @@ public class Environment implements ParsingEnvironment {
         rootVariables.put(name, var);
     }
 
-    public <T extends Instance> T instantiate(InstanceType<T> type, int id) {
-        if (id != -1) {
+    public <T extends Instance> T createInstance(InstanceType<T> type, int id) {
+        if (id == -1) {
+            return type.createInstance(this, id);
+        }
+
+        synchronized (everything) {
             WeakReference<Instance> ref;
-            synchronized (everything) {
-                lastId = Math.max(id, lastId);
-                ref = everything.get(id);
-            }
+            lastId = Math.max(id, lastId);
+            ref = everything.get(id);
             Instance existing = ref == null ? null : ref.get();
             if (existing != null) {
-                 if (!(existing instanceof Entity) || (existing).getUnparsed() == null) {
-                     throw new RuntimeException("instance with id " + id + " exists already: " + existing);
-                 }
-                return (T) existing;
+                throw new RuntimeException("instance with id " + id + " exists already: " + existing);
             }
+            T instance = type.createInstance(this, id);
+            everything.put(id, new WeakReference<Instance>(instance));
+            return instance;
         }
-        T instance = type.createInstance(this, id);
-        if (id != -1) {
-            synchronized (everything) {
-                everything.put(id, new WeakReference<Instance>(instance));
-            }
-        }
-        return instance;
     }
 
 
@@ -314,21 +322,33 @@ public class Environment implements ParsingEnvironment {
         }
     }
 
-    public <T extends Instance> T getInstance(InstanceType<T> type, int id, boolean force) {
+
+    public <T extends Instance> T getOrCreateInstance(InstanceType<T> type, int id) {
+        synchronized (everything) {
+            WeakReference reference;
+            reference = id == -1 ? null : everything.get(id);
+            T result = reference != null ? (T) reference.get() : null;
+            if (result == null) {
+                result = createInstance(type, id);
+            }
+            return result;
+        }
+    }
+
+    /**
+     * The force parameter is used for functions with ids and and "on..." expressions that are overwritten.
+     */
+    public <T extends Instance> T getInstance(InstanceType<T> type, int id) {
         WeakReference reference;
         synchronized (everything) {
             reference = everything.get(id);
             T result = reference != null ? (T) reference.get() : null;
             if (result == null) {
-                if (!force) {
-                    throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
-                }
-                result = instantiate(type, id);
+                throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
             } else {
                 if (!Type.of(result).equals(type)) {
                     throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + Type.of(result));
                 }
-                lastId = Math.max(lastId, id);
             }
             return result;
         }
@@ -349,7 +369,6 @@ public class Environment implements ParsingEnvironment {
             everything.clear();
         }
         constants.clear();
-        errors.clear();
         autoSave = true;
         lastId = 0;
     }

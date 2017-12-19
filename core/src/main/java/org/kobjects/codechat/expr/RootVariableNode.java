@@ -48,14 +48,12 @@ public class RootVariableNode extends Expression {
     @Override
     public void assign(EvaluationContext context, Object value) {
         rootVariable.value = value;
-        if (rootVariable.constant && value instanceof Instance) {
-            context.environment.constants.put((Instance) value, rootVariable.name);
-        }
+
     }
 
 
     public boolean isAssignable() {
-        return true;
+        return !rootVariable.constant;
     }
 
     @Override

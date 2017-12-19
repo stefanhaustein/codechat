@@ -6,6 +6,7 @@ import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.FunctionType;
@@ -24,6 +25,13 @@ public class RootVarDeclarationStatement extends AbstractStatement {
     @Override
     public Object eval(EvaluationContext context) {
         variable.value = expression.eval(context);
+        variable.error = null;
+        variable.unparsed = null;
+
+        if (variable.constant && variable.value instanceof Instance) {
+            context.environment.constants.put((Instance) variable.value, variable.name);
+        }
+
         return KEEP_GOING;
     }
 

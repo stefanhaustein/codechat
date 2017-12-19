@@ -85,6 +85,12 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
         return sb.length();
     }
 
+    public void indent(int count) {
+        for (int i = 0; i < count; i++) {
+            sb.append(' ');
+        }
+    }
+
     @Override
     public char charAt(int index) {
         return sb.charAt(index);

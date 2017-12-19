@@ -65,7 +65,7 @@ public class Screen extends Instance {
     LazyProperty<Collection> sprites = new LazyProperty<Collection>() {
         @Override
         protected Collection compute() {
-            Collection result = environment.instantiate(new SetType(Sprite.TYPE), -1);
+            Collection result = environment.createInstance(new SetType(Sprite.TYPE), -1);
             synchronized (allSprites) {
                 System.out.println("************************ allsprites size: " + allSprites.size());
                 for (int i = allSprites.size() - 1; i >= 0; i--) {

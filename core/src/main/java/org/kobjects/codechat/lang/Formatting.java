@@ -2,9 +2,11 @@ package org.kobjects.codechat.lang;
 
 import java.util.Arrays;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.expressionparser.ExpressionParser;
 
 public final class Formatting {
     private Formatting() {
@@ -19,6 +21,16 @@ public final class Formatting {
             return String.valueOf((long) d);
         }
         return String.valueOf(d);
+    }
+
+    public static void exceptionToString(AnnotatedStringBuilder asb, Throwable e) {
+        if (e instanceof ToAnnotatedString) {
+            ((ToAnnotatedString) e).toString(asb);
+        } else if (e instanceof ExpressionParser.ParsingException) {
+            asb.append(e.getMessage());
+        } else {
+            asb.append(e.toString());
+        }
     }
 
     public static String quote(String s) {

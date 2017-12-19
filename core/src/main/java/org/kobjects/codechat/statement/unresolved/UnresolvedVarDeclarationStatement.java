@@ -8,6 +8,7 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedFunctionExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedMultiAssignment;
+import org.kobjects.codechat.lang.DeclarationException;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.LocalVariable;
@@ -17,6 +18,7 @@ import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Assignment;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.LocalVarDeclarationStatement;
+import org.kobjects.codechat.statement.RootVarDeclarationStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
@@ -26,15 +28,15 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
     private final boolean constant;
     private final boolean rootLevel;
     private final String variableName;
-    private final Type type;
+    private final Type explicitType;
     private final UnresolvedExpression initializer;
     private final String documentation;
 
-    public UnresolvedVarDeclarationStatement(boolean constant, boolean rootLevel, String variableName, Type type, UnresolvedExpression initializer, String documentation) {
+    public UnresolvedVarDeclarationStatement(boolean constant, boolean rootLevel, String variableName, Type explicitType, UnresolvedExpression initializer, String documentation) {
         this.constant = constant;
         this.rootLevel = rootLevel;
         this.variableName = variableName;
-        this.type = type;
+        this.explicitType = explicitType;
         this.initializer = initializer;
         this.documentation = documentation;
     }
@@ -47,67 +49,58 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
         sb.append("\n");
     }
 
+    private Type resolveType(ParsingContext parsingContext) {
+        if (explicitType != null) {
+            return explicitType;
+        }
+        if (initializer == null) {
+            // Should be caught at parsing already.
+            throw new RuntimeException("Intitializer and type can't both be null");
+        }
+        if (initializer instanceof UnresolvedLiteral) {
+             Object value = ((UnresolvedLiteral) initializer).value;
+              return Type.of(value);
+        }
+        if (initializer instanceof UnresolvedFunctionExpression) {
+                return ((UnresolvedFunctionExpression) initializer).functionType;
+        }
+
+        UnresolvedExpression potentialCtor = (initializer instanceof UnresolvedMultiAssignment)
+                        ? ((UnresolvedMultiAssignment) initializer).base : initializer;
+
+        if (potentialCtor instanceof UnresolvedConstructor) {
+            UnresolvedConstructor ctor = (UnresolvedConstructor) potentialCtor;
+            return parsingContext.environment.resolveInstanceType(ctor.typeName);
+        }
+        return initializer.resolve(parsingContext, null).getType();
+    }
+
     @Override
     public Statement resolve(ParsingContext parsingContext) {
-        Expression resolved;
-        Type resolvedType;
-        if (initializer == null) {
-            resolved = null;
-            resolvedType = type;
-        } else {
-            resolved = initializer.resolve(parsingContext, type);
-            if (type != null && !type.isAssignableFrom(resolved.getType())) {
-                throw new ExpressionParser.ParsingException(initializer.start, initializer.end, "Declared type '" + type + "' not assignable from expression.", null);
-            }
-            resolvedType = type == null ? resolved.getType() : type;
-        }
-
+        Statement result;
         if (rootLevel) {
-            if (resolvedType == null) {
-                throw new RuntimeException(
-                        "Explicit type or initializer required for root constants and variables: '" + variableName + "'", null);
+            RootVariable variable = parsingContext.environment.getRootVariable(variableName);
+            variable.documentation = documentation;
+            try {
+                Expression resolvedInitilaizer = initializer.resolve(parsingContext, explicitType);
+                result = new RootVarDeclarationStatement(variable, resolvedInitilaizer, explicitType != null);
+            } catch (Exception e) {
+                variable.error = e;
+                variable.setUnparsed(toString());
+                throw new DeclarationException(variable, e);
             }
-            RootVariable rootVariable = parsingContext.environment.getRootVariable(variableName);
-            rootVariable.documentation = documentation;
-            Expression left = new RootVariableNode(rootVariable);
-            if (resolved == null) {
-                return new ExpressionStatement(left);
-            }
-            return new Assignment(left, resolved);
+        } else {
+            Expression resolved = initializer.resolve(parsingContext, explicitType);
+            LocalVariable variable = parsingContext.addVariable(variableName, resolveType(parsingContext), constant);
+            result = new LocalVarDeclarationStatement(variable, resolved);
         }
-
-        if (resolved == null) {
-            throw new RuntimeException(
-                    "Initializer required for local constants and variables: '" + variableName + "'.", null);
-        }
-        LocalVariable variable = parsingContext.addVariable(variableName, resolvedType, constant);
-        return new LocalVarDeclarationStatement(variable, resolved);
+        return result;
     }
 
     @Override
     public void resolveTypes(ParsingContext parsingContext) {
-        if (!rootLevel) {
-            return;
+        if (rootLevel) {
+            parsingContext.environment.declareRootVariable(variableName, resolveType(parsingContext), constant);
         }
-        Type resolvedType = type;
-        if (resolvedType == null) {
-            if (initializer instanceof UnresolvedLiteral) {
-                Object value = ((UnresolvedLiteral) initializer).value;
-                resolvedType = Type.of(value);
-            } else if (initializer instanceof UnresolvedFunctionExpression) {
-                resolvedType = ((UnresolvedFunctionExpression) initializer).functionType;
-            } else {
-                UnresolvedExpression potentialCtor = (initializer instanceof UnresolvedMultiAssignment)
-                        ? ((UnresolvedMultiAssignment) initializer).base : initializer;
-
-                if (potentialCtor instanceof UnresolvedConstructor) {
-                    UnresolvedConstructor ctor = (UnresolvedConstructor) potentialCtor;
-                    resolvedType = parsingContext.environment.resolveInstanceType(ctor.typeName);
-                } else {
-                    resolvedType = initializer.resolve(parsingContext, null).getType();
-                }
-            }
-        }
-        parsingContext.environment.declareRootVariable(variableName, resolvedType, constant);
     }
 }

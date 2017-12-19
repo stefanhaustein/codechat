@@ -21,9 +21,8 @@ public class InstanceReference extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        return context.environment.getInstance(type, id, false);
+        return context.environment.getInstance(type, id);
     }
-
 
     @Override
     public Type getType() {
@@ -46,7 +45,7 @@ public class InstanceReference extends Expression {
     }
 
     public void getDependencies(Environment environment, Collection<Entity> result) {
-        result.add((Instance) environment.getInstance(type, id, false));
+        result.add(environment.getInstance(type, id));
     }
 
     @Override

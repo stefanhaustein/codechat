@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 
-public class MetaException extends RuntimeException {
+public class MetaException extends RuntimeException implements ToAnnotatedString {
 
     List<? extends Exception> exceptions;
 

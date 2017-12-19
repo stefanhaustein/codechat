@@ -16,6 +16,7 @@ public class RootVariable implements Entity, HasDependencies, Documented {
     public boolean builtin;
     public String unparsed;
     public String documentation;
+    public Exception error;
 
     public void dump(StringBuilder sb) {
         sb.append(name);

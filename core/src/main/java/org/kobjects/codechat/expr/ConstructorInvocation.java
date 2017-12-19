@@ -18,7 +18,7 @@ public class ConstructorInvocation extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        return context.environment.getInstance(type, id, true);
+        return context.environment.createInstance(type, id);
     }
 
     @Override

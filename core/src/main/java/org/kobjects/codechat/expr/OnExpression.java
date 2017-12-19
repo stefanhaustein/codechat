@@ -27,7 +27,7 @@ public class OnExpression extends Expression {
 
     @Override
     public Object eval(EvaluationContext context) {
-        OnInstance result = (OnInstance) context.environment.getInstance(type, id, true);
+        OnInstance result = (OnInstance) context.environment.getOrCreateInstance(type, id);
         EvaluationContext template = closure.createEvalContext(context);
         result.init(this, template);
         return result;
