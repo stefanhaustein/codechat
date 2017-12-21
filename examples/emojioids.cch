@@ -1,88 +1,162 @@
-proc addAsteroid():
-  let a = new Sprite
-  a.face = "🥔"
-  a.edgeMode = WRAP
-  a.xAlign = LEFT
-  a.dx = 5 - (random()) × 10
-  a.dy = 5 - (random()) × 10
-  a.yAlign = TOP
-  a.size = 30
-  a.rotation = 10 - 20 × (random())
-end
-proc explodeAsteroid(a: Sprite):
-  if a.size > 20:
-    count i to 2:
-      let b = new Sprite ::
-         x = a.x
-         y = a.y
-         size = a.size / 2
-         edgeMode = a.edgeMode
-         xAlign = a.xAlign
-         yAlign = a.yAlign
-         speed = a.speed × 1.5
-         direction = a.direction + i × 100 - 50
-         face = "🥔"
-         rotation = a.rotation × 1.5
-       end
-    end
-  end
-  a.face = "💥"
-  play "💥"
-  wait 0.2
-  delete a;
-end
-let fireButton = new Sprite ::
+let fireButton = new Sprite :: 
   face = "⏺️";
   size = 25;
   xAlign = RIGHT;
   yAlign = BOTTOM;
+  z = 1;
 end
-proc handleShot(shot: Sprite, other: Sprite):
-  if other.face = "🥔":
-    delete shot;
-    explodeAsteroid(other)
-  end
-end
-let leftButton = new Sprite ::
+let leftButton = new Sprite :: 
   face = "↪️";
   size = 25;
   xAlign = LEFT;
   yAlign = BOTTOM;
+  z = 1;
 end
-let rightButton = new Sprite ::
+let rightButton = new Sprite :: 
   face = "↩️";
   size = 25;
   x = 25;
   xAlign = LEFT;
   yAlign = BOTTOM;
+  z = 1;
 end
-let ship = new Sprite ::
-  angle = 273.5099999999811;
+let scoreDisplay = new Text :: 
+  text = "0";
+  xAlign = RIGHT;
+  yAlign = TOP;
+  z = 1;
+end
+let ship = new Sprite :: 
+  angle = 296.7299999999297;
   face = "🚀";
-  rotation = 0;
-  size = 25;
+  size = 20;
+end
+variable asteroidCount = 1
+variable level = 1
+variable score = 0
+proc addAsteroid():
+  let a = new Sprite
+  a.x = 50
+  a.y = 50
+  a.face = "🥔"
+  a.edgeMode = WRAP
+  a.dx = 10 - (random()) × 20
+  a.dy = 10 - (random()) × 20
+  a.size = 30
+  a.rotation = 20 - 40 × (random())
+  asteroidCount +=  1
+end
+proc addScore(n: Number):
+  score +=  round(n)
+  scoreDisplay.text = "" + score
+end
+proc explodeAsteroid(a: Sprite):
+  addScore(a.size)
+  if a.size > 15:
+    count i to 2:
+      let b = new Sprite ::
+            x = a.x
+            y = a.y
+            size = a.size × 2 / 3
+            edgeMode = a.edgeMode
+            speed = a.speed × 2
+            direction = a.direction + i × 90 - 45
+            face = "🥔"
+            rotation = a.rotation × 1.5
+          end 
+      asteroidCount +=  1
+    end
+  end
+  a.face = "💥"
+  a.grow = 10
+  a.fade = -1
+  play "💥"
+  asteroidCount -=  1
+  if asteroidCount = 0:
+    nextLevel 
+  end
+end
+proc gameOver():
+  level = -1
+  ship.face = "💥"
+  play "💥"
+  wait 0.2
+  ship.face = "☠️"
+  wait 1
+  level = 0
+end
+proc handleShot(shot: Sprite, other: Sprite):
+  if other.face = "🥔":
+    shot.opacity = 0
+    explodeAsteroid(other)
+  end
+end
+proc nextLevel():
+  level +=  1
+  count a to level:
+    addAsteroid 
+  end
 end
 proc shoot():
   variable shot = new Sprite
-  shot.face = "⭐"
+  shot.face = "⚫️"
   shot.speed = 100
+  shot.size = 5
   shot.direction = ship.angle - 45
   play "🔫"
   onchange shot.collisions:
-            for other in shot.collisions:
-              handleShot(shot, other)
-            end
-          end
+       for other in shot.collisions:
+         handleShot(shot, other)
+       end
+      end
 end
-on#9 fireButton.touch:
-  shoot
+proc startGame():
+  for s in screen.sprites:
+    if s.face = "🥔":
+      delete s;
+    end
+  end
+  asteroidCount = 0
+  score = 0
+  level = 1
+  ship.face = "🚀"
+  addScore(0)
+  addAsteroid 
 end
-on#4 leftButton.touch:
-  ship.rotation = -90
+on#1 fireButton.touch:
+  if level > 0:
+    shoot 
+  end
+  if level = 0:
+    startGame 
+  end
 end
-on#6 not rightButton.touch and not leftButton.touch:
+on#16 not rightButton.touch and not leftButton.touch:
   ship.rotation = 0
 end
-on#5 rightButton.touch:
-  ship.rotation = 90
+on#15 leftButton.touch:
+  ship.rotation = -180
+end
+on#17 rightButton.touch:
+  ship.rotation = 180
+end
+new Sprite#373 :: 
+  angle = -338.25436454700707;
+  dx = 3.3308236257995683;
+  dy = 0.03612561370807299;
+  edgeMode = WRAP;
+  face = "🥔";
+  rotation = -15.045342912023159;
+  size = 30;
+  x = 30.551427401721696;
+  y = 51.67658973219801;
+end
+onchange#18 ship.collisions:
+  if level > 0:
+    for o in ship.collisions:
+      if o.face = "🥔":
+        gameOver()
+      end
+    end
+  end
 end
