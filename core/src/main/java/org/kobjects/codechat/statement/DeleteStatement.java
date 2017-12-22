@@ -1,5 +1,6 @@
 package org.kobjects.codechat.statement;
 
+import com.sun.org.apache.bcel.internal.generic.ISHR;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.lang.DependencyCollector;
@@ -21,10 +22,15 @@ public class DeleteStatement extends AbstractStatement {
     public Object eval(EvaluationContext context) {
         Object o = expr.eval(context);
         if (o instanceof Instance) {
+            context.environment.constants.remove(o);
             ((Instance) o).delete();
         }
         if (expr instanceof RootVariableNode) {
             RootVariableNode varNode = (RootVariableNode) expr;
+            if (varNode.rootVariable.name.equals(context.environment.constants.get(o))) {
+                context.environment.constants.remove(o);
+            }
+            context.environment.rootVariables.remove(varNode.rootVariable.name);
             varNode.rootVariable.value = null;
         }
 /*
