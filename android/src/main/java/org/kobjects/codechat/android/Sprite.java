@@ -3,6 +3,7 @@ package org.kobjects.codechat.android;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.ImageView;
 
 import com.vanniktech.emoji.EmojiUtils;
@@ -109,6 +110,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     public MaterialProperty<AndroidEnvironment.EdgeMode> edgeMode = new MaterialProperty<>(AndroidEnvironment.EdgeMode.NONE);
     public MaterialProperty<Double> grow = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> fade = new MaterialProperty<>(0.0);
+    private int viewIndexCache;
 
     public Property<Double> direction = new Property<Double>() {
         @Override
@@ -194,7 +196,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         float scaledX = (float) (normalizedX * scale);
         float scaledY = (float) (normalizedY * scale);
 
-        view.setZ(z.get().floatValue());
+      //  view.setZ(z.get().floatValue());
         view.setAlpha(opacity.get().floatValue());
 
         if (normalizedX + size > -50 && normalizedY + size > -50 && normalizedX < virtualScreenWidth + 50 && normalizedY < virtualScreenHeight + 50 &&
@@ -220,6 +222,35 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
                 view.setImageDrawable(emoji.getDrawable(view.getContext()));
         //        view.setImageDrawable(new EmojiDrawable(lastFace));
             }
+
+            double zValue = z.get();
+            ViewGroup container = (ViewGroup) view.getParent();
+            int count = container.getChildCount();
+            if (viewIndexCache >= count || container.getChildAt(viewIndexCache) != view) {
+                viewIndexCache = 0;
+                while (container.getChildAt(viewIndexCache) != view) {
+                    viewIndexCache++;
+                }
+            }
+
+            int newIndex = viewIndexCache;
+            while (newIndex > 0 &&
+                ((Double) ((AbstractViewWrapper) container.getChildAt(newIndex - 1).getTag()).z.get()).doubleValue() > zValue) {
+                newIndex--;
+            }
+            if (newIndex == viewIndexCache) {
+                while (newIndex < count - 1 &&
+                    ((Double) ((AbstractViewWrapper) container.getChildAt(newIndex + 1).getTag()).z.get()).doubleValue() < zValue) {
+                    newIndex++;
+                }
+            }
+            if (newIndex != viewIndexCache) {
+                container.removeViewAt(viewIndexCache);
+                container.addView(view, newIndex);
+                viewIndexCache = newIndex;
+            }
+
+
         } else if (view.getParent() != null) {
             // TODO: Wait some cycles before punting...
             environment.rootView.removeView(view);

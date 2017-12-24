@@ -32,9 +32,12 @@ import org.kobjects.codechat.type.Type;
 public class Environment implements ParsingEnvironment {
 
     static final CharSequence ABOUT_TEXT = new AnnotatedStringBuilder()
-            .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n Type '")
+            .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n")
+            .append("Type '")
             .append("help", new ExecLink("help"))
-            .append("' for help on how to use this app and builtin functionionality.\n\n Copyright (C) 2017 Stefan Haustein.\n\n")
+            .append("' for help on how to use this app and builtin functionionality.\n\n")
+            .append("Copyright (C) 2017 Stefan Haustein.\n\n")
+            .append("Emoji icons supplied by EmojiOne.\n")
             .append("Explosion sound by Ryan Snook licensed under CC BY-NC 3.0\n")
             .build();
 
