@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.vanniktech.emoji.EmojiUtils;
+import com.vanniktech.emoji.emoji.Emoji;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
@@ -16,6 +18,9 @@ import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
+
+import com.vanniktech.emoji.EmojiManager;
+
 
 public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, Runnable {
     public final static InstanceType TYPE = new ViewWrapperType<Sprite>() {
@@ -209,7 +214,11 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
             }
             if (face.get() != lastFace) {
                 lastFace = face.get();
-                view.setImageDrawable(new EmojiDrawable(lastFace));
+
+                Emoji emoji = EmojiUtils.emojis(lastFace).get(0).emoji;
+
+                view.setImageDrawable(emoji.getDrawable(view.getContext()));
+        //        view.setImageDrawable(new EmojiDrawable(lastFace));
             }
         } else if (view.getParent() != null) {
             // TODO: Wait some cycles before punting...

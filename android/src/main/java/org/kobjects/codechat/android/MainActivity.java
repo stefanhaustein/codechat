@@ -60,11 +60,16 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     static final String MENU_ITEM_RESUME = "Resume";
     static final String MENU_ITEM_SUSPEND = "Suspend";
     static final String MENU_ITEM_WINDOW_MODE = "Window mode";
+    static final String MENU_ITEM_FULLSCREEN = "Fullscreen";
 
     static final int SHOW_TOOLBAR_HEIGHT_DP = 620;
 
     /** Matches the accent color, easier than jumping throug andorid hoops to obtain it. */
     static final int ERROR_COLOR = 0x0aaff5722;
+
+    enum DisplayMode {
+        MIXED, WINDOW, IMMERSIVE
+    }
 
     EmojiEditText input;
     FrameLayout rootLayout;
@@ -84,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     SharedPreferences settings;
     File codeDir;
     private float pixelPerDp;
-    boolean windowMode;
+    DisplayMode displayMode;
     Point displaySize = new Point();
     private boolean fullScreenEditMode;
     private long lastEdit;
@@ -380,6 +385,19 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         };
         handler.postDelayed(syntaxChecker, 1000);
 
+        rootLayout.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                System.out.println("New visibility set: " + visibility);
+                if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
+                    displayMode = DisplayMode.IMMERSIVE;
+                } else {
+                    displayMode = DisplayMode.MIXED;
+                }
+                arrangeUi();
+            }
+        });
+
     }
 
     private BackgroundColorSpan addErrorSpan(Spannable text, ParsingException e) {
@@ -415,7 +433,15 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
         // System.out.println("**** DisplayHeight in DP: " + displayHightDp);
 
-        if (displaySize.x > displaySize.y) {
+        if (displayMode == DisplayMode.IMMERSIVE) {
+            rootLayout.addView(contentLayout);
+         //   rootLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE);
+
+            FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) contentLayout.getLayoutParams();
+            contentParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            contentParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+
+        } else if (displaySize.x > displaySize.y) {
             LinearLayout columns = new LinearLayout(this);
             rootLayout.addView(columns);
             FrameLayout.LayoutParams columnsParams = (FrameLayout.LayoutParams) columns.getLayoutParams();
@@ -462,7 +488,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 ((LinearLayout.LayoutParams) overlay.getLayoutParams()).weight = 1;
                 overlay.addView(contentLayout);
                 FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) contentLayout.getLayoutParams();
-                if (windowMode) {
+                if (displayMode == DisplayMode.WINDOW) {
                     contentLayout.setBackgroundColor(0x0ff888888);
                     contentParams.gravity = Gravity.RIGHT | Gravity.TOP;
                     contentParams.width = displaySize.x / 2;
@@ -483,7 +509,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         }
 
         float displayHightDp = displaySize.y / pixelPerDp;
-        if (displayHightDp < SHOW_TOOLBAR_HEIGHT_DP || windowMode) {
+        if (displayHightDp < SHOW_TOOLBAR_HEIGHT_DP || displayMode == DisplayMode.WINDOW) {
             toolbar.setVisibility(View.GONE);
             menuButton.setVisibility(View.VISIBLE);
         } else {
@@ -511,16 +537,18 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     public void fillMenu(final Menu menu, boolean isOptionsMenu) {
+        menu.add("About");
+        menu.add("Help");
+        if (displaySize.x <= displaySize.y) {
+            menu.add(MENU_ITEM_WINDOW_MODE).setCheckable(true).setChecked(displayMode == DisplayMode.WINDOW);
+        }
+        menu.add(MENU_ITEM_FULLSCREEN);
+
         MenuItem suspend = menu.add(environment.isSuspended()? MENU_ITEM_RESUME : MENU_ITEM_SUSPEND);
         if (isOptionsMenu) {
             suspendItem = suspend;
             suspendItem.setIcon(environment.isSuspended() ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
             suspendItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        }
-        menu.add("About");
-        menu.add("Help");
-        if (displaySize.x <= displaySize.y) {
-            menu.add(MENU_ITEM_WINDOW_MODE).setCheckable(true).setChecked(windowMode);
         }
     }
 
@@ -541,7 +569,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 environment.resume();
                 break;
             case MENU_ITEM_WINDOW_MODE:
-                windowMode = !windowMode;
+                displayMode = displayMode == DisplayMode.WINDOW ? DisplayMode.MIXED : DisplayMode.WINDOW;
+                arrangeUi();
+                break;
+            case MENU_ITEM_FULLSCREEN:
+                rootLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE);
                 arrangeUi();
                 break;
             default:

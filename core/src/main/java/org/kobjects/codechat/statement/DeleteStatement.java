@@ -1,6 +1,5 @@
 package org.kobjects.codechat.statement;
 
-import com.sun.org.apache.bcel.internal.generic.ISHR;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.lang.DependencyCollector;

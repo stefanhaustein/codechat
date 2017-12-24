@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.text.emoji.EmojiCompat;
 import android.support.text.emoji.EmojiSpan;
+
 import android.text.Spanned;
 import android.text.TextPaint;
 

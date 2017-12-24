@@ -2,19 +2,20 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.2"
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 7
         versionName "0.7"
     }
 }
 
 dependencies {
-    compile "com.android.support:support-emoji-bundled:26.1.0"
-    compile 'com.vanniktech:emoji-google-compat:0.6.0-SNAPSHOT'
+    compile "com.android.support:support-emoji-bundled:27.0.2"
+//    compile 'com.vanniktech:emoji-twitter:0.6.0-SNAPSHOT'
+    compile 'com.vanniktech:emoji-one:0.6.0-SNAPSHOT'
     compile project(':core')
 }
