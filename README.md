@@ -11,7 +11,7 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 
 ### Bouncing Ball
 
-    ball = new Sprite
+    let ball = new Sprite
     ball.size = 25
     ball.dx = -1
     ball.xAlign = LEFT
@@ -30,7 +30,7 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
       ball.dx = 10.0
       ball.rotation = 90.0
     end
-    onchange screen.frame:
+    oninterval 1/30:
       ball.dy = ball.dy - 1.5
     end
 
