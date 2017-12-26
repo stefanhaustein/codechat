@@ -3,7 +3,6 @@ package org.kobjects.codechat.lang;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.expr.FunctionExpression;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 
@@ -55,8 +54,8 @@ public class UserFunction extends Instance implements Function {
         } else {
             asb.append(":\n");
             body.toString(asb, indent + 2);
-            AbstractStatement.indent(asb, indent);
-            asb.append("end\n");
+          asb.indent(indent);
+          asb.append("end\n");
 
             if (wrap) {
                 asb.append("end\n");

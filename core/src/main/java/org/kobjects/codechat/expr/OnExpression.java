@@ -6,7 +6,6 @@ import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 
 public class OnExpression extends Expression {
@@ -53,8 +52,8 @@ public class OnExpression extends Expression {
         expression.toString(sb, indent);
         sb.append(":\n");
         body.toString(sb, indent + 1);
-        AbstractStatement.indent(sb, indent);
-        sb.append("end");
+      sb.indent(indent);
+      sb.append("end");
     }
 
     @Override

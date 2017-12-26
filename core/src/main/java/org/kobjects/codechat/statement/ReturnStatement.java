@@ -19,8 +19,8 @@ public class ReturnStatement extends AbstractStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        sb.append("return ");
+      sb.indent(indent);
+      sb.append("return ");
         expression.toString(sb, indent);
         sb.append('\n');
     }

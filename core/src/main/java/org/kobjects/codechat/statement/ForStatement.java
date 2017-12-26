@@ -41,14 +41,14 @@ public class ForStatement extends AbstractStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        indent(sb, indent);
+        sb.indent(indent);
         sb.append("for ").append(variable.getName()).append(" in ");
         expression.toString(sb, 0);
         sb.append(":\n");
 
         body.toString(sb, indent + 2);
 
-        indent(sb, indent);
+        sb.indent(indent);
         sb.append("end\n");
     }
 

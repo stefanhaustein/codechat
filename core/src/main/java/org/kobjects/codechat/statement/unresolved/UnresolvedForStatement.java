@@ -5,7 +5,6 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.ForStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.CollectionType;
@@ -25,15 +24,15 @@ public class UnresolvedForStatement extends UnresolvedStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        sb.append("for ").append(variableName).append(" in ");
+      sb.indent(indent);
+      sb.append("for ").append(variableName).append(" in ");
         expression.toString(sb, 0);
         sb.append(":\n");
 
         body.toString(sb, indent + 2);
 
-        AbstractStatement.indent(sb, indent);
-        sb.append("end\n");
+      sb.indent(indent);
+      sb.append("end\n");
     }
 
     @Override

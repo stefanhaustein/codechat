@@ -3,7 +3,6 @@ package org.kobjects.codechat.statement;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.FunctionExpression;
-import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Instance;
@@ -41,8 +40,8 @@ public class RootVarDeclarationStatement extends AbstractStatement {
             ((FunctionExpression) expression).toString(sb, indent + 4, variable.name);
             return;
         }
-        indent(sb, indent);
-        sb.append(variable.constant ? "let " : "variable ");
+      sb.indent(indent);
+      sb.append(variable.constant ? "let " : "variable ");
         sb.append(variable.name);
         if (explicitType) {
             sb.append(": ");

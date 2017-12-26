@@ -6,7 +6,6 @@ import org.kobjects.codechat.expr.OnExpression;
 import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.type.Type;
@@ -64,8 +63,8 @@ public class UnresolvedOnExpression extends UnresolvedExpression {
         expression.toString(sb, indent);
         sb.append(":\n");
         body.toString(sb, indent + 1);
-        AbstractStatement.indent(sb, indent);
-        sb.append("end");
+      sb.indent(indent);
+      sb.append("end");
     }
 
     @Override

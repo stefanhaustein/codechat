@@ -6,7 +6,6 @@ import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 
 public class FunctionExpression extends Expression {
@@ -54,8 +53,8 @@ public class FunctionExpression extends Expression {
         } else {
             sb.append(" :\n");
             body.toString(sb, indent + 2);
-            AbstractStatement.indent(sb, indent);
-            sb.append("end\n");
+          sb.indent(indent);
+          sb.append("end\n");
         }
     }
 

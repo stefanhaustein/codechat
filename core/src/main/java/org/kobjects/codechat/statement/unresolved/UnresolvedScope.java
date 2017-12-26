@@ -2,7 +2,6 @@ package org.kobjects.codechat.statement.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Scope;
 import org.kobjects.codechat.statement.Statement;
 
@@ -16,11 +15,11 @@ public class UnresolvedScope extends UnresolvedStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        sb.append("scope:\n");
+      sb.indent(indent);
+      sb.append("scope:\n");
         body.toString(sb, indent + 2);
-        AbstractStatement.indent(sb, indent);
-        sb.append("end\n");
+      sb.indent(indent);
+      sb.append("end\n");
     }
 
     @Override

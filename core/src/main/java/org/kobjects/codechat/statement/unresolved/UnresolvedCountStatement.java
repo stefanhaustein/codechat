@@ -5,7 +5,6 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.CountStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.Type;
@@ -26,14 +25,14 @@ public class UnresolvedCountStatement extends UnresolvedStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
+        sb.indent(indent);
         sb.append("count ").append(variableName).append(" to ");
         expression.toString(sb, 0);
         sb.append(":\n");
 
         body.toString(sb, indent + 2);
 
-        AbstractStatement.indent(sb, indent);
+        sb.indent(indent);
         sb.append("end\n");
     }
 

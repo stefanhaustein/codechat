@@ -31,8 +31,8 @@ public class Assignment extends AbstractStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        indent(sb, indent);
-        left.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
+      sb.indent(indent);
+      left.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
         sb.append(" = ");
         right.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
         sb.append("\n");

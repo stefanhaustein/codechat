@@ -4,7 +4,6 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Environment;
 
 public class IfStatement extends AbstractStatement {
     public Expression condition;
@@ -36,20 +35,20 @@ public class IfStatement extends AbstractStatement {
         if (elseif) {
             sb.append("elseif ");
         } else {
-            AbstractStatement.indent(sb, indent);
-            sb.append("if ");
+          sb.indent(indent);
+          sb.append("if ");
         }
         condition.toString(sb, indent);
         sb.append(":\n");
         ifBody.toString(sb, indent + 2);
-        AbstractStatement.indent(sb, indent);
-        if (elseBody instanceof IfStatement) {
+      sb.indent(indent);
+      if (elseBody instanceof IfStatement) {
             ((IfStatement) elseBody).toString(sb, indent, true);
         } else if (elseBody != null) {
             sb.append("else:\n");
             elseBody.toString(sb, indent + 2);
-            AbstractStatement.indent(sb, indent);
-        }
+        sb.indent(indent);
+      }
         sb.append("end\n");
     }
 

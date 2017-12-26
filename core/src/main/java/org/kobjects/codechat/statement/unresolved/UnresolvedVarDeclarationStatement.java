@@ -2,27 +2,19 @@ package org.kobjects.codechat.statement.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.RootVariableNode;
 import org.kobjects.codechat.expr.unresolved.UnresolvedConstructor;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedFunctionExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedMultiAssignment;
 import org.kobjects.codechat.lang.DeclarationException;
-import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
-import org.kobjects.codechat.statement.Assignment;
-import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.LocalVarDeclarationStatement;
 import org.kobjects.codechat.statement.RootVarDeclarationStatement;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.expressionparser.ExpressionParser;
 
 public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
     private final boolean constant;
@@ -43,8 +35,8 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        sb.append(constant ? "let ": "variable ").append(variableName).append(" = ");
+      sb.indent(indent);
+      sb.append(constant ? "let ": "variable ").append(variableName).append(" = ");
         initializer.toString(sb, indent + 4);
         sb.append("\n");
     }

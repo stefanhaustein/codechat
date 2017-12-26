@@ -3,7 +3,6 @@ package org.kobjects.codechat.statement.unresolved;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.IfStatement;
 import org.kobjects.codechat.type.Type;
 
@@ -34,20 +33,20 @@ public class UnresolvedIfStatement extends UnresolvedStatement {
         if (elseif) {
             sb.append("elseif ");
         } else {
-            AbstractStatement.indent(sb, indent);
-            sb.append("if ");
+          sb.indent(indent);
+          sb.append("if ");
         }
         condition.toString(sb, indent);
         sb.append(":\n");
         ifBody.toString(sb, indent + 2);
-        AbstractStatement.indent(sb, indent);
-        if (elseBody instanceof UnresolvedIfStatement) {
+      sb.indent(indent);
+      if (elseBody instanceof UnresolvedIfStatement) {
             ((UnresolvedIfStatement) elseBody).toString(sb, indent, true);
         } else if (elseBody != null) {
             sb.append("else:\n");
             elseBody.toString(sb, indent + 2);
-            AbstractStatement.indent(sb, indent);
-        }
+        sb.indent(indent);
+      }
         sb.append("end\n");
     }
 }

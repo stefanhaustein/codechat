@@ -18,11 +18,11 @@ public class Scope extends AbstractStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        sb.append("scope\n");
+      sb.indent(indent);
+      sb.append("scope\n");
         body.toString(sb, indent + 2);
-        AbstractStatement.indent(sb, indent);
-        sb.append("end\n");
+      sb.indent(indent);
+      sb.append("end\n");
     }
 
     @Override

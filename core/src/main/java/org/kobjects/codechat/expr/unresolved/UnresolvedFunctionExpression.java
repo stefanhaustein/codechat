@@ -3,9 +3,7 @@ package org.kobjects.codechat.expr.unresolved;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.FunctionExpression;
-import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.type.FunctionType;
@@ -50,7 +48,7 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
         } else {
             asb.append(" :\n");
             body.toString(asb, indent + 2);
-            AbstractStatement.indent(asb, indent);
+            asb.indent(indent);
             asb.append("end\n");
         }
     }

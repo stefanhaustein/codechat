@@ -5,9 +5,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.Assignment;
-import org.kobjects.codechat.statement.Statement;
 
 public class UnresolvedAssignment extends UnresolvedStatement {
     UnresolvedExpression left;
@@ -21,8 +19,8 @@ public class UnresolvedAssignment extends UnresolvedStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        left.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
+      sb.indent(indent);
+      left.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
         sb.append(" = ");
         right.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
         sb.append("\n");

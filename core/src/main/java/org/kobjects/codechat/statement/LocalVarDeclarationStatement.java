@@ -23,8 +23,8 @@ public class LocalVarDeclarationStatement extends AbstractStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        sb.append(variable.constant ? "let ": "variable ").append(variable.getName()).append(" = ");
+      sb.indent(indent);
+      sb.append(variable.constant ? "let ": "variable ").append(variable.getName()).append(" = ");
         initializer.toString(sb, indent + 4);
         sb.append("\n");
     }

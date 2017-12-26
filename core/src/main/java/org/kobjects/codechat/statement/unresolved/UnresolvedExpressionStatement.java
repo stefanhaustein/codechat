@@ -5,7 +5,6 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.FunctionInvocation;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
@@ -25,8 +24,8 @@ public class UnresolvedExpressionStatement extends  UnresolvedStatement {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        AbstractStatement.indent(sb, indent);
-        expression.toString(sb, indent + 4);
+      sb.indent(indent);
+      expression.toString(sb, indent + 4);
         sb.append("\n");
     }
 

@@ -12,9 +12,4 @@ public abstract class AbstractStatement implements Statement {
         return asb.toString();
     }
 
-    public static void indent(AnnotatedStringBuilder sb, int indent) {
-        for (int i = 0; i < indent; i++) {
-            sb.append(" ");
-        }
-    }
 }
