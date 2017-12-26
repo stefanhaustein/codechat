@@ -393,12 +393,14 @@ public class Environment implements ParsingEnvironment {
     public void load(String fileName) {
         suspend();
 
-        File file = new File(codeDir, fileName);
-        if (!file.exists()) {
-            throw new RuntimeException("File '" + file.getName() + "' does not exist.");
-        }
+
 
         try {
+            File file = new File(codeDir, fileName);
+            if (!file.exists()) {
+                throw new RuntimeException("File '" + file.getName() + "' does not exist.");
+            }
+            
             byte[] data = new byte[(int) file.length()];
             DataInputStream stream = new DataInputStream(new FileInputStream(file));
             stream.readFully(data);

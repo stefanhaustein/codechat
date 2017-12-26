@@ -55,7 +55,7 @@ public class HelpStatement extends AbstractStatement {
     }
 
     static final LinkedHashMap<String, String[]> HELP_LISTS = new LinkedHashMap<String, String[]>(){{
-        put("Mathematical operators", new String[]{"^", "\u221a","°",
+        put("Mathematical operators", new String[]{"^", "\u221a", "°",
                 "*", "/", "\u00d7", "\u22C5", "%",
                 "+", "-",});
         put("Logical operators", new String[]{"and", "or", "not"});
