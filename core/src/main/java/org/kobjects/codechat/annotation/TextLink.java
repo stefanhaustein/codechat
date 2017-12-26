@@ -5,13 +5,13 @@ import org.kobjects.codechat.lang.Environment;
 
 public class TextLink implements Link {
 
-    private final AnnotatedCharSequence text;
+    private final CharSequence text;
 
     public TextLink(String s) {
         this(new AnnotatedString(s, null));
     }
 
-    public TextLink(AnnotatedCharSequence text) {
+    public TextLink(CharSequence text) {
         this.text = text;
     }
 

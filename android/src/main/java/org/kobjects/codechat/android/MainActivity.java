@@ -388,13 +388,15 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         rootLayout.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
-                System.out.println("New visibility set: " + visibility);
+
                 if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
                     displayMode = DisplayMode.IMMERSIVE;
-                } else {
+                    arrangeUi();
+                } else if (displayMode == DisplayMode.IMMERSIVE) {
+                    // Avoid arrangeUi call when this is triggerd by a context menu click without an actual change.
                     displayMode = DisplayMode.MIXED;
+                    arrangeUi();
                 }
-                arrangeUi();
             }
         });
 
@@ -525,7 +527,6 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
         arrangeUi();
     }
 
