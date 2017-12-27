@@ -17,6 +17,26 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.Type;
 
 public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
+
+    static Type estimateType(ParsingContext parsingContext, UnresolvedExpression expression) {
+        if (expression instanceof UnresolvedLiteral) {
+            Object value = ((UnresolvedLiteral) expression).value;
+            return Type.of(value);
+        }
+        if (expression instanceof UnresolvedFunctionExpression) {
+            return ((UnresolvedFunctionExpression) expression).functionType;
+        }
+
+        UnresolvedExpression potentialCtor = (expression instanceof UnresolvedMultiAssignment)
+            ? ((UnresolvedMultiAssignment) expression).base : expression;
+
+        if (potentialCtor instanceof UnresolvedConstructor) {
+            UnresolvedConstructor ctor = (UnresolvedConstructor) potentialCtor;
+            return parsingContext.environment.resolveInstanceType(ctor.typeName);
+        }
+        return expression.resolve(parsingContext, null).getType();
+    }
+
     private final boolean constant;
     private final boolean rootLevel;
     private final String variableName;
@@ -37,8 +57,8 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
     public void toString(AnnotatedStringBuilder sb, int indent) {
       sb.indent(indent);
       sb.append(constant ? "let ": "variable ").append(variableName).append(" = ");
-        initializer.toString(sb, indent + 4);
-        sb.append("\n");
+      initializer.toString(sb, indent + 4);
+      sb.append('\n');
     }
 
     private Type resolveType(ParsingContext parsingContext) {
@@ -49,22 +69,7 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
             // Should be caught at parsing already.
             throw new RuntimeException("Intitializer and type can't both be null");
         }
-        if (initializer instanceof UnresolvedLiteral) {
-             Object value = ((UnresolvedLiteral) initializer).value;
-              return Type.of(value);
-        }
-        if (initializer instanceof UnresolvedFunctionExpression) {
-                return ((UnresolvedFunctionExpression) initializer).functionType;
-        }
-
-        UnresolvedExpression potentialCtor = (initializer instanceof UnresolvedMultiAssignment)
-                        ? ((UnresolvedMultiAssignment) initializer).base : initializer;
-
-        if (potentialCtor instanceof UnresolvedConstructor) {
-            UnresolvedConstructor ctor = (UnresolvedConstructor) potentialCtor;
-            return parsingContext.environment.resolveInstanceType(ctor.typeName);
-        }
-        return initializer.resolve(parsingContext, null).getType();
+        return estimateType(parsingContext, initializer);
     }
 
     @Override

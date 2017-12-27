@@ -2,7 +2,6 @@ package org.kobjects.codechat.lang;
 
 import java.util.Arrays;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
@@ -24,8 +23,8 @@ public final class Formatting {
     }
 
     public static void exceptionToString(AnnotatedStringBuilder asb, Throwable e) {
-        if (e instanceof ToAnnotatedString) {
-            ((ToAnnotatedString) e).toString(asb);
+        if (e instanceof Printable) {
+            ((Printable) e).toString(asb);
         } else if (e instanceof ExpressionParser.ParsingException) {
             asb.append(e.getMessage());
         } else {

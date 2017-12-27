@@ -44,8 +44,7 @@ import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
-import org.kobjects.codechat.lang.MetaException;
-import org.kobjects.codechat.lang.ToAnnotatedString;
+import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.statement.ExpressionStatement;
@@ -595,9 +594,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     void printException(Exception e) {
         e.printStackTrace();
-        if (e instanceof ToAnnotatedString) {
+        if (e instanceof Printable) {
             AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-            ((ToAnnotatedString) e).toString(asb);
+            ((Printable) e).toString(asb);
             print(asb.build());
         } else if (e instanceof ParsingException) {
             print(e.getMessage());

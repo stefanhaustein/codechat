@@ -2,9 +2,8 @@ package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.EntityLink;
-import org.kobjects.expressionparser.ExpressionParser;
 
-public class DeclarationException extends RuntimeException implements ToAnnotatedString {
+public class DeclarationException extends RuntimeException implements Printable {
 
     final RootVariable variable;
 

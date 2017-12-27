@@ -1,10 +1,10 @@
 package org.kobjects.codechat.lang;
 
 import java.util.List;
-import java.util.Map;
+
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 
-public class MetaException extends RuntimeException implements ToAnnotatedString {
+public class MetaException extends RuntimeException implements Printable {
 
     List<? extends Exception> exceptions;
 
