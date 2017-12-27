@@ -110,16 +110,33 @@ public class HelpStatement extends AbstractStatement {
         addHelp("\u2228", "The logical or operator '\u2228' yields true if any of the arguments is true. Example: `true \u2228 false`");
         addHelp("or", "The operator 'or' is an alternative spelling for the operator '\u2228', provided to simplify input in some cases. It will be replaced automatically.");
 
-        addHelp("count", "A 'count' loop counts a variabls from 0 to a given value. Example:\n`count x to 5: print x; end;`");
-        addHelp("for", "A 'for' loop iterates over a given set of values. Example:\n`for x in List(1, 3, 7): print x; end;`");
-        addHelp("func", "A function declaration. Example:\n`func sqr(n: Number): Number: return n * n; end`.");
-        addHelp("proc", "A procedure declaration. Example:\n`proc answer(): print 42; end`.");
-        addHelp("if", "An 'if' condition gates a code block on a condition. Example:\n`if true: print 42; end`.");
-        addHelp("let", "A 'let' declaration declares a new constant. Example:\n`let answer = 42; print answer`");
+        addHelp("count", "A 'count' loop counts a variabls from 0 to a given value. Example:\n`" +
+            "count x to 5:\n" +
+            "  print x\n" +
+            "end;`");
+        addHelp("for", "A 'for' loop iterates over a given set of values.\nExample:\n`" +
+            "for x in List(1, 3, 7):\n" +
+            "  print x\n" +
+            "end`");
+        addHelp("func", "A function declaration.\nExample:\n`" +
+            "func sqr(n: Number): Number:\n" +
+            "  return n * n\n" +
+            "end`");
+        addHelp("proc", "A procedure declaration.\nExample:\n`" +
+            "proc answer():\n"+
+            "  print 42\n" +
+            "end`");
+        addHelp("if", "An 'if' condition gates a code block on a condition.\nExample:\n`" +
+            "if random() > 0.5:\n" +
+            "  print \"Ok\"\n" +
+            "else:\n" +
+            "  print \"Computer says no\"\n"+
+            "end`");
+        addHelp("let", "A 'let' declaration declares a new constant.\nExample:\n`let answer = 42\nprint answer`");
         addHelp("on", "An 'on' trigger executes a code block on a property condition. Example: on mySprite.x > screen.right: mySprite.dx = -100; end;");
         addHelp("onchange", "An 'onchange' trigger executes a code block whenever the given property changes.");
         addHelp("oninterval", "An 'oninterval' trigger executes a code block repeatedly at the given interval in seconds. Example:\n`oninterval 1; print \"tick\"; end`");
-        addHelp("variable", "A 'variable' declaration declares a new variable. Example:\n`var x = 4; x = 5; print x`");
+        addHelp("variable", "A 'variable' declaration declares a new variable.\nExample:\n`var x = 4\nx += 1\nprint x`");
     }
 
 
