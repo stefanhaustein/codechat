@@ -38,6 +38,8 @@ import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.EmojiTextView;
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.SortedMap;
 import org.kobjects.codechat.android.chatview.BubbleAction;
@@ -66,16 +68,33 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 
     static final String MENU_ITEM_RESUME = "Resume";
     static final String MENU_ITEM_SUSPEND = "Suspend";
+    static final String MENU_ITEM_OVERLAY_MODE = "Overlay mode";
     static final String MENU_ITEM_WINDOW_MODE = "Window mode";
     static final String MENU_ITEM_FULLSCREEN = "Fullscreen";
 
     static final int SHOW_TOOLBAR_HEIGHT_DP = 620;
 
-    /** Matches the accent color, easier than jumping throug andorid hoops to obtain it. */
+    /** Matches the accent color, easier than jumping through andorid hoops to obtain it. */
     static final int ERROR_COLOR = 0x0aaff5722;
 
-    enum DisplayMode {
-        MIXED, WINDOW, IMMERSIVE
+    public static void setForceShowIcon(PopupMenu popupMenu) {
+        try {
+            Field[] fields = popupMenu.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                if ("mPopup".equals(field.getName())) {
+                    field.setAccessible(true);
+                    Object menuPopupHelper = field.get(popupMenu);
+                    Class<?> classPopupHelper = Class.forName(menuPopupHelper
+                        .getClass().getName());
+                    Method setForceIcons = classPopupHelper.getMethod(
+                        "setForceShowIcon", boolean.class);
+                    setForceIcons.invoke(menuPopupHelper, true);
+                    break;
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     EmojiEditText input;
@@ -96,9 +115,10 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     SharedPreferences settings;
     File codeDir;
     private float pixelPerDp;
-    DisplayMode displayMode;
+    private boolean windowMode;
+    private boolean fullScreenMode;
     Point displaySize = new Point();
-    private boolean fullScreenEditMode;
+    //private boolean fullScreenEditMode;
     private long lastEdit;
     private int errorStart;
     private int errorEnd;
@@ -224,8 +244,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 lastEdit = System.currentTimeMillis();
                 if (editable.length() == 0) {
                     inputButtons.setOrientation(LinearLayout.HORIZONTAL);
-                    if (fullScreenEditMode) {
-                        fullScreenEditMode = false;
+                    if (fullScreenMode) {
+                        fullScreenMode = false;
                         arrangeUi();
                     }
                 }
@@ -255,8 +275,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                 inputButtons.setOrientation(LinearLayout.VERTICAL);
                                 //              ((LinearLayout.LayoutParams) input.getLayoutParams()).weight = 0;
                             }
-                            if (newHeight > chatView.getHeight() && !fullScreenEditMode) {
-                                fullScreenEditMode = true;
+                            if (newHeight > chatView.getHeight() && !fullScreenMode) {
+                                fullScreenMode = true;
                                 arrangeUi();
                             }
                         }
@@ -320,7 +340,6 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         });
         inputButtons.addView(enterButton);
 
-
         menuButton = new ImageButton(this);
         menuButton.setImageResource(R.drawable.ic_more_vert_black_24dp);
         menuButton.setBackgroundColor(0);
@@ -328,6 +347,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             @Override
             public void onClick(View v) {
                 PopupMenu popup = new PopupMenu(MainActivity.this, v);
+              // setForceShowIcon(popup);
                 fillMenu(popup.getMenu(), false);
                 popup.setOnMenuItemClickListener(MainActivity.this);
                 popup.show();
@@ -406,11 +426,11 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             public void onSystemUiVisibilityChange(int visibility) {
 
                 if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
-                    displayMode = DisplayMode.IMMERSIVE;
+                    fullScreenMode = true;
                     arrangeUi();
-                } else if (displayMode == DisplayMode.IMMERSIVE) {
+                } else if (fullScreenMode) {
                     // Avoid arrangeUi call when this is triggerd by a context menu click without an actual change.
-                    displayMode = DisplayMode.MIXED;
+                    fullScreenMode = false;
                     arrangeUi();
                 }
             }
@@ -451,7 +471,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
         // System.out.println("**** DisplayHeight in DP: " + displayHightDp);
 
-        if (displayMode == DisplayMode.IMMERSIVE) {
+        if (fullScreenMode) {
             rootLayout.addView(contentLayout);
          //   rootLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE);
 
@@ -470,12 +490,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             rows.setOrientation(LinearLayout.VERTICAL);
 
             rows.addView(toolbar);
-            if (!fullScreenEditMode) {
+            if (!fullScreenMode) {
                 rows.addView(chatView);
                 ((LinearLayout.LayoutParams) chatView.getLayoutParams()).weight = 1;
             }
             rows.addView(inputRow);
-            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenEditMode ? 1: 0;
+            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenMode ? 1: 0;
 
             columns.addView(rows);
             LinearLayout.LayoutParams rowsParams = (LinearLayout.LayoutParams) rows.getLayoutParams();
@@ -495,7 +515,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
             rows.addView(toolbar);
 
-            if (!fullScreenEditMode) {
+            if (!fullScreenMode) {
                 FrameLayout overlay = new FrameLayout(this);
                 overlay.addView(chatView);
                 FrameLayout.LayoutParams chatParams = (FrameLayout.LayoutParams) chatView.getLayoutParams();
@@ -506,7 +526,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 ((LinearLayout.LayoutParams) overlay.getLayoutParams()).weight = 1;
                 overlay.addView(contentLayout);
                 FrameLayout.LayoutParams contentParams = (FrameLayout.LayoutParams) contentLayout.getLayoutParams();
-                if (displayMode == DisplayMode.WINDOW) {
+                if (windowMode) {
                     contentLayout.setBackgroundColor(0x0ff888888);
                     contentParams.gravity = Gravity.RIGHT | Gravity.TOP;
                     contentParams.width = displaySize.x / 2;
@@ -518,7 +538,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 }
             }
             rows.addView(inputRow);
-            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenEditMode ? 1: 0;
+            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenMode ? 1: 0;
 
             rootLayout.addView(rows);
             FrameLayout.LayoutParams rowsParams = (FrameLayout.LayoutParams) rows.getLayoutParams();
@@ -527,12 +547,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         }
 
         float displayHightDp = displaySize.y / pixelPerDp;
-        if (displayHightDp < SHOW_TOOLBAR_HEIGHT_DP || displayMode == DisplayMode.WINDOW) {
+        if (displayHightDp < SHOW_TOOLBAR_HEIGHT_DP || windowMode) {
             toolbar.setVisibility(View.GONE);
-            menuButton.setVisibility(View.VISIBLE);
+         //   menuButton.setVisibility(View.VISIBLE);
         } else {
             toolbar.setVisibility(View.VISIBLE);
-            menuButton.setVisibility(View.GONE);
+        //    menuButton.setVisibility(View.VISIBLE);
         }
         rootLayout.addView(errorView);
 
@@ -546,20 +566,27 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         arrangeUi();
     }
 
+    /*
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
        menu.clear();
        fillMenu(menu, true);
        return true;
-    }
+    }*/
 
     public void fillMenu(final Menu menu, boolean isOptionsMenu) {
         menu.add("About");
         menu.add("Help");
+
         if (displaySize.x <= displaySize.y) {
-            menu.add(MENU_ITEM_WINDOW_MODE).setCheckable(true).setChecked(displayMode == DisplayMode.WINDOW);
+            Menu displayMenu = menu.addSubMenu("Display");
+            displayMenu.add(1, 0,0,MENU_ITEM_OVERLAY_MODE).setCheckable(true).setChecked(!windowMode);
+            displayMenu.add(1, 0, 0, MENU_ITEM_WINDOW_MODE).setCheckable(true).setChecked(windowMode);
+            displayMenu.add(1, 0, 0, MENU_ITEM_FULLSCREEN);
+            displayMenu.setGroupCheckable(1, true, true);
+        } else{
+            menu.add(MENU_ITEM_FULLSCREEN);
         }
-        menu.add(MENU_ITEM_FULLSCREEN);
 
         MenuItem suspend = menu.add(environment.isSuspended()? MENU_ITEM_RESUME : MENU_ITEM_SUSPEND);
         if (isOptionsMenu) {
@@ -585,14 +612,20 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             case MENU_ITEM_RESUME:
                 environment.resume();
                 break;
+            case MENU_ITEM_OVERLAY_MODE:
+                windowMode = false;
+                arrangeUi();
+                break;
             case MENU_ITEM_WINDOW_MODE:
-                displayMode = displayMode == DisplayMode.WINDOW ? DisplayMode.MIXED : DisplayMode.WINDOW;
+                windowMode = true;
                 arrangeUi();
                 break;
             case MENU_ITEM_FULLSCREEN:
                 rootLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE);
                 arrangeUi();
+                break;
+            case "Display":
                 break;
             default:
                 processInput(title.toLowerCase());

@@ -37,7 +37,7 @@ public class RootVarDeclarationStatement extends AbstractStatement {
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
         if (variable.constant && variable.type instanceof FunctionType && expression instanceof FunctionExpression) {
-            ((FunctionExpression) expression).toString(sb, indent + 4, variable.name);
+            ((FunctionExpression) expression).toString(sb, indent, variable.name);
             return;
         }
       sb.indent(indent);
