@@ -135,7 +135,10 @@ public class HelpStatement extends AbstractStatement {
         addHelp("let", "A 'let' declaration declares a new constant.\nExample:\n`let answer = 42\nprint answer`");
         addHelp("on", "An 'on' trigger executes a code block on a property condition. Example: on mySprite.x > screen.right: mySprite.dx = -100; end;");
         addHelp("onchange", "An 'onchange' trigger executes a code block whenever the given property changes.");
-        addHelp("oninterval", "An 'oninterval' trigger executes a code block repeatedly at the given interval in seconds. Example:\n`oninterval 1; print \"tick\"; end`");
+        addHelp("oninterval", "An 'oninterval' trigger executes a code block repeatedly at the given interval in seconds.\n" + "Example:\n`" +
+            "oninterval 1:\n" +
+            "  print \"tick\"\n" +
+            "end`");
         addHelp("variable", "A 'variable' declaration declares a new variable.\nExample:\n`var x = 4\nx += 1\nprint x`");
     }
 

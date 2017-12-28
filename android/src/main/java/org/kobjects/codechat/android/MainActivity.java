@@ -1,5 +1,8 @@
 package org.kobjects.codechat.android;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Point;
@@ -95,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     private int errorStart;
     private int errorEnd;
     private String errorText;
+    private BubbleAction copyAction;
     private BubbleAction editAction;
     private EmojiTextView errorView;
 
@@ -163,7 +167,15 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 //        input.setPrivateImeOptions("nm");
 
 
-        editAction = new BubbleAction(R.drawable.ic_keyboard_arrow_down_black_24dp, "Edit") {
+        copyAction = new BubbleAction(R.drawable.ic_content_copy_black_24dp, "Copy") {
+            @Override
+            public void invoke(CharSequence text) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Code", text);
+                clipboard.setPrimaryClip(clip);
+            }
+        };
+        editAction = new BubbleAction(R.drawable.ic_edit_black_24dp, "Edit") {
             @Override
             public void invoke(CharSequence text) {
                 input.setText(String.valueOf(text));
@@ -584,7 +596,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     void printInput(CharSequence s) {
-        print(ChatView.BubbleType.RIGHT, s, editAction);
+        print(ChatView.BubbleType.RIGHT, s, copyAction, editAction);
     }
 
     @Override

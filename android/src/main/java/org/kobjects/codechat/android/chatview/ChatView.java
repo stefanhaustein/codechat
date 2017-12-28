@@ -181,7 +181,7 @@ public class ChatView extends ListView {
                     }
                 });
             } else {
-                imageView.setImageResource(R.drawable.ic_more_vert_black_24dp);
+                imageView.setImageResource(R.drawable.ic_arrow_drop_down_black_24dp);
                 imageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -195,6 +195,7 @@ public class ChatView extends ListView {
                                 }
                             });
                         }
+                        popupMenu.show();
                     }
                 });
 
