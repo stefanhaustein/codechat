@@ -12,7 +12,6 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
 
     private final Environment environment;
     private int id;
-    private String unparsed;
 
     protected Instance(Environment environment, int id) {
         this.environment = environment;
@@ -107,16 +106,14 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
     }
 
 
-    @Override
-    public void setUnparsed(String unparsed) {
-        this.unparsed = unparsed;
-    }
-
-    @Override
-    public String getUnparsed() {
-        return unparsed;
-    }
-
     public void delete() {
+        String name = environment.constants.get(this);
+        if (name != null) {
+            RootVariable variable = environment.getRootVariable(name);
+            environment.constants.remove(name);
+            if (variable != null) {
+                variable.delete();
+            }
+        }
     }
 }

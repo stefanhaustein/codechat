@@ -4,12 +4,14 @@ import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.parser.ParsingEnvironment;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 
 public class RootVariable implements Entity, HasDependencies, Documented {
-    public String name;
+    private final ParsingEnvironment environment;
+    public final String name;
     public Type type;
     public Object value;
     public boolean constant;
@@ -17,6 +19,13 @@ public class RootVariable implements Entity, HasDependencies, Documented {
     public String unparsed;
     public String documentation;
     public Exception error;
+
+    public RootVariable(ParsingEnvironment environment, String name, Type type, boolean constant) {
+        this.environment = environment;
+        this.name = name;
+        this.type = type;
+        this.constant = constant;
+    }
 
     public void dump(StringBuilder sb) {
         sb.append(name);
@@ -39,6 +48,11 @@ public class RootVariable implements Entity, HasDependencies, Documented {
             for (String s: documentation.split("\n")) {
                 asb.append("# ").append(s).append('\n');
             }
+        }
+
+        if (unparsed != null) {
+            asb.append(unparsed);
+            return;
         }
 
         if (constant && ((value instanceof UserFunction) || (value instanceof Instance && serializationContext.getMode() == SerializationContext.Mode.EDIT))) {
@@ -66,14 +80,8 @@ public class RootVariable implements Entity, HasDependencies, Documented {
         }
     }
 
-    @Override
     public void setUnparsed(String unparsed) {
         this.unparsed = unparsed;
-    }
-
-    @Override
-    public String getUnparsed() {
-        return unparsed;
     }
 
     @Override
@@ -107,5 +115,13 @@ public class RootVariable implements Entity, HasDependencies, Documented {
             asb.append("\n");
         }
         return asb.build();
+    }
+
+    public void delete() {
+        environment.removeVariable(name);
+        if (value instanceof Instance) {
+            ((Instance) value).delete();
+        }
+        value = null;
     }
 }

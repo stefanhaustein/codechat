@@ -135,6 +135,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
     }
 
     public void delete() {
+        super.delete();
         detach();
     }
 

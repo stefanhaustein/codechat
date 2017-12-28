@@ -3,6 +3,7 @@ package org.kobjects.codechat.android;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Point;
@@ -10,6 +11,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -36,14 +38,17 @@ import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.EmojiTextView;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.SortedMap;
 import org.kobjects.codechat.android.chatview.BubbleAction;
 import org.kobjects.codechat.android.chatview.ChatView;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.annotation.ErrorLink;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.annotation.AnnotationSpan;
+import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
@@ -649,9 +654,20 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (s instanceof AnnotatedCharSequence) {  // FIXME
-                    SpannableString spannable = new SpannableString(s);
+                SpannableString spannable = new SpannableString(s);
+                ArrayList<BubbleAction> actionList = new ArrayList<>();
+                for (BubbleAction ba : actions) {
+                    actionList.add(ba);
+                }
+                AnnotationSpan annotationSpan = null;
+                int linkCount = 0;
+                if (s instanceof AnnotatedCharSequence) {
                     for (final AnnotationSpan annotation : ((AnnotatedCharSequence) s).getAnnotations()) {
+                        if (annotation.getStart() == 0 && annotation.getEnd() == s.length()) {
+                            annotationSpan = annotation;
+                            linkCount++;
+                        }
+
                         if (annotation.getLink() != null) {
                             spannable.setSpan(new ClickableSpan() {
                                 @Override
@@ -661,10 +677,45 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                             }, annotation.getStart(), annotation.getEnd(), 0);
                         }
                     }
-                    chatView.add(bubbleType, spannable, actions);
-                } else {
-                    chatView.add(bubbleType, s, actions);
                 }
+                if (actions.length == 0) {
+                    actionList.add(copyAction);
+                    if (linkCount == 1 && annotationSpan.getLink() instanceof EntityLink) {
+                        final EntityLink entityLink = (EntityLink) annotationSpan.getLink();
+                            BubbleAction deleteAction = new BubbleAction(R.drawable.ic_delete_black_24dp, "Delete") {
+                                @Override
+                                public void invoke(CharSequence text) {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                    builder.setTitle("Delete '" + s + "'");
+                                    final Entity entity = entityLink.entity.get();
+                                    if (entity == null) {
+                                        builder.setMessage("This entity has been deleted already.");
+                                        builder.setPositiveButton("Ok", null);
+
+                                    } else {
+                                        builder.setMessage("Are you sure?");
+                                        builder.setNegativeButton("Cancel", null);
+                                        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                entity.delete();
+                                            }
+                                        });
+                                    }
+                                    builder.show();
+                                }
+                            };
+                        BubbleAction editAction = new BubbleAction(R.drawable.ic_edit_black_24dp, "Edit") {
+                            @Override
+                            public void invoke(CharSequence text) {
+                                entityLink.execute(environment);
+                            }
+                        };
+                        actionList.add(editAction);
+                        actionList.add(deleteAction);
+                    }
+                }
+                chatView.add(bubbleType, spannable, actionList.toArray(new BubbleAction[actionList.size()]));
             }
         });
     }

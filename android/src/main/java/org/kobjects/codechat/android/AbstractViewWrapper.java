@@ -76,6 +76,7 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
     }
 
     public void delete() {
+        super.delete();
         opacity.set(0.0);
     }
 

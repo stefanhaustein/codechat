@@ -172,14 +172,14 @@ public class ChatView extends ListView {
             if (entry.actions == null || entry.actions.length == 0) {
                 imageView.setImageBitmap(null);
                 imageView.setOnClickListener(null);
-            } else if (entry.actions.length == 1) {
+         /*   } else if (entry.actions.length == 1) {
                 imageView.setImageResource(entry.actions[0].resId);
                 imageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         entry.actions[0].invoke(entry.text);
                     }
-                });
+                }); */
             } else {
                 imageView.setImageResource(R.drawable.ic_arrow_drop_down_black_24dp);
                 imageView.setOnClickListener(new OnClickListener() {

@@ -1,6 +1,8 @@
 package org.kobjects.codechat.parser;
 
 import java.util.TreeMap;
+
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.parser.ParsingEnvironment;
 import org.kobjects.codechat.type.InstanceType;
@@ -21,10 +23,7 @@ public class FakeEnvironment implements ParsingEnvironment {
 
     @Override
     public RootVariable declareRootVariable(String name, Type type, boolean constant) {
-        RootVariable newVar = new RootVariable();
-        newVar.name = name;
-        newVar.type = type;
-        newVar.constant = constant;
+        RootVariable newVar = new RootVariable(environment, name, type, constant);
         variables.put(name, newVar);
         return newVar;
     }
@@ -39,4 +38,9 @@ public class FakeEnvironment implements ParsingEnvironment {
     public InstanceType resolveInstanceType(String typeName) {
         return environment.resolveInstanceType(typeName);
     }
+
+   @Override
+   public void removeVariable(String name) {
+        variables.remove(name);
+   }
 }

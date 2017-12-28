@@ -10,7 +10,5 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 public interface Entity {
     void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext);
 
-    void setUnparsed(String unparsed);
-
-    String getUnparsed();
+    void delete();
 }

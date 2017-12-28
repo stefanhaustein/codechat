@@ -240,13 +240,10 @@ public class Environment implements ParsingEnvironment {
     }
 
     public void addSystemConstant(String name, Object value, String documentaion) {
-        RootVariable var = new RootVariable();
-        var.name = name;
-        var.type = Type.of(value);
+        RootVariable var = new RootVariable(this, name, Type.of(value), true);
         var.value = value;
         var.builtin = true;
         var.documentation = documentaion;
-        var.constant = true;
         if (rootVariables.containsKey(name)) {
             throw new RuntimeException("Already declared: " + name);
         }
@@ -400,7 +397,7 @@ public class Environment implements ParsingEnvironment {
             if (!file.exists()) {
                 throw new RuntimeException("File '" + file.getName() + "' does not exist.");
             }
-            
+
             byte[] data = new byte[(int) file.length()];
             DataInputStream stream = new DataInputStream(new FileInputStream(file));
             stream.readFully(data);
@@ -495,8 +492,7 @@ public class Environment implements ParsingEnvironment {
         RootVariable rootVariable = rootVariables.get(name);
         boolean existing = rootVariable != null;
         if (!existing) {
-            rootVariable = new RootVariable();
-            rootVariable.name = name;
+            rootVariable = new RootVariable(this, name, type, constant);
             rootVariables.put(name, rootVariable);
         }
         rootVariable.type = type;
@@ -536,6 +532,11 @@ public class Environment implements ParsingEnvironment {
             throw new RuntimeException(name + " is not an instance type.");
         }
         return (InstanceType) result;
+    }
+
+    @Override
+    public void removeVariable(String name) {
+        rootVariables.remove(name);
     }
 
     public boolean isSuspended() {

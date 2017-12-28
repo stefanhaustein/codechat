@@ -14,4 +14,6 @@ public interface ParsingEnvironment {
     RootVariable getRootVariable(String name);
 
     InstanceType resolveInstanceType(String typeName);
+
+  void removeVariable(String name);
 }
