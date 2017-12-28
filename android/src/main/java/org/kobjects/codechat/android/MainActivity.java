@@ -549,10 +549,10 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         float displayHightDp = displaySize.y / pixelPerDp;
         if (displayHightDp < SHOW_TOOLBAR_HEIGHT_DP || windowMode) {
             toolbar.setVisibility(View.GONE);
-         //   menuButton.setVisibility(View.VISIBLE);
+            menuButton.setVisibility(View.VISIBLE);
         } else {
             toolbar.setVisibility(View.VISIBLE);
-        //    menuButton.setVisibility(View.VISIBLE);
+            menuButton.setVisibility(View.GONE);
         }
         rootLayout.addView(errorView);
 
@@ -566,13 +566,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         arrangeUi();
     }
 
-    /*
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
        menu.clear();
        fillMenu(menu, true);
        return true;
-    }*/
+    }
 
     public void fillMenu(final Menu menu, boolean isOptionsMenu) {
         menu.add("About");
