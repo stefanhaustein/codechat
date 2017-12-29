@@ -5,6 +5,7 @@ import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.SerializationContext;
+import org.kobjects.codechat.type.InstanceType;
 
 public class EntityLink implements Link {
     public final WeakReference<Entity> entity;
@@ -13,14 +14,17 @@ public class EntityLink implements Link {
         this.entity = new WeakReference<Entity>(entity);
     }
 
-    public String getText(Environment environment) {
+    public CharSequence getText(Environment environment) {
         Entity entity = this.entity.get();
         if (entity == null) {
             return "(deleted)";
         }
+        if ((entity.getType() instanceof InstanceType) && !((InstanceType) entity.getType()).isInstantiable()) {
+            return ((InstanceType) entity.getType()).getDocumentation();
+        }
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
         entity.serialize(asb, new SerializationContext(environment, SerializationContext.Mode.EDIT));
-        return asb.toString();
+        return asb.build();
     }
 
     @Override
@@ -28,8 +32,10 @@ public class EntityLink implements Link {
         Entity entity = this.entity.get();
         if (entity == null) {
             environment.environmentListener.print("(deleted)");
+        } else if ((entity.getType() instanceof InstanceType) && !((InstanceType) entity.getType()).isInstantiable()) {
+            environment.environmentListener.print(((InstanceType) entity.getType()).getDocumentation());
         } else {
-            environment.environmentListener.edit(getText(environment));
+            environment.environmentListener.edit(getText(environment).toString());
         }
     }
 }

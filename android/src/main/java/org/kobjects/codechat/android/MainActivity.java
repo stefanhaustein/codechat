@@ -66,8 +66,13 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     static final String SETTINGS_FILE_NAME = "fileName";
     static final String SETTINGS_FILE_NAME_DEFAULT = "CodeChat";
 
+    static final String MENU_ITEM_CLEAR_ALL = "Clear all";
+    static final String MENU_ITEM_CLEAR_MENU = "Clear";
+    static final String MENU_ITEM_CLEAR_INPUT = "Clear input";
+    static final String MENU_ITEM_CLEAR_OUTPUT = "Clear output";
     static final String MENU_ITEM_RESUME = "Resume";
     static final String MENU_ITEM_SUSPEND = "Suspend";
+    static final String MENU_ITEM_DISPLAY_MENU = "Display";
     static final String MENU_ITEM_OVERLAY_MODE = "Overlay mode";
     static final String MENU_ITEM_WINDOW_MODE = "Window mode";
     static final String MENU_ITEM_FULLSCREEN = "Fullscreen";
@@ -578,7 +583,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         menu.add("Help");
 
         if (displaySize.x <= displaySize.y) {
-            Menu displayMenu = menu.addSubMenu("Display");
+            Menu displayMenu = menu.addSubMenu(MENU_ITEM_DISPLAY_MENU);
             displayMenu.add(1, 0,0,MENU_ITEM_OVERLAY_MODE).setCheckable(true).setChecked(!windowMode);
             displayMenu.add(1, 0, 0, MENU_ITEM_WINDOW_MODE).setCheckable(true).setChecked(windowMode);
             displayMenu.add(1, 0, 0, MENU_ITEM_FULLSCREEN);
@@ -586,6 +591,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         } else{
             menu.add(MENU_ITEM_FULLSCREEN);
         }
+
+        Menu clearMenu = menu.addSubMenu(MENU_ITEM_CLEAR_MENU);
+        clearMenu.add(MENU_ITEM_CLEAR_INPUT);
+        clearMenu.add(MENU_ITEM_CLEAR_OUTPUT);
+        clearMenu.add(MENU_ITEM_CLEAR_ALL);
+
 
         MenuItem suspend = menu.add(environment.isSuspended()? MENU_ITEM_RESUME : MENU_ITEM_SUSPEND);
         if (isOptionsMenu) {
@@ -624,7 +635,28 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     | View.SYSTEM_UI_FLAG_IMMERSIVE);
                 arrangeUi();
                 break;
-            case "Display":
+            case MENU_ITEM_CLEAR_ALL: {
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                alert.setTitle("Clear All");
+                alert.setMessage("Fully delete the current program?");
+                alert.setNegativeButton("Cancel", null);
+                alert.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        processInput("clearAll");
+                    }
+                });
+                alert.show();
+                break;
+            }
+            case MENU_ITEM_CLEAR_INPUT:
+                input.setText("");
+                break;
+            case MENU_ITEM_CLEAR_OUTPUT:
+                chatView.clear();
+                break;
+            case MENU_ITEM_DISPLAY_MENU:
+            case MENU_ITEM_CLEAR_MENU:
                 break;
             default:
                 processInput(title.toLowerCase());

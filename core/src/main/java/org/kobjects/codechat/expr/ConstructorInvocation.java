@@ -12,6 +12,9 @@ public class ConstructorInvocation extends Expression {
     int id;
 
     public ConstructorInvocation(InstanceType type, int id) {
+        if (!type.isInstantiable()) {
+            throw new RuntimeException("Type '" + type + "' is not instantiable!");
+        }
         this.type = type;
         this.id = id;
     }

@@ -1,5 +1,6 @@
 package org.kobjects.codechat.lang;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;

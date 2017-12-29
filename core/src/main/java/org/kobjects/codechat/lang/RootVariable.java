@@ -6,6 +6,7 @@ import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
 import org.kobjects.codechat.parser.ParsingEnvironment;
 import org.kobjects.codechat.type.FunctionType;
+import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 
@@ -97,6 +98,8 @@ public class RootVariable implements Entity, HasDependencies, Documented {
         if (value instanceof Function) {
             ((FunctionType) type).serializeSignature(asb, -1, name, null, null);
             asb.append("\n");
+        } else if (type instanceof InstanceType && !((InstanceType) type).isInstantiable()) {
+            asb.append(((InstanceType) type).getDocumentation());
         } else if (!(type instanceof MetaType)) {
             asb.append(constant ? "constant ": "variable ");
             asb.append(name).append(": ");
@@ -123,5 +126,10 @@ public class RootVariable implements Entity, HasDependencies, Documented {
             ((Instance) value).delete();
         }
         value = null;
+    }
+
+    @Override
+    public Type getType() {
+        return type;
     }
 }
