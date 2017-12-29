@@ -14,12 +14,12 @@ public class DeclarationException extends RuntimeException implements Printable 
 
     public String toString() {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        toString(asb);
+        print(asb, Flavor.DEFAULT);
         return asb.toString();
     }
 
     @Override
-    public void toString(AnnotatedStringBuilder asb) {
+    public void print(AnnotatedStringBuilder asb, Flavor flavor) {
         asb.append("Error in declaration of '");
         asb.append(variable.name, new EntityLink(variable));
         if (getCause() == null) {

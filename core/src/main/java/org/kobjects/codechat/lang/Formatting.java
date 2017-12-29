@@ -24,7 +24,7 @@ public final class Formatting {
 
     public static void exceptionToString(AnnotatedStringBuilder asb, Throwable e) {
         if (e instanceof Printable) {
-            ((Printable) e).toString(asb);
+            ((Printable) e).print(asb, Printable.Flavor.DEFAULT);
         } else if (e instanceof ExpressionParser.ParsingException) {
             asb.append(e.getMessage());
         } else {

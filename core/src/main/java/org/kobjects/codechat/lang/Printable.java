@@ -3,5 +3,9 @@ package org.kobjects.codechat.lang;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 
 public interface Printable {
-    void toString(AnnotatedStringBuilder asb);
+    enum Flavor {
+      DEFAULT
+
+    }
+    void print(AnnotatedStringBuilder asb, Flavor flavor);
 }

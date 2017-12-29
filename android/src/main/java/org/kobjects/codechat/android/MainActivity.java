@@ -677,7 +677,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         e.printStackTrace();
         if (e instanceof Printable) {
             AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-            ((Printable) e).toString(asb);
+            ((Printable) e).print(asb, Printable.Flavor.DEFAULT);
             print(asb.build());
         } else if (e instanceof ParsingException) {
             print(e.getMessage());

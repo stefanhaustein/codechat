@@ -1,6 +1,5 @@
 package org.kobjects.codechat.lang;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -16,12 +15,12 @@ public class MetaException extends RuntimeException implements Printable {
 
     public String toString() {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        toString(asb);
+        print(asb, Flavor.DEFAULT);
         return asb.toString();
     }
 
 
-    public void toString(AnnotatedStringBuilder asb) {
+    public void print(AnnotatedStringBuilder asb, Printable.Flavor flavor) {
         asb.append(getMessage()).append('\n');
         for (Exception e : exceptions) {
             asb.append(e.getMessage()).append('\n');
