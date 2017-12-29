@@ -38,11 +38,9 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
         }
 
         @Override
-        public AnnotatedCharSequence getDocumentation() {
-            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        public void printDocumentation(AnnotatedStringBuilder asb) {
             asb.append("A text object displayed on the screen.");
-            asb.append(super.getDocumentation());
-            return asb.build();
+            super.printDocumentation(asb);
         }
     };
 

@@ -44,8 +44,7 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
     }
 
     @Override
-    public AnnotatedCharSequence getDocumentation() {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+    public void printDocumentation(AnnotatedStringBuilder asb) {
         asb.append("\nProperties: ");
         boolean first = true;
         for (PropertyDescriptor propertyDescriptor: properties()) {
@@ -56,7 +55,6 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
             }
             asb.append(propertyDescriptor.name, new DocumentedLink(propertyDescriptor));
         }
-        return asb.build();
     }
 
     public class PropertyDescriptor implements Documented {
@@ -87,15 +85,12 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
         }
 
         @Override
-        public AnnotatedCharSequence getDocumentation() {
-            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-
+        public void printDocumentation(AnnotatedStringBuilder asb) {
             asb.append(singleton ? InstanceType.this.getName().toLowerCase() : InstanceType.this.getName(), new DocumentedLink(InstanceType.this));
             asb.append(".").append(name).append(": ");
             asb.append(type.toString(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
             asb.append("\n");
             asb.append(documentation);
-            return asb.build();
         }
     }
 

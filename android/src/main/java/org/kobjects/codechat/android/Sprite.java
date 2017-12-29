@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import com.vanniktech.emoji.EmojiUtils;
 import com.vanniktech.emoji.emoji.Emoji;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.EnumLiteral;
@@ -35,12 +36,11 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
             return "Sprite";
         }
 
-        public AnnotatedCharSequence getDocumentation() {
-            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        @Override
+        public void printDocumentation(AnnotatedStringBuilder asb) {
             asb.append("A sprite is an emoji displayed on a particular position on the screen. "
                             + "It is able to move and rotate at a given speed by setting the corresponding properties.");
-            asb.append(super.getDocumentation());
-            return asb.build();
+            super.printDocumentation(asb);
         }
     };
     static {

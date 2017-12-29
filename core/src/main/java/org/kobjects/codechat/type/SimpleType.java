@@ -3,6 +3,7 @@ package org.kobjects.codechat.type;
 import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedString;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Documented;
 
@@ -28,7 +29,7 @@ public class SimpleType extends Type implements Documented {
     }
 
     @Override
-    public AnnotatedCharSequence getDocumentation() {
-        return new AnnotatedString(documentation, null);
+    public void printDocumentation(AnnotatedStringBuilder asb) {
+        asb.append(documentation);
     }
 }

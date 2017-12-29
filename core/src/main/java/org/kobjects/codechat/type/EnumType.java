@@ -40,8 +40,7 @@ public class EnumType extends Type implements Documented {
     }
 
     @Override
-    public AnnotatedCharSequence getDocumentation() {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+    public void printDocumentation(AnnotatedStringBuilder asb) {
         asb.append(name);
         asb.append(": enumeration type of the values ");
 
@@ -53,6 +52,5 @@ public class EnumType extends Type implements Documented {
             }
             asb.append(values[i].name());
         }
-        return asb.build();
     }
 }

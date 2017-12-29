@@ -93,13 +93,12 @@ public class RootVariable implements Entity, HasDependencies, Documented {
     }
 
     @Override
-    public AnnotatedCharSequence getDocumentation() {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+    public void printDocumentation(AnnotatedStringBuilder asb) {
         if (value instanceof Function) {
             ((FunctionType) type).serializeSignature(asb, -1, name, null, null);
             asb.append("\n");
         } else if (type instanceof InstanceType && !((InstanceType) type).isInstantiable()) {
-            asb.append(((InstanceType) type).getDocumentation());
+            ((InstanceType) type).printDocumentation(asb);
         } else if (!(type instanceof MetaType)) {
             asb.append(constant ? "constant ": "variable ");
             asb.append(name).append(": ");
@@ -111,13 +110,12 @@ public class RootVariable implements Entity, HasDependencies, Documented {
             asb.append("\n");
         }
         if (value instanceof Documented) {
-            asb.append(((Documented) value).getDocumentation());
+            ((Documented) value).printDocumentation(asb);
         }
         if (documentation != null) {
             asb.append(documentation);
             asb.append("\n");
         }
-        return asb.build();
     }
 
     public void delete() {

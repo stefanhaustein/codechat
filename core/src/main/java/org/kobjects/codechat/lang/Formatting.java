@@ -2,6 +2,7 @@ package org.kobjects.codechat.lang;
 
 import java.util.Arrays;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
@@ -30,6 +31,12 @@ public final class Formatting {
         } else {
             asb.append(e.toString());
         }
+    }
+
+    public static AnnotatedString getDocumentation(Documented documented) {
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        documented.printDocumentation(asb);
+        return asb.build();
     }
 
     public static String quote(String s) {

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
@@ -31,12 +32,10 @@ public class Sensors extends Instance {
             return "Sensors";
         }
 
-        public AnnotatedCharSequence getDocumentation() {
-            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        public void printDocumentation(AnnotatedStringBuilder asb) {
             asb.append("Hardware sensors are available as properties of the system variable 'sensors'. " +
                     "The set of supportes sensors is likely to change in the future.");
-            asb.append(super.getDocumentation());
-            return asb.build();
+            super.printDocumentation(asb);
         }
     }
             .addProperty(0, "temperature", Type.NUMBER, false,

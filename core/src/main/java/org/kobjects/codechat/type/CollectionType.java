@@ -31,16 +31,14 @@ public abstract class CollectionType extends InstanceType<Collection> {
     }
 
     @Override
-    public AnnotatedCharSequence getDocumentation() {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+    public void printDocumentation(AnnotatedStringBuilder asb) {
         asb.append("A ").append(name).append(" of ");
         if (elementType instanceof Documented) {
             asb.append(elementType.getName(), new DocumentedLink((Documented) elementType));
         } else {
             asb.append(elementType.getName());
         }
-        asb.append(super.getDocumentation());
-        return asb.build();
+        super.printDocumentation(asb);
     }
 
 

@@ -14,6 +14,7 @@ import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Function;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.FunctionType;
@@ -221,7 +222,8 @@ public class HelpStatement extends AbstractStatement {
         if (about == null) {
             printGeneralHelp(context.environment);
         } else if (context.environment.rootVariables.containsKey(about)) {
-            context.environment.environmentListener.print(context.environment.rootVariables.get(about).getDocumentation());
+            context.environment.environmentListener.print(
+                Formatting.getDocumentation(context.environment.rootVariables.get(about)));
         } else if (helpMap.containsKey(about)) {
             context.environment.environmentListener.print(helpMap.get(about));
         } else {

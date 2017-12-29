@@ -10,6 +10,7 @@ import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.LazyProperty;
 import org.kobjects.codechat.lang.MaterialProperty;
+import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.type.InstanceType;
@@ -23,11 +24,9 @@ public class Screen extends Instance {
             return "Screen";
         }
         @Override
-        public AnnotatedCharSequence getDocumentation() {
-            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        public void printDocumentation(AnnotatedStringBuilder asb) {
             asb.append("The screen object contains information about the visible device screen such as the dimensions.");
-            asb.append(super.getDocumentation());
-            return asb.build();
+            super.printDocumentation(asb);
         }
     };
 
