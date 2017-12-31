@@ -48,14 +48,10 @@ public class FunctionExpression extends Expression {
 
     public void toString(AnnotatedStringBuilder sb, int indent, String name) {
         functionType.serializeSignature(sb, id, name, parameterNames, null);
-        if (body == null) {
-            sb.append(";\n");
-        } else {
-            sb.append(" :\n");
-            body.toString(sb, indent + 2);
-          sb.indent(indent);
-          sb.append("end\n");
-        }
+        sb.append(" :\n");
+        body.toString(sb, indent + 2);
+        sb.indent(indent);
+        sb.append("end\n");
     }
 
     @Override

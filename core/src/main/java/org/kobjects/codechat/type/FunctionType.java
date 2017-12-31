@@ -64,7 +64,7 @@ public class FunctionType extends InstanceType<UserFunction> {
 
     public int serializeSignature(AnnotatedStringBuilder asb, int id, String name, String[] parameterNames, EntityLink link) {
         int p0 = asb.length();
-        asb.append(returnType == null ? "proc" : "func");
+        asb.append("func");
         if (name != null) {
             asb.append(' ').append(name, link);
         } else if (id != -1) {
@@ -87,7 +87,7 @@ public class FunctionType extends InstanceType<UserFunction> {
         }
         asb.append(')');
         if (returnType != null) {
-            asb.append(": ");
+            asb.append(" -> ");
             asb.append(returnType.toString(), returnType instanceof Documented ? new DocumentedLink((Documented) returnType) : null);
         }
         return nameEnd;

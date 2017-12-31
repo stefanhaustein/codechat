@@ -2,6 +2,7 @@ package org.kobjects.codechat.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedAssignment;
 import org.kobjects.codechat.statement.unresolved.UnresolvedBlock;
+import org.kobjects.codechat.statement.unresolved.UnresolvedClass;
 import org.kobjects.codechat.statement.unresolved.UnresolvedCountStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedExpressionStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedForStatement;
@@ -181,7 +183,7 @@ public class Parser {
         return type;
     }
 
-    FunctionType parseSignature(ExpressionParser.Tokenizer tokenizer, boolean returnsValue, List<String> parameterNames) {
+    FunctionType parseSignature(ExpressionParser.Tokenizer tokenizer, List<String> parameterNames) {
         tokenizer.consume("(");
         ArrayList<Type> parameterTypes = new ArrayList<Type>();
         if (!tokenizer.tryConsume(")")) {
@@ -198,13 +200,8 @@ public class Parser {
         }
 
         Type returnType;
-        if (returnsValue) {
-            tokenizer.consume(":");
-            if (tokenizer.tryConsume("void") || tokenizer.tryConsume("Void")) {
-                returnType = null;
-            } else {
-                returnType = parseType(tokenizer);
-            }
+        if (tokenizer.tryConsume("->")) {
+            returnType = parseType(tokenizer);
         } else {
             returnType = null;
         }
@@ -215,7 +212,7 @@ public class Parser {
         int start = tokenizer.currentPosition;
 
         ArrayList<String> parameterNames = new ArrayList<String>();
-        FunctionType functionType = parseSignature(tokenizer, returnsValue, parameterNames);
+        FunctionType functionType = parseSignature(tokenizer, parameterNames);
 
         tokenizer.consume(":");
         UnresolvedStatement body = parseBlock(tokenizer, false,"end", "");
@@ -297,6 +294,34 @@ public class Parser {
         return documentation == null || documentation.trim().isEmpty() ? null : documentation;
     }
 
+    UnresolvedClass.UnresolvedField parseField(ExpressionParser.Tokenizer tokenizer, String name) {
+        UnresolvedExpression initializer = parseExpression(tokenizer);
+        return new UnresolvedClass.UnresolvedField(name, initializer);
+    }
+
+    UnresolvedClass.UnresolvedMethod parseMethod(ExpressionParser.Tokenizer tokenizer, String name) {
+        ArrayList<String> paramNames = new ArrayList<>();
+        FunctionType functionType = parseSignature(tokenizer, paramNames);
+        throw new RuntimeException("NYI");
+    }
+
+    UnresolvedClass parseClass(ExpressionParser.Tokenizer tokenizer) {
+        String className = tokenizer.consumeIdentifier();
+        tokenizer.consume(":");
+        UnresolvedClass result = new UnresolvedClass(className);
+        while(!tokenizer.tryConsume("end")) {
+            String memberName = tokenizer.consumeIdentifier();
+            if (tokenizer.tryConsume("=")) {
+                result.addField(parseField(tokenizer, memberName));
+            } else if (tokenizer.currentValue.equals("(")) {
+                result.addMethod(parseMethod(tokenizer, memberName));
+            } else {
+                throw new ParsingException(tokenizer.currentPosition, tokenizer.currentPosition, "colon, opening brace or end expected.", null);
+            }
+        }
+        return result;
+    }
+
     UnresolvedStatement parseStatement(ExpressionParser.Tokenizer tokenizer, boolean rootLevel) {
         String documentation = consumeComments(tokenizer);
         if (tokenizer.tryConsume("count")) {
@@ -304,6 +329,12 @@ public class Parser {
         }
         if (tokenizer.tryConsume("delete")) {
             return new UnresolvedSimpleStatement(UnresolvedSimpleStatement.Kind.DELETE, parseExpression(tokenizer));
+        }
+        if (tokenizer.tryConsume("class")) {
+            if (!rootLevel) {
+                throw new ParsingException(tokenizer.currentPosition - "class".length(), tokenizer.currentPosition, "class keyword permitted at root level only", null);
+            }
+            return parseClass(tokenizer);
         }
         if (tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#") ||
                 tokenizer.currentValue.equals("func") || tokenizer.currentValue.startsWith("func#") ) {
@@ -404,7 +435,7 @@ public class Parser {
     public ExpressionParser.Tokenizer createTokenizer(Reader reader) {
         ExpressionParser.Tokenizer tokenizer = new ExpressionParser.Tokenizer(
                 new Scanner(reader),
-                expressionParser.getSymbols() , ":", "end", "else", ";", "}");
+                expressionParser.getSymbols() , ":", "end", "else", ";", "}", "->");
         tokenizer.identifierPattern = IDENTIFIER_PATTERN;
         tokenizer.insertSemicolons = true;
         return tokenizer;
