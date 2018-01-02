@@ -2,7 +2,6 @@ package org.kobjects.codechat.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,7 +25,7 @@ import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedAssignment;
 import org.kobjects.codechat.statement.unresolved.UnresolvedBlock;
-import org.kobjects.codechat.statement.unresolved.UnresolvedClass;
+import org.kobjects.codechat.statement.unresolved.UnresolvedClassDeclaration;
 import org.kobjects.codechat.statement.unresolved.UnresolvedCountStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedExpressionStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedForStatement;
@@ -294,21 +293,23 @@ public class Parser {
         return documentation == null || documentation.trim().isEmpty() ? null : documentation;
     }
 
-    UnresolvedClass.UnresolvedField parseField(ExpressionParser.Tokenizer tokenizer, String name) {
+    UnresolvedClassDeclaration.UnresolvedField parseField(ExpressionParser.Tokenizer tokenizer, String name) {
         UnresolvedExpression initializer = parseExpression(tokenizer);
-        return new UnresolvedClass.UnresolvedField(name, initializer);
+        return new UnresolvedClassDeclaration.UnresolvedField(name, initializer);
     }
 
-    UnresolvedClass.UnresolvedMethod parseMethod(ExpressionParser.Tokenizer tokenizer, String name) {
+    UnresolvedClassDeclaration.UnresolvedMethod parseMethod(ExpressionParser.Tokenizer tokenizer, String name) {
         ArrayList<String> paramNames = new ArrayList<>();
         FunctionType functionType = parseSignature(tokenizer, paramNames);
-        throw new RuntimeException("NYI");
+        tokenizer.consume(":");
+        UnresolvedStatement body = parseBlock(tokenizer, false,"end", "");
+        return new UnresolvedClassDeclaration.UnresolvedMethod(name, functionType, paramNames, body);
     }
 
-    UnresolvedClass parseClass(ExpressionParser.Tokenizer tokenizer) {
+    UnresolvedClassDeclaration parseClass(ExpressionParser.Tokenizer tokenizer) {
         String className = tokenizer.consumeIdentifier();
         tokenizer.consume(":");
-        UnresolvedClass result = new UnresolvedClass(className);
+        UnresolvedClassDeclaration result = new UnresolvedClassDeclaration(className);
         while(!tokenizer.tryConsume("end")) {
             String memberName = tokenizer.consumeIdentifier();
             if (tokenizer.tryConsume("=")) {

@@ -1,9 +1,11 @@
 package org.kobjects.codechat.type;
 
+import java.util.Collection;
 import java.util.TreeMap;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
@@ -21,8 +23,13 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
         this.singleton = singleton;
     }
 
+    public InstanceType addProperty(int index, String name, Type type, boolean writable, String documentation, Expression initializer) {
+        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, initializer));
+        return this;
+    }
+
     public InstanceType addProperty(int index, String name, Type type, boolean writable, String documentation) {
-        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation));
+        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, null));
         return this;
     }
 
@@ -34,7 +41,7 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
         return propertyDescriptor;
     }
 
-    public Iterable<PropertyDescriptor> properties() {
+    public Collection<PropertyDescriptor> properties() {
         return propertyMap.values();
     }
 
@@ -63,13 +70,15 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
         public final int index;
         public final boolean writable;
         public final String documentation;
+        public final Expression initializer;
 
-        private PropertyDescriptor(String name, Type type, int index, boolean writable, String documentation) {
+        private PropertyDescriptor(String name, Type type, int index, boolean writable, String documentation, Expression initializer) {
             this.name = name;
             this.type = type;
             this.index = index;
             this.writable = writable;
             this.documentation = documentation;
+            this.initializer = initializer;
         }
 
         public Property getProperty(Instance tuple) {
