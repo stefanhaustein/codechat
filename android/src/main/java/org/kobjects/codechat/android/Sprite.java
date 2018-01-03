@@ -27,8 +27,8 @@ import com.vanniktech.emoji.EmojiManager;
 public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, Runnable {
     public final static InstanceType TYPE = new ViewWrapperType<Sprite>() {
         @Override
-        public Sprite createInstance(Environment environment, int id) {
-            return new Sprite((AndroidEnvironment) environment, id);
+        public Sprite createInstance(Environment environment) {
+            return new Sprite((AndroidEnvironment) environment);
         }
 
         @Override
@@ -147,8 +147,8 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
 
     private String lastFace;
 
-    public Sprite(AndroidEnvironment environment, int id) {
-        super(environment, id, new ImageView(environment.rootView.getContext()));
+    public Sprite(AndroidEnvironment environment) {
+        super(environment, new ImageView(environment.rootView.getContext()));
         view.setAdjustViewBounds(true);
         view.setScaleType(ImageView.ScaleType.FIT_CENTER);
         // view.setDrawingCacheEnabled(true);

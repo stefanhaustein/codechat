@@ -24,8 +24,8 @@ public class Collection extends Instance implements Iterable, HasDependencies {
     };
 
 
-    public Collection(Environment environment, int id, CollectionType type) {
-        super(environment, id);
+    public Collection(Environment environment, CollectionType type) {
+        super(environment);
         this.type = type;
 
         if (type instanceof SetType) {

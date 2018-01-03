@@ -89,7 +89,7 @@ public class Sensors extends Instance {
     public VectorSensorProperty compass = new VectorSensorProperty(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR, 3);
 
     Sensors(Environment environment, Context context) {
-        super(environment, 0);
+        super(environment);
         sensorManager = (SensorManager) context.getSystemService(SENSOR_SERVICE);
         sensorHandlerThread = new HandlerThread("SensorHandlerThread");
         sensorHandlerThread.start();

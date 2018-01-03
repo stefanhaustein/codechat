@@ -58,8 +58,8 @@ public class FunctionType extends InstanceType<UserFunction> {
     }
 
     @Override
-    public UserFunction createInstance(Environment environment, int id) {
-        return new UserFunction(environment, this, id);
+    public UserFunction createInstance(Environment environment) {
+        return new UserFunction(environment, this);
     }
 
     public int serializeSignature(AnnotatedStringBuilder asb, int id, String name, String[] parameterNames, EntityLink link) {

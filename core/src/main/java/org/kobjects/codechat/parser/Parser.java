@@ -310,7 +310,7 @@ public class Parser {
         String className = tokenizer.consumeIdentifier();
         tokenizer.consume(":");
         UnresolvedClassDeclaration result = new UnresolvedClassDeclaration(className);
-        while(!tokenizer.tryConsume("end")) {
+        while(!tokenizer.tryConsume("end") && !tokenizer.tryConsume("")) {
             String memberName = tokenizer.consumeIdentifier();
             if (tokenizer.tryConsume("=")) {
                 result.addField(parseField(tokenizer, memberName));
@@ -319,6 +319,7 @@ public class Parser {
             } else {
                 throw new ParsingException(tokenizer.currentPosition, tokenizer.currentPosition, "colon, opening brace or end expected.", null);
             }
+            while (tokenizer.tryConsume(";")) {}
         }
         return result;
     }

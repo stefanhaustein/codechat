@@ -42,7 +42,7 @@ public abstract class CollectionType extends InstanceType<Collection> {
     }
 
 
-    public Collection createInstance(Environment environment, int id) {
-        return new Collection(environment, id, this);
+    public Collection createInstance(Environment environment) {
+        return new Collection(environment, this);
     }
 }

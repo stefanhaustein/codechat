@@ -9,6 +9,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
 
 public abstract class InstanceType<T extends Instance> extends Type implements Documented {
@@ -64,7 +65,7 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
         }
     }
 
-    public class PropertyDescriptor implements Documented {
+    public class PropertyDescriptor implements Documented, Printable {
         public final String name;
         public final Type type;
         public final int index;
@@ -101,6 +102,15 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
             asb.append("\n");
             asb.append(documentation);
         }
+
+        @Override
+        public void print(AnnotatedStringBuilder asb, Flavor flavor) {
+            asb.append("  ");
+            asb.append(name);
+            asb.append(" = ");
+            initializer.toString(asb, 6);
+            asb.append('\n');
+        }
     }
 
 
@@ -108,7 +118,7 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
         return !singleton;
     }
 
-    public T createInstance(Environment environment, int id) {
+    public T createInstance(Environment environment) {
         throw new UnsupportedOperationException();
     }
 }

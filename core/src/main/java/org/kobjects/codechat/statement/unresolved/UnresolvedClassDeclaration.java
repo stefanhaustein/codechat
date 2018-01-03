@@ -3,6 +3,7 @@ package org.kobjects.codechat.statement.unresolved;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
+import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.ClassDeclaration;
 import org.kobjects.codechat.statement.Statement;
@@ -15,6 +16,7 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
   private final UserClassType type;
   private ArrayList<UnresolvedField> fields = new ArrayList<>();
   private ArrayList<UnresolvedMethod> methods = new ArrayList<>();
+  private RootVariable variable;
 
   public UnresolvedClassDeclaration(String className) {
     type = new UserClassType(className);
@@ -46,12 +48,12 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
       throw new RuntimeException("NYI");
     }
 
-    return new ClassDeclaration(type);
+    return new ClassDeclaration(variable, type);
   }
 
   @Override
   public void resolveTypes(ParsingContext parsingContext) {
-    parsingContext.environment.declareRootVariable(type.getName(), type, true);
+    variable = parsingContext.environment.declareRootVariable(type.getName(), type.getType(), true);
   }
 
   public static class UnresolvedField {

@@ -56,8 +56,8 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         }
     }
 
-    public OnInstance(Environment environment, int id, OnInstanceType type) {
-        super(environment, id);
+    public OnInstance(Environment environment, OnInstanceType type) {
+        super(environment);
         this.type = type;
     }
 
@@ -190,8 +190,8 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         }
 
         @Override
-        public OnInstance createInstance(Environment environment, int id) {
-            return new OnInstance(environment, id, this);
+        public OnInstance createInstance(Environment environment) {
+            return new OnInstance(environment,this);
         }
 
         @Override

@@ -90,7 +90,7 @@ public class Screen extends Instance {
     ViewGroup view;
 
     protected Screen(AndroidEnvironment environment) {
-        super(environment, NO_ID);
+        super(environment);
         this.environment = environment;
         this.view = environment.rootView;
     }

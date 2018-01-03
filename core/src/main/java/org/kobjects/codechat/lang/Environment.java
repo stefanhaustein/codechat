@@ -44,15 +44,14 @@ public class Environment implements ParsingEnvironment {
 
     private int suspended;
     int lastId;
-    private Map<Integer,WeakReference<Instance>> everything = new TreeMap<>();
-    public Map<Instance,String> constants = new WeakHashMap<>();
+    private TreeMap<Integer,WeakReference<Instance>> everything = new TreeMap<>();
+    private WeakHashMap<Instance,Integer> ids = new WeakHashMap<>();
+    public WeakHashMap<Instance,String> constants = new WeakHashMap<>();
     public TreeMap<String,RootVariable> rootVariables = new TreeMap<>();
     public File codeDir;
     public EnvironmentListener environmentListener;
     Parser parser = new Parser(this);
     public boolean autoSave = true;
-    boolean loading;
-    List<Instance> anonymousInstances;
 
     public Environment(EnvironmentListener environmentListener, File codeDir) {
         this.environmentListener = environmentListener;
@@ -253,7 +252,7 @@ public class Environment implements ParsingEnvironment {
 
     public <T extends Instance> T createInstance(InstanceType<T> type, int id) {
         if (id == -1) {
-            return type.createInstance(this, id);
+            return type.createInstance(this);
         }
 
         synchronized (everything) {
@@ -264,8 +263,9 @@ public class Environment implements ParsingEnvironment {
             if (existing != null) {
                 throw new RuntimeException("instance with id " + id + " exists already: " + existing);
             }
-            T instance = type.createInstance(this, id);
+            T instance = type.createInstance(this);
             everything.put(id, new WeakReference<Instance>(instance));
+            ids.put(instance, id);
             return instance;
         }
     }
@@ -314,10 +314,15 @@ public class Environment implements ParsingEnvironment {
         return parser.parse(parsingContext, code);
     }
 
-    public int createId(Instance instance) {
+    public int getId(Instance instance) {
         synchronized (everything) {
+            Integer idObject = ids.get(instance);
+            if (idObject != null) {
+                return idObject.intValue();
+            }
             int id = ++lastId;
             everything.put(id, new WeakReference<Instance>(instance));
+            ids.put(instance, id);
             return id;
         }
     }
@@ -366,6 +371,7 @@ public class Environment implements ParsingEnvironment {
         }
         rootVariables = systemVariables;
         synchronized (everything) {
+            ids.clear();
             everything.clear();
         }
         constants.clear();

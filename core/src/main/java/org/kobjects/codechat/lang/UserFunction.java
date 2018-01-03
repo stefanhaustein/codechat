@@ -8,14 +8,13 @@ import org.kobjects.codechat.type.FunctionType;
 
 public class UserFunction extends Instance implements Function {
     private EvaluationContext contextTemplate;
-    private int id;
     private FunctionType functionType;
     private Statement body;
     private Closure closure;
     private String[] parameterNames;
 
-    public UserFunction(Environment environment, FunctionType functionType, int id) {
-        super(environment, id);
+    public UserFunction(Environment environment, FunctionType functionType) {
+        super(environment);
         this.functionType = functionType;
     }
 
@@ -47,7 +46,8 @@ public class UserFunction extends Instance implements Function {
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
         int indent = wrap ? 2 : 0;
 
-        functionType.serializeSignature(asb, id, serializationContext.getEnvironment().constants.get(this), parameterNames, new EntityLink(this));
+        String name = environment.constants.get(this);
+        functionType.serializeSignature(asb, name == null ? getId() : -1, name, parameterNames, new EntityLink(this));
 
         if (serializationContext.getMode() == SerializationContext.Mode.LIST) {
             asb.append("\n");

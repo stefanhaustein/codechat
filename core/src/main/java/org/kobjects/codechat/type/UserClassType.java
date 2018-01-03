@@ -22,11 +22,13 @@ public class UserClassType extends InstanceType<UserClassInstance> implements Pr
   @Override
   public void print(AnnotatedStringBuilder asb, Flavor flavor) {
     asb.append("class ").append(name).append(":\n");
-    // TODO
+    for (PropertyDescriptor descriptor : properties()) {
+      descriptor.print(asb, flavor);
+    }
     asb.append("end\n");
   }
 
-  public UserClassInstance createInstance(Environment environment, int id) {
-    return new UserClassInstance(environment, id, this);
+  public UserClassInstance createInstance(Environment environment) {
+    return new UserClassInstance(environment, this);
   }
 }

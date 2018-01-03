@@ -21,8 +21,8 @@ public abstract class AbstractViewWrapper<T extends View> extends Instance imple
     public VisualMaterialProperty<AndroidEnvironment.XAlign> xAlign = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.CENTER);
     public VisualMaterialProperty<AndroidEnvironment.YAlign> yAlign = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.CENTER);
 
-    protected AbstractViewWrapper(AndroidEnvironment environment, int id, T view) {
-        super(environment, id);
+    protected AbstractViewWrapper(AndroidEnvironment environment, T view) {
+        super(environment);
         this.environment = environment;
         this.view = view;
         view.setTag(this);

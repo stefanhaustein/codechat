@@ -7,19 +7,10 @@ import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Typed;
 
 public abstract class Instance implements HasDependencies, Typed, Entity {
+    protected final Environment environment;
 
-    public static final int NO_ID = 0;
-
-    private final Environment environment;
-    private int id;
-
-    protected Instance(Environment environment, int id) {
+    protected Instance(Environment environment) {
         this.environment = environment;
-        this.id = id;
-    }
-
-    public final void setId(int id) {
-        this.id = id;
     }
 
     public String toString() {
@@ -99,10 +90,7 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
     }
 
     public synchronized int getId() {
-        if (id < 0) {
-            id = environment.createId(this);
-        }
-        return id;
+        return environment.getId(this);
     }
 
 

@@ -28,8 +28,8 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
 
     public final static InstanceType TYPE = new ViewWrapperType<Text>() {
         @Override
-        public Text createInstance(Environment environment, int id) {
-            return new Text((AndroidEnvironment) environment, id);
+        public Text createInstance(Environment environment) {
+            return new Text((AndroidEnvironment) environment);
         }
 
         @Override
@@ -58,9 +58,9 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
     public VisualMaterialProperty<String> text = new VisualMaterialProperty<>("");
     public VisualMaterialProperty<Double> color = new VisualMaterialProperty<>(0.0);
 
-    public Text(AndroidEnvironment environment, int id) {
-        super(environment, id, new AppCompatTextView(environment.rootView.getContext()));
-        this.text.set("Text#" + id);
+    public Text(AndroidEnvironment environment) {
+        super(environment, new AppCompatTextView(environment.rootView.getContext()));
+        this.text.set("Text");
         syncView();
     }
 

@@ -8,8 +8,8 @@ public class UserClassInstance extends Instance {
   UserClassType type;
   Property[] properties;
 
-  public UserClassInstance(Environment environment, int id, UserClassType type) {
-    super(environment, id);
+  public UserClassInstance(Environment environment, UserClassType type) {
+    super(environment);
     this.type = type;
     java.util.Collection<InstanceType<UserClassInstance>.PropertyDescriptor> propertyDescriptors = type.properties();
     properties = new Property[propertyDescriptors.size()];
