@@ -73,9 +73,6 @@ public final class Formatting {
         } else if (value instanceof Instance) {
             Instance instance = (Instance) value;
             asb.append(instance.toString(), new EntityLink(instance));
-        } else if (value instanceof Instance) {
-            Instance instance = (Instance) value;
-            asb.append(instance.getType() + "#" + instance.getId(), new EntityLink(instance));
         } else if (value instanceof Documented) {
             asb.append(String.valueOf(value), new DocumentedLink((Documented) value));
         } else {

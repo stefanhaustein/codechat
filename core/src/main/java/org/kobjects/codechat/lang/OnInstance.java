@@ -18,7 +18,7 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
-public class OnInstance extends Instance implements Property.PropertyListener {
+public class OnInstance extends AbstractInstance implements Property.PropertyListener {
 
     public static final OnInstanceType ON_TYPE = new OnInstanceType("On");
     public static final OnInstanceType ON_CHANGE_TYPE = new OnInstanceType("OnChange");
@@ -150,7 +150,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
 
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
 
-        asb.append(type.toString().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
+        asb.append(type.toString().toLowerCase() + "#" + String.valueOf(environment.getId(this)), new EntityLink(this));
         asb.append(" ").append(trigger.toString());
 
         if (serializationContext.getMode() == SerializationContext.Mode.LIST) {

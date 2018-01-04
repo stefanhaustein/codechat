@@ -12,7 +12,7 @@ import static org.kobjects.codechat.lang.Formatting.toLiteral;
 
 
 
-public class Collection extends Instance implements Iterable, HasDependencies {
+public class Collection extends AbstractInstance implements Iterable, HasDependencies {
 
     final CollectionType type;
     final java.util.Collection<Object> data;

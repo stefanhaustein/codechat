@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.lang.AbstractInstance;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.LazyProperty;
@@ -16,7 +17,7 @@ import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.SetType;
 
-public class Screen extends Instance {
+public class Screen extends AbstractInstance {
 
     public static final InstanceType<Screen> TYPE = new InstanceType<Screen>(true) {
         @Override

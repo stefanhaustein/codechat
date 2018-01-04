@@ -4,7 +4,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.UserClassType;
 
-public class UserClassInstance extends Instance {
+public class UserClassInstance extends AbstractInstance {
   UserClassType type;
   Property[] properties;
 

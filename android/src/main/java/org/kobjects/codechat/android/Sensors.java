@@ -13,6 +13,7 @@ import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.lang.AbstractInstance;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
@@ -23,7 +24,7 @@ import org.kobjects.codechat.type.Type;
 
 import static android.content.Context.SENSOR_SERVICE;
 
-public class Sensors extends Instance {
+public class Sensors extends AbstractInstance {
     static final private ListType TYPE_VECTOR = new ListType(Type.NUMBER);
 
     static InstanceType TYPE = new InstanceType(true) {

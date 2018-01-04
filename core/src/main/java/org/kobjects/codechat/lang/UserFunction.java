@@ -6,7 +6,7 @@ import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 
-public class UserFunction extends Instance implements Function {
+public class UserFunction extends AbstractInstance implements Function {
     private EvaluationContext contextTemplate;
     private FunctionType functionType;
     private Statement body;
@@ -47,7 +47,7 @@ public class UserFunction extends Instance implements Function {
         int indent = wrap ? 2 : 0;
 
         String name = environment.constants.get(this);
-        functionType.serializeSignature(asb, name == null ? getId() : -1, name, parameterNames, new EntityLink(this));
+        functionType.serializeSignature(asb, name == null ? environment.getId(this) : -1, name, parameterNames, new EntityLink(this));
 
         if (serializationContext.getMode() == SerializationContext.Mode.LIST) {
             asb.append("\n");

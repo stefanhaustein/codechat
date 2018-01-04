@@ -2,13 +2,14 @@ package org.kobjects.codechat.android;
 
 import android.app.Activity;
 import android.view.View;
+import org.kobjects.codechat.lang.AbstractInstance;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
-public abstract class AbstractViewWrapper<T extends View> extends Instance implements Runnable {
+public abstract class AbstractViewWrapper<T extends View> extends AbstractInstance implements Runnable {
 
     protected final T view;
     protected final AndroidEnvironment environment;
