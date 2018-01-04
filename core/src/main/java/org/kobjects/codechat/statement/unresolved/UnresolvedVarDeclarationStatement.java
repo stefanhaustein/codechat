@@ -8,6 +8,7 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedFunctionExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedMultiAssignment;
 import org.kobjects.codechat.lang.DeclarationException;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -21,7 +22,7 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
     static Type estimateType(ParsingContext parsingContext, UnresolvedExpression expression) {
         if (expression instanceof UnresolvedLiteral) {
             Object value = ((UnresolvedLiteral) expression).value;
-            return Type.of(value);
+            return Environment.typeOf(value);
         }
         if (expression instanceof UnresolvedFunctionExpression) {
             return ((UnresolvedFunctionExpression) expression).functionType;

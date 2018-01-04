@@ -20,7 +20,7 @@ public class Screen extends Instance {
 
     public static final InstanceType<Screen> TYPE = new InstanceType<Screen>(true) {
         @Override
-        public String getName() {
+        public String toString() {
             return "Screen";
         }
         @Override

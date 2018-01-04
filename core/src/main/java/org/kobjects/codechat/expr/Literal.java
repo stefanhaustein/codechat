@@ -1,6 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.parser.Parser;
@@ -15,7 +16,7 @@ public class Literal extends Expression {
 
     @Override
     public Type getType() {
-        return Type.of(value);
+        return Environment.typeOf(value);
     }
 
     @Override

@@ -12,7 +12,7 @@ import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
 
-public abstract class InstanceType<T extends Instance> extends Type implements Documented {
+public abstract class InstanceType<T extends Instance> extends AbstractType implements Documented {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
     private final boolean singleton;
 
@@ -48,7 +48,7 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
 
     @Override
     public boolean isAssignableFrom(Type other) {
-        return other instanceof InstanceType && other.getName().equals(getName());
+        return other instanceof InstanceType && other.toString().equals(toString());
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class InstanceType<T extends Instance> extends Type implements D
 
         @Override
         public void printDocumentation(AnnotatedStringBuilder asb) {
-            asb.append(singleton ? InstanceType.this.getName().toLowerCase() : InstanceType.this.getName(), new DocumentedLink(InstanceType.this));
+            asb.append(singleton ? InstanceType.this.toString().toLowerCase() : InstanceType.this.toString(), new DocumentedLink(InstanceType.this));
             asb.append(".").append(name).append(": ");
             asb.append(type.toString(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
             asb.append("\n");

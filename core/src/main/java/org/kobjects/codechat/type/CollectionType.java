@@ -26,7 +26,8 @@ public abstract class CollectionType extends InstanceType<Collection> {
         return otherType.getClass() == getClass() && elementType.isAssignableFrom(otherType.elementType);
     }
 
-    public String getName() {
+    @Override
+    public String toString() {
         return name + "[" + elementType + "]";
     }
 
@@ -34,9 +35,9 @@ public abstract class CollectionType extends InstanceType<Collection> {
     public void printDocumentation(AnnotatedStringBuilder asb) {
         asb.append("A ").append(name).append(" of ");
         if (elementType instanceof Documented) {
-            asb.append(elementType.getName(), new DocumentedLink((Documented) elementType));
+            asb.append(elementType.toString(), new DocumentedLink((Documented) elementType));
         } else {
-            asb.append(elementType.getName());
+            asb.append(elementType.toString());
         }
         super.printDocumentation(asb);
     }

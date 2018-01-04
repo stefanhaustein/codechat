@@ -19,7 +19,7 @@ public class FunctionType extends InstanceType<UserFunction> {
     }
 
     @Override
-    public String getName() {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(returnType == null ? "func(" : "proc(");
         if (parameterTypes.length > 0) {

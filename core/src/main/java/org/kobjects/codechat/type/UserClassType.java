@@ -14,7 +14,7 @@ public class UserClassType extends InstanceType<UserClassInstance> implements Pr
 
 
   @Override
-  public String getName() {
+  public String toString() {
     return name;
   }
 

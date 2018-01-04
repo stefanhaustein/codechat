@@ -7,7 +7,7 @@ import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.EnumLiteral;
 
-public class EnumType extends Type implements Documented {
+public class EnumType extends AbstractType implements Documented {
     private final String name;
     private final EnumLiteral[] values;
 
@@ -22,7 +22,7 @@ public class EnumType extends Type implements Documented {
     }
 
     @Override
-    public String getName() {
+    public String toString() {
         return name;
     }
 

@@ -7,7 +7,7 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Documented;
 
-public class SimpleType extends Type implements Documented {
+public class SimpleType extends AbstractType implements Documented {
     private final String name;
     private final Class<?> javaClass;
     private final String documentation;
@@ -24,7 +24,7 @@ public class SimpleType extends Type implements Documented {
     }
 
     @Override
-    public String getName() {
+    public String toString() {
         return name;
     }
 

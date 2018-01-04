@@ -32,7 +32,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         }
 
         @Override
-        public String getName() {
+        public String toString() {
             return "Sprite";
         }
 

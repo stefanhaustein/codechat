@@ -102,7 +102,7 @@ public class RootVariable implements Entity, HasDependencies, Documented {
         } else if (!(type instanceof MetaType)) {
             asb.append(constant ? "constant ": "variable ");
             asb.append(name).append(": ");
-            asb.append(type.getName(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
+            asb.append(type.toString(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
             if (constant) {
                 asb.append(" = ");
                 Formatting.toLiteral(asb, value);

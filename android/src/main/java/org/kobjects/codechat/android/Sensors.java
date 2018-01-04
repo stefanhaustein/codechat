@@ -28,7 +28,7 @@ public class Sensors extends Instance {
 
     static InstanceType TYPE = new InstanceType(true) {
         @Override
-        public String getName() {
+        public String toString() {
             return "Sensors";
         }
 

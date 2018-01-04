@@ -45,7 +45,7 @@ public class RootVarDeclarationStatement extends AbstractStatement {
         sb.append(variable.name);
         if (explicitType) {
             sb.append(": ");
-            sb.append(variable.type.getName());
+            sb.append(variable.type.toString());
         }
         sb.append(" = ");
         expression.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);

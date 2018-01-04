@@ -89,7 +89,7 @@ public abstract class Instance implements HasDependencies, Typed, Entity {
         }
     }
 
-    public synchronized int getId() {
+    public int getId() {
         return environment.getId(this);
     }
 

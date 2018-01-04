@@ -33,7 +33,7 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
         }
 
         @Override
-        public String getName() {
+        public String toString() {
             return "Text";
         }
 

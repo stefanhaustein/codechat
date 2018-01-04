@@ -1,7 +1,7 @@
 package org.kobjects.codechat.type;
 
 
-public class MetaType extends Type {
+public class MetaType extends AbstractType {
     Type type;
     public MetaType(Type type) {
         this.type = type;
@@ -16,7 +16,7 @@ public class MetaType extends Type {
     }
 
     @Override
-    public String getName() {
+    public String toString() {
         return "metatype[" + type + "]";
     }
 

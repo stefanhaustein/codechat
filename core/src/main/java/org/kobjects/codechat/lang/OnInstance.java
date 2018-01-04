@@ -150,7 +150,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
 
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
 
-        asb.append(type.getName().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
+        asb.append(type.toString().toLowerCase() + "#" + String.valueOf(getId()), new EntityLink(this));
         asb.append(" ").append(trigger.toString());
 
         if (serializationContext.getMode() == SerializationContext.Mode.LIST) {
@@ -200,7 +200,7 @@ public class OnInstance extends Instance implements Property.PropertyListener {
         }
 
         @Override
-        public String getName() {
+        public String toString() {
             return name;
         }
 

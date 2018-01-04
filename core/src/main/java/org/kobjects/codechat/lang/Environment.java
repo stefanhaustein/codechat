@@ -10,10 +10,7 @@ import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
@@ -28,6 +25,7 @@ import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.codechat.type.Typed;
 
 public class Environment implements ParsingEnvironment {
 
@@ -61,6 +59,32 @@ public class Environment implements ParsingEnvironment {
         addType(OnInstance.ON_CHANGE_TYPE, OnInstance.ON_INTERVAL_TYPE, OnInstance.ON_TYPE);
 
         addBuiltins();
+    }
+
+    public static Type typeOf(Object o) {
+        if (o instanceof Type) {
+            return new MetaType((Type) o);
+        }
+        if (o instanceof Typed) {
+            Type result = ((Typed) o).getType();
+            if (result == null) {
+                throw  new RuntimeException("Typed.getType null for" + o + " class " + o.getClass());
+            }
+            return result;
+        }
+        if (o instanceof Boolean) {
+            return Type.BOOLEAN;
+        }
+        if (o instanceof Double) {
+            return Type.NUMBER;
+        }
+        if (o instanceof String) {
+            return Type.STRING;
+        }
+        if (o instanceof Type) {
+            return new MetaType((Type) o);
+        }
+        return Type.ANY;
     }
 
     public List<RootVariable> getErrors() {
@@ -239,7 +263,7 @@ public class Environment implements ParsingEnvironment {
     }
 
     public void addSystemConstant(String name, Object value, String documentaion) {
-        RootVariable var = new RootVariable(this, name, Type.of(value), true);
+        RootVariable var = new RootVariable(this, name, typeOf(value), true);
         var.value = value;
         var.builtin = true;
         var.documentation = documentaion;
@@ -351,8 +375,8 @@ public class Environment implements ParsingEnvironment {
             if (result == null) {
                 throw new RuntimeException("Undefined instance reference: " + type + "#" + id);
             } else {
-                if (!Type.of(result).equals(type)) {
-                    throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + Type.of(result));
+                if (!typeOf(result).equals(type)) {
+                    throw new RuntimeException("Class type mismatch; expected " + type + " for id " + id + "; got: " + typeOf(result));
                 }
             }
             return result;

@@ -57,7 +57,7 @@ public class Collection extends Instance implements Iterable, HasDependencies {
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder(type.getName());
+        StringBuilder sb = new StringBuilder(type.toString());
         sb.append('(');
         boolean first = true;
         for (Object value : data) {

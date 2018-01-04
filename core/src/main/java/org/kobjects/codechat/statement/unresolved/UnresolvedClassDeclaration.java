@@ -53,7 +53,7 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
 
   @Override
   public void resolveTypes(ParsingContext parsingContext) {
-    variable = parsingContext.environment.declareRootVariable(type.getName(), type.getType(), true);
+    variable = parsingContext.environment.declareRootVariable(type.toString(), type.getType(), true);
   }
 
   public static class UnresolvedField {

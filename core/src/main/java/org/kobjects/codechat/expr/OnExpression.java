@@ -44,7 +44,7 @@ public class OnExpression extends Expression {
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
-        sb.append(type.getName().toLowerCase());
+        sb.append(type.toString().toLowerCase());
         if (id != -1) {
             sb.append('#').append(id);
         }
