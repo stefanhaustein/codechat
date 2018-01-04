@@ -1,6 +1,5 @@
 package org.kobjects.codechat.lang;
 
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EntityLink;
@@ -11,7 +10,7 @@ import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 
 public class RootVariable implements Entity, HasDependencies, Documented {
-    private final ParsingEnvironment environment;
+    private final ParsingEnvironment parsingEnvironment;
     public final String name;
     public Type type;
     public Object value;
@@ -22,7 +21,7 @@ public class RootVariable implements Entity, HasDependencies, Documented {
     public Exception error;
 
     public RootVariable(ParsingEnvironment environment, String name, Type type, boolean constant) {
-        this.environment = environment;
+        this.parsingEnvironment = environment;
         this.name = name;
         this.type = type;
         this.constant = constant;
@@ -35,13 +34,12 @@ public class RootVariable implements Entity, HasDependencies, Documented {
         sb.append(";\n");
     }
 
-    @Override
+
     public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        if (serializationContext.isSerialized(this)) {
-            return;
-        }
-        serializationContext.setSerialized(this);
-        if (builtin || value == null) {
+        if (builtin) {
+            if (value instanceof Instance) {
+                serializationContext.setSerialized((Instance) value);
+            }
             return;
         }
 
@@ -56,23 +54,28 @@ public class RootVariable implements Entity, HasDependencies, Documented {
             return;
         }
 
-        if (constant && ((value instanceof UserFunction) || (value instanceof Instance && serializationContext.getMode() == SerializationContext.Mode.EDIT))) {
-            Entity entity = (Entity) value;
-            entity.serialize(asb, serializationContext);
+        if (constant
+                && value instanceof Instance
+                && name.equals(parsingEnvironment.getConstantName((Instance) value))) {
+            Instance instance = (Instance) value;
+            serializationContext.setSerialized(instance);
+            instance.print(asb, serializationContext.getMode());
         } else {
-            if (serializationContext.getMode() != SerializationContext.Mode.EDIT) {
+            if (serializationContext.getMode() != Printable.Flavor.EDIT) {
                 asb.append(constant ? "let " : "variable ");
             }
             asb.append(name, new EntityLink(this));
-            if (value instanceof Entity && serializationContext.getMode() == SerializationContext.Mode.LIST) {
+            if (value instanceof Instance && serializationContext.getMode() == Printable.Flavor.LIST) {
                 asb.append(": ");
                 asb.append(Formatting.toLiteral(type));
-                asb.append('\n');serializationContext.setSerialized((Entity) value);
+                asb.append('\n');
+                serializationContext.setSerialized((Instance) value);
             } else {
                 asb.append(" = ");
-                if (value instanceof Entity && !serializationContext.isSerialized((Entity) value)) {
-                    Entity entity = (Entity) value;
-                    entity.serialize(asb, serializationContext);
+                if (value instanceof Instance && !serializationContext.isSerialized((Instance) value)) {
+                    Instance instance = (Instance) value;
+                    serializationContext.setSerialized(instance);
+                    instance.print(asb, serializationContext.getMode());
                 } else {
                     Formatting.toLiteral(asb, value);
                     asb.append('\n');
@@ -119,7 +122,7 @@ public class RootVariable implements Entity, HasDependencies, Documented {
     }
 
     public void delete() {
-        environment.removeVariable(name);
+        parsingEnvironment.removeVariable(name);
         if (value instanceof Instance) {
             ((Instance) value).delete();
         }
@@ -129,5 +132,14 @@ public class RootVariable implements Entity, HasDependencies, Documented {
     @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public void print(AnnotatedStringBuilder asb, Flavor flavor) {
+        if (flavor == Flavor.DOCUMENTATION) {
+            printDocumentation(asb);
+        } else {
+            serialize(asb, new SerializationContext(flavor));
+        }
     }
 }

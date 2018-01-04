@@ -3,6 +3,7 @@ package org.kobjects.codechat.parser;
 import java.util.TreeMap;
 
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.parser.ParsingEnvironment;
 import org.kobjects.codechat.type.InstanceType;
@@ -39,7 +40,13 @@ public class FakeEnvironment implements ParsingEnvironment {
         return environment.resolveInstanceType(typeName);
     }
 
-   @Override
+    @Override
+    public String getConstantName(Instance value) {
+        return environment.getConstantName(value);
+    }
+
+
+    @Override
    public void removeVariable(String name) {
         variables.remove(name);
    }

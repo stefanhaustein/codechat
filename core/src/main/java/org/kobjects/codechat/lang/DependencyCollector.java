@@ -7,25 +7,21 @@ import java.util.Map;
 
 public class DependencyCollector {
 
-    private final Environment environment;
     private final LinkedHashSet<Entity> dependencies = new LinkedHashSet<>();
 
-    public DependencyCollector(Environment environment) {
-        this.environment = environment;
+    public void add(Instance instance) {
+        dependencies.add(instance);
     }
 
-    public void add(Entity entity) {
-        dependencies.add(entity);
+    public void addVariable(RootVariable variable) {
+        dependencies.add(variable);
     }
+
 
     public Iterable<Entity> get() {
         return dependencies;
     }
 
-
-    public Environment getEnvironment() {
-        return environment;
-    }
 
     public boolean contains(Entity entity) {
         return dependencies.contains(entity);

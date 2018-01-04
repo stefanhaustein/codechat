@@ -187,7 +187,7 @@ public class Environment implements ParsingEnvironment {
         addSystemConstant("dump", new NativeFunction(null) {
                     @Override
                     protected Object eval(Object[] params) {
-                        dump(SerializationContext.Mode.SAVE);
+                        dump(Printable.Flavor.SAVE);
                         return null;
                     }
                 }, "Prints the current program and state.");
@@ -195,7 +195,7 @@ public class Environment implements ParsingEnvironment {
         addSystemConstant("list", new NativeFunction(null) {
             @Override
             protected Object eval(Object[] params) {
-                dump(SerializationContext.Mode.LIST);
+                dump(Printable.Flavor.LIST);
                 return null;
             }
         }, "Lists constants, variables, functions, procedures and state.");
@@ -245,7 +245,7 @@ public class Environment implements ParsingEnvironment {
     }
 
 
-    private void dump(SerializationContext.Mode mode) {
+    private void dump(Printable.Flavor mode) {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
         dump(asb, mode);
         String list = asb.toString();
@@ -274,6 +274,11 @@ public class Environment implements ParsingEnvironment {
         rootVariables.put(name, var);
     }
 
+    @Override
+    public String getConstantName(Instance instance) {
+        return constants.get(instance);
+    }
+
     public <T extends Instance> T createInstance(InstanceType<T> type, int id) {
         if (id == -1) {
             return type.createInstance(this);
@@ -295,13 +300,13 @@ public class Environment implements ParsingEnvironment {
     }
 
 
-    public void dump(AnnotatedStringBuilder asb, SerializationContext.Mode mode) {
+    public void dump(AnnotatedStringBuilder asb, Printable.Flavor mode) {
         System.gc();
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {}
 
-        SerializationContext serializationContext = new SerializationContext(this, mode);
+        SerializationContext serializationContext = new SerializationContext(mode);
 
         for (int i = 0; i < 3; i++) {
             for (RootVariable variable : rootVariables.values()) {
@@ -314,7 +319,7 @@ public class Environment implements ParsingEnvironment {
                 } else if (i != 1) {
                     continue;
                 }
-                serializationContext.enqueue(variable);
+                variable.serialize(asb, serializationContext);
             }
         }
 
@@ -325,11 +330,11 @@ public class Environment implements ParsingEnvironment {
         }
 
         while (true) {
-            Entity entity = serializationContext.pollPending();
+            Instance entity = serializationContext.pollPending();
             if (entity == null) {
                 break;
             }
-            entity.serialize(asb, serializationContext);
+            entity.print(asb, serializationContext.getMode());
         }
 
     }
@@ -406,7 +411,7 @@ public class Environment implements ParsingEnvironment {
     public void save(String fileName) {
         try {
             AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
-            dump(asb, SerializationContext.Mode.SAVE);
+            dump(asb, Printable.Flavor.SAVE);
             Writer writer = new OutputStreamWriter(new FileOutputStream(new File(codeDir, fileName)), "utf-8");
             writer.write(asb.toString());
             writer.close();
@@ -504,7 +509,7 @@ public class Environment implements ParsingEnvironment {
             for (WeakReference<Instance> ref : everything.values()) {
                 Instance instance = ref.get();
                 if (instance != null) {
-                    DependencyCollector localDependencies = new DependencyCollector(this);
+                    DependencyCollector localDependencies = new DependencyCollector();
                     instance.getDependencies(localDependencies);
                     if (localDependencies.contains(entity)) {
                         result.add(instance);
@@ -537,9 +542,8 @@ public class Environment implements ParsingEnvironment {
     }
 
     private void validate(Entity dependent) {
-        SerializationContext serializationContext = new SerializationContext(this, SerializationContext.Mode.EDIT);
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        dependent.serialize(asb, serializationContext);
+        dependent.print(asb, Printable.Flavor.EDIT);
         String serialized = asb.toString();
 
         try {

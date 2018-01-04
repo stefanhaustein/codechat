@@ -5,6 +5,7 @@ import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.SerializationContext;
 import org.kobjects.codechat.type.InstanceType;
 
@@ -24,7 +25,7 @@ public class EntityLink implements Link {
             return Formatting.getDocumentation((InstanceType) entity.getType());
         }
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
-        entity.serialize(asb, new SerializationContext(environment, SerializationContext.Mode.EDIT));
+        entity.print(asb, Printable.Flavor.EDIT);
         return asb.build();
     }
 

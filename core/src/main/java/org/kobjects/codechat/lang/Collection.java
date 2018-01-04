@@ -80,8 +80,8 @@ public class Collection extends AbstractInstance implements Iterable, HasDepende
     @Override
     public void getDependencies(DependencyCollector result) {
         for (Object o : data) {
-            if (o instanceof Entity) {
-                result.add((Entity) o);
+            if (o instanceof Instance) {
+                result.add((Instance) o);
             } else if (o instanceof HasDependencies) {
                 ((HasDependencies) o).getDependencies(result);
             }

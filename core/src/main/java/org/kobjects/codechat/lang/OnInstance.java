@@ -145,15 +145,13 @@ public class OnInstance extends AbstractInstance implements Property.PropertyLis
     }
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        serializationContext.setSerialized(this);
-
+    public void print(AnnotatedStringBuilder asb, Flavor flavor) {
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
 
         asb.append(type.toString().toLowerCase() + "#" + String.valueOf(environment.getId(this)), new EntityLink(this));
         asb.append(" ").append(trigger.toString());
 
-        if (serializationContext.getMode() == SerializationContext.Mode.LIST) {
+        if (flavor == Printable.Flavor.LIST) {
             asb.append('\n');
         } else {
             asb.append(":\n");

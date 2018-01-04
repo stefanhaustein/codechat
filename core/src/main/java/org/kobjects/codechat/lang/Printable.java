@@ -4,7 +4,7 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 
 public interface Printable {
     enum Flavor {
-      DEFAULT
+      DEFAULT, EDIT, LIST, SAVE, SAVE2, DOCUMENTATION;
 
     }
     void print(AnnotatedStringBuilder asb, Flavor flavor);

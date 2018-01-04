@@ -5,6 +5,7 @@ import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.RootVariable;
+import org.kobjects.codechat.lang.SerializationContext;
 import org.kobjects.codechat.type.UserClassType;
 
 public class ClassDeclaration extends AbstractStatement {

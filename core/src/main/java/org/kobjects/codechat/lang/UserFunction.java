@@ -40,16 +40,14 @@ public class UserFunction extends AbstractInstance implements Function {
 
 
     @Override
-    public void serialize(AnnotatedStringBuilder asb, SerializationContext serializationContext) {
-        serializationContext.setSerialized(this);
-
+    public void print(AnnotatedStringBuilder asb, Flavor flavor) {
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
         int indent = wrap ? 2 : 0;
 
-        String name = environment.constants.get(this);
+        String name = environment.getConstantName(this);
         functionType.serializeSignature(asb, name == null ? environment.getId(this) : -1, name, parameterNames, new EntityLink(this));
 
-        if (serializationContext.getMode() == SerializationContext.Mode.LIST) {
+        if (flavor == Printable.Flavor.LIST) {
             asb.append("\n");
         } else {
             asb.append(":\n");

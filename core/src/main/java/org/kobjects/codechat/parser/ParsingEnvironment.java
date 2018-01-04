@@ -1,5 +1,6 @@
 package org.kobjects.codechat.parser;
 
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
@@ -14,6 +15,8 @@ public interface ParsingEnvironment {
     RootVariable getRootVariable(String name);
 
     InstanceType resolveInstanceType(String typeName);
+
+    String getConstantName(Instance value);
 
   void removeVariable(String name);
 }
