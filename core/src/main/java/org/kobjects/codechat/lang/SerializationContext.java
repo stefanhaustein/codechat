@@ -25,14 +25,11 @@ public class SerializationContext {
         if (mode == Printable.Flavor.SAVE && instance.needsTwoPhaseSerilaization()) {
             queue2.add(instance);
         }
-        if (mode != Printable.Flavor.SAVE2 && instance instanceof HasDependencies) {
-            HasDependencies hasDependencies = (HasDependencies) instance;
-            DependencyCollector dependencyCollector = new DependencyCollector();
-            hasDependencies.getDependencies(dependencyCollector);
-            for (Entity dep : dependencyCollector.get()) {
-               if (dep instanceof Instance) {
-                   enqueue((Instance) dep);
-               }
+        if (mode != Printable.Flavor.SAVE2) {
+            DependencyCollector dependencyCollector = new DependencyCollector(instance.getEnvironment());
+            instance.getDependencies(dependencyCollector);
+            for (Instance dep : dependencyCollector.get()) {
+               enqueue(dep);
             }
         }
     }

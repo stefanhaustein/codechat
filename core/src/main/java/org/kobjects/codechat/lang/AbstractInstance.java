@@ -1,9 +1,8 @@
 package org.kobjects.codechat.lang;
 
-import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.type.InstanceType;
 
 public abstract class AbstractInstance implements Instance {
@@ -38,7 +37,7 @@ public abstract class AbstractInstance implements Instance {
                 asb.append(constantName);
             }
         } else {
-            asb.append(getType() + "#" + environment.getId(this), new EntityLink(this));
+            asb.append(getType() + "#" + environment.getId(this), new InstanceLink(this));
         }
 
         if (flavor == Printable.Flavor.LIST) {
@@ -120,4 +119,9 @@ public abstract class AbstractInstance implements Instance {
 
     public abstract InstanceType<?> getType();
 
+
+    @Override
+    public Environment getEnvironment() {
+        return environment;
+    }
 }

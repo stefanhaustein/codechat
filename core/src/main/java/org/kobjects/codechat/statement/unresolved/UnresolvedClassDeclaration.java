@@ -13,13 +13,14 @@ import org.kobjects.codechat.type.UserClassType;
 import java.util.ArrayList;
 
 public class UnresolvedClassDeclaration extends UnresolvedStatement {
-  private final UserClassType type;
   private ArrayList<UnresolvedField> fields = new ArrayList<>();
   private ArrayList<UnresolvedMethod> methods = new ArrayList<>();
   private RootVariable variable;
+  private String className;
+  private UserClassType type;
 
   public UnresolvedClassDeclaration(String className) {
-    type = new UserClassType(className);
+    this.className = className;
   }
 
   @Override
@@ -53,6 +54,7 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
 
   @Override
   public void resolveTypes(ParsingContext parsingContext) {
+    type = new UserClassType(parsingContext.environment.getEnvironment(), className);
     variable = parsingContext.environment.declareRootVariable(type.toString(), type.getType(), true);
   }
 

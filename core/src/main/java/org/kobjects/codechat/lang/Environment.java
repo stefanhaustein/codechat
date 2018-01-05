@@ -15,8 +15,9 @@ import java.util.TreeMap;
 import java.util.WeakHashMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.ExecLink;
+import org.kobjects.codechat.annotation.VariableLink;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.parser.ParsingEnvironment;
@@ -149,7 +150,7 @@ public class Environment implements ParsingEnvironment {
                 } else {
                     AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
                     for (RootVariable errorVar : errors) {
-                       asb.append(errorVar.name, new EntityLink(errorVar));
+                       asb.append(errorVar.name, new VariableLink(errorVar));
                        asb.append(": ");
                        Formatting.exceptionToString(asb, errorVar.error);
                        asb.append('\n');
@@ -503,15 +504,15 @@ public class Environment implements ParsingEnvironment {
         return rootVariables.get(name);
     }
 
-    Iterable<Entity> findDependencies(Entity entity) {
-        HashSet<Entity> result = new HashSet<>();
+    Iterable<Instance> findDependencies(RootVariable variable) {
+        HashSet<Instance> result = new HashSet<>();
         synchronized (everything) {
             for (WeakReference<Instance> ref : everything.values()) {
                 Instance instance = ref.get();
                 if (instance != null) {
-                    DependencyCollector localDependencies = new DependencyCollector();
+                    DependencyCollector localDependencies = new DependencyCollector(this);
                     instance.getDependencies(localDependencies);
-                    if (localDependencies.contains(entity)) {
+                    if (localDependencies.contains(variable)) {
                         result.add(instance);
                     }
                 }
@@ -534,14 +535,14 @@ public class Environment implements ParsingEnvironment {
         rootVariable.constant = constant;
 
         if (existing) {
-            for (Entity dependent : findDependencies(rootVariable)) {
+            for (Instance dependent : findDependencies(rootVariable)) {
                 validate(dependent);
             }
         }
         return rootVariable;
     }
 
-    private void validate(Entity dependent) {
+    private void validate(Instance dependent) {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
         dependent.print(asb, Printable.Flavor.EDIT);
         String serialized = asb.toString();
@@ -552,11 +553,7 @@ public class Environment implements ParsingEnvironment {
             asb = new AnnotatedStringBuilder();
 
             asb.append("Broken dependency: ");
-            if (dependent instanceof Instance) {
-                asb.append(Formatting.toLiteral(dependent), new EntityLink((Instance) dependent));
-            } else {
-                asb.append(Formatting.toLiteral(dependent));
-            }
+            asb.append(Formatting.toLiteral(dependent), new InstanceLink((Instance) dependent));
         }
     }
 
@@ -571,6 +568,11 @@ public class Environment implements ParsingEnvironment {
     @Override
     public void removeVariable(String name) {
         rootVariables.remove(name);
+    }
+
+    @Override
+    public Environment getEnvironment() {
+        return this;
     }
 
     public boolean isSuspended() {

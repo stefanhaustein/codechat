@@ -2,14 +2,16 @@ package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
+import org.kobjects.codechat.annotation.VariableLink;
 import org.kobjects.codechat.parser.ParsingEnvironment;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.codechat.type.Typed;
 
-public class RootVariable implements Entity, HasDependencies, Documented {
+public class RootVariable implements HasDependencies, Documented, Printable {
     private final ParsingEnvironment parsingEnvironment;
     public final String name;
     public Type type;
@@ -64,7 +66,7 @@ public class RootVariable implements Entity, HasDependencies, Documented {
             if (serializationContext.getMode() != Printable.Flavor.EDIT) {
                 asb.append(constant ? "let " : "variable ");
             }
-            asb.append(name, new EntityLink(this));
+            asb.append(name, new VariableLink(this));
             if (value instanceof Instance && serializationContext.getMode() == Printable.Flavor.LIST) {
                 asb.append(": ");
                 asb.append(Formatting.toLiteral(type));
@@ -129,7 +131,6 @@ public class RootVariable implements Entity, HasDependencies, Documented {
         value = null;
     }
 
-    @Override
     public Type getType() {
         return type;
     }

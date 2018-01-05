@@ -3,7 +3,7 @@ package org.kobjects.codechat.type;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.UserFunction;
@@ -62,7 +62,7 @@ public class FunctionType extends InstanceType<UserFunction> {
         return new UserFunction(environment, this);
     }
 
-    public int serializeSignature(AnnotatedStringBuilder asb, int id, String name, String[] parameterNames, EntityLink link) {
+    public int serializeSignature(AnnotatedStringBuilder asb, int id, String name, String[] parameterNames, InstanceLink link) {
         int p0 = asb.length();
         asb.append("func");
         if (name != null) {

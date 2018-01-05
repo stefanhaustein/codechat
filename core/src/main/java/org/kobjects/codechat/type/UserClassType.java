@@ -11,8 +11,10 @@ import org.kobjects.codechat.lang.UserClassInstance;
 
 public class UserClassType extends InstanceType<UserClassInstance> implements Instance, Printable {
   private final String name;
+  private final Environment environment;
 
-  public UserClassType(String name) {
+  public UserClassType(Environment environment, String name) {
+    this.environment = environment;
     this.name = name;
   }
 
@@ -36,6 +38,11 @@ public class UserClassType extends InstanceType<UserClassInstance> implements In
   @Override
   public boolean needsTwoPhaseSerilaization() {
     return false;
+  }
+
+  @Override
+  public Environment getEnvironment() {
+    return environment;
   }
 
   @Override

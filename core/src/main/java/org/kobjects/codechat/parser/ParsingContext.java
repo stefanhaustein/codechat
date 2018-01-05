@@ -25,14 +25,15 @@ public class ParsingContext {
     Closure closure;
 
 
-    public ParsingContext(ParsingEnvironment environment, Mode mode) {
+    public ParsingContext(Environment environment, Mode mode) {
         this.environment = mode == Mode.SYNTAX_CHECK ? new FakeEnvironment(environment) : environment;
         this.mode = mode;
         nextIndex = new int[1];
     }
 
     public ParsingContext(ParsingContext parent, boolean closureBoundary) {
-        this(parent.environment, parent.mode);
+        this.environment = parent.environment;
+        this.mode = parent.mode;
         this.parent = parent;
         if (closureBoundary) {
             this.closure = new Closure();

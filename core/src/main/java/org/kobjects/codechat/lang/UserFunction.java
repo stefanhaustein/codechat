@@ -1,7 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
@@ -45,7 +45,7 @@ public class UserFunction extends AbstractInstance implements Function {
         int indent = wrap ? 2 : 0;
 
         String name = environment.getConstantName(this);
-        functionType.serializeSignature(asb, name == null ? environment.getId(this) : -1, name, parameterNames, new EntityLink(this));
+        functionType.serializeSignature(asb, name == null ? environment.getId(this) : -1, name, parameterNames, new InstanceLink(this));
 
         if (flavor == Printable.Flavor.LIST) {
             asb.append("\n");

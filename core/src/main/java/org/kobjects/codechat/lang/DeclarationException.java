@@ -1,7 +1,8 @@
 package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
+import org.kobjects.codechat.annotation.VariableLink;
 
 public class DeclarationException extends RuntimeException implements Printable {
 
@@ -21,7 +22,7 @@ public class DeclarationException extends RuntimeException implements Printable 
     @Override
     public void print(AnnotatedStringBuilder asb, Flavor flavor) {
         asb.append("Error in declaration of '");
-        asb.append(variable.name, new EntityLink(variable));
+        asb.append(variable.name, new VariableLink(variable));
         if (getCause() == null) {
             asb.append("'.");
         } else {

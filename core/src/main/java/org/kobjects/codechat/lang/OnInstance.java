@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.OnExpression;
@@ -148,7 +148,7 @@ public class OnInstance extends AbstractInstance implements Property.PropertyLis
     public void print(AnnotatedStringBuilder asb, Flavor flavor) {
         boolean wrap = closure.toString(asb.getStringBuilder(), contextTemplate);
 
-        asb.append(type.toString().toLowerCase() + "#" + String.valueOf(environment.getId(this)), new EntityLink(this));
+        asb.append(type.toString().toLowerCase() + "#" + String.valueOf(environment.getId(this)), new InstanceLink(this));
         asb.append(" ").append(trigger.toString());
 
         if (flavor == Printable.Flavor.LIST) {

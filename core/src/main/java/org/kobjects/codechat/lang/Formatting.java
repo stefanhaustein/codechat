@@ -5,7 +5,7 @@ import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public final class Formatting {
@@ -72,7 +72,7 @@ public final class Formatting {
             asb.append(Formatting.quote((String) value));
         } else if (value instanceof Instance) {
             Instance instance = (Instance) value;
-            asb.append(instance.toString(), new EntityLink(instance));
+            asb.append(instance.toString(), new InstanceLink(instance));
         } else if (value instanceof Documented) {
             asb.append(String.valueOf(value), new DocumentedLink((Documented) value));
         } else {

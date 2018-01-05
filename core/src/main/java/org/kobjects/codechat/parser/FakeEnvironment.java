@@ -14,10 +14,10 @@ import org.kobjects.codechat.type.Type;
  */
 public class FakeEnvironment implements ParsingEnvironment {
 
-    private final ParsingEnvironment environment;
+    private final Environment environment;
     private final TreeMap<String,RootVariable> variables = new TreeMap<>();
 
-    public FakeEnvironment(ParsingEnvironment environment) {
+    public FakeEnvironment(Environment environment) {
         this.environment = environment;
     }
 
@@ -50,4 +50,9 @@ public class FakeEnvironment implements ParsingEnvironment {
    public void removeVariable(String name) {
         variables.remove(name);
    }
+
+    @Override
+    public Environment getEnvironment() {
+        return environment;
+    }
 }

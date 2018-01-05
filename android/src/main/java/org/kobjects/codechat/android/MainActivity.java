@@ -46,14 +46,14 @@ import org.kobjects.codechat.android.chatview.BubbleAction;
 import org.kobjects.codechat.android.chatview.ChatView;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.EntityLink;
+import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.ErrorLink;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.annotation.AnnotationSpan;
-import org.kobjects.codechat.lang.Entity;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
@@ -744,15 +744,15 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 }
                 if (actions.length == 0) {
                     actionList.add(copyAction);
-                    if (linkCount == 1 && annotationSpan.getLink() instanceof EntityLink) {
-                        final EntityLink entityLink = (EntityLink) annotationSpan.getLink();
+                    if (linkCount == 1 && annotationSpan.getLink() instanceof InstanceLink) {
+                        final InstanceLink instanceLink = (InstanceLink) annotationSpan.getLink();
                             BubbleAction deleteAction = new BubbleAction(R.drawable.ic_delete_black_24dp, "Delete") {
                                 @Override
                                 public void invoke(CharSequence text) {
                                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                                     builder.setTitle("Delete '" + s + "'");
-                                    final Entity entity = entityLink.entity.get();
-                                    if (entity == null) {
+                                    final Instance instance = instanceLink.instance.get();
+                                    if (instance == null) {
                                         builder.setMessage("This entity has been deleted already.");
                                         builder.setPositiveButton("Ok", null);
 
@@ -762,7 +762,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                         builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                entity.delete();
+                                                instance.delete();
                                             }
                                         });
                                     }
@@ -772,7 +772,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         BubbleAction editAction = new BubbleAction(R.drawable.ic_edit_black_24dp, "Edit") {
                             @Override
                             public void invoke(CharSequence text) {
-                                entityLink.execute(environment);
+                                instanceLink.execute(environment);
                             }
                         };
                         actionList.add(editAction);
