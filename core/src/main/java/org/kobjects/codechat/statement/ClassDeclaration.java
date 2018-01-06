@@ -25,8 +25,10 @@ public class ClassDeclaration extends AbstractStatement {
   }
 
   @Override
-  public void toString(AnnotatedStringBuilder sb, int indent) {
-    userClassType.print(sb, Printable.Flavor.DEFAULT);
+  public void toString(AnnotatedStringBuilder asb, int indent) {
+    asb.append("class ").append(variable.name).append(":\n");
+    userClassType.printBody(asb);
+    asb.append("end\n");
   }
 
   @Override

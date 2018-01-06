@@ -1,5 +1,6 @@
 package org.kobjects.codechat.type;
 
+import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
@@ -10,20 +11,18 @@ import org.kobjects.codechat.lang.SerializationContext;
 import org.kobjects.codechat.lang.UserClassInstance;
 
 public class UserClassType extends InstanceType<UserClassInstance> implements Instance, Printable {
-  private final String name;
   private final Environment environment;
 
-  public UserClassType(Environment environment, String name) {
+  public UserClassType(Environment environment) {
     this.environment = environment;
-    this.name = name;
   }
 
 
   @Override
   public String toString() {
-    return name;
+    String name = environment.constants.get(this);
+    return name != null ? name : ("Class#" + environment.getId(this));
   }
-
 
 
   public UserClassInstance createInstance(Environment environment) {
@@ -55,13 +54,27 @@ public class UserClassType extends InstanceType<UserClassInstance> implements In
 
   }
 
+
+
   @Override
   public void print(AnnotatedStringBuilder asb, Flavor flavor) {
-    asb.append("class ").append(name).append(":\n");
+    String name = environment.constants.get(this);
+    if (name == null) {
+      asb.append("class#");
+      asb.append(environment.getId(this));
+    } else {
+      asb.append("class ").append(name);
+    }
+    asb.append(":\n");
+    printBody(asb);
+    asb.append("end\n");
+  }
+
+
+  public void printBody(AnnotatedStringBuilder asb) {
     for (PropertyDescriptor descriptor : properties()) {
       descriptor.print(asb, Printable.Flavor.DEFAULT);
     }
-    asb.append("end\n");
-
   }
+
 }

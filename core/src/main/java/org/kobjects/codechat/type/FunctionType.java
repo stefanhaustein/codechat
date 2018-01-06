@@ -63,13 +63,10 @@ public class FunctionType extends InstanceType<UserFunction> {
     }
 
     public int serializeSignature(AnnotatedStringBuilder asb, int id, String name, String[] parameterNames, InstanceLink link) {
-        int p0 = asb.length();
-        asb.append("func");
         if (name != null) {
-            asb.append(' ').append(name, link);
+            asb.append("func ").append(name, link);
         } else if (id != -1) {
-            asb.append('#').append(id);
-            asb.addAnnotation(p0, asb.length(), link);
+            asb.append("func#"+id, link);
         }
         int nameEnd = asb.length();
         if (name == null) {

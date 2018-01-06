@@ -24,8 +24,16 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
   }
 
   @Override
-  public void toString(AnnotatedStringBuilder sb, int indent) {
-    throw new RuntimeException("NYI");
+  public void toString(AnnotatedStringBuilder asb, int indent) {
+    asb.append("class ").append(className).append(":\n");
+    for (UnresolvedField field: fields) {
+      field.toString(asb, indent + 2);
+    }
+    for (UnresolvedMethod method: methods) {
+      method.toString(asb, indent + 2);
+    }
+    asb.indent(indent);
+    asb.append("end\n");
   }
 
   public void addField(UnresolvedField unresolvedField) {
@@ -54,8 +62,9 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
 
   @Override
   public void resolveTypes(ParsingContext parsingContext) {
-    type = new UserClassType(parsingContext.environment.getEnvironment(), className);
-    variable = parsingContext.environment.declareRootVariable(type.toString(), type.getType(), true);
+    type = new UserClassType(parsingContext.environment.getEnvironment());
+    variable = parsingContext.environment.declareRootVariable(className, type.getType(), true);
+    variable.value = type;
   }
 
   public static class UnresolvedField {
@@ -65,6 +74,13 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
     public UnresolvedField(String name, UnresolvedExpression initializer) {
       this.name = name;
       this.initializer = initializer;
+    }
+
+    public void toString(AnnotatedStringBuilder asb, int indent) {
+      asb.indent(indent);
+      asb.append(name);
+      asb.append(" = ");
+      initializer.toString(asb, indent + 4);
     }
   }
 
@@ -79,6 +95,13 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
       this.type = type;
       this.paramNames = paramNames;
       this.body = body;
+    }
+
+    public void toString(AnnotatedStringBuilder asb, int indent) {
+      asb.indent(indent);
+      type.serializeSignature(asb, -1, null, paramNames.toArray(new String[paramNames.size()]), null);
+      asb.append(":\n");
+      body.toString(asb, indent + 2);
     }
   }
 }
