@@ -21,6 +21,7 @@ public class ClassDeclaration extends AbstractStatement {
   @Override
   public Object eval(EvaluationContext context) {
     variable.value = userClassType;
+    context.environment.constants.put(userClassType, variable.name);
     return KEEP_GOING;
   }
 
