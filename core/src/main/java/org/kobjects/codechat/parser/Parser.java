@@ -17,6 +17,7 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedInstanceReference;
 import org.kobjects.codechat.expr.unresolved.UnresolvedLiteral;
 import org.kobjects.codechat.expr.unresolved.UnresolvedMultiAssignment;
 import org.kobjects.codechat.expr.unresolved.UnresolvedOnExpression;
+import org.kobjects.codechat.expr.unresolved.UnresolvedPath;
 import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.OnInstance;
@@ -44,8 +45,8 @@ public class Parser {
 
     // public static final int PRECEDENCE_HASH = 8;
     public static final int PRECEDENCE_PREFIX = 11;
-    public static final int PRECEDENCE_APPLY = 10;
-    public static final int PRECEDENCE_PATH = 9;
+    public static final int PRECEDENCE_PATH = 10;
+    public static final int PRECEDENCE_APPLY = 9;
     public static final int PRECEDENCE_POWER = 8;
     public static final int PRECEDENCE_SIGN = 7;
     public static final int PRECEDENCE_MULTIPLICATIVE = 6;
@@ -303,7 +304,7 @@ public class Parser {
         FunctionType functionType = parseSignature(tokenizer, paramNames);
         tokenizer.consume(":");
         UnresolvedStatement body = parseBlock(tokenizer, false,"end", "");
-        return new UnresolvedClassDeclaration.UnresolvedMethod(name, functionType, paramNames, body);
+        return new UnresolvedClassDeclaration.UnresolvedMethod(name, functionType, paramNames.toArray(new String[paramNames.size()]), body);
     }
 
     UnresolvedClassDeclaration parseClass(ExpressionParser.Tokenizer tokenizer) {
@@ -496,6 +497,11 @@ public class Parser {
                 case "\u00F7=":
                     name = "/=";
                     break;
+                case ".":
+                    if (!(right instanceof UnresolvedIdentifier)) {
+                        throw new ExpressionParser.ParsingException(left.start, right.end, "Identifer expected for dot operator", null);
+                    }
+                    return new UnresolvedPath(left, ((UnresolvedIdentifier) right).name);
             }
             return new UnresolvedBinaryOperator(name, left, right);
         }

@@ -18,10 +18,10 @@ public class UserFunction extends AbstractInstance implements Function {
         this.functionType = functionType;
     }
 
-    public void init(FunctionExpression definition, EvaluationContext contextTemplate) {
-        this.body = definition.body;
-        this.closure = definition.closure;
-        this.parameterNames = definition.parameterNames;
+    public void init(Statement body, Closure closure, String[] parameterNames, EvaluationContext contextTemplate) {
+        this.body = body;
+        this.closure = closure;
+        this.parameterNames = parameterNames;
         this.contextTemplate = contextTemplate;
     }
 
@@ -52,9 +52,8 @@ public class UserFunction extends AbstractInstance implements Function {
         } else {
             asb.append(":\n");
             body.toString(asb, indent + 2);
-          asb.indent(indent);
-          asb.append("end\n");
-
+            asb.indent(indent);
+            asb.append("end\n");
             if (wrap) {
                 asb.append("end\n");
             }

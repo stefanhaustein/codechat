@@ -26,7 +26,7 @@ public class FunctionExpression extends Expression {
     @Override
     public Object eval(EvaluationContext context) {
         UserFunction result = context.environment.getOrCreateInstance(functionType, id);
-        result.init(this, closure.createEvalContext(context));
+        result.init(body, closure, parameterNames, closure.createEvalContext(context));
         return result;
     }
 

@@ -35,24 +35,7 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
         Expression left = this.left.resolve(parsingContext, null);
-        if (".".equals(name)) {
-            if (!(right instanceof UnresolvedIdentifier)) {
-                throw new ExpressionParser.ParsingException(this.left.start, end, "Identifer expected for dot operator", null);
-            }
-            String propertyName = ((UnresolvedIdentifier) right).name;
-            Type type = left.getType();
-            if (type.getType() instanceof EnumType) {
-                return new Literal(((EnumType) type.getType()).getValue(propertyName));
-            } else if (type instanceof InstanceType) {
-                InstanceType instanceType = (InstanceType) left.getType();
-                InstanceType.PropertyDescriptor property = instanceType.getProperty(propertyName);
-                return new PropertyAccess(left, property);
-            } else {
-                throw new ExpressionParser.ParsingException(this.left.start, end, "Base type must be tuple type or Enum metatype, but was: " + type, null);
-            }
-        }
         Expression right = this.right.resolve(parsingContext, left.getType());
-
         try {
             if (left.getType() == Type.STRING && "+".equals(name)) {
                 return new StringConcatenation(left, right);

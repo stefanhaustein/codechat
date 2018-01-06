@@ -2,8 +2,12 @@ package org.kobjects.codechat.statement.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
+import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
+import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.RootVariable;
+import org.kobjects.codechat.lang.UserFunction;
+import org.kobjects.codechat.lang.UserMethod;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.ClassDeclaration;
 import org.kobjects.codechat.statement.Statement;
@@ -11,6 +15,7 @@ import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.UserClassType;
 
 import java.util.ArrayList;
+import sun.security.pkcs.ParsingException;
 
 public class UnresolvedClassDeclaration extends UnresolvedStatement {
   private ArrayList<UnresolvedField> fields = new ArrayList<>();
@@ -54,7 +59,7 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
     }
 
     for (UnresolvedMethod method: methods) {
-      throw new RuntimeException("NYI");
+      type.addMethod(new UserMethod(method.name, method.type, method.paramNames, method.body.resolve(parsingContext)));
     }
 
     return new ClassDeclaration(variable, type);
@@ -87,10 +92,10 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
   public static class UnresolvedMethod {
     private final String name;
     private final FunctionType type;
-    private final ArrayList<String> paramNames;
+    private final String[] paramNames;
     private final UnresolvedStatement body;
 
-    public UnresolvedMethod(String name, FunctionType type, ArrayList<String> paramNames, UnresolvedStatement body) {
+    public UnresolvedMethod(String name, FunctionType type, String[] paramNames, UnresolvedStatement body) {
       this.name = name;
       this.type = type;
       this.paramNames = paramNames;
@@ -99,7 +104,7 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
 
     public void toString(AnnotatedStringBuilder asb, int indent) {
       asb.indent(indent);
-      type.serializeSignature(asb, -1, null, paramNames.toArray(new String[paramNames.size()]), null);
+      type.serializeSignature(asb, -1, null, paramNames, null);
       asb.append(":\n");
       body.toString(asb, indent + 2);
     }

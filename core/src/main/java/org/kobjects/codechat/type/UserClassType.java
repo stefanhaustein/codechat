@@ -1,5 +1,6 @@
 package org.kobjects.codechat.type;
 
+import java.util.ArrayList;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
@@ -9,6 +10,7 @@ import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.SerializationContext;
 import org.kobjects.codechat.lang.UserClassInstance;
+import org.kobjects.codechat.lang.UserMethod;
 
 public class UserClassType extends InstanceType<UserClassInstance> implements Instance, Printable {
   private final Environment environment;
@@ -68,13 +70,6 @@ public class UserClassType extends InstanceType<UserClassInstance> implements In
     asb.append(":\n");
     printBody(asb);
     asb.append("end\n");
-  }
-
-
-  public void printBody(AnnotatedStringBuilder asb) {
-    for (PropertyDescriptor descriptor : properties()) {
-      descriptor.print(asb, Printable.Flavor.DEFAULT);
-    }
   }
 
 }

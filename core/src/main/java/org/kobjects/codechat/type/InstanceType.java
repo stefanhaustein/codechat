@@ -1,5 +1,6 @@
 package org.kobjects.codechat.type;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
@@ -11,9 +12,12 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.lang.UserMethod;
 
 public abstract class InstanceType<T extends Instance> extends AbstractType implements Documented {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
+    final ArrayList<UserMethod> methods = new ArrayList<>();
+
     private final boolean singleton;
 
     public InstanceType() {
@@ -63,6 +67,41 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
             }
             asb.append(propertyDescriptor.name, new DocumentedLink(propertyDescriptor));
         }
+    }
+
+    public boolean hasProperty(String propertyName) {
+        return propertyMap.containsKey(propertyName);
+    }
+
+    public void printBody(AnnotatedStringBuilder asb) {
+        for (PropertyDescriptor descriptor : properties()) {
+            descriptor.print(asb, Printable.Flavor.DEFAULT);
+        }
+        for (UserMethod method : methods) {
+            method.toString(asb, 2);
+        }
+    }
+
+    public void addMethod(UserMethod userMethod) {
+        methods.add(userMethod);
+    }
+
+    public boolean hasMethod(String propertyName) {
+        for (UserMethod method: methods) {
+            if (method.name.equals(propertyName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public UserMethod getMethod(String name) {
+        for (UserMethod method: methods) {
+            if (method.name.equals(name)) {
+                return method;
+            }
+        }
+        throw new  IllegalArgumentException("Method '" + name + "' does not exist");
     }
 
     public class PropertyDescriptor implements Documented, Printable {
