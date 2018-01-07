@@ -7,6 +7,7 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.codechat.type.UserClassType;
 
 public class ParsingContext {
     public enum Mode {
@@ -18,6 +19,7 @@ public class ParsingContext {
     public Map<String, LocalVariable> variables = new TreeMap<>();
     int[] nextIndex;
     public final Mode mode;
+    public final UserClassType classType;
 
     /**
      * Set at closure boundaries. Interleaved: original index, local index.
@@ -29,6 +31,7 @@ public class ParsingContext {
         this.environment = mode == Mode.SYNTAX_CHECK ? new FakeEnvironment(environment) : environment;
         this.mode = mode;
         nextIndex = new int[1];
+        classType = null;
     }
 
     public ParsingContext(ParsingContext parent, boolean closureBoundary) {
@@ -38,9 +41,20 @@ public class ParsingContext {
         if (closureBoundary) {
             this.closure = new Closure();
             this.nextIndex = new int[1];
+            this.classType = null;
         } else {
             this.nextIndex = parent.nextIndex;
+            this.classType = parent.classType;
         }
+    }
+
+    public ParsingContext(ParsingContext parent, UserClassType classType) {
+        this.environment = parent.environment;
+        this.mode = parent.mode;
+        this.parent = parent;
+        this.closure = new Closure();
+        this.nextIndex = new int[1];
+        this.classType = classType;
     }
 
     public LocalVariable resolve(String name) {

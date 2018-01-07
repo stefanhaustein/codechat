@@ -3,6 +3,7 @@ package org.kobjects.codechat.expr;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Function;
+import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.UserMethod;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.FunctionType;
@@ -20,10 +21,11 @@ public class MethodAccess extends Expression {
 
     @Override
     public Object eval(final EvaluationContext context) {
+        final Instance instance = (Instance) base.eval(context);
         return new Function() {
             @Override
             public EvaluationContext createContext() {
-                return new EvaluationContext(context.environment, method.getType().parameterTypes.length);
+                return new EvaluationContext(context.environment, method.getType().parameterTypes.length, instance);
             }
 
             @Override

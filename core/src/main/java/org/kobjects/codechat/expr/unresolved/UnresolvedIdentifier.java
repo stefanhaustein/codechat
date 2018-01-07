@@ -5,6 +5,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.LocalVariableNode;
 import org.kobjects.codechat.expr.RootVariableNode;
+import org.kobjects.codechat.expr.SelfExpression;
 import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -25,6 +26,14 @@ public class UnresolvedIdentifier extends UnresolvedExpression {
     }
 
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
+
+        if (name.equals("self")) {
+            if (parsingContext.classType == null) {
+                throw new ExpressionParser.ParsingException(start, end, "Undefined class context for self.", null);
+            }
+            return new SelfExpression(parsingContext.classType);
+        }
+
         LocalVariable variable = parsingContext.resolve(name);
         if (variable != null) {
             return new LocalVariableNode(variable);

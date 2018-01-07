@@ -59,7 +59,11 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
     }
 
     for (UnresolvedMethod method: methods) {
-      type.addMethod(new UserMethod(method.name, method.type, method.paramNames, method.body.resolve(parsingContext)));
+      ParsingContext methodParsingContext = new ParsingContext(parsingContext, type);
+      for (int i = 0; i < method.paramNames.length; i++) {
+        methodParsingContext.addVariable(method.paramNames[i], method.type.parameterTypes[i], true);
+      }
+      type.addMethod(new UserMethod(method.name, method.type, method.paramNames, method.body.resolve(methodParsingContext)));
     }
 
     return new ClassDeclaration(variable, type);
