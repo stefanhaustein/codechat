@@ -122,8 +122,8 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     private float pixelPerDp;
     private boolean windowMode;
     private boolean fullScreenMode;
+    private boolean fullScreenEditor;
     Point displaySize = new Point();
-    //private boolean fullScreenEditMode;
     private long lastEdit;
     private int errorStart;
     private int errorEnd;
@@ -249,8 +249,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 lastEdit = System.currentTimeMillis();
                 if (editable.length() == 0) {
                     inputButtons.setOrientation(LinearLayout.HORIZONTAL);
-                    if (fullScreenMode) {
-                        fullScreenMode = false;
+                    if (fullScreenEditor) {
+                        fullScreenEditor = false;
                         arrangeUi();
                     }
                 }
@@ -280,8 +280,8 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                 inputButtons.setOrientation(LinearLayout.VERTICAL);
                                 //              ((LinearLayout.LayoutParams) input.getLayoutParams()).weight = 0;
                             }
-                            if (newHeight > chatView.getHeight() && !fullScreenMode) {
-                                fullScreenMode = true;
+                            if (newHeight > chatView.getHeight() && !fullScreenEditor) {
+                                fullScreenEditor = true;
                                 arrangeUi();
                             }
                         }
@@ -495,12 +495,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             rows.setOrientation(LinearLayout.VERTICAL);
 
             rows.addView(toolbar);
-            if (!fullScreenMode) {
+            if (!fullScreenEditor) {
                 rows.addView(chatView);
                 ((LinearLayout.LayoutParams) chatView.getLayoutParams()).weight = 1;
             }
             rows.addView(inputRow);
-            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenMode ? 1: 0;
+            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenEditor ? 1: 0;
 
             columns.addView(rows);
             LinearLayout.LayoutParams rowsParams = (LinearLayout.LayoutParams) rows.getLayoutParams();
@@ -520,7 +520,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
             rows.addView(toolbar);
 
-            if (!fullScreenMode) {
+            if (!fullScreenEditor) {
                 FrameLayout overlay = new FrameLayout(this);
                 overlay.addView(chatView);
                 FrameLayout.LayoutParams chatParams = (FrameLayout.LayoutParams) chatView.getLayoutParams();
@@ -543,7 +543,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 }
             }
             rows.addView(inputRow);
-            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenMode ? 1: 0;
+            ((LinearLayout.LayoutParams) inputRow.getLayoutParams()).weight = fullScreenEditor ? 1: 0;
 
             rootLayout.addView(rows);
             FrameLayout.LayoutParams rowsParams = (FrameLayout.LayoutParams) rows.getLayoutParams();
