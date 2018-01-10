@@ -38,6 +38,9 @@ import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedVarDeclarationStatement;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.codechat.type.unresolved.UnresolvedFunctionSignature;
+import org.kobjects.codechat.type.unresolved.UnresolvedNamedType;
+import org.kobjects.codechat.type.unresolved.UnresolvedType;
 import org.kobjects.expressionparser.ExpressionParser;
 import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
@@ -177,46 +180,38 @@ public class Parser {
         return parseBlock(tokenizer, false, "end", "");
     }
 
-    Type parseType(ExpressionParser.Tokenizer tokenizer) {
-        String typeName = tokenizer.consumeIdentifier();
-        Type type = environment.resolveType(typeName);
-        return type;
+    UnresolvedType parseType(ExpressionParser.Tokenizer tokenizer) {
+        return new UnresolvedNamedType(tokenizer.consumeIdentifier());
     }
 
-    FunctionType parseSignature(ExpressionParser.Tokenizer tokenizer, List<String> parameterNames) {
+    UnresolvedFunctionSignature parseSignature(ExpressionParser.Tokenizer tokenizer) {
         tokenizer.consume("(");
-        ArrayList<Type> parameterTypes = new ArrayList<Type>();
+        UnresolvedFunctionSignature result = new UnresolvedFunctionSignature();
         if (!tokenizer.tryConsume(")")) {
             do {
                 String paramName = tokenizer.consumeIdentifier();
                 tokenizer.consume(":");
-                Type type = parseType(tokenizer);
-                if (parameterNames != null) {
-                    parameterNames.add(paramName);
-                }
-                parameterTypes.add(type);
+                UnresolvedType type = parseType(tokenizer);
+                result.parameterNames.add(paramName);
+                result.parameterTypes.add(type);
             } while (tokenizer.tryConsume(","));
             tokenizer.consume(")");
         }
 
-        Type returnType;
         if (tokenizer.tryConsume("->")) {
-            returnType = parseType(tokenizer);
-        } else {
-            returnType = null;
+            result.returnType = parseType(tokenizer);
         }
-        return new FunctionType(returnType, parameterTypes.toArray(new Type[parameterTypes.size()]));
+        return result;
     }
 
     UnresolvedFunctionExpression parseFunction(ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue) {
         int start = tokenizer.currentPosition;
 
-        ArrayList<String> parameterNames = new ArrayList<String>();
-        FunctionType functionType = parseSignature(tokenizer, parameterNames);
+        UnresolvedFunctionSignature signature = parseSignature(tokenizer);
 
         tokenizer.consume(":");
         UnresolvedStatement body = parseBlock(tokenizer, false,"end", "");
-        return new UnresolvedFunctionExpression(start, tokenizer.currentPosition, id, functionType, parameterNames.toArray(new String[parameterNames.size()]), body);
+        return new UnresolvedFunctionExpression(start, tokenizer.currentPosition, id, signature, body);
     }
 
     UnresolvedOnExpression parseOnExpression(OnInstance.OnInstanceType type, ExpressionParser.Tokenizer tokenizer, int id) {
@@ -253,7 +248,7 @@ public class Parser {
     UnresolvedStatement parseVar(ExpressionParser.Tokenizer tokenizer, boolean constant, boolean rootLevel, String documentation) {
         String varName = tokenizer.consumeIdentifier();
         int p0 = tokenizer.currentPosition;
-        Type type = null;
+        UnresolvedType type = null;
         if (tokenizer.tryConsume(":")) {
             type = parseType(tokenizer);
         }
@@ -267,7 +262,7 @@ public class Parser {
         return processDeclaration(constant, rootLevel, varName, type, init, documentation);
     }
 
-    UnresolvedVarDeclarationStatement processDeclaration(boolean constant, boolean rootLevel, String varName, Type type, UnresolvedExpression init, String documentation) {
+    UnresolvedVarDeclarationStatement processDeclaration(boolean constant, boolean rootLevel, String varName, UnresolvedType type, UnresolvedExpression init, String documentation) {
         return new UnresolvedVarDeclarationStatement(constant, rootLevel, varName, type, init, documentation);
     }
 
@@ -300,11 +295,10 @@ public class Parser {
     }
 
     UnresolvedClassDeclaration.UnresolvedMethod parseMethod(ExpressionParser.Tokenizer tokenizer, String name) {
-        ArrayList<String> paramNames = new ArrayList<>();
-        FunctionType functionType = parseSignature(tokenizer, paramNames);
+        UnresolvedFunctionSignature signature = parseSignature(tokenizer);
         tokenizer.consume(":");
         UnresolvedStatement body = parseBlock(tokenizer, false,"end", "");
-        return new UnresolvedClassDeclaration.UnresolvedMethod(name, functionType, paramNames.toArray(new String[paramNames.size()]), body);
+        return new UnresolvedClassDeclaration.UnresolvedMethod(name, signature, body);
     }
 
     UnresolvedClassDeclaration parseClass(ExpressionParser.Tokenizer tokenizer) {

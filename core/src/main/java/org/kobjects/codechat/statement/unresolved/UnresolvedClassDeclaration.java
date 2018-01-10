@@ -2,20 +2,16 @@ package org.kobjects.codechat.statement.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
-import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.lang.UserFunction;
 import org.kobjects.codechat.lang.UserMethod;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.ClassDeclaration;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.UserClassType;
 
 import java.util.ArrayList;
-import sun.security.pkcs.ParsingException;
+import org.kobjects.codechat.type.unresolved.UnresolvedFunctionSignature;
 
 public class UnresolvedClassDeclaration extends UnresolvedStatement {
   private ArrayList<UnresolvedField> fields = new ArrayList<>();
@@ -60,10 +56,10 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
 
     for (UnresolvedMethod method: methods) {
       ParsingContext methodParsingContext = new ParsingContext(parsingContext, type);
-      for (int i = 0; i < method.paramNames.length; i++) {
-        methodParsingContext.addVariable(method.paramNames[i], method.type.parameterTypes[i], true);
+      for (int i = 0; i < method.signature.parameterNames.size(); i++) {
+        methodParsingContext.addVariable(method.signature.parameterNames.get(i), method.signature.parameterTypes.get(i).resolve(parsingContext), true);
       }
-      type.addMethod(new UserMethod(method.name, method.type, method.paramNames, method.body.resolve(methodParsingContext)));
+      type.addMethod(new UserMethod(method.name, method.signature.resolve(parsingContext), method.signature.getParemeterNameArray(), method.body.resolve(methodParsingContext)));
     }
 
     return new ClassDeclaration(variable, type);
@@ -95,20 +91,18 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
 
   public static class UnresolvedMethod {
     private final String name;
-    private final FunctionType type;
-    private final String[] paramNames;
+    private final UnresolvedFunctionSignature signature;
     private final UnresolvedStatement body;
 
-    public UnresolvedMethod(String name, FunctionType type, String[] paramNames, UnresolvedStatement body) {
+    public UnresolvedMethod(String name, UnresolvedFunctionSignature signature, UnresolvedStatement body) {
       this.name = name;
-      this.type = type;
-      this.paramNames = paramNames;
+      this.signature = signature;
       this.body = body;
     }
 
     public void toString(AnnotatedStringBuilder asb, int indent) {
       asb.indent(indent);
-      type.serializeSignature(asb, -1, null, paramNames, null);
+      signature.print(asb);
       asb.append(":\n");
       body.toString(asb, indent + 2);
     }

@@ -34,10 +34,16 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.EmojiTextView;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -67,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     static final String SETTINGS_FILE_NAME_DEFAULT = "CodeChat";
 
     static final String MENU_ITEM_CLEAR_ALL = "Clear all";
+    static final String MENU_ITEM_EXAMPLES = "Examples";
     static final String MENU_ITEM_CLEAR_MENU = "Clear";
     static final String MENU_ITEM_CLEAR_INPUT = "Clear input";
     static final String MENU_ITEM_CLEAR_OUTPUT = "Clear output";
@@ -150,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
         toolbar = new Toolbar(this);
         toolbar.setBackgroundColor(0xff3f51b5);
         toolbar.setTitleTextColor(0x0ffffffff);
+        toolbar.setOverflowIcon(getResources().getDrawable(R.drawable.ic_more_vert_white_24dp));
         toolbar.setTitle("CodeChat");
         setSupportActionBar(toolbar);
 
@@ -598,6 +606,57 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         clearMenu.add(MENU_ITEM_CLEAR_ALL);
 
 
+        Menu exampleMenu = menu.addSubMenu(MENU_ITEM_EXAMPLES);
+        try {
+            for (final String fileName : getAssets().list("examples")) {
+                final String name = fileName.substring(0, fileName.lastIndexOf('.'));
+                exampleMenu.add(name).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                        alert.setTitle(name);
+                        StringBuilder sb = new StringBuilder();
+                        try {
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("examples/" + fileName)));
+                            while (true) {
+                                String s = reader.readLine();
+                                if (s == null) {
+                                    break;
+                                }
+                                sb.append(s);
+                                sb.append('\n');
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        final String code = sb.toString();
+                        TextView textView = new TextView(MainActivity.this);
+                        textView.setText(code);
+
+                        ScrollView scrollView = new ScrollView(MainActivity.this);
+                        scrollView.addView(textView);
+
+                        scrollView.setPadding(48, 48, 48, 0);
+                        alert.setView(scrollView);
+
+                        alert.setNegativeButton("Cancel", null);
+                        alert.setPositiveButton("Load", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                environment.setProgram(code);
+                                environment.environmentListener.setName(name);
+                            }
+                        });
+
+                        alert.show();
+                        return true;
+                    }
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         MenuItem suspend = menu.add(environment.isSuspended()? MENU_ITEM_RESUME : MENU_ITEM_SUSPEND);
         if (isOptionsMenu) {
             suspendItem = suspend;
@@ -657,6 +716,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 break;
             case MENU_ITEM_DISPLAY_MENU:
             case MENU_ITEM_CLEAR_MENU:
+            case MENU_ITEM_EXAMPLES:
                 break;
             default:
                 processInput(title.toLowerCase());

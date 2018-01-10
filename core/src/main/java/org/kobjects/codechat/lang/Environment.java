@@ -423,11 +423,30 @@ public class Environment implements ParsingEnvironment {
         }
     }
 
-    public void load(String fileName) {
+    public void setProgram(String code) {
         suspend();
+        try {
+            clearAll();
+            autoSave = false;
 
+            ArrayList<Exception> errors = new ArrayList<>();
+            ParsingContext parsingContext = new ParsingContext(this, ParsingContext.Mode.LOAD);
+            Statement statement = parser.parse(parsingContext, code, errors);
+            statement.eval(parsingContext.createEvaluationContext(this));
 
+            if (errors.size() > 0) {
+                throw new MetaException("Multiple errors:", errors);
+            }
 
+            //            autoSave = true;
+
+        } finally {
+           resume();
+        }
+
+    }
+
+    public void load(String fileName) {
         try {
             File file = new File(codeDir, fileName);
             if (!file.exists()) {
@@ -441,28 +460,12 @@ public class Environment implements ParsingEnvironment {
 
             String content = new String(data, "utf-8");
 
-            System.out.println(content);
+            setProgram(content);
 
-            clearAll();
-            autoSave = false;
             environmentListener.setName(fileName);
-
-            ArrayList<Exception> errors = new ArrayList<>();
-            ParsingContext parsingContext = new ParsingContext(this, ParsingContext.Mode.LOAD);
-            Statement statement = parser.parse(parsingContext, content, errors);
-            statement.eval(parsingContext.createEvaluationContext(this));
-
-            if (errors.size() > 0) {
-                throw new MetaException("Multiple errors:", errors);
-            }
-
-//            autoSave = true;
-
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        } finally {
-            resume();
         }
     }
 

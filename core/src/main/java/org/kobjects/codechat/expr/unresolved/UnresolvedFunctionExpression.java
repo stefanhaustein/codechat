@@ -8,30 +8,31 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.codechat.type.unresolved.UnresolvedFunctionSignature;
 
 public class UnresolvedFunctionExpression extends UnresolvedExpression {
     public final UnresolvedStatement body;
-    public final FunctionType functionType;
-    public final String[] parameterNames;
+    public final UnresolvedFunctionSignature signature;
     public final int id;
 
-    public UnresolvedFunctionExpression(int start, int end, int id, FunctionType functionType, String[] parameterNames, UnresolvedStatement body) {
+    public UnresolvedFunctionExpression(int start, int end, int id, UnresolvedFunctionSignature signature, UnresolvedStatement body) {
         super(start, end);
         this.id = id;
 
-        this.functionType = functionType;
-        this.parameterNames = parameterNames;
+        this.signature = signature;
         this.body = body;
     }
 
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
         ParsingContext bodyContext = new ParsingContext(parsingContext, true);
-        for (int i = 0; i < parameterNames.length; i++) {
-            bodyContext.addVariable(parameterNames[i], functionType.parameterTypes[i], true);
+        for (int i = 0; i < signature.parameterNames.size(); i++) {
+            bodyContext.addVariable(signature.parameterNames.get(i),
+                    signature.parameterTypes.get(i).resolve(parsingContext.environment.getEnvironment()), true);
         }
         Statement resolvedBody = body.resolve(bodyContext);
-        return new FunctionExpression(id, functionType, parameterNames, bodyContext.getClosure(), resolvedBody);
+        return new FunctionExpression(id, signature.resolve(parsingContext.environment.getEnvironment()),
+                signature.parameterNames.toArray(new String[signature.parameterNames.size()]), bodyContext.getClosure(), resolvedBody);
     }
 
     @Override
@@ -42,7 +43,12 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
 
     @Override
     public void toString(AnnotatedStringBuilder asb, int indent) {
-        functionType.serializeSignature(asb, id, null, parameterNames, null);
+        if (id == -1) {
+            asb.append("func");
+        } else {
+            asb.append("func#").append(id);
+        }
+        signature.print(asb);
         if (body == null) {
             asb.append(";\n");
         } else {

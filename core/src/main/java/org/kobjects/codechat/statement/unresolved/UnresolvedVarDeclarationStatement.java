@@ -16,6 +16,7 @@ import org.kobjects.codechat.statement.LocalVarDeclarationStatement;
 import org.kobjects.codechat.statement.RootVarDeclarationStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.Type;
+import org.kobjects.codechat.type.unresolved.UnresolvedType;
 
 public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
 
@@ -25,7 +26,7 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
             return Environment.typeOf(value);
         }
         if (expression instanceof UnresolvedFunctionExpression) {
-            return ((UnresolvedFunctionExpression) expression).functionType;
+            return ((UnresolvedFunctionExpression) expression).signature.resolve(parsingContext);
         }
 
         UnresolvedExpression potentialCtor = (expression instanceof UnresolvedMultiAssignment)
@@ -41,11 +42,11 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
     private final boolean constant;
     private final boolean rootLevel;
     private final String variableName;
-    private final Type explicitType;
+    private final UnresolvedType explicitType;
     private final UnresolvedExpression initializer;
     private final String documentation;
 
-    public UnresolvedVarDeclarationStatement(boolean constant, boolean rootLevel, String variableName, Type explicitType, UnresolvedExpression initializer, String documentation) {
+    public UnresolvedVarDeclarationStatement(boolean constant, boolean rootLevel, String variableName, UnresolvedType explicitType, UnresolvedExpression initializer, String documentation) {
         this.constant = constant;
         this.rootLevel = rootLevel;
         this.variableName = variableName;
@@ -64,7 +65,7 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
 
     private Type resolveType(ParsingContext parsingContext) {
         if (explicitType != null) {
-            return explicitType;
+            return explicitType.resolve(parsingContext);
         }
         if (initializer == null) {
             // Should be caught at parsing already.
@@ -76,11 +77,12 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
     @Override
     public Statement resolve(ParsingContext parsingContext) {
         Statement result;
+        Type resolvedExplicitType = explicitType == null ? null : explicitType.resolve(parsingContext);
         if (rootLevel) {
             RootVariable variable = parsingContext.environment.getRootVariable(variableName);
             variable.documentation = documentation;
             try {
-                Expression resolvedInitilaizer = initializer.resolve(parsingContext, explicitType);
+                Expression resolvedInitilaizer = initializer.resolve(parsingContext, resolvedExplicitType);
                 result = new RootVarDeclarationStatement(variable, resolvedInitilaizer, explicitType != null);
             } catch (Exception e) {
                 variable.error = e;
@@ -88,7 +90,7 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
                 throw new DeclarationException(variable, e);
             }
         } else {
-            Expression resolved = initializer.resolve(parsingContext, explicitType);
+            Expression resolved = initializer.resolve(parsingContext, resolvedExplicitType);
             LocalVariable variable = parsingContext.addVariable(variableName, resolveType(parsingContext), constant);
             result = new LocalVarDeclarationStatement(variable, resolved);
         }
