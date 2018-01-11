@@ -16,6 +16,8 @@ android {
 dependencies {
   //  compile "com.android.support:support-emoji-bundled:27.0.2"
 //    compile 'com.vanniktech:emoji-twitter:0.6.0-SNAPSHOT'
+ //   compile 'com.android.support:27.0.2'
+    compile 'com.android.support:design:27.0.2'
     compile 'com.vanniktech:emoji-one:0.6.0-SNAPSHOT'
     compile project(':core')
 }
