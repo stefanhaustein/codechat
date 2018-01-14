@@ -13,7 +13,6 @@ import org.kobjects.codechat.statement.Statement;
 public class UnresolvedAssignment extends UnresolvedStatement {
     UnresolvedExpression left;
     UnresolvedExpression right;
-    UnresolvedVarDeclarationStatement delegate;
 
     public UnresolvedAssignment(UnresolvedExpression left, UnresolvedExpression right) {
         this.left = left;
@@ -31,26 +30,19 @@ public class UnresolvedAssignment extends UnresolvedStatement {
 
     @Override
     public Statement resolve(ParsingContext parsingContext) {
-      if (delegate != null) {
-        return delegate.resolve(parsingContext);
+      if (parsingContext.mode != ParsingContext.Mode.LOAD && left instanceof UnresolvedIdentifier) {
+          String name = ((UnresolvedIdentifier) left).name;
+          RootVariable variable = parsingContext.environment.getRootVariable(name);
+          if (variable == null || variable.constant ||
+                  !variable.type.isAssignableFrom(
+                          UnresolvedVarDeclarationStatement.estimateType(parsingContext, right))) {
+              UnresolvedVarDeclarationStatement delegate = new UnresolvedVarDeclarationStatement(true, true, name, null, right, null);
+              return delegate.resolve(parsingContext);
+          }
       }
       Expression resolvedTarget = left.resolve(parsingContext, null);
       return new Assignment(resolvedTarget, right.resolve(parsingContext, resolvedTarget.getType()));
     }
 
-    @Override
-    public void resolveTypes(ParsingContext parsingContext) {
-      // Root level is implied here.
-      if (parsingContext.mode != ParsingContext.Mode.LOAD && left instanceof UnresolvedIdentifier) {
-        String name = ((UnresolvedIdentifier) left).name;
-        RootVariable variable = parsingContext.environment.getRootVariable(name);
-        if (variable == null || variable.constant ||
-            !variable.type.isAssignableFrom(
-                UnresolvedVarDeclarationStatement.estimateType(parsingContext, right))) {
-          delegate = new UnresolvedVarDeclarationStatement(true, true, name, null, right, null);
-          delegate.resolveTypes(parsingContext);
-        }
-      }
-    }
 
 }

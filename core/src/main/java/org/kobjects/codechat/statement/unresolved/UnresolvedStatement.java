@@ -11,9 +11,6 @@ public abstract class UnresolvedStatement {
 
     public abstract Statement resolve(ParsingContext parsingContext);
 
-    public void resolveTypes(ParsingContext parsingContext) {
-    }
-
     public final String toString() {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
         toString(asb, 0);

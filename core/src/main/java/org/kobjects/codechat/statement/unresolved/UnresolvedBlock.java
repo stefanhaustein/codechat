@@ -29,11 +29,4 @@ public class UnresolvedBlock extends UnresolvedStatement {
         return new Block(resolved);
     }
 
-    @Override
-    public void resolveTypes(ParsingContext parsingContext) {
-        for (UnresolvedStatement statement : statements) {
-            statement.resolveTypes(parsingContext);
-        }
-    }
-
 }

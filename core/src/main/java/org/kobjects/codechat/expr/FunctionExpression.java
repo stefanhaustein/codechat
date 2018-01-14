@@ -9,16 +9,22 @@ import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.statement.Statement;
 
 public class FunctionExpression extends Expression {
-    public Closure closure;
-    public Statement body;
-    private FunctionType functionType;
-    public String[] parameterNames;
-    int id;
+    private final FunctionType functionType;
+    private final String[] parameterNames;
+    private final int id;
 
-    public FunctionExpression(int id, FunctionType functionType, String[] parameterNames, Closure closure, Statement body) {
+    private Closure closure;
+    private Statement body;
+
+
+    public FunctionExpression(int id, FunctionType functionType, String[] parameterNames) {
         this.id = id;
         this.functionType = functionType;
         this.parameterNames = parameterNames;
+    }
+
+
+    public void setBody(Closure closure, Statement body) {
         this.closure = closure;
         this.body = body;
     }
@@ -67,7 +73,9 @@ public class FunctionExpression extends Expression {
 
     @Override
     public FunctionExpression reconstruct(Expression... children) {
-        return new FunctionExpression(id, functionType, parameterNames, closure, body);
+        FunctionExpression result = new FunctionExpression(id, functionType, parameterNames);
+        result.setBody(closure, body);
+        return result;
     }
 
 }

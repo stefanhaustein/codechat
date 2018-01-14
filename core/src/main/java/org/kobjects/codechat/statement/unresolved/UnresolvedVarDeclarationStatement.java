@@ -79,7 +79,7 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
         Statement result;
         Type resolvedExplicitType = explicitType == null ? null : explicitType.resolve(parsingContext);
         if (rootLevel) {
-            RootVariable variable = parsingContext.environment.getRootVariable(variableName);
+            RootVariable variable = parsingContext.environment.declareRootVariable(variableName, resolveType(parsingContext), constant);
             variable.documentation = documentation;
             try {
                 Expression resolvedInitilaizer = initializer.resolve(parsingContext, resolvedExplicitType);
@@ -97,10 +97,4 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
         return result;
     }
 
-    @Override
-    public void resolveTypes(ParsingContext parsingContext) {
-        if (rootLevel) {
-            parsingContext.environment.declareRootVariable(variableName, resolveType(parsingContext), constant);
-        }
-    }
 }

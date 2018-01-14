@@ -22,7 +22,6 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedUnaryOperator;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.expr.unresolved.UnresolvedInvocation;
-import org.kobjects.codechat.statement.Block;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedAssignment;
 import org.kobjects.codechat.statement.unresolved.UnresolvedBlock;
@@ -36,8 +35,6 @@ import org.kobjects.codechat.statement.unresolved.UnresolvedScope;
 import org.kobjects.codechat.statement.unresolved.UnresolvedSimpleStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedVarDeclarationStatement;
-import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.type.unresolved.UnresolvedFunctionSignature;
 import org.kobjects.codechat.type.unresolved.UnresolvedNamedType;
 import org.kobjects.codechat.type.unresolved.UnresolvedType;
@@ -95,29 +92,10 @@ public class Parser {
             tokenizer.consume("");
 
 
-        Statement result;
-        if (unresolved instanceof UnresolvedBlock && errors != null) {
-            UnresolvedBlock block = (UnresolvedBlock) unresolved;
-            for (UnresolvedStatement statement : block.statements) {
-                try {
-                    statement.resolveTypes(parsingContext);
-                } catch (Exception e) {
-                    errors.add(e);
-                }
-            }
-            ArrayList<Statement> list = new ArrayList<>();
-            for (UnresolvedStatement statement : block.statements) {
-                try {
-                    list.add(statement.resolve(parsingContext));
-                } catch (Exception e) {
-                    errors.add(e);
-                }
-            }
-            result = new Block(list.toArray(new Statement[list.size()]));
-        } else {
-            unresolved.resolveTypes(parsingContext);
-            result = unresolved.resolve(parsingContext);
-        }
+        Statement result = unresolved.resolve(parsingContext);
+
+        parsingContext.resolveQueued();
+
         return result;
     }
 

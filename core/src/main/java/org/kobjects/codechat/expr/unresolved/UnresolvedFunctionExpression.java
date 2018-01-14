@@ -6,7 +6,6 @@ import org.kobjects.codechat.expr.FunctionExpression;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
-import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.type.unresolved.UnresolvedFunctionSignature;
 
@@ -24,15 +23,24 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
     }
 
     @Override
-    public Expression resolve(ParsingContext parsingContext, Type expectedType) {
-        ParsingContext bodyContext = new ParsingContext(parsingContext, true);
-        for (int i = 0; i < signature.parameterNames.size(); i++) {
-            bodyContext.addVariable(signature.parameterNames.get(i),
-                    signature.parameterTypes.get(i).resolve(parsingContext.environment.getEnvironment()), true);
-        }
-        Statement resolvedBody = body.resolve(bodyContext);
-        return new FunctionExpression(id, signature.resolve(parsingContext.environment.getEnvironment()),
-                signature.parameterNames.toArray(new String[signature.parameterNames.size()]), bodyContext.getClosure(), resolvedBody);
+    public Expression resolve(final ParsingContext parsingContext, Type expectedType) {
+        final FunctionExpression result = new FunctionExpression(id, signature.resolve(parsingContext),
+                signature.parameterNames.toArray(new String[signature.parameterNames.size()]));
+
+        parsingContext.enqueue(new Runnable() {
+            @Override
+            public void run() {
+                ParsingContext bodyContext = new ParsingContext(parsingContext, true);
+                for (int i = 0; i < signature.parameterNames.size(); i++) {
+                    bodyContext.addVariable(signature.parameterNames.get(i),
+                            signature.parameterTypes.get(i).resolve(parsingContext), true);
+                }
+                Statement resolvedBody = body.resolve(bodyContext);
+                result.setBody(bodyContext.getClosure(), resolvedBody);
+            }
+        });
+
+        return result;
     }
 
     @Override

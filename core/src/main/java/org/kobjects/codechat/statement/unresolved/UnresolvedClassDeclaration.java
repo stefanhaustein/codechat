@@ -16,9 +16,7 @@ import org.kobjects.codechat.type.unresolved.UnresolvedFunctionSignature;
 public class UnresolvedClassDeclaration extends UnresolvedStatement {
   private ArrayList<UnresolvedField> fields = new ArrayList<>();
   private ArrayList<UnresolvedMethod> methods = new ArrayList<>();
-  private RootVariable variable;
   private String className;
-  private UserClassType type;
 
   public UnresolvedClassDeclaration(String className) {
     this.className = className;
@@ -48,6 +46,10 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
   @Override
   public Statement resolve(ParsingContext parsingContext) {
 
+    UserClassType type = new UserClassType(parsingContext.environment.getEnvironment());
+    RootVariable variable = parsingContext.environment.declareRootVariable(className, type.getType(), true);
+    variable.value = type;
+
     int index = 0;
     for (UnresolvedField field: fields) {
       Expression resolvedInitializer = field.initializer.resolve(parsingContext, null);
@@ -63,13 +65,6 @@ public class UnresolvedClassDeclaration extends UnresolvedStatement {
     }
 
     return new ClassDeclaration(variable, type);
-  }
-
-  @Override
-  public void resolveTypes(ParsingContext parsingContext) {
-    type = new UserClassType(parsingContext.environment.getEnvironment());
-    variable = parsingContext.environment.declareRootVariable(className, type.getType(), true);
-    variable.value = type;
   }
 
   public static class UnresolvedField {

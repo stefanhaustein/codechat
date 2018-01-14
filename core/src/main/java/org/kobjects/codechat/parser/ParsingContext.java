@@ -1,6 +1,9 @@
 package org.kobjects.codechat.parser;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.Environment;
@@ -15,6 +18,7 @@ public class ParsingContext {
     }
 
     public ParsingEnvironment environment;
+    public Queue<Runnable> queue;
     ParsingContext parent;
     public Map<String, LocalVariable> variables = new TreeMap<>();
     int[] nextIndex;
@@ -32,11 +36,13 @@ public class ParsingContext {
         this.mode = mode;
         nextIndex = new int[1];
         classType = null;
+        queue = new ArrayDeque<>();
     }
 
     public ParsingContext(ParsingContext parent, boolean closureBoundary) {
         this.environment = parent.environment;
         this.mode = parent.mode;
+        this.queue = parent.queue;
         this.parent = parent;
         if (closureBoundary) {
             this.closure = new Closure();
@@ -74,6 +80,10 @@ public class ParsingContext {
         return result;
     }
 
+    public void enqueue(Runnable runnable) {
+        queue.add(runnable);
+    }
+
     public LocalVariable addVariable(String name, Type type, boolean constant) {
         if (variables.containsKey(name)) {
             throw new RuntimeException("Local variable '" + name + "' already defined.");
@@ -99,4 +109,11 @@ public class ParsingContext {
         }
         return new EvaluationContext(environment, getVarCount());
     }
+
+    public void resolveQueued() {
+        while (!queue.isEmpty()) {
+            queue.poll().run();
+        }
+    }
+
 }
