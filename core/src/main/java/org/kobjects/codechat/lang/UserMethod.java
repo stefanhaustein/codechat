@@ -5,15 +5,19 @@ import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 
 public class UserMethod {
-    public String name;
-    private FunctionType functionType;
+    public final String name;
+    private final FunctionType functionType;
+    private final String[] parameterNames;
     private Statement body;
-    private String[] parameterNames;
 
-    public UserMethod(String name, FunctionType functionType, String[] parameterNames, Statement body) {
+    public UserMethod(String name, FunctionType functionType, String[] parameterNames) {
         this.name = name;
         this.functionType = functionType;
         this.parameterNames = parameterNames;
+        this.body = body;
+    }
+
+    public void setBody(Statement body) {
         this.body = body;
     }
 

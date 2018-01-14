@@ -25,7 +25,7 @@ import org.kobjects.codechat.expr.unresolved.UnresolvedInvocation;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedAssignment;
 import org.kobjects.codechat.statement.unresolved.UnresolvedBlock;
-import org.kobjects.codechat.statement.unresolved.UnresolvedClassDeclaration;
+import org.kobjects.codechat.expr.unresolved.UnresolvedClassDeclaration;
 import org.kobjects.codechat.statement.unresolved.UnresolvedCountStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedExpressionStatement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedForStatement;
@@ -182,7 +182,7 @@ public class Parser {
         return result;
     }
 
-    UnresolvedFunctionExpression parseFunction(ExpressionParser.Tokenizer tokenizer, int id, boolean returnsValue) {
+    UnresolvedFunctionExpression parseFunction(ExpressionParser.Tokenizer tokenizer, int id) {
         int start = tokenizer.currentPosition;
 
         UnresolvedFunctionSignature signature = parseSignature(tokenizer);
@@ -279,22 +279,32 @@ public class Parser {
         return new UnresolvedClassDeclaration.UnresolvedMethod(name, signature, body);
     }
 
-    UnresolvedClassDeclaration parseClass(ExpressionParser.Tokenizer tokenizer) {
+
+    UnresolvedVarDeclarationStatement parseNamedClass(ExpressionParser.Tokenizer tokenizer, String documentation) {
+        int start = tokenizer.currentPosition - "class ".length();
         String className = tokenizer.consumeIdentifier();
+        UnresolvedClassDeclaration classDeclaration = parseClassBody(tokenizer, -1, start);
+        return new UnresolvedVarDeclarationStatement(true, true, className, null, classDeclaration, documentation);
+    }
+
+    UnresolvedClassDeclaration parseClassBody(ExpressionParser.Tokenizer tokenizer, int id, int start) {
         tokenizer.consume(":");
-        UnresolvedClassDeclaration result = new UnresolvedClassDeclaration(className);
+        if (id != -1) {
+            throw new RuntimeException("class id not yet supported");
+        }
+        UnresolvedClassDeclaration classDeclaration = new UnresolvedClassDeclaration(start, tokenizer.currentPosition);
         while(!tokenizer.tryConsume("end") && !tokenizer.tryConsume("")) {
             String memberName = tokenizer.consumeIdentifier();
             if (tokenizer.tryConsume("=")) {
-                result.addField(parseField(tokenizer, memberName));
+                classDeclaration.addField(parseField(tokenizer, memberName));
             } else if (tokenizer.currentValue.equals("(")) {
-                result.addMethod(parseMethod(tokenizer, memberName));
+                classDeclaration.addMethod(parseMethod(tokenizer, memberName));
             } else {
                 throw new ParsingException(tokenizer.currentPosition, tokenizer.currentPosition, "colon, opening brace or end expected.", null);
             }
             while (tokenizer.tryConsume(";")) {}
         }
-        return result;
+        return classDeclaration;
     }
 
     UnresolvedStatement parseStatement(ExpressionParser.Tokenizer tokenizer, boolean rootLevel) {
@@ -309,7 +319,7 @@ public class Parser {
             if (!rootLevel) {
                 throw new ParsingException(tokenizer.currentPosition - "class".length(), tokenizer.currentPosition, "class keyword permitted at root level only", null);
             }
-            return parseClass(tokenizer);
+            return parseNamedClass(tokenizer, documentation);
         }
         if (tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#") ||
                 tokenizer.currentValue.equals("func") || tokenizer.currentValue.startsWith("func#") ) {
@@ -317,15 +327,8 @@ public class Parser {
             int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();
 
-            UnresolvedFunctionExpression functionExpr = parseFunction(tokenizer, id, true);
+            UnresolvedFunctionExpression functionExpr = parseFunction(tokenizer, id);
 
-            return processDeclaration(true, rootLevel, name, null, functionExpr, documentation);
-        }
-        if (tokenizer.currentValue.equals("proc") || tokenizer.currentValue.startsWith("proc#") ) {
-            int p0 = tokenizer.currentPosition;
-            int id = extractId(tokenizer.consumeIdentifier());
-            String name = tokenizer.consumeIdentifier();
-            UnresolvedFunctionExpression functionExpr = parseFunction(tokenizer, id, false);
             return processDeclaration(true, rootLevel, name, null, functionExpr, documentation);
         }
         if (tokenizer.tryConsume("for")) {
@@ -528,12 +531,12 @@ public class Parser {
             if (name.equals("false")) {
                 return new UnresolvedLiteral(start, end, Boolean.FALSE);
             }
+            if ("class".equals(name) || name.startsWith("class#")) {
+                return parseClassBody(tokenizer, extractId(name), start);
+            }
             if ("function".equals(name) || name.startsWith("function#") ||
                     "func".equals(name) || name.startsWith("func#")) {
-                return parseFunction(tokenizer, extractId(name), true);
-            }
-            if ("proc".equals(name) || name.startsWith("proc#")) {
-                return parseFunction(tokenizer, extractId(name), false);
+                return parseFunction(tokenizer, extractId(name));
             }
             if (name.indexOf('#') != -1) {
                 return new UnresolvedInstanceReference(start, end, name);

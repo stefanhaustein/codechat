@@ -27,6 +27,7 @@ import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.type.Typed;
+import org.kobjects.codechat.type.UserClassType;
 
 public class Environment implements ParsingEnvironment {
 
@@ -309,19 +310,30 @@ public class Environment implements ParsingEnvironment {
 
         SerializationContext serializationContext = new SerializationContext(mode);
 
+        // 0: classes
+        // 1: constants
+        // 2: variables
+        // 3: functions
+
+
         for (int i = 0; i < 3; i++) {
             for (RootVariable variable : rootVariables.values()) {
+                int desired;
                 if (variable.constant) {
-                    if (i == 1) {
-                        continue;
-                    } else if (variable.type instanceof FunctionType != (i == 2)) {
-                        continue;
+                    if (variable.value instanceof UserClassType) {
+                        desired = 0;
+                    } else if (variable.value instanceof UserFunction) {
+                        desired = 3;
+                    } else {
+                        desired = 1;
                     }
-                } else if (i != 1) {
-                    continue;
+                } else {
+                    desired = 2;
                 }
-                variable.serialize(asb, serializationContext);
-            }
+                if (desired == i) {
+                    variable.serialize(asb, serializationContext);
+                }
+           }
         }
 
         synchronized (OnInstance.allOnInterval) {

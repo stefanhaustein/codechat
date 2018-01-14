@@ -57,5 +57,8 @@ public abstract class Expression implements HasDependencies {
         }
     }
 
+    /**
+     * Used when resolving on... expressions.
+     */
     public abstract Expression reconstruct(Expression... children);
 }
