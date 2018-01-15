@@ -2,6 +2,7 @@ package org.kobjects.codechat.annotation;
 
 import java.lang.ref.WeakReference;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.RootVariable;
@@ -31,9 +32,9 @@ public class VariableLink implements Link {
     public void execute(Environment environment) {
         RootVariable entity = this.entity.get();
         if (entity == null) {
-            environment.environmentListener.print("(deleted)");
+            environment.environmentListener.print("(deleted)", EnvironmentListener.Channel.OUTPUT);
         } else if ((entity.getType() instanceof InstanceType) && !((InstanceType) entity.getType()).isInstantiable()) {
-            environment.environmentListener.print(Formatting.getDocumentation((InstanceType) entity.getType()));
+            environment.environmentListener.print(Formatting.getDocumentation((InstanceType) entity.getType()), EnvironmentListener.Channel.OUTPUT);
         } else {
             environment.environmentListener.edit(getText(environment).toString());
         }

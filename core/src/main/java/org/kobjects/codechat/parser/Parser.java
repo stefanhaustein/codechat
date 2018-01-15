@@ -321,8 +321,9 @@ public class Parser {
             }
             return parseNamedClass(tokenizer, documentation);
         }
-        if (tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#") ||
-                tokenizer.currentValue.equals("func") || tokenizer.currentValue.startsWith("func#") ) {
+        if (tokenizer.currentValue.equals("def") || tokenizer.currentValue.startsWith("def#") ||
+                tokenizer.currentValue.equals("function") || tokenizer.currentValue.startsWith("function#") ||
+               tokenizer.currentValue.equals("func") || tokenizer.currentValue.startsWith("func#") ) {
             int p0 = tokenizer.currentPosition;
             int id = extractId(tokenizer.consumeIdentifier());
             String name = tokenizer.consumeIdentifier();

@@ -17,10 +17,12 @@ import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.ExecLink;
+import org.kobjects.codechat.annotation.Link;
 import org.kobjects.codechat.annotation.VariableLink;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.parser.ParsingEnvironment;
+import org.kobjects.codechat.statement.HelpStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.InstanceType;
@@ -31,10 +33,15 @@ import org.kobjects.codechat.type.UserClassType;
 
 public class Environment implements ParsingEnvironment {
 
-    static final CharSequence ABOUT_TEXT = new AnnotatedStringBuilder()
+    public static final CharSequence ABOUT_TEXT = new AnnotatedStringBuilder()
             .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n")
             .append("Type '")
-            .append("help", new ExecLink("help"))
+            .append("help", new Link() {
+                @Override
+                public void execute(Environment environment) {
+                    HelpStatement.printGeneralHelp(environment);
+                }
+            })
             .append("' for help on how to use this app and builtin functionionality.\n\n")
             .append("Copyright (C) 2017 Stefan Haustein.\n\n")
             .append("Emoji icons supplied by EmojiOne.\n")
@@ -113,7 +120,7 @@ public class Environment implements ParsingEnvironment {
         addSystemConstant("print", new NativeFunction(null,  type) {
                     @Override
                     protected Object eval(Object[] params) {
-                        environmentListener.print(String.valueOf(params[0]));
+                        environmentListener.print(String.valueOf(params[0]), EnvironmentListener.Channel.OUTPUT);
                         return null;
                     }
                 }, "Prints the argument.");
@@ -121,7 +128,7 @@ public class Environment implements ParsingEnvironment {
         addSystemConstant("about", new NativeFunction(null) {
                     @Override
                     protected Object eval(Object[] params) {
-                        environmentListener.print(ABOUT_TEXT);
+                        environmentListener.print(ABOUT_TEXT, EnvironmentListener.Channel.HELP);
                         return null;
                     }
                 }, "Prints copyright information for this application.");
@@ -137,7 +144,7 @@ public class Environment implements ParsingEnvironment {
                                 asb.append("\n");
                             }
                         }
-                        environmentListener.print(asb.build());
+                        environmentListener.print(asb.build(), EnvironmentListener.Channel.OUTPUT);
                         return null;
                     }
                 }, "Prints the directory of the application file system.");
@@ -147,7 +154,7 @@ public class Environment implements ParsingEnvironment {
                 protected Object eval(Object[] params) {
                        List<RootVariable> errors = getErrors();
                 if (errors.size() == 0) {
-                    environmentListener.print("(no errors)");
+                    environmentListener.print("(no errors)", EnvironmentListener.Channel.OUTPUT);
                 } else {
                     AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
                     for (RootVariable errorVar : errors) {
@@ -156,7 +163,7 @@ public class Environment implements ParsingEnvironment {
                        Formatting.exceptionToString(asb, errorVar.error);
                        asb.append('\n');
                     }
-                    environmentListener.print(asb.build());
+                    environmentListener.print(asb.build(), EnvironmentListener.Channel.OUTPUT);
                 }
                 return null;
             }
@@ -254,7 +261,7 @@ public class Environment implements ParsingEnvironment {
         while (list.endsWith("\n")) {
             list = list.substring(0, list.length() - 1);
         }
-        environmentListener.print(new AnnotatedString(list, asb.getAnnotationList()));
+        environmentListener.print(new AnnotatedString(list, asb.getAnnotationList()), EnvironmentListener.Channel.OUTPUT);
     }
 
     public void addType(Type... types) {
@@ -402,6 +409,7 @@ public class Environment implements ParsingEnvironment {
     }
 
     public void clearAll() {
+        environmentListener.clearAll();
         TreeMap<String, RootVariable> systemVariables = new TreeMap<>();
         for (RootVariable var : rootVariables.values()) {
             if (var.builtin) {

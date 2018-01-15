@@ -34,7 +34,7 @@ end
 variable asteroidCount = 1
 variable level = 1
 variable score = 0
-proc addAsteroid():
+def addAsteroid():
   let a = new Sprite
   a.x = 50
   a.y = 50
@@ -46,11 +46,11 @@ proc addAsteroid():
   a.rotation = 20 - 40 × (random())
   asteroidCount +=  1
 end
-proc addScore(n: Number):
+def addScore(n: Number):
   score +=  round(n)
   scoreDisplay.text = "" + score
 end
-proc explodeAsteroid(a: Sprite):
+def explodeAsteroid(a: Sprite):
   addScore(a.size)
   if a.size > 15:
     count i to 2:
@@ -76,7 +76,7 @@ proc explodeAsteroid(a: Sprite):
     nextLevel 
   end
 end
-proc gameOver():
+def gameOver():
   level = -1
   ship.face = "💥"
   play "💥"
@@ -85,19 +85,19 @@ proc gameOver():
   wait 1
   level = 0
 end
-proc handleShot(shot: Sprite, other: Sprite):
+def handleShot(shot: Sprite, other: Sprite):
   if other.face = "🥔":
     shot.opacity = 0
     explodeAsteroid(other)
   end
 end
-proc nextLevel():
+def nextLevel():
   level +=  1
   count a to level:
     addAsteroid 
   end
 end
-proc shoot():
+def shoot():
   variable shot = new Sprite
   shot.face = "⚫️"
   shot.speed = 100
@@ -110,7 +110,7 @@ proc shoot():
        end
       end
 end
-proc startGame():
+def startGame():
   for s in screen.sprites:
     if s.face = "🥔":
       delete s;

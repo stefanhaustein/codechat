@@ -23,6 +23,7 @@ import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.util.DisplayMetrics;
@@ -67,6 +68,7 @@ import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.statement.ExpressionStatement;
+import org.kobjects.codechat.statement.HelpStatement;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.expressionparser.ExpressionParser.ParsingException;
 
@@ -643,6 +645,30 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         return onMenuItemClick(item);
     }
 
+    private AlertDialog.Builder createDialog(CharSequence text, final AlertDialog[] handle) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+
+        TextView textView = new TextView(MainActivity.this);
+        textView.setText(convertAnnotatedCharSequence(text, new Runnable() {
+            @Override
+            public void run() {
+                if (handle != null && handle.length > 0 && handle[0] != null) {
+                    handle[0].dismiss();
+                }
+            }
+        }));
+
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+
+        ScrollView scrollView = new ScrollView(MainActivity.this);
+        scrollView.addView(textView);
+
+        scrollView.setPadding(48, 48, 48, 0);
+        alert.setView(scrollView);
+        return alert;
+    }
+
+
     private void fillExamplesMenu(Menu exampleMenu) {
         try {
             for (final String fileName : getAssets().list("examples")) {
@@ -651,8 +677,6 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         drawerLayout.closeDrawer(Gravity.LEFT);
-                        AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-                        alert.setTitle(name);
                         StringBuilder sb = new StringBuilder();
                         try {
                             BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("examples/" + fileName)));
@@ -668,15 +692,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                             e.printStackTrace();
                         }
                         final String code = sb.toString();
-                        TextView textView = new TextView(MainActivity.this);
-                        textView.setText(code);
-
-                        ScrollView scrollView = new ScrollView(MainActivity.this);
-                        scrollView.addView(textView);
-
-                        scrollView.setPadding(48, 48, 48, 0);
-                        alert.setView(scrollView);
-
+                        final AlertDialog[] alertHandle = new AlertDialog[1];
+                        AlertDialog.Builder alert = createDialog(code, alertHandle);
+                        alert.setTitle(name);
                         alert.setNegativeButton("Cancel", null);
                         alert.setPositiveButton("Load", new DialogInterface.OnClickListener() {
                             @Override
@@ -685,8 +703,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                                 environment.environmentListener.setName(name);
                             }
                         });
-
-                        alert.show();
+                        alertHandle[0] = alert.show();
                         return true;
                     }
                 });
@@ -701,6 +718,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         drawerLayout.closeDrawer(Gravity.LEFT);
         String title = item.getTitle().toString();
         switch (title) {
+            case "About":
+                print(Environment.ABOUT_TEXT, EnvironmentListener.Channel.HELP);
+                break;
+            case "Help":
+                HelpStatement.printGeneralHelp(environment);
+                break;
             case MENU_ITEM_SUSPEND:
                 environment.suspend();
                 break;
@@ -755,8 +778,20 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
     }
 
     @Override
-    public void print(final CharSequence s) {
-        print(ChatView.BubbleType.LEFT, s);
+    public void print(final CharSequence s, Channel channel) {
+        if (channel == Channel.HELP) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final AlertDialog[] alertHandle = new AlertDialog[1];
+                    AlertDialog.Builder alert = createDialog(s, alertHandle);
+                    alert.setPositiveButton("Close", null);
+                    alertHandle[0] = alert.show();
+                }
+            });
+        } else {
+            print(ChatView.BubbleType.LEFT, s);
+        }
     }
 
     void printException(Exception e) {
@@ -800,15 +835,38 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         });
     }
 
+    SpannableString convertAnnotatedCharSequence(final CharSequence s, final Runnable preLinkCallback) {
+        SpannableString spannable = new SpannableString(s);
+        if (s instanceof AnnotatedCharSequence) {
+            for (final AnnotationSpan annotation : ((AnnotatedCharSequence) s).getAnnotations()) {
+                if (annotation.getLink() != null) {
+                    spannable.setSpan(new ClickableSpan() {
+                        @Override
+                        public void onClick(View view) {
+                            if (preLinkCallback != null) {
+                                preLinkCallback.run();
+                            }
+                            annotation.getLink().execute(environment);
+                        }
+                    }, annotation.getStart(), annotation.getEnd(), 0);
+                }
+            }
+        }
+        return spannable;
+    }
+
+
     public void print(final ChatView.BubbleType bubbleType, final CharSequence s, final BubbleAction... actions) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SpannableString spannable = new SpannableString(s);
+
                 ArrayList<BubbleAction> actionList = new ArrayList<>();
                 for (BubbleAction ba : actions) {
                     actionList.add(ba);
                 }
+
+                SpannableString spannable = convertAnnotatedCharSequence(s, null);
                 AnnotationSpan annotationSpan = null;
                 int linkCount = 0;
                 if (s instanceof AnnotatedCharSequence) {
@@ -816,15 +874,6 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                         if (annotation.getStart() == 0 && annotation.getEnd() == s.length()) {
                             annotationSpan = annotation;
                             linkCount++;
-                        }
-
-                        if (annotation.getLink() != null) {
-                            spannable.setSpan(new ClickableSpan() {
-                                @Override
-                                public void onClick(View view) {
-                                    annotation.getLink().execute(environment);
-                                }
-                            }, annotation.getStart(), annotation.getEnd(), 0);
                         }
                     }
                 }

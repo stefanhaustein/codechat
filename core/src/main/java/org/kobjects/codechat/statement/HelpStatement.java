@@ -11,6 +11,7 @@ import org.kobjects.codechat.annotation.ExecLink;
 import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Function;
@@ -23,7 +24,7 @@ public class HelpStatement extends AbstractStatement {
     static final CharSequence HELP_TEXT = new AnnotatedStringBuilder()
             .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface. ")
             .append("Type 'help <object>' to get help on <object>. Type '")
-            .append("about", new ExecLink("about"))
+            .append("about", new TextLink(Environment.ABOUT_TEXT))
             .append("' for copyright information and contributors. ").build();
 
     static final Map<String,CharSequence> helpMap = new TreeMap<>();
@@ -142,7 +143,7 @@ public class HelpStatement extends AbstractStatement {
     }
 
 
-    private static void printGeneralHelp(Environment environment) {
+    public static void printGeneralHelp(Environment environment) {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
         asb.append(HELP_TEXT);
 
@@ -204,7 +205,7 @@ public class HelpStatement extends AbstractStatement {
             }
         }
 
-        environment.environmentListener.print(asb.build());
+        environment.environmentListener.print(asb.build(), EnvironmentListener.Channel.HELP);
     }
 
 
@@ -221,11 +222,11 @@ public class HelpStatement extends AbstractStatement {
             printGeneralHelp(context.environment);
         } else if (context.environment.rootVariables.containsKey(about)) {
             context.environment.environmentListener.print(
-                Formatting.getDocumentation(context.environment.rootVariables.get(about)));
+                Formatting.getDocumentation(context.environment.rootVariables.get(about)), EnvironmentListener.Channel.OUTPUT);
         } else if (helpMap.containsKey(about)) {
-            context.environment.environmentListener.print(helpMap.get(about));
+            context.environment.environmentListener.print(helpMap.get(about), EnvironmentListener.Channel.OUTPUT);
         } else {
-            context.environment.environmentListener.print("No help available for \"" + about + "\"");
+            context.environment.environmentListener.print("No help available for \"" + about + "\"", EnvironmentListener.Channel.OUTPUT);
         }
         return KEEP_GOING;
     }

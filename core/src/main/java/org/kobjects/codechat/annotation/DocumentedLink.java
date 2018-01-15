@@ -2,6 +2,7 @@ package org.kobjects.codechat.annotation;
 
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
 
 public class DocumentedLink implements Link {
@@ -14,6 +15,6 @@ public class DocumentedLink implements Link {
 
     @Override
     public void execute(Environment environment) {
-        environment.environmentListener.print(Formatting.getDocumentation(documented));
+        environment.environmentListener.print(Formatting.getDocumentation(documented), EnvironmentListener.Channel.HELP);
     }
 }

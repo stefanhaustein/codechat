@@ -45,19 +45,19 @@ public class Shell implements EnvironmentListener {
             if (statement instanceof ExpressionStatement) {
                 Expression expression = ((ExpressionStatement) statement).expression;
                 String s = expression.toString();
-                print(s);
+                print(s, Channel.OUTPUT);
                 printed = true;
                 Object result = expression.eval(parsingContext.createEvaluationContext(environment));
                 if (expression.getType() == null) {
-                    print("ok");
+                    print("ok", EnvironmentListener.Channel.OUTPUT);
                 } else {
-                    print(Formatting.toLiteral(result));
+                    print(Formatting.toLiteral(result), EnvironmentListener.Channel.OUTPUT);
                 }
             } else {
-                print(statement.toString());
+                print(statement.toString(), EnvironmentListener.Channel.OUTPUT);
                 printed = true;
                 statement.eval(parsingContext.createEvaluationContext(environment));
-                print("ok");
+                print("ok", EnvironmentListener.Channel.OUTPUT);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -71,17 +71,17 @@ public class Shell implements EnvironmentListener {
 
     @Override
     public void suspended(boolean paused) {
-        print(paused ? "(suspended)" : "(resumed)");
+        print(paused ? "(suspended)" : "(resumed)", EnvironmentListener.Channel.OUTPUT);
     }
 
     @Override
     public void setName(String name) {
-        print("Name set to: '" + name + "'");
+        print("Name set to: '" + name + "'", EnvironmentListener.Channel.OUTPUT);
     }
 
 
     @Override
-    public void print(CharSequence s) {
+    public void print(CharSequence s, EnvironmentListener.Channel channel) {
         System.out.println(s);
     }
 

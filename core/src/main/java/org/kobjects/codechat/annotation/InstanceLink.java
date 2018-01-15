@@ -2,6 +2,7 @@ package org.kobjects.codechat.annotation;
 
 import java.lang.ref.WeakReference;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Printable;
@@ -31,9 +32,9 @@ public class InstanceLink implements Link {
     public void execute(Environment environment) {
         Instance instance = this.instance.get();
         if (instance == null) {
-            environment.environmentListener.print("(deleted)");
+            environment.environmentListener.print("(deleted)", EnvironmentListener.Channel.OUTPUT);
         } else if ((instance.getType() instanceof InstanceType) && !((InstanceType) instance.getType()).isInstantiable()) {
-            environment.environmentListener.print(Formatting.getDocumentation((InstanceType) instance.getType()));
+            environment.environmentListener.print(Formatting.getDocumentation((InstanceType) instance.getType()), EnvironmentListener.Channel.OUTPUT);
         } else {
             environment.environmentListener.edit(getText(environment).toString());
         }
