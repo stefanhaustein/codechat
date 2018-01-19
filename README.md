@@ -4,6 +4,7 @@
 
 Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is familiar with WhatsApp...) 
 
+  * Alpha Playstore link: https://play.google.com/apps/testing/org.kobjects.codechat.android 
   * First demo: https://www.youtube.com/watch?v=zY4TIW3jDM0
   * Todo: https://docs.google.com/document/d/1eGk_CbD5Kd9OSJywEAKCGGfS6Fmp5JMu0_t6gP1nFKA/edit?usp=sharing
 
@@ -36,4 +37,4 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 
 ### More
 
-https://github.com/stefanhaustein/codechat/tree/master/examples
+https://github.com/stefanhaustein/codechat/tree/master/android/src/main/assets/examples
