@@ -30,6 +30,26 @@ public class AnnotatedString implements AnnotatedCharSequence {
 
     @Override
     public CharSequence subSequence(int start, int end) {
+
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        asb.append(s.substring(start, end));
+
+        for (AnnotationSpan span : annotationList) {
+            int newStart = span.getStart() - start;
+            int newEnd = span.getEnd() - start;
+
+            if (newStart < 0) {
+                newStart = 0;
+            }
+            if (newEnd > asb.length()) {
+                newEnd = asb.length();
+            }
+
+            if (newStart < asb.length() && newEnd > 0) {
+                asb.addAnnotation(newStart, newEnd, span.getAnnotation());
+            }
+        }
+
         return s.subSequence(start, end);
     }
 

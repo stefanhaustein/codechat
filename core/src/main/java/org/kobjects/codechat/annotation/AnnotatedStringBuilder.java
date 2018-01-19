@@ -1,6 +1,5 @@
 package org.kobjects.codechat.annotation;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +37,7 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
                     annotations.add(new AnnotationSpan(
                             span.getStart() - start + offset,
                             span.getEnd() - start + offset,
-                            span.getLink()));
+                            span.getAnnotation()));
                 }
             }
         }
@@ -56,14 +55,14 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
         return this;
     }
 
-    public AnnotatedStringBuilder append(CharSequence csq, Link link) {
+    public AnnotatedStringBuilder append(CharSequence csq, Annotation annotation) {
         int pos = sb.length();
-        if (link == null) {
+        if (annotation == null) {
             append(csq);
         } else {
             sb.append(csq);
             if (annotations != null) {
-                annotations.add(new AnnotationSpan(pos, sb.length(), link));
+                annotations.add(new AnnotationSpan(pos, sb.length(), annotation));
             }
         }
         return this;
@@ -98,12 +97,12 @@ public class AnnotatedStringBuilder implements Appendable, AnnotatedCharSequence
 
     @Override
     public CharSequence subSequence(int start, int end) {
-        return sb.subSequence(start, end);
+        return build().subSequence(start, end);
     }
 
-    public void addAnnotation(int start, int length, Link link) {
+    public void addAnnotation(int start, int length, Annotation annotation) {
         if (annotations != null) {
-            annotations.add(new AnnotationSpan(start, length, link));
+            annotations.add(new AnnotationSpan(start, length, annotation));
         }
     }
 

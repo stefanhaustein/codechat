@@ -6,7 +6,7 @@ import java.util.List;
 public class AnnotationSpan {
     private final int start;
     private final int end;
-    private final Link link;
+    private final Annotation annotation;
 
     public static void append(StringBuilder sb, String s, Link link, List<AnnotationSpan> list) {
         if (list != null) {
@@ -15,14 +15,14 @@ public class AnnotationSpan {
         sb.append(s);
     }
 
-    public AnnotationSpan(int start, int end, Link link) {
+    public AnnotationSpan(int start, int end, Annotation annotation) {
         this.start = start;
         this.end = end;
-        this.link = link;
+        this.annotation = annotation;
     }
 
     public String toString() {
-        return "[" + start + ":" + end + "]:" + link;
+        return "[" + start + ":" + end + "]:" + annotation;
     }
 
     public int getStart() {
@@ -34,6 +34,10 @@ public class AnnotationSpan {
     }
 
     public Link getLink() {
-        return link;
+        return annotation instanceof Link ? (Link) annotation : null;
+    }
+
+    public Annotation getAnnotation() {
+        return annotation;
     }
 }

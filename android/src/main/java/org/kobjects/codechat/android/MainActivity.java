@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,10 +23,12 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
+import android.text.style.TypefaceSpan;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
@@ -56,8 +59,10 @@ import org.kobjects.codechat.android.chatview.BubbleAction;
 import org.kobjects.codechat.android.chatview.ChatView;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.EditTextLink;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.ErrorLink;
+import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.annotation.AnnotationSpan;
 import org.kobjects.codechat.lang.Environment;
@@ -90,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     static final String MENU_ITEM_FULLSCREEN = "Fullscreen";
 
     static final int SHOW_TOOLBAR_HEIGHT_DP = 620;
+
+    Typeface MONOSPACE = Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL);
 
     /** Matches the accent color, easier than jumping through andorid hoops to obtain it. */
     static final int ERROR_COLOR = 0x0aaff5722;
@@ -649,6 +656,19 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
 
         TextView textView = new TextView(MainActivity.this);
+
+        if (text instanceof AnnotatedCharSequence) {
+            AnnotatedCharSequence sequence = (AnnotatedCharSequence) text;
+            if (sequence.getAnnotations().iterator().hasNext()) {
+                AnnotationSpan span = sequence.getAnnotations().iterator().next();
+                if (span.getAnnotation() instanceof Title) {
+                    String title = sequence.subSequence(0, span.getEnd()).toString().trim();
+                    alert.setTitle(title);
+                    text = sequence.subSequence(span.getEnd(), text.length());
+                }
+            }
+        }
+
         textView.setText(convertAnnotatedCharSequence(text, new Runnable() {
             @Override
             public void run() {
@@ -839,6 +859,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         SpannableString spannable = new SpannableString(s);
         if (s instanceof AnnotatedCharSequence) {
             for (final AnnotationSpan annotation : ((AnnotatedCharSequence) s).getAnnotations()) {
+                final boolean isCode = annotation.getLink() instanceof EditTextLink;
                 if (annotation.getLink() != null) {
                     spannable.setSpan(new ClickableSpan() {
                         @Override
@@ -846,9 +867,23 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                             if (preLinkCallback != null) {
                                 preLinkCallback.run();
                             }
-                            annotation.getLink().execute(environment);
+                            if (annotation.getLink() != null) {
+                                annotation.getLink().execute(environment);
+                            }
                         }
+
+                        @Override
+                        public void updateDrawState(TextPaint textPaint) {
+                            super.updateDrawState(textPaint);
+                            if (isCode) {
+                                textPaint.setUnderlineText(false);
+                            }
+                        }
+
                     }, annotation.getStart(), annotation.getEnd(), 0);
+                    if (isCode) {
+                        spannable.setSpan(new TypefaceSpan("monospace"), annotation.getStart(), annotation.getEnd(), 0);
+                    }
                 }
             }
         }

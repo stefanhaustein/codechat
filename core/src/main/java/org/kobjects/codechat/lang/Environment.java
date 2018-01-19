@@ -18,6 +18,7 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.ExecLink;
 import org.kobjects.codechat.annotation.Link;
+import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.annotation.VariableLink;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -34,6 +35,7 @@ import org.kobjects.codechat.type.UserClassType;
 public class Environment implements ParsingEnvironment {
 
     public static final CharSequence ABOUT_TEXT = new AnnotatedStringBuilder()
+            .append("About CodeChat\n\n", new Title())
             .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n")
             .append("Type '")
             .append("help", new Link() {
