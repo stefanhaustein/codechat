@@ -36,21 +36,20 @@ public class AnnotatedString implements AnnotatedCharSequence {
 
         for (AnnotationSpan span : annotationList) {
             int newStart = span.getStart() - start;
-            int newEnd = span.getEnd() - start;
-
             if (newStart < 0) {
                 newStart = 0;
             }
+            int newEnd = span.getEnd() - start;
             if (newEnd > asb.length()) {
                 newEnd = asb.length();
             }
 
-            if (newStart < asb.length() && newEnd > 0) {
+            if (newStart < asb.length() && newEnd > 0 && newEnd > newStart) {
                 asb.addAnnotation(newStart, newEnd, span.getAnnotation());
             }
         }
 
-        return s.subSequence(start, end);
+        return asb.build();
     }
 
     @Override

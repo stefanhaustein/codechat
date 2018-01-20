@@ -688,6 +688,36 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         return alert;
     }
 
+    public void loadExample(final String name) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("examples/" + name + ".cch")));
+            while (true) {
+                String s = reader.readLine();
+                if (s == null) {
+                    break;
+                }
+                sb.append(s);
+                sb.append('\n');
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        final String code = sb.toString();
+        final AlertDialog[] alertHandle = new AlertDialog[1];
+        AlertDialog.Builder alert = createDialog(code, alertHandle);
+        alert.setTitle(name);
+        alert.setNegativeButton("Cancel", null);
+        alert.setPositiveButton("Load", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                environment.setProgram(code);
+                environment.environmentListener.setName(name);
+            }
+        });
+        alertHandle[0] = alert.show();
+    }
+
 
     private void fillExamplesMenu(Menu exampleMenu) {
         try {
@@ -697,33 +727,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         drawerLayout.closeDrawer(Gravity.LEFT);
-                        StringBuilder sb = new StringBuilder();
-                        try {
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("examples/" + fileName)));
-                            while (true) {
-                                String s = reader.readLine();
-                                if (s == null) {
-                                    break;
-                                }
-                                sb.append(s);
-                                sb.append('\n');
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        final String code = sb.toString();
-                        final AlertDialog[] alertHandle = new AlertDialog[1];
-                        AlertDialog.Builder alert = createDialog(code, alertHandle);
-                        alert.setTitle(name);
-                        alert.setNegativeButton("Cancel", null);
-                        alert.setPositiveButton("Load", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                environment.setProgram(code);
-                                environment.environmentListener.setName(name);
-                            }
-                        });
-                        alertHandle[0] = alert.show();
+                        loadExample(name);
                         return true;
                     }
                 });

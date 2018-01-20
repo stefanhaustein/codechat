@@ -38,7 +38,6 @@ public class Shell implements EnvironmentListener {
 
     private void process(String code) {
         ParsingContext parsingContext = new ParsingContext(environment, ParsingContext.Mode.INTERACTIVE);
-        boolean printed = false;
         try {
             Statement statement = environment.parse(parsingContext, code);
 
@@ -46,7 +45,6 @@ public class Shell implements EnvironmentListener {
                 Expression expression = ((ExpressionStatement) statement).expression;
                 String s = expression.toString();
                 print(s, Channel.OUTPUT);
-                printed = true;
                 Object result = expression.eval(parsingContext.createEvaluationContext(environment));
                 if (expression.getType() == null) {
                     print("ok", EnvironmentListener.Channel.OUTPUT);
@@ -55,7 +53,6 @@ public class Shell implements EnvironmentListener {
                 }
             } else {
                 print(statement.toString(), EnvironmentListener.Channel.OUTPUT);
-                printed = true;
                 statement.eval(parsingContext.createEvaluationContext(environment));
                 print("ok", EnvironmentListener.Channel.OUTPUT);
             }
@@ -93,5 +90,10 @@ public class Shell implements EnvironmentListener {
     @Override
     public void edit(String s) {
         System.out.println(s);
+    }
+
+    @Override
+    public void loadExample(String name) {
+        throw new UnsupportedOperationException();
     }
 }

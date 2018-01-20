@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.LoadExampleLink;
+import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.lang.AbstractInstance;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.DependencyCollector;
@@ -26,7 +28,10 @@ public class Screen extends AbstractInstance {
         }
         @Override
         public void printDocumentation(AnnotatedStringBuilder asb) {
-            asb.append("The screen object contains information about the visible device screen such as the dimensions.");
+            asb.append("Screen\n\n", new Title());
+            asb.append("The screen object contains information about the visible device screen such as the dimensions. The ");
+            asb.append("bounce example", new LoadExampleLink("Bounce"));
+            asb.append(" illustrates using several of the screen properties.");
             super.printDocumentation(asb);
         }
     };

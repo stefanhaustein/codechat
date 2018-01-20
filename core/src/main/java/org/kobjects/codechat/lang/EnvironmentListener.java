@@ -20,4 +20,6 @@ public interface EnvironmentListener {
     void showError(CharSequence s);
 
     void edit(String s);
+
+    void loadExample(String name);
 }
