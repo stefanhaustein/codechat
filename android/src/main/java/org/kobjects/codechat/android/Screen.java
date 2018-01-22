@@ -27,12 +27,10 @@ public class Screen extends AbstractInstance {
             return "Screen";
         }
         @Override
-        public void printDocumentation(AnnotatedStringBuilder asb) {
-            asb.append("Screen\n\n", new Title());
+        public void printDocumentationBody(AnnotatedStringBuilder asb) {
             asb.append("The screen object contains information about the visible device screen such as the dimensions. The ");
             asb.append("bounce example", new LoadExampleLink("Bounce"));
             asb.append(" illustrates using several of the screen properties.");
-            super.printDocumentation(asb);
         }
     };
 

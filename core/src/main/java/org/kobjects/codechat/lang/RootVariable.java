@@ -3,6 +3,7 @@ package org.kobjects.codechat.lang;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.InstanceLink;
+import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.annotation.VariableLink;
 import org.kobjects.codechat.parser.ParsingEnvironment;
 import org.kobjects.codechat.type.FunctionType;
@@ -99,10 +100,15 @@ public class RootVariable implements HasDependencies, Documented, Printable {
 
     @Override
     public void printDocumentation(AnnotatedStringBuilder asb) {
+        // Title
         if (value instanceof Function) {
-            ((FunctionType) type).serializeSignature(asb, -1, name, null, null);
-            asb.append("\n");
+            int start = asb.length();
+            asb.append(name);
+            ((FunctionType) type).serializeSignature(asb, null);
+            asb.append("\n\n");
+            asb.addAnnotation(start, asb.length(), new Title());
         } else if (type instanceof InstanceType && !((InstanceType) type).isInstantiable()) {
+            asb.append(name + "\n\n", new Title());
             ((InstanceType) type).printDocumentation(asb);
         } else if (!(type instanceof MetaType)) {
             asb.append(constant ? "constant ": "variable ");

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.MaterialProperty;
@@ -38,9 +39,9 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
         }
 
         @Override
-        public void printDocumentation(AnnotatedStringBuilder asb) {
+        public void printDocumentationBody(AnnotatedStringBuilder asb) {
+            asb.append("Text\n\n", new Title());
             asb.append("A text object displayed on the screen.");
-            super.printDocumentation(asb);
         }
     };
 

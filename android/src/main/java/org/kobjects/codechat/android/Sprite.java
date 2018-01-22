@@ -37,10 +37,9 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         }
 
         @Override
-        public void printDocumentation(AnnotatedStringBuilder asb) {
+        public void printDocumentationBody(AnnotatedStringBuilder asb) {
             asb.append("A sprite is an emoji displayed on a particular position on the screen. "
                             + "It is able to move and rotate at a given speed by setting the corresponding properties.");
-            super.printDocumentation(asb);
         }
     };
     static {

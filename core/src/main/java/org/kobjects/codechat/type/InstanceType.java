@@ -56,7 +56,8 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
     }
 
     @Override
-    public void printDocumentation(AnnotatedStringBuilder asb) {
+    public final void printDocumentation(AnnotatedStringBuilder asb) {
+        printDocumentationBody(asb);
         asb.append("\nProperties: ");
         boolean first = true;
         for (PropertyDescriptor propertyDescriptor: properties()) {
@@ -67,6 +68,9 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
             }
             asb.append(propertyDescriptor.name, new DocumentedLink(propertyDescriptor));
         }
+    }
+
+    public void printDocumentationBody(AnnotatedStringBuilder asb) {
     }
 
     public boolean hasProperty(String propertyName) {

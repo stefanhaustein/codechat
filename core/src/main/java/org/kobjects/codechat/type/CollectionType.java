@@ -32,14 +32,13 @@ public abstract class CollectionType extends InstanceType<Collection> {
     }
 
     @Override
-    public void printDocumentation(AnnotatedStringBuilder asb) {
+    public void printDocumentationBody(AnnotatedStringBuilder asb) {
         asb.append("A ").append(name).append(" of ");
         if (elementType instanceof Documented) {
             asb.append(elementType.toString(), new DocumentedLink((Documented) elementType));
         } else {
             asb.append(elementType.toString());
         }
-        super.printDocumentation(asb);
     }
 
 

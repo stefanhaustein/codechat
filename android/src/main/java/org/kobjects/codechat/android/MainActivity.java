@@ -152,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     private EmojiTextView errorView;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
+    private ArrayList<CharSequence> helpStack = new ArrayList<>();
+
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
@@ -617,6 +619,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
        return true;
     }
 
+
     public void fillMenu(final Menu menu, boolean isOptionsMenu) {
         menu.add("Help");
 
@@ -746,7 +749,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 print(Environment.ABOUT_TEXT, EnvironmentListener.Channel.HELP);
                 break;
             case "Help":
-                HelpStatement.printGeneralHelp(environment);
+                HelpStatement.printHelp(environment, null);
                 break;
             case MENU_ITEM_SUSPEND:
                 environment.suspend();
@@ -809,7 +812,22 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 public void run() {
                     final AlertDialog[] alertHandle = new AlertDialog[1];
                     AlertDialog.Builder alert = createDialog(s, alertHandle);
-                    alert.setPositiveButton("Close", null);
+                    alert.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            helpStack.clear();
+                        }
+                    });
+                    if (helpStack.size() > 0) {
+                        alert.setNeutralButton("Back", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                              helpStack.remove(helpStack.size() -  1);
+                                print(helpStack.remove(helpStack.size() - 1), Channel.HELP);
+                            }
+                        });
+                    }
+                    helpStack.add(s);
                     alertHandle[0] = alert.show();
                 }
             });

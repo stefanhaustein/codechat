@@ -33,10 +33,9 @@ public class Sensors extends AbstractInstance {
             return "Sensors";
         }
 
-        public void printDocumentation(AnnotatedStringBuilder asb) {
+        public void printDocumentationBody(AnnotatedStringBuilder asb) {
             asb.append("Hardware sensors are available as properties of the system variable 'sensors'. " +
                     "The set of supportes sensors is likely to change in the future.");
-            super.printDocumentation(asb);
         }
     }
             .addProperty(0, "temperature", Type.NUMBER, false,

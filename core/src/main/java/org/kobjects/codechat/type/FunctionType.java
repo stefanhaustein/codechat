@@ -66,12 +66,17 @@ public class FunctionType extends InstanceType<UserFunction> {
         if (name != null) {
             asb.append("func ").append(name, link);
         } else if (id != -1) {
-            asb.append("func#"+id, link);
+            asb.append("func#" + id, link);
         }
         int nameEnd = asb.length();
         if (name == null) {
             asb.append(' ');
         }
+        serializeSignature(asb, parameterNames);
+        return nameEnd;
+    }
+
+    public void serializeSignature(AnnotatedStringBuilder asb, String[] parameterNames) {
         asb.append('(');
         for (int i = 0; i < parameterTypes.length; i++) {
             if (i > 0) {
@@ -87,6 +92,5 @@ public class FunctionType extends InstanceType<UserFunction> {
             asb.append(" -> ");
             asb.append(returnType.toString(), returnType instanceof Documented ? new DocumentedLink((Documented) returnType) : null);
         }
-        return nameEnd;
     }
 }

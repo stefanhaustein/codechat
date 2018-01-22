@@ -7,8 +7,9 @@ import java.util.TreeMap;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EditTextLink;
-import org.kobjects.codechat.annotation.ExecLink;
+import org.kobjects.codechat.annotation.HelpLink;
 import org.kobjects.codechat.annotation.TextLink;
+import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
@@ -20,12 +21,6 @@ import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
 public class HelpStatement extends AbstractStatement {
-
-    static final CharSequence HELP_TEXT = new AnnotatedStringBuilder()
-            .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface. ")
-            .append("Type 'help <object>' to get help on <object>. Type '")
-            .append("about", new TextLink(Environment.ABOUT_TEXT))
-            .append("' for copyright information and contributors. ").build();
 
     static final Map<String,CharSequence> helpMap = new TreeMap<>();
     static void addHelp(String what, CharSequence text) {
@@ -54,16 +49,14 @@ public class HelpStatement extends AbstractStatement {
         helpMap.put(what, text);
     }
 
+    static final String[] TOPICS = {"commands", "constants", "control", "functions", "operators", "types"};
+
     static final LinkedHashMap<String, String[]> HELP_LISTS = new LinkedHashMap<String, String[]>(){{
-        put("Mathematical operators", new String[]{"^", "\u221a", "°",
+        put("operators", new String[]{".", "^", "\u221a", "°",
                 "*", "/", "\u00d7", "\u22C5", "%",
-                "+", "-",});
-        put("Logical operators", new String[]{"and", "or", "not"});
-        put("Relational operators", new String[]{"<", "\u2264", "<=", ">", "≥", ">=",
-                "=", "\u2261", "==", "\u2260", "!="});
-        put("Other operators", new String[]{"new",
-                ".",});
-        put("Control structures", new String[] {
+                "+", "-", "<", "\u2264", "<=", ">", "≥", ">=", "=", "\u2261", "==", "\u2260", "!=",
+            "and", "new", "not","or", });
+        put("control", new String[] {
                 "count", "for", "func", "if", "let", "on", "onchange", "oninterval", "proc", "var"});
     }};
 
@@ -142,11 +135,14 @@ public class HelpStatement extends AbstractStatement {
         addHelp("variable", "A 'variable' declaration declares a new variable.\nExample:\n`var x = 4\nx += 1\nprint x`");
     }
 
+    static boolean initialized;
 
-    public static void printGeneralHelp(Environment environment) {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        asb.append(HELP_TEXT);
+    public static void init(Environment environment) {
+        if (initialized) {
+            return;
+        }
 
+        TreeMap<String,String> index = new TreeMap();
         LinkedHashSet<RootVariable>[] builtins = new LinkedHashSet[4];
         for (int i = 0; i < 4; i++) {
             builtins[i] = new LinkedHashSet<>();
@@ -155,87 +151,130 @@ public class HelpStatement extends AbstractStatement {
             if (var.builtin) {
                 if (var.value instanceof Type) {
                     builtins[3].add(var);
+                    index.put(var.name, " (type)");
                 } else if (var.value instanceof Function) {
                     if (((FunctionType) var.type).returnType == null) {
                         builtins[0].add(var);
+                        index.put(var.name, " (command)");
                     } else {
                         builtins[1].add(var);
+                        index.put(var.name, " (function)");
                     }
                 } else {
                     builtins[2].add(var);
+                    index.put(var.name, " (constant)");
                 }
             }
         }
 
         for (int i = 0; i  < 4; i++) {
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+            String keyword;
             switch (i) {
                 case 0:
-                    asb.append("\n\nBuilt in commands: ");
+                    keyword = "commands";
                     break;
                 case 1:
-                    asb.append("\n\nBuilt in functions: ");
+                    keyword = "functions";
                     break;
                 case 2:
-                    asb.append("\n\nBuilt in constants: ");
+                    keyword = "constants";
                     break;
                 case 3:
-                    asb.append("\n\nBuilt in types: ");
+                    keyword = "types";
                     break;
+                default:
+                    keyword = "ERROR";
             }
-            boolean first = true;
+            asb.append("Builtin " + keyword + "\n\n", new Title());
             for (RootVariable var : builtins[i]) {
-                if (first) {
-                    first = false;
-                } else {
-                    asb.append(", ");
-                }
+                asb.append("- ");
                 asb.append(var.name, new DocumentedLink(var));
+                asb.append("\n");
             }
+            addHelp(keyword, asb.build());
         }
 
         for (Map.Entry<String,String[]> entry : HELP_LISTS.entrySet()) {
-            asb.append("\n\n").append(entry.getKey()).append(": ");
-
-            for (int i = 0; i < entry.getValue().length; i++) {
-                if (i > 0) {
-                    asb.append(", ");
-                }
-                String op = entry.getValue()[i];
-                asb.append(op, new TextLink(helpMap.get(op)));
+            AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+            String topic = entry.getKey();
+            String title;
+            if (topic.equals("operators")) {
+                title = "Builtin Operators";
+            } else if (topic.equals("control")) {
+                title = "Control Structures";
+            } else {
+                title = topic;
             }
+            asb.append(title + "\n\n", new Title());
+            for (int i = 0; i < entry.getValue().length; i++) {
+                String op = entry.getValue()[i];
+                asb.append(" - ").append(op, new TextLink(helpMap.get(op))).append("\n");
+                index.put(op, " (" + topic + ")");
+            }
+            addHelp(topic, asb.build());
         }
 
-        environment.environmentListener.print(asb.build(), EnvironmentListener.Channel.HELP);
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        asb.append("Help Overview\n\n", new Title());
+        asb.append("Type '").append("help", new EditTextLink("help ")).append(" <object>' to get help on <object>; ");
+        asb.append("help index", new HelpLink("index")).append(" for the full help index.\n\n");
+
+        asb.append("Other help topics:\n\n");
+
+        asb.append(" - ").append("about", new TextLink(Environment.ABOUT_TEXT)).append("\n");
+        for (String topic : TOPICS) {
+            asb.append(" - ").append(topic, new HelpLink(topic)).append("\n");
+        }
+
+        addHelp("overview", asb.build());
+
+        asb = new AnnotatedStringBuilder();
+        asb.append("Full Index\n\n", new Title());
+
+        for (Map.Entry<String, String> entry : index.entrySet()) {
+            asb.append(" - ").append(entry.getKey(), new HelpLink(entry.getKey())).append(entry.getValue()).append("\n");
+        }
+
+        addHelp("index", asb.build());
     }
 
 
-    String about;
+    String topic;
 
-    public HelpStatement(String about) {
-        this.about = about;
+    public HelpStatement(String topic) {
+        this.topic = topic;
     }
 
+
+    public static void printHelp(Environment environment, String topic) {
+        init(environment);
+
+        if (topic == null || topic.isEmpty()) {
+            topic = "overview";
+        }
+
+        if (helpMap.containsKey(topic)) {
+            environment.environmentListener.print(helpMap.get(topic), EnvironmentListener.Channel.HELP);
+        } else if (environment.rootVariables.containsKey(topic)) {
+            environment.environmentListener.print(
+                Formatting.getDocumentation(environment.rootVariables.get(topic)), EnvironmentListener.Channel.HELP);
+        } else {
+            environment.environmentListener.print("No help available for \"" + topic + "\"", EnvironmentListener.Channel.HELP);
+        }
+    }
 
     @Override
     public Object eval(EvaluationContext context) {
-        if (about == null) {
-            printGeneralHelp(context.environment);
-        } else if (context.environment.rootVariables.containsKey(about)) {
-            context.environment.environmentListener.print(
-                Formatting.getDocumentation(context.environment.rootVariables.get(about)), EnvironmentListener.Channel.OUTPUT);
-        } else if (helpMap.containsKey(about)) {
-            context.environment.environmentListener.print(helpMap.get(about), EnvironmentListener.Channel.OUTPUT);
-        } else {
-            context.environment.environmentListener.print("No help available for \"" + about + "\"", EnvironmentListener.Channel.OUTPUT);
-        }
+        printHelp(context.environment, topic);
         return KEEP_GOING;
     }
 
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
         sb.append("help");
-        if (about != null) {
-            sb.append(' ').append(about);
+        if (topic != null) {
+            sb.append(' ').append(topic);
         }
     }
 

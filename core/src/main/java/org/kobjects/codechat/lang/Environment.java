@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import java.util.WeakHashMap;
 import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.HelpLink;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.ExecLink;
 import org.kobjects.codechat.annotation.Link;
@@ -38,12 +39,7 @@ public class Environment implements ParsingEnvironment {
             .append("About CodeChat\n\n", new Title())
             .append("CodeChat is an application for 'casual' coding on mobile devices using a 'chat-like' interface.\n\n")
             .append("Type '")
-            .append("help", new Link() {
-                @Override
-                public void execute(Environment environment) {
-                    HelpStatement.printGeneralHelp(environment);
-                }
-            })
+            .append("help", new HelpLink(null))
             .append("' for help on how to use this app and builtin functionionality.\n\n")
             .append("Copyright (C) 2017 Stefan Haustein.\n\n")
             .append("Emoji icons supplied by EmojiOne.\n")
