@@ -102,12 +102,36 @@ public class RootVariable implements HasDependencies, Documented, Printable {
     public void printDocumentation(AnnotatedStringBuilder asb) {
         // Title
         if (value instanceof Function) {
-            int start = asb.length();
-            asb.append(name);
-            ((FunctionType) type).serializeSignature(asb, null);
-            asb.append("\n\n");
-            asb.addAnnotation(start, asb.length(), new Title());
-        } else if (type instanceof InstanceType && !((InstanceType) type).isInstantiable()) {
+            FunctionType type = (FunctionType) this.type;
+            asb.append(name + (type.parameterTypes.length == 0 ? "()" : "(...)")+ "\n\n", new Title());
+
+            if (type.parameterTypes.length > 0) {
+                asb.append("Parameter types\n ");
+                for (Type paramType : type.parameterTypes) {
+                    asb.append(" - ");
+                    asb.append(paramType.toString(), (paramType instanceof Documented) ?
+                        new DocumentedLink((Documented) paramType) :  null);
+                    asb.append("\n");
+                }
+                asb.append("\n");
+            }
+
+            if (type.returnType != null) {
+                asb.append("Return type: ");
+                asb.append(type.returnType.toString(), (type.returnType instanceof Documented) ?
+                   new DocumentedLink((Documented) type.returnType) :  null);
+                asb.append("\n");
+                asb.append("\n");
+            }
+
+            if (documentation != null) {
+
+                asb.append(documentation);
+            }
+            return;
+        }
+
+        if (type instanceof InstanceType && !((InstanceType) type).isInstantiable()) {
             asb.append(name + "\n\n", new Title());
             ((InstanceType) type).printDocumentation(asb);
         } else if (!(type instanceof MetaType)) {
