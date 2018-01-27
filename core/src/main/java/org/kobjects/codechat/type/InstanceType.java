@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
+import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
@@ -28,12 +29,12 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
         this.singleton = singleton;
     }
 
-    public InstanceType addProperty(int index, String name, Type type, boolean writable, String documentation, Expression initializer) {
+    public InstanceType addProperty(int index, String name, Type type, boolean writable, CharSequence documentation, Expression initializer) {
         propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, initializer));
         return this;
     }
 
-    public InstanceType addProperty(int index, String name, Type type, boolean writable, String documentation) {
+    public InstanceType addProperty(int index, String name, Type type, boolean writable, CharSequence documentation) {
         propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, null));
         return this;
     }
@@ -41,7 +42,7 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
     public PropertyDescriptor getProperty(String name) {
         PropertyDescriptor propertyDescriptor = propertyMap.get(name);
         if (propertyDescriptor == null) {
-            throw new IllegalArgumentException("Propery '" + name + "' does not exist");
+            throw new IllegalArgumentException("Property '" + name + "' does not exist");
         }
         return propertyDescriptor;
     }
@@ -58,14 +59,10 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
     @Override
     public final void printDocumentation(AnnotatedStringBuilder asb) {
         printDocumentationBody(asb);
-        asb.append("\nProperties: ");
+        asb.append("\n\nProperties:\n");
         boolean first = true;
         for (PropertyDescriptor propertyDescriptor: properties()) {
-            if (first) {
-                first = false;
-            } else {
-                asb.append(", ");
-            }
+            asb.append("\n- ");
             asb.append(propertyDescriptor.name, new DocumentedLink(propertyDescriptor));
         }
     }
@@ -113,10 +110,10 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
         public final Type type;
         public final int index;
         public final boolean writable;
-        public final String documentation;
+        public final CharSequence documentation;
         public final Expression initializer;
 
-        private PropertyDescriptor(String name, Type type, int index, boolean writable, String documentation, Expression initializer) {
+        private PropertyDescriptor(String name, Type type, int index, boolean writable, CharSequence documentation, Expression initializer) {
             this.name = name;
             this.type = type;
             this.index = index;
@@ -139,10 +136,14 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
 
         @Override
         public void printDocumentation(AnnotatedStringBuilder asb) {
-            asb.append(singleton ? InstanceType.this.toString().toLowerCase() : InstanceType.this.toString(), new DocumentedLink(InstanceType.this));
-            asb.append(".").append(name).append(": ");
+            String ownerName = singleton ? InstanceType.this.toString().toLowerCase() : InstanceType.this.toString();
+
+            asb.append(ownerName + "." + name + "\n\n", new Title());
+            asb.append("Owner: ");
+            asb.append(ownerName, new DocumentedLink(InstanceType.this));
+            asb.append("\nType: ");
             asb.append(type.toString(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
-            asb.append("\n");
+            asb.append("\n\n");
             asb.append(documentation);
         }
 

@@ -193,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
         int pad = Math.round(pixelPerDp * 8);
         errorView.setPadding(pad, pad, pad, pad);
 
-
         chatView = new ChatView(this);
 
         environment = new AndroidEnvironment(this, contentLayout, codeDir);

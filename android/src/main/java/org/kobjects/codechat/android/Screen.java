@@ -5,7 +5,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.EditTextLink;
 import org.kobjects.codechat.annotation.LoadExampleLink;
 import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.lang.AbstractInstance;
@@ -36,8 +38,9 @@ public class Screen extends AbstractInstance {
 
     static {
         TYPE.addProperty(0, "width", TYPE.NUMBER, false,
-                "The width of the usable area of the screen in normalized pixels. "+
-                        "Pixels are normalized so that the smaller value of width and the height is at least 100.");
+                new AnnotatedStringBuilder().append("The width of the usable area of the screen in normalized pixels. "+
+                        "Pixels are normalized so that the smaller value of width and the height is at least 100. " +
+                    "Example: ").append("screen.width", new EditTextLink("screen.width")).build());
         TYPE.addProperty(1, "height", TYPE.NUMBER, false,
                 "The height of the usable area of the screen in normalized pixels. "+
                         "Pixels are normalized so that the smaller value of width and the height is at least 100.");
