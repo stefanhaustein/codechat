@@ -1,7 +1,9 @@
 package org.kobjects.codechat.statement;
 
+import java.text.Collator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -106,8 +108,8 @@ public class HelpStatement extends AbstractStatement {
         addHelp(">", "Greater than Operator", "The greater than operator evaluates to true if the first argument is strictly less than the second argument. Example: `4 > 3`");
         addHelp("≥", ">=", "Greater than or Equal to", "The 'greater than or equal' operator ('\u2264'; alternative spelling: '>=') evaluates to true if the first argument is greater than or equal to the second argument. Example: `3 ≥ 3`");
 
-        addHelp("=", "Equality", "The equals operator '=' returns true if both arguments are equal when used in expressions (typically conditions).\n\nExample: `4 = 4`\n" +
-                "At statement level, this operator is also used for assignments. Example: `x = 4`\n");
+        addHelp("=", "Equality", "The equals operator '=' returns true if both arguments are equal when used in expressions (typically conditions).\n\nExample: `4 = 4`\n");
+        addHelp(":=", "Assignment", "The operator ':=' assigns a new value to a variable. Example: `x := 4`\n");
         addHelp("\u2261", "==","Identity", "The operator '\u2261' (alternative spelling: '==') returns true if both arguments are identical.");
 
         addHelp("\u2260", "!=","Inequality","The inequality operator '\u2260' (alternative spelling: '!=') returns true if both arguments are not equal.\n\nExample: `4 \u2260 5`");
@@ -137,14 +139,14 @@ public class HelpStatement extends AbstractStatement {
             "else:\n" +
             "  print \"Computer says no\"\n"+
             "end`");
-        addHelp("let", "Constant Declaration", "A 'let' declaration declares a new constant.\nExample:\n`let answer = 42\nprint answer`");
-        addHelp("on", "'on' Trigger", "An 'on' trigger executes a code block on a property condition. Example: on mySprite.x > screen.right: mySprite.dx = -100; end;");
+        addHelp("let", "Constant Declaration", "A 'let' declaration declares a new constant.\nExample:\n`let answer := 42\nprint answer`");
+        addHelp("on", "'on' Trigger", "An 'on' trigger executes a code block on a property condition. Example: on mySprite.x > screen.right: mySprite.dx := -100; end;");
         addHelp("onchange", "'onchange' Trigger", "An 'onchange' trigger executes a code block whenever the given property changes.");
         addHelp("oninterval", "'oninterval' Trigger", "An 'oninterval' trigger executes a code block repeatedly at the given interval in seconds.\n\n" + "Example:\n\n`" +
             "oninterval 10:\n" +
             "  print \"tick\"\n" +
             "end`");
-        addHelp("variable", "Variable Declaration", "A 'variable' declaration declares a new variable.\n\nExample:\n\n`variable x = 4\nx += 1\nprint x`");
+        addHelp("variable", "Variable Declaration", "A 'variable' declaration declares a new variable.\n\nExample:\n\n`variable x := 4\nx += 1\nprint x`");
     }
 
     static boolean initialized;
@@ -154,7 +156,7 @@ public class HelpStatement extends AbstractStatement {
             return;
         }
 
-        TreeMap<String,String> index = new TreeMap();
+        TreeMap<String,String> index = new TreeMap(Collator.getInstance(Locale.ROOT));
         LinkedHashSet<RootVariable>[] builtins = new LinkedHashSet[4];
         for (int i = 0; i < 4; i++) {
             builtins[i] = new LinkedHashSet<>();
