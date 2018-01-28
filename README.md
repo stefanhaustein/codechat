@@ -12,27 +12,27 @@ Followup to flowgrid.org (drawing seems a bit too cumbersome but everybody is fa
 
 ### Bouncing Ball
 
-    let ball = new Sprite
-    ball.size = 25
-    ball.dx = -1
-    ball.xAlign = LEFT
-    ball.yAlign = BOTTOM
+    let ball := new Sprite
+    ball.size := 25
+    ball.dx := -1
+    ball.xAlign := LEFT
+    ball.yAlign := BOTTOM
     on ball.x > screen.width - ball.size:
-      ball.dx = -10.0
-      ball.rotation = -90.0
+      ball.dx := -10.0
+      ball.rotation := -90.0
     end
     on ball.y < 0.0:
-      ball.dy = 100.0
-      ball.face = "😲"
+      ball.dy := 100.0
+      ball.face := "😲"
       wait 0.2
-      ball.face = "😄"
+      ball.face := "😄"
     end
     on ball.x < 0.0:
-      ball.dx = 10.0
-      ball.rotation = 90.0
+      ball.dx := 10.0
+      ball.rotation := 90.0
     end
     oninterval 1/30:
-      ball.dy = ball.dy - 1.5
+      ball.dy := ball.dy - 1.5
     end
 
 ### More
