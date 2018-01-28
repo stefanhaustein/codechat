@@ -44,18 +44,18 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     };
     static {
         TYPE.addProperty(6, "size", Type.NUMBER, true,
-                "The size of this sprite.");
+                "The size of this sprite.\n\nExample:\n\n`let bob = new Sprite\nbob.size = 25`");
         TYPE.addProperty(7, "angle", Type.NUMBER, true,
-                "The clockwise rotation angle of this sprite in degree.");
+                "The clockwise rotation angle of this sprite in degree.\n\nExample:\n\n`let bob = new Sprite\nbob.angle = 180`");
         TYPE.addProperty(8, "face", Type.STRING, true, "The emoji displayed for this sprite.");
         TYPE.addProperty(9, "collisions", new SetType(Sprite.TYPE), false,
                 "The set of other sprites this sprite is currently colliding with");
         TYPE.addProperty(10, "dx", Type.NUMBER, true,
-                "The current horizontal speed of this sprite in units per second.");
+                "The current horizontal speed of this sprite in units per second.\n\nExample:\n\n`let bob = new Sprite\nbob.dx = 10`");
         TYPE.addProperty(11, "dy", Type.NUMBER, true,
-                "The current vertical speed of this sprite in units per second.");
+                "The current vertical speed of this sprite in units per second.\n\nExample:\n\n`let bob = new Sprite\nbob.dy = 10`");
         TYPE.addProperty(12, "rotation", Type.NUMBER, true,
-                "The current clockwise rotation speed in degree per second.");
+                "The current clockwise rotation speed in degree per second.\n\nExample:\n\n`let bob = new Sprite\nbob.rotation = 180`");
         TYPE.addProperty(13, "touch", Type.BOOLEAN, false,
                 "True if this sprite is currently touched.");
         TYPE.addProperty(14, "direction", Type.NUMBER, true,

@@ -36,7 +36,7 @@ public class InstanceLink implements Link {
         } else if ((instance.getType() instanceof InstanceType) && !((InstanceType) instance.getType()).isInstantiable()) {
             environment.environmentListener.print(Formatting.getDocumentation((InstanceType) instance.getType()), EnvironmentListener.Channel.OUTPUT);
         } else {
-            environment.environmentListener.edit(getText(environment).toString());
+            environment.environmentListener.print(getText(environment).toString(), EnvironmentListener.Channel.EDIT);
         }
     }
 }

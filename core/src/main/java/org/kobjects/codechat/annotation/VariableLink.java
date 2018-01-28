@@ -36,7 +36,7 @@ public class VariableLink implements Link {
         } else if ((entity.getType() instanceof InstanceType) && !((InstanceType) entity.getType()).isInstantiable()) {
             environment.environmentListener.print(Formatting.getDocumentation((InstanceType) entity.getType()), EnvironmentListener.Channel.OUTPUT);
         } else {
-            environment.environmentListener.edit(getText(environment).toString());
+            environment.environmentListener.print(getText(environment).toString(), EnvironmentListener.Channel.EDIT);
         }
     }
 }

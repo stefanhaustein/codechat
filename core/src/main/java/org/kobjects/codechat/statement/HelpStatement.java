@@ -24,33 +24,38 @@ public class HelpStatement extends AbstractStatement {
 
     static final Map<String,CharSequence> helpMap = new TreeMap<>();
 
+    public static CharSequence examplify(CharSequence text) {
+        if (!(text instanceof String)) {
+            return text;
+        }
+        String original = (String) text;
+        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
+        int start = 0;
+        while (true) {
+            int pos0 = original.indexOf('`', start);
+            if (pos0 == -1) {
+                break;
+            }
+            asb.append(original.substring(start, pos0));
+            int pos1 = original.indexOf('`', pos0 + 1);
+            if (pos1 == -1) {
+                throw new RuntimeException("Unterminated quote in " + original);
+            }
+            String example = original.substring(pos0 + 1, pos1);
+            asb.append(example, new EditTextLink(example));
+            start = pos1 + 1;
+        }
+        asb.append(original.substring(start));
+        return asb.build();
+    }
+
     static void addHelp(String key, String title, CharSequence text) {
         addHelp(key, null, title, text);
     }
     static void addHelp(String key1, String key2, String title, CharSequence text) {
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
         asb.append(title + "\n\n", new Title());
-        if (text instanceof String) {
-            String original = (String) text;
-            int start = 0;
-            while (true) {
-                int pos0 = original.indexOf('`', start);
-                if (pos0 == -1) {
-                    break;
-                }
-                asb.append(original.substring(start, pos0));
-                int pos1 = original.indexOf('`', pos0 + 1);
-                if (pos1 == -1) {
-                    throw new RuntimeException("Unterminated quote in " + original);
-                }
-                String example = original.substring(pos0 + 1, pos1);
-                asb.append(example, new EditTextLink(example));
-                start = pos1 + 1;
-            }
-            asb.append(original.substring(start));
-        } else {
-            asb.append(text);
-        }
+        asb.append(examplify(text));
         CharSequence t = asb.build();
         helpMap.put(key1, t);
         if (key2 != null) {
@@ -84,34 +89,32 @@ public class HelpStatement extends AbstractStatement {
         addHelp("\u221a", "Root Operator", "The binary root operator ('\u221a') calculates the nth root of the second operand. Example: `3\u221a27`. " +
                 "The unary root operator ('\u221a\') calculates the square root of the argument. Exampe: `\u221a25`");
 
-        addHelp("\u00ac", "not", "Logical Negation", "The logical not operator ('not'; alternate spelling: '\u00ac') negates the argument. Exampe: `not true`");
+        addHelp("\u00ac", "not", "Logical Negation", "The logical 'not' operator (alternative spelling: '\u00ac') negates the argument. Exampe: `not true`");
         addHelp("°", "Conversion to Radians","The degree operator ('°') converts the argument from degree to radians. Example: `180°`");
 
-        addHelp("\u00d7", "*","Multiplication Operator", "The multiplication operator ('\u00d7'; alternate spelling: '*',) multiplies the two arguments. Example: `5 \u00d7 4`");
-        addHelp("/", "\u22C5","Division Operator", "The division operator ('/'; alternate spelling: '\u22C5') divides the first argument by the second argument. Example: `10/2`");
-        addHelp("%", "Percentage Operator", "The percent operator ('%') calculates n percent of the second argument. Example: `50% 10`");
+        addHelp("\u00d7", "*","Multiplication Operator", "The multiplication operator ('\u00d7'; alternative spelling: '*',) multiplies the two arguments. Example: `5 \u00d7 4`");
+        addHelp("/", "\u22C5","Division Operator", "The division operator ('/'; alternative spelling: '\u22C5') divides the first argument by the second argument. Example: `10/2`");
+        addHelp("%", "Operator '%'", "The percent operator ('%') calculates n percent of the second argument. Example: `50% 10`");
 
-        addHelp("+", "Addition Operator", "The binary plus operator ('+') adds two numbers. Example: `5 + 4`");
-        addHelp("-", "Subtraction Operator", "The binary minus operator subtracts the second argument from the first argument. Example: `4-4-4`. " +
+        addHelp("+", "Operator '+'", "The binary plus operator ('+') adds two numbers. Example: `5 + 4`");
+        addHelp("-", "Operator '-'", "The binary minus operator subtracts the second argument from the first argument. Example: `4-4-4`. " +
                 "The unary minus operator negates the argument. Example: `-5`");
 
         addHelp("<", "Less than Operator", "The less than operator evaluates to true if the first argument is strictly less than the second argument. Example: `3 < 4`");
-        addHelp("\u2264", "Less than or Equal", "The less than or equal operator ('\u2264') evaluates to true if the first argument is less than or equal to the second argument. Example: `3 \u2264 3`");
-        addHelp("<=", "Less than or Equal", "The operator '<=' is an alternative spelling for the less than or equal operator ('\u2264').");
+        addHelp("\u2264", "<=", "Less than or Equal to", "The less than or equal operator ('\u2264'; alternative spelling: '<=') evaluates to true if the first argument is less than or equal to the second argument. Example: `3 \u2264 3`");
 
-        addHelp(">", "Greatet than Operator", "The greater than operator evaluates to true if the first argument is strictly less than the second argument. Example: `4 > 3`");
-        addHelp("≥", "Greatet than or Equal", "The 'greater than or equal' operator ('\u2264') evaluates to true if the first argument is greater than or equal to the second argument. Example: `3 ≥ 3`");
-        addHelp(">=", "Greatet than or Equal","The operator '>=' is an alternative spelling for the greater than or equal operator ('≥') to simplify input in some cases. It will be replaced automatically.");
+        addHelp(">", "Greater than Operator", "The greater than operator evaluates to true if the first argument is strictly less than the second argument. Example: `4 > 3`");
+        addHelp("≥", ">=", "Greater than or Equal to", "The 'greater than or equal' operator ('\u2264'; alternative spelling: '>=') evaluates to true if the first argument is greater than or equal to the second argument. Example: `3 ≥ 3`");
 
         addHelp("=", "Equality", "The equals operator '=' returns true if both arguments are equal when used in expressions (typically conditions).\n\nExample: `4 = 4`\n" +
                 "At statement level, this operator is also used for assignments. Example: `x = 4`\n");
-        addHelp("\u2261", "==","Identity", "The operator '\u2261' (alternate spelling: '==') returns true if both arguments are identical.");
+        addHelp("\u2261", "==","Identity", "The operator '\u2261' (alternative spelling: '==') returns true if both arguments are identical.");
 
-        addHelp("\u2260", "!=","Inequality","The inequality operator '\u2261' (alternate spelling: '!=') returns true if both arguments are not equal.\n\nExample: `4 \u2261 5`");
+        addHelp("\u2260", "!=","Inequality","The inequality operator '\u2260' (alternative spelling: '!=') returns true if both arguments are not equal.\n\nExample: `4 \u2260 5`");
 
-        addHelp("\u2227", "and","Locgical 'and'", "The logical 'and' operator (alternate spelling: '\u2227') yields true if both arguments are true. Example: `true \u2227 true`");
+        addHelp("\u2227", "and","Locgical 'and'", "The logical 'and' operator (alternative spelling: '\u2227') yields true if both arguments are true. Example: `true \u2227 true`");
 
-        addHelp("\u2228","or", "Logival 'or'", "The logical 'or' operator (alternate spelling: '\u2228') yields true if any of the arguments is true. Example: `true \u2228 false`");
+        addHelp("\u2228","or", "Logival 'or'", "The logical 'or' operator (alternative spelling: '\u2228') yields true if any of the arguments is true. Example: `true \u2228 false`");
 
         addHelp("count", "'count' Loops","A 'count' loop counts a variable from 0 to a given value.\n\nExample:\n\n`" +
             "count x to 5:\n" +
@@ -138,7 +141,7 @@ public class HelpStatement extends AbstractStatement {
         addHelp("on", "'on' Trigger", "An 'on' trigger executes a code block on a property condition. Example: on mySprite.x > screen.right: mySprite.dx = -100; end;");
         addHelp("onchange", "'onchange' Trigger", "An 'onchange' trigger executes a code block whenever the given property changes.");
         addHelp("oninterval", "'oninterval' Trigger", "An 'oninterval' trigger executes a code block repeatedly at the given interval in seconds.\n\n" + "Example:\n\n`" +
-            "oninterval 1:\n" +
+            "oninterval 10:\n" +
             "  print \"tick\"\n" +
             "end`");
         addHelp("variable", "Variable Declaration", "A 'variable' declaration declares a new variable.\n\nExample:\n\n`variable x = 4\nx += 1\nprint x`");

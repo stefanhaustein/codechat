@@ -535,8 +535,7 @@ public class Parser {
             if ("class".equals(name) || name.startsWith("class#")) {
                 return parseClassBody(tokenizer, extractId(name), start);
             }
-            if ("function".equals(name) || name.startsWith("function#") ||
-                    "func".equals(name) || name.startsWith("func#")) {
+            if ("lambda".equals(name) || name.startsWith("lambda#")) {
                 return parseFunction(tokenizer, extractId(name));
             }
             if (name.indexOf('#') != -1) {

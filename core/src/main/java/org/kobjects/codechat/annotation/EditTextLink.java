@@ -1,6 +1,7 @@
 package org.kobjects.codechat.annotation;
 
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EnvironmentListener;
 
 public class EditTextLink implements Link {
 
@@ -12,6 +13,6 @@ public class EditTextLink implements Link {
 
     @Override
     public void execute(Environment environment) {
-        environment.environmentListener.edit(text);
+        environment.environmentListener.print(text, EnvironmentListener.Channel.EDIT);
     }
 }

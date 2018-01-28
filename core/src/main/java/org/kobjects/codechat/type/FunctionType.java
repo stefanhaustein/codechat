@@ -21,7 +21,7 @@ public class FunctionType extends InstanceType<UserFunction> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(returnType == null ? "func(" : "proc(");
+        sb.append("lambda(");
         if (parameterTypes.length > 0) {
             sb.append(parameterTypes[0]);
             for (int i = 1; i < parameterTypes.length; i++) {
@@ -30,7 +30,7 @@ public class FunctionType extends InstanceType<UserFunction> {
             }
         }
         if (returnType != null) {
-            sb.append(":").append(returnType);
+            sb.append(" -> ").append(returnType);
         }
         return sb.toString();
     }
@@ -64,9 +64,9 @@ public class FunctionType extends InstanceType<UserFunction> {
 
     public int serializeSignature(AnnotatedStringBuilder asb, int id, String name, String[] parameterNames, InstanceLink link) {
         if (name != null) {
-            asb.append("func ").append(name, link);
+            asb.append("def ").append(name, link);
         } else if (id != -1) {
-            asb.append("func#" + id, link);
+            asb.append("lambda#" + id, link);
         }
         int nameEnd = asb.length();
         if (name == null) {

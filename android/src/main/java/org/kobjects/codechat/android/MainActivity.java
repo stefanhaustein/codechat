@@ -805,32 +805,40 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     @Override
     public void print(final CharSequence s, Channel channel) {
-        if (channel == Channel.HELP) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    final AlertDialog[] alertHandle = new AlertDialog[1];
-                    AlertDialog.Builder alert = createDialog(s, alertHandle);
-                    alert.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            helpStack.clear();
-                        }
-                    });
-                    if (helpStack.size() > 0) {
-                        alert.setNeutralButton("Back", new DialogInterface.OnClickListener() {
+        switch(channel) {
+            case HELP:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                       final AlertDialog[] alertHandle = new AlertDialog[1];
+                       AlertDialog.Builder alert = createDialog(s, alertHandle);
+                       alert.setPositiveButton("Close", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                              helpStack.remove(helpStack.size() -  1);
+                                 helpStack.clear();
+                            }
+                            });
+                       if (helpStack.size() > 0) {
+                       alert.setNeutralButton("Back", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                helpStack.remove(helpStack.size() -  1);
                                 print(helpStack.remove(helpStack.size() - 1), Channel.HELP);
                             }
-                        });
+                            });
+                        }
+                        helpStack.add(s);
+                        alertHandle[0] = alert.show();
                     }
-                    helpStack.add(s);
-                    alertHandle[0] = alert.show();
-                }
-            });
-        } else {
+                });
+                break;
+            case EDIT:
+                edit(String.valueOf(s));
+                break;
+            case ERROR:
+                showError(s);
+                break;
+        default:
             print(ChatView.BubbleType.LEFT, s);
         }
     }
@@ -848,7 +856,6 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         }
     }
 
-    @Override
     public void showError(CharSequence s) {
         if (s == null) {
             errorView.setVisibility(View.INVISIBLE);
@@ -866,7 +873,6 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         print(ChatView.BubbleType.LEFT, s);
     }
 
-    @Override
     public void edit(final String s) {
         runOnUiThread(new Runnable() {
             @Override

@@ -14,6 +14,7 @@ import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.UserMethod;
+import org.kobjects.codechat.statement.HelpStatement;
 
 public abstract class InstanceType<T extends Instance> extends AbstractType implements Documented {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
@@ -118,7 +119,7 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
             this.type = type;
             this.index = index;
             this.writable = writable;
-            this.documentation = documentation;
+            this.documentation = HelpStatement.examplify(documentation);
             this.initializer = initializer;
         }
 
