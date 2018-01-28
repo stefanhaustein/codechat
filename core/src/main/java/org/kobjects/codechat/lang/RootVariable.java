@@ -32,7 +32,7 @@ public class RootVariable implements HasDependencies, Documented, Printable {
 
     public void dump(StringBuilder sb) {
         sb.append(name);
-        sb.append(" = ");
+        sb.append(" := ");
         sb.append(Formatting.toLiteral(value));
         sb.append(";\n");
     }
@@ -74,7 +74,7 @@ public class RootVariable implements HasDependencies, Documented, Printable {
                 asb.append('\n');
                 serializationContext.setSerialized((Instance) value);
             } else {
-                asb.append(" = ");
+                asb.append(" := ");
                 if (value instanceof Instance && !serializationContext.isSerialized((Instance) value)) {
                     Instance instance = (Instance) value;
                     serializationContext.setSerialized(instance);

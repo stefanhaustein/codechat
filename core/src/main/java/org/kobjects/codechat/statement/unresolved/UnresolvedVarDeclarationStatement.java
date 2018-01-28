@@ -58,7 +58,7 @@ public class UnresolvedVarDeclarationStatement extends UnresolvedStatement {
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
       sb.indent(indent);
-      sb.append(constant ? "let ": "variable ").append(variableName).append(" = ");
+      sb.append(constant ? "let ": "variable ").append(variableName).append(" := ");
       initializer.toString(sb, indent + 4);
       sb.append('\n');
     }

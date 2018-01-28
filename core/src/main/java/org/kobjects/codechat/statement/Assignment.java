@@ -33,7 +33,7 @@ public class Assignment extends AbstractStatement {
     public void toString(AnnotatedStringBuilder sb, int indent) {
       sb.indent(indent);
       left.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
-        sb.append(" = ");
+        sb.append(" := ");
         right.toString(sb, indent, Parser.PRECEDENCE_EQUALITY);
         sb.append("\n");
 

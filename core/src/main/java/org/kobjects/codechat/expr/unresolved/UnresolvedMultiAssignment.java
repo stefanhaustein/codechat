@@ -63,7 +63,7 @@ public class UnresolvedMultiAssignment extends UnresolvedExpression {
         String materializedIndent = Formatting.space(indent + 2);
         for (Map.Entry<String,UnresolvedExpression> entry : elements.entrySet()) {
             sb.append(materializedIndent);
-            sb.append(entry.getKey()).append(" = ");
+            sb.append(entry.getKey()).append(" := ");
             entry.getValue().toString(sb, indent + 2);
             sb.append('\n');
         }

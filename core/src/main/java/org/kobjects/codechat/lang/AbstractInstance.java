@@ -25,7 +25,7 @@ public abstract class AbstractInstance implements Instance {
             if (constantName != null) {
                 asb.append("let ");
                 asb.append(constantName);
-                asb.append(" = ");
+                asb.append(" := ");
             }
             asb.append("new ");
         }
@@ -55,7 +55,7 @@ public abstract class AbstractInstance implements Instance {
                                     (value instanceof Instance) == (flavor == Printable.Flavor.SAVE2)) {
                                 asb.append("  ");
                                 asb.append(propertyDescriptor.name);
-                                asb.append(" = ");
+                                asb.append(" := ");
                                 asb.append(Formatting.toLiteral(value));
                                 asb.append(";\n");
                             }
