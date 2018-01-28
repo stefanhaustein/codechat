@@ -1,0 +1,9 @@
+let mole := new Sprite ::
+  face := "🐵"
+  size := 25
+end
+
+on mole.touch:
+  mole.x := random() * 80 - 40
+  mole.y := random() * 80 - 40
+end

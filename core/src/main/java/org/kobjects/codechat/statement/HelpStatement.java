@@ -10,6 +10,7 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.EditTextLink;
 import org.kobjects.codechat.annotation.HelpLink;
+import org.kobjects.codechat.annotation.LoadExampleLink;
 import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.lang.DependencyCollector;
@@ -44,7 +45,15 @@ public class HelpStatement extends AbstractStatement {
                 throw new RuntimeException("Unterminated quote in " + original);
             }
             String example = original.substring(pos0 + 1, pos1);
-            asb.append(example, new EditTextLink(example));
+            boolean textOnly = true;
+            for (int i = 0; i < example.length(); i ++) {
+                char c = example.charAt(i);
+                if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z')) {
+                    textOnly = false;
+                    break;
+                }
+            }
+            asb.append(example, textOnly ? new LoadExampleLink(example) : new EditTextLink(example));
             start = pos1 + 1;
         }
         asb.append(original.substring(start));

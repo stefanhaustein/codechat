@@ -1,0 +1,15 @@
+let ball = new Sprite ::
+  face := "⚫"
+  edgeMode := BOUNCE
+  size := 20
+  dx := random() * 50
+  dy := random() * 50
+end
+
+let ghost = new Sprite ::
+  face := "👻"
+  edgeMode = WRAP
+  size := 20
+  dx := random() * 25
+  dy := random() * 25
+end

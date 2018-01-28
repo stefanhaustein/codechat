@@ -57,7 +57,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         TYPE.addProperty(12, "rotation", Type.NUMBER, true,
                 "The current clockwise rotation speed in degree per second.\n\nExample:\n\n`let bob := new Sprite\nbob.rotation := 180`");
         TYPE.addProperty(13, "touch", Type.BOOLEAN, false,
-                "True if this sprite is currently touched.");
+                "True if this sprite is currently touched.\n\nExample: `Mole`");
         TYPE.addProperty(14, "direction", Type.NUMBER, true,
                 "The movement direction of this sprite in degree; 0 if the sprite is not moving.");
         TYPE.addProperty(15, "speed", Type.NUMBER, true,
@@ -65,12 +65,11 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
         TYPE.addProperty(16, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently within the screen boundaries.");
         TYPE.addProperty(17, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
-                "Determines behavior when the sprite hits the edge of the screen.");
+                "Determines behavior when the sprite hits the edge of the screen. Example: `EdgeMode`");
         TYPE.addProperty(18, "grow", Type.NUMBER, true,
                 "The current growth in units per second. Use negative numbers to shrink");
         TYPE.addProperty(19, "fade", Type.NUMBER, true,
                 "The current fading per second. Use negative numbers to fade out.");
-
     }
 
     public VisualMaterialProperty<Double> size = new VisualMaterialProperty<>(10.0);
