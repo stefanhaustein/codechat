@@ -106,7 +106,7 @@ public class RootVariable implements HasDependencies, Documented, Printable {
             asb.append(name + (type.parameterTypes.length == 0 ? "()" : "(...)")+ "\n\n", new Title());
 
             if (type.parameterTypes.length > 0) {
-                asb.append("Parameter types\n ");
+                asb.append("Parameter types\n");
                 for (Type paramType : type.parameterTypes) {
                     asb.append(" - ");
                     asb.append(paramType.toString(), (paramType instanceof Documented) ?

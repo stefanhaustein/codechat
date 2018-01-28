@@ -232,7 +232,7 @@ public class Parser {
         }
 
         UnresolvedExpression init = null;
-        if (tokenizer.tryConsume("=")) {
+        if (tokenizer.tryConsume("=") || tokenizer.tryConsume(":=")) {
             init = parseExpression(tokenizer);
 
         }
@@ -295,7 +295,7 @@ public class Parser {
         UnresolvedClassDeclaration classDeclaration = new UnresolvedClassDeclaration(start, tokenizer.currentPosition);
         while(!tokenizer.tryConsume("end") && !tokenizer.tryConsume("")) {
             String memberName = tokenizer.consumeIdentifier();
-            if (tokenizer.tryConsume("=")) {
+            if (tokenizer.tryConsume("=") || tokenizer.tryConsume(":=")) {
                 classDeclaration.addField(parseField(tokenizer, memberName));
             } else if (tokenizer.currentValue.equals("(")) {
                 classDeclaration.addMethod(parseMethod(tokenizer, memberName));
@@ -382,7 +382,9 @@ public class Parser {
         UnresolvedExpression unresolved = parseExpression(tokenizer);
         int unresolvedPosition = tokenizer.currentPosition;
 
-        if (unresolved instanceof UnresolvedBinaryOperator && ((UnresolvedBinaryOperator) unresolved).name.equals("=")) {
+        if (unresolved instanceof UnresolvedBinaryOperator
+            && (((UnresolvedBinaryOperator) unresolved).name.equals("=")
+                || ((UnresolvedBinaryOperator) unresolved).name.equals(":="))) {
             UnresolvedBinaryOperator op = (UnresolvedBinaryOperator) unresolved;
             return new UnresolvedAssignment(op.left, op.right);
         }
@@ -426,7 +428,9 @@ public class Parser {
             while (tokenizer.tryConsume(";")) {
             }
             String propertyName = tokenizer.consumeIdentifier();
-            tokenizer.consume("=");
+            if (!tokenizer.tryConsume("=")) {
+                tokenizer.consume(":=");
+            }
             assignments.put(propertyName, expressionParser.parse(null, tokenizer));
             while (tokenizer.tryConsume(";")) {
             }
@@ -611,7 +615,7 @@ public class Parser {
 
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_RELATIONAL, "<", "<=", ">", ">=", "\u2264", "\u2265");
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_EQUALITY, "=", "==", "!=", "\u2260", "\u2261");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_EQUALITY, ":=", "=", "==", "!=", "\u2260", "\u2261");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "and", "\u2227");
         parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_AND, "or", "\u2228");

@@ -427,15 +427,16 @@ public class Environment implements ParsingEnvironment {
         lastId = 0;
     }
 
-    public void save(String fileName) {
+    public void save(String name) {
         try {
+            String fileName = name.endsWith (".cch") ? name : (name +".cch");
             AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
             dump(asb, Printable.Flavor.SAVE);
             Writer writer = new OutputStreamWriter(new FileOutputStream(new File(codeDir, fileName)), "utf-8");
             writer.write(asb.toString());
             writer.close();
             autoSave = true;
-            environmentListener.setName(fileName);
+            environmentListener.setName(name);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -456,7 +457,7 @@ public class Environment implements ParsingEnvironment {
                 throw new MetaException("Multiple errors:", errors);
             }
 
-            //            autoSave = true;
+            autoSave = true;
 
         } finally {
            resume();
@@ -464,11 +465,15 @@ public class Environment implements ParsingEnvironment {
 
     }
 
-    public void load(String fileName) {
+    public void load(String name) {
         try {
+            String fileName = name.endsWith(".cch") ? name : name + ".cch";
             File file = new File(codeDir, fileName);
             if (!file.exists()) {
-                throw new RuntimeException("File '" + file.getName() + "' does not exist.");
+                file = new File(codeDir, fileName.substring(0, fileName.lastIndexOf('.')));
+                if (!file.exists()) {
+                    throw new RuntimeException("File '" + file.getName() + "' does not exist.");
+                }
             }
 
             byte[] data = new byte[(int) file.length()];
@@ -480,7 +485,7 @@ public class Environment implements ParsingEnvironment {
 
             setProgram(content);
 
-            environmentListener.setName(fileName);
+            environmentListener.setName(name);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

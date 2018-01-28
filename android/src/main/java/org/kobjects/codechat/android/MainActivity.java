@@ -714,6 +714,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 environment.setProgram(code);
+                environment.autoSave = false;
                 environment.environmentListener.setName(name);
             }
         });
