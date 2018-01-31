@@ -13,6 +13,7 @@ import org.kobjects.codechat.type.UserClassType;
 
 import java.util.ArrayList;
 import org.kobjects.codechat.type.unresolved.UnresolvedFunctionSignature;
+import org.kobjects.codechat.type.unresolved.UnresolvedType;
 
 public class UnresolvedClassDeclaration extends UnresolvedExpression {
   private ArrayList<UnresolvedField> fields = new ArrayList<>();
@@ -62,8 +63,9 @@ public class UnresolvedClassDeclaration extends UnresolvedExpression {
       public void run() {
         int index = 0;
         for (UnresolvedField field: fields) {
-          Expression resolvedInitializer = field.initializer.resolve(parsingContext, null);
-          type.addProperty(index++, field.name, resolvedInitializer.getType(), true, null, resolvedInitializer);
+          Type resolvedType = field.type == null ? null : field.type.resolve(parsingContext.environment.getEnvironment());
+          Expression resolvedInitializer = field.initializer == null ? null : field.initializer.resolve(parsingContext, null);
+          type.addProperty(index++, field.name, resolvedType, true, null, resolvedInitializer);
         }
 
         for (final UnresolvedMethod method: methods) {
@@ -81,7 +83,6 @@ public class UnresolvedClassDeclaration extends UnresolvedExpression {
 
           type.addMethod(resolved);
         }
-
       }
     });
 
@@ -89,19 +90,30 @@ public class UnresolvedClassDeclaration extends UnresolvedExpression {
   }
 
   public static class UnresolvedField {
+    private final UnresolvedType type;
     private final UnresolvedExpression initializer;
     private final String name;
 
-    public UnresolvedField(String name, UnresolvedExpression initializer) {
+    public UnresolvedField(String name, UnresolvedType type, UnresolvedExpression initializer) {
       this.name = name;
+      this.type = type;
       this.initializer = initializer;
     }
 
     public void toString(AnnotatedStringBuilder asb, int indent) {
       asb.indent(indent);
       asb.append(name);
-      asb.append(" = ");
-      initializer.toString(asb, indent + 4);
+      if (type != null) {
+        asb.append(": ");
+        asb.append(type.toString());
+        if (initializer != null) {
+          asb.append(" = ");
+          initializer.toString(asb, indent + 4);
+        }
+      } else {
+        asb.append(" := ");
+        initializer.toString(asb, indent + 4);
+      }
     }
   }
 

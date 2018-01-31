@@ -269,7 +269,18 @@ public class Parser {
 
     UnresolvedClassDeclaration.UnresolvedField parseField(ExpressionParser.Tokenizer tokenizer, String name) {
         UnresolvedExpression initializer = parseExpression(tokenizer);
-        return new UnresolvedClassDeclaration.UnresolvedField(name, initializer);
+        return new UnresolvedClassDeclaration.UnresolvedField(name, null, initializer);
+    }
+
+    UnresolvedClassDeclaration.UnresolvedField parseTypedField(ExpressionParser.Tokenizer tokenizer, String name) {
+        UnresolvedType type = parseType(tokenizer);
+        UnresolvedExpression initializer;
+        if (tokenizer.tryConsume(":")) {
+            initializer = parseExpression(tokenizer);
+        } else {
+            initializer = null;
+        }
+        return new UnresolvedClassDeclaration.UnresolvedField(name, type, initializer);
     }
 
     UnresolvedClassDeclaration.UnresolvedMethod parseMethod(ExpressionParser.Tokenizer tokenizer, String name) {
@@ -297,6 +308,8 @@ public class Parser {
             String memberName = tokenizer.consumeIdentifier();
             if (tokenizer.tryConsume("=") || tokenizer.tryConsume(":=")) {
                 classDeclaration.addField(parseField(tokenizer, memberName));
+            } else if  (tokenizer.tryConsume(":")) {
+                classDeclaration.addField(parseTypedField(tokenizer, memberName));
             } else if (tokenizer.currentValue.equals("(")) {
                 classDeclaration.addMethod(parseMethod(tokenizer, memberName));
             } else {

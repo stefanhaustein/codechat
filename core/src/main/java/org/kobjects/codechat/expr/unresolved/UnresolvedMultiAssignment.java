@@ -1,8 +1,12 @@
 package org.kobjects.codechat.expr.unresolved;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.expr.ConstructorInvocation;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.MultiAssignment;
 import org.kobjects.codechat.lang.Formatting;
@@ -27,14 +31,21 @@ public class UnresolvedMultiAssignment extends UnresolvedExpression {
 
     @Override
     public MultiAssignment resolve(ParsingContext parsingContext, Type expectedType) {
-        Expression resolvedBase = base.resolve(parsingContext, expectedType);
+
+        Set<InstanceType.PropertyDescriptor> requiredFileds = new HashSet<>();
+
+        boolean ctorBase = (base instanceof UnresolvedConstructor);
+        Expression resolvedBase = ctorBase
+            ? ((UnresolvedConstructor) base).resolve(parsingContext, true)
+            : base.resolve(parsingContext, expectedType);
 
         if (!(resolvedBase.getType() instanceof InstanceType)) {
             throw new ExpressionParser.ParsingException(base.start, base.end, "Multi-assignment base expression must be of tupe type (is: " + resolvedBase.getType() + ")", null);
         }
         InstanceType type = (InstanceType) resolvedBase.getType();
 
-        LinkedHashMap<String, Expression> resolvedElements = new LinkedHashMap<>();
+
+        LinkedHashMap<InstanceType.PropertyDescriptor, Expression> resolvedElements = new LinkedHashMap<>();
         for (String key: elements.keySet()) {
             InstanceType.PropertyDescriptor property = type.getProperty(key);
 
@@ -46,8 +57,18 @@ public class UnresolvedMultiAssignment extends UnresolvedExpression {
             if (!property.type.isAssignableFrom(resolved.getType())) {
                 throw new ExpressionParser.ParsingException(unresolved.start, unresolved.end, key + " can't be assigned to type " + resolved.getType(), null);
             }
-            resolvedElements.put(key, resolved);
+            resolvedElements.put(property, resolved);
         }
+
+        if (ctorBase) {
+            Iterable<InstanceType.PropertyDescriptor> propertyDescriptors = type.properties();
+            for (InstanceType.PropertyDescriptor properyDescriptor : propertyDescriptors) {
+                if (properyDescriptor.needsExplicitValue && !resolvedElements.containsKey(properyDescriptor)) {
+                    throw new ExpressionParser.ParsingException(start, end, "Property '" + properyDescriptor.name + "' requires a value.", null);
+                }
+            }
+        }
+
         return new MultiAssignment(resolvedBase, resolvedElements);
     }
 

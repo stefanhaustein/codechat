@@ -31,12 +31,12 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
     }
 
     public InstanceType addProperty(int index, String name, Type type, boolean writable, CharSequence documentation, Expression initializer) {
-        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, initializer));
+        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, initializer, initializer == null));
         return this;
     }
 
     public InstanceType addProperty(int index, String name, Type type, boolean writable, CharSequence documentation) {
-        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, null));
+        propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, null, false));
         return this;
     }
 
@@ -113,14 +113,16 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
         public final boolean writable;
         public final CharSequence documentation;
         public final Expression initializer;
+        public final boolean needsExplicitValue;
 
-        private PropertyDescriptor(String name, Type type, int index, boolean writable, CharSequence documentation, Expression initializer) {
+        private PropertyDescriptor(String name, Type type, int index, boolean writable, CharSequence documentation, Expression initializer, boolean needsExplicitValue) {
             this.name = name;
             this.type = type;
             this.index = index;
             this.writable = writable;
             this.documentation = HelpStatement.examplify(documentation);
             this.initializer = initializer;
+            this.needsExplicitValue = needsExplicitValue;
         }
 
         public Property getProperty(Instance tuple) {

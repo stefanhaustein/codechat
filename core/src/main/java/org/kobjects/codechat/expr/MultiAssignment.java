@@ -15,9 +15,9 @@ import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
 public class MultiAssignment extends Expression {
 
     final Expression base;
-    final LinkedHashMap<String, Expression> elements;  // TODO: Resolve to properties in ctor already...
+    final LinkedHashMap<InstanceType.PropertyDescriptor, Expression> elements;
 
-    public MultiAssignment(Expression base, LinkedHashMap<String, Expression> elements) {
+    public MultiAssignment(Expression base, LinkedHashMap<InstanceType.PropertyDescriptor, Expression> elements) {
         this.base = base;
         this.elements = elements;
     }
@@ -26,8 +26,8 @@ public class MultiAssignment extends Expression {
     public Object eval(EvaluationContext context) {
         Instance instance = (Instance) base.eval(context);
         InstanceType type = (InstanceType) base.getType();
-        for (Map.Entry<String,Expression> entry : elements.entrySet()) {
-            type.getProperty(entry.getKey()).set(instance, entry.getValue().eval(context));
+        for (Map.Entry<InstanceType.PropertyDescriptor,Expression> entry : elements.entrySet()) {
+            entry.getKey().set(instance, entry.getValue().eval(context));
         }
         return instance;
     }
@@ -47,9 +47,9 @@ public class MultiAssignment extends Expression {
         base.toString(sb, indent);
         sb.append(" ::\n");
         String materializedIndent = Formatting.space(indent + 2);
-        for (Map.Entry<String,Expression> entry : elements.entrySet()) {
+        for (Map.Entry<InstanceType.PropertyDescriptor,Expression> entry : elements.entrySet()) {
             sb.append(materializedIndent);
-            sb.append(entry.getKey()).append(" := ");
+            sb.append(entry.getKey().name).append(" := ");
             entry.getValue().toString(sb, indent + 2);
             sb.append("\n");
         }

@@ -21,6 +21,10 @@ public class UnresolvedConstructor extends UnresolvedExpression {
 
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
+        return resolve(parsingContext, false);
+    }
+
+    public ConstructorInvocation resolve(ParsingContext parsingContext, boolean allowUninitialized) {
         InstanceType type = parsingContext.environment.resolveInstanceType(typeName);
         return new ConstructorInvocation(type, id);
     }
