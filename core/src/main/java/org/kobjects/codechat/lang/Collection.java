@@ -1,6 +1,7 @@
 package org.kobjects.codechat.lang;
 
 import java.util.Iterator;
+import java.util.List;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.SetType;
@@ -90,6 +91,12 @@ public class Collection extends AbstractInstance implements Iterable, HasDepende
 
 
     public void addAll(Object[] data) {
+        for (Object o : data) {
+            this.data.add(o);
+        }
+    }
+
+    public void addAll(Iterable data) {
         for (Object o : data) {
             this.data.add(o);
         }

@@ -2,6 +2,7 @@ package org.kobjects.codechat.type.unresolved;
 
 import java.util.ArrayList;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.FunctionType;
@@ -10,6 +11,7 @@ import org.kobjects.codechat.type.Type;
 public class UnresolvedFunctionSignature implements UnresolvedType {
     public ArrayList<String> parameterNames = new ArrayList<>();
     public ArrayList<UnresolvedType> parameterTypes = new ArrayList<>();
+    // public ArrayList<UnresolvedExpression> parameterDefaults = new ArrayList<>();
     public UnresolvedType returnType;
 
 
@@ -37,6 +39,14 @@ public class UnresolvedFunctionSignature implements UnresolvedType {
             asb.append(parameterNames.get(i));
             asb.append(": ");
             parameterTypes.get(i).print(asb);
+
+            /*
+            if (i >= parameterNames.size() - parameterDefaults.size()) {
+                asb.append(" = ");
+                parameterDefaults.get(i - (parameterNames.size() - parameterDefaults.size())).toString(asb, 4);
+            }
+            */
+
         }
         asb.append(')');
         if (returnType != null) {

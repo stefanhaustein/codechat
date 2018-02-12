@@ -1,6 +1,7 @@
 package org.kobjects.codechat.android;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -75,6 +76,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addSystemConstant("screen", screen, null);
         addSystemConstant("sensors", new Sensors(this, rootView.getContext()), null);
 
+
         addSystemConstant("play", new NativeFunction( null, Type.STRING) {
                     @Override
                     protected Object eval(Object[] params) {
@@ -83,6 +85,11 @@ public class AndroidEnvironment extends Environment implements Runnable {
                     }
                 }, "Plays the given sound");
 
+
+        boolean androidThings = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_EMBEDDED);
+        if (androidThings) {
+            addSystemConstant("pio", new Pio(this), null);
+        }
     }
 
     @Override

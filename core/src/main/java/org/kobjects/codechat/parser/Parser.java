@@ -172,6 +172,16 @@ public class Parser {
                 UnresolvedType type = parseType(tokenizer);
                 result.parameterNames.add(paramName);
                 result.parameterTypes.add(type);
+
+                /*
+                if (tokenizer.tryConsume("=")) {
+                    result.parameterDefaults.add(parseExpression(tokenizer));
+                } else if (result.parameterDefaults.size() > 0) {
+                    throw new ParsingException(tokenizer.currentPosition, tokenizer.currentPosition,
+                            "All parameters after the first optional parameter must provide a default value.", null);
+                }
+                */
+
             } while (tokenizer.tryConsume(","));
             tokenizer.consume(")");
         }
