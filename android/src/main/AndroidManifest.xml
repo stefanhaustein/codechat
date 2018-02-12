@@ -5,6 +5,7 @@
     <application android:label="CodeChat"
                  android:icon="@mipmap/ic_launcher"
                  android:name=".EmojiCompatApplication">
+        <uses-library android:name="com.google.android.things" android:required="false"/>
         <activity android:name=".MainActivity"
                   android:theme="@style/AppTheme"
                   android:configChanges="orientation|screenSize"

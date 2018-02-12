@@ -17,7 +17,7 @@ public class Pio extends AbstractInstance {
     public static final InstanceType<Screen> TYPE = new InstanceType<Screen>(true) {
         @Override
         public String toString() {
-            return "Io";
+            return "Pio";
         }
         @Override
         public void printDocumentationBody(AnnotatedStringBuilder asb) {
@@ -26,12 +26,11 @@ public class Pio extends AbstractInstance {
     };
 
     static {
-        TYPE.addProperty(0, "gpioList", new ListType(Type.STRING), false,
+        TYPE.addProperty(0, "gpio", new ListType(Type.STRING), false,
                 new AnnotatedStringBuilder().append("The names of the available gpio pins"));
-
     }
 
-    Property<Collection> gpioList = new Property<Collection>() {
+    Property<Collection> gpio = new Property<Collection>() {
         @Override
         public Collection get() {
             Collection result = new Collection(environment, new ListType(Type.STRING));
@@ -51,6 +50,6 @@ public class Pio extends AbstractInstance {
 
     @Override
     public Property getProperty(int index) {
-        return gpioList;
+        return gpio;
     }
 }
