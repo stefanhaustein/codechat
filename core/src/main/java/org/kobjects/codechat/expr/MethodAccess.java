@@ -4,6 +4,7 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Function;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.Method;
 import org.kobjects.codechat.lang.UserMethod;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.FunctionType;
@@ -11,10 +12,10 @@ import org.kobjects.codechat.type.Type;
 
 public class MethodAccess extends Expression {
 
-    private final UserMethod method;
+    private final Method method;
     private final Expression base;
 
-    public MethodAccess(Expression base, UserMethod method) {
+    public MethodAccess(Expression base, Method method) {
         this.base = base;
         this.method = method;
     }

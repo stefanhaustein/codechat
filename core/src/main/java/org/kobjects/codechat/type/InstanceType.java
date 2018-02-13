@@ -11,6 +11,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.lang.Method;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.lang.UserMethod;
@@ -18,7 +19,7 @@ import org.kobjects.codechat.statement.HelpStatement;
 
 public abstract class InstanceType<T extends Instance> extends AbstractType implements Documented {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
-    final ArrayList<UserMethod> methods = new ArrayList<>();
+    final ArrayList<Method> methods = new ArrayList<>();
 
     private final boolean singleton;
 
@@ -79,17 +80,17 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
         for (PropertyDescriptor descriptor : properties()) {
             descriptor.print(asb, Printable.Flavor.DEFAULT);
         }
-        for (UserMethod method : methods) {
+        for (Method method : methods) {
             method.toString(asb, 2);
         }
     }
 
-    public void addMethod(UserMethod userMethod) {
-        methods.add(userMethod);
+    public void addMethod(Method method) {
+        methods.add(method);
     }
 
     public boolean hasMethod(String propertyName) {
-        for (UserMethod method: methods) {
+        for (Method method: methods) {
             if (method.name.equals(propertyName)) {
                 return true;
             }
@@ -97,8 +98,8 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
         return false;
     }
 
-    public UserMethod getMethod(String name) {
-        for (UserMethod method: methods) {
+    public Method getMethod(String name) {
+        for (Method method: methods) {
             if (method.name.equals(name)) {
                 return method;
             }

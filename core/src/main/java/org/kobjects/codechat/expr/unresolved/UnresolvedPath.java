@@ -5,6 +5,7 @@ import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.Literal;
 import org.kobjects.codechat.expr.MethodAccess;
 import org.kobjects.codechat.expr.PropertyAccess;
+import org.kobjects.codechat.lang.Method;
 import org.kobjects.codechat.lang.UserMethod;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -38,7 +39,7 @@ public class UnresolvedPath extends UnresolvedExpression {
                 return new PropertyAccess(resolved, property);
             }
             if (instanceType.hasMethod(propertyName)) {
-                UserMethod method = instanceType.getMethod(propertyName);
+                Method method = instanceType.getMethod(propertyName);
                 return new MethodAccess(resolved, method);
             }
             throw new ExpressionParser.ParsingException(start, end, "Method or property '" + propertyName + "' not found in " + baseType, null);

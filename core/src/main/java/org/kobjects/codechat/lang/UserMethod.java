@@ -4,17 +4,13 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 
-public class UserMethod {
-    public final String name;
-    private final FunctionType functionType;
-    private final String[] parameterNames;
+public class UserMethod extends Method {
     private Statement body;
+    final String[] parameterNames;
 
     public UserMethod(String name, FunctionType functionType, String[] parameterNames) {
-        this.name = name;
-        this.functionType = functionType;
+        super(name, functionType);
         this.parameterNames = parameterNames;
-        this.body = body;
     }
 
     public void setBody(Statement body) {
@@ -25,9 +21,6 @@ public class UserMethod {
         return body.eval(functionContext);
     }
 
-    public FunctionType getType() {
-        return functionType;
-    }
 
 
     public void toString(AnnotatedStringBuilder asb, int indent) {
