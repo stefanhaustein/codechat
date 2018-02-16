@@ -9,6 +9,8 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.util.LinkedHashSet;
+import org.kobjects.codechat.android.gpio.DigitalOutput;
+import org.kobjects.codechat.android.gpio.Gpio;
 import org.kobjects.codechat.android.sound.Sound;
 import org.kobjects.codechat.android.sound.SampleManager;
 import org.kobjects.codechat.lang.EnumLiteral;
@@ -70,7 +72,6 @@ public class AndroidEnvironment extends Environment implements Runnable {
         addType(XAlign.TYPE);
         addType(YAlign.TYPE);
         addType(EdgeMode.TYPE);
-
         addType(Sensors.TYPE);
 
         addSystemConstant("screen", screen, null);
@@ -88,7 +89,9 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
         boolean androidThings = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_EMBEDDED);
         if (androidThings) {
-            addSystemConstant("pio", new Pio(this), null);
+            addType(DigitalOutput.TYPE);
+            addType(Gpio.TYPE);
+            addSystemConstant("gpio", new Gpio(this), null);
         }
     }
 

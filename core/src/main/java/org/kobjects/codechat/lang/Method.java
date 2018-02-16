@@ -2,10 +2,15 @@ package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.type.FunctionType;
+import org.kobjects.codechat.type.Type;
 
 public abstract class Method {
     public final String name;
     final FunctionType functionType;
+
+    public Method(String name, Type returnType, Type... parameterTypes) {
+        this(name, new FunctionType(returnType, parameterTypes));
+    }
 
     public Method(String name, FunctionType functionType) {
         this.name = name;

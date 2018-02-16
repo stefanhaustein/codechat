@@ -1,4 +1,4 @@
-package org.kobjects.codechat.android;
+package org.kobjects.codechat.android.gpio;
 
 import com.google.android.things.pio.PeripheralManagerService;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
@@ -10,14 +10,14 @@ import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.Type;
 
-public class Pio extends AbstractInstance {
+public class Gpio extends AbstractInstance {
 
     private final PeripheralManagerService peripheralManagerService = new PeripheralManagerService();
 
-    public static final InstanceType<Screen> TYPE = new InstanceType<Screen>(true) {
+    public static final InstanceType<Gpio> TYPE = new InstanceType<Gpio>(true) {
         @Override
         public String toString() {
-            return "Pio";
+            return "Gpio";
         }
         @Override
         public void printDocumentationBody(AnnotatedStringBuilder asb) {
@@ -26,11 +26,12 @@ public class Pio extends AbstractInstance {
     };
 
     static {
-        TYPE.addProperty(0, "gpio", new ListType(Type.STRING), false,
+        TYPE.addProperty(0, "digital", new ListType(Type.STRING), false,
                 new AnnotatedStringBuilder().append("The names of the available gpio pins"));
+
     }
 
-    Property<Collection> gpio = new Property<Collection>() {
+    Property<Collection> digital = new Property<Collection>() {
         @Override
         public Collection get() {
             Collection result = new Collection(environment, new ListType(Type.STRING));
@@ -39,7 +40,7 @@ public class Pio extends AbstractInstance {
         }
     };
 
-    public Pio(Environment environment) {
+    public Gpio(Environment environment) {
         super(environment);
     }
 
@@ -50,6 +51,6 @@ public class Pio extends AbstractInstance {
 
     @Override
     public Property getProperty(int index) {
-        return gpio;
+        return digital;
     }
 }
