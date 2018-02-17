@@ -12,9 +12,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.design.widget.NavigationView;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -84,11 +81,15 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     static final String SETTINGS_FILE_NAME = "fileName";
     static final String SETTINGS_FILE_NAME_DEFAULT = "CodeChat";
 
+    static final String MENU_ITEM_ABOUT = "About";
     static final String MENU_ITEM_CLEAR_ALL = "Clear all";
-    static final String MENU_ITEM_EXAMPLES = "Examples";
     static final String MENU_ITEM_CLEAR_MENU = "Clear";
     static final String MENU_ITEM_CLEAR_INPUT = "Clear input";
     static final String MENU_ITEM_CLEAR_OUTPUT = "Clear output";
+    static final String MENU_ITEM_EXAMPLES = "Examples";
+    static final String MENU_ITEM_HELP = "Help";
+    static final String MENU_ITEM_HELP_OVERVIEW = "Overview";
+    static final String MENU_ITEM_HELP_INDEX = "Index";
     static final String MENU_ITEM_RESUME = "Resume";
     static final String MENU_ITEM_SUSPEND = "Suspend";
     static final String MENU_ITEM_DISPLAY_MENU = "Display";
@@ -152,8 +153,6 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
     private BubbleAction copyAction;
     private BubbleAction editAction;
     private EmojiTextView errorView;
-    private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle drawerToggle;
     private ArrayList<CharSequence> helpStack = new ArrayList<>();
 
 
@@ -400,28 +399,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
         });
 
         rootLayout.addView(errorView);
-
         errorView.setVisibility(View.INVISIBLE);
 
-        drawerLayout = new DrawerLayout(this);
-        drawerLayout.addView(rootLayout);
-
-        NavigationView navigationView = new NavigationView(this);
-         drawerLayout.addView(navigationView);
-        ((DrawerLayout.LayoutParams) navigationView.getLayoutParams()).gravity = Gravity.LEFT;
-
-        navigationView.getMenu().add("About").setOnMenuItemClickListener(this);
-        Menu examples = navigationView.getMenu().addSubMenu("Examples");
-        fillExamplesMenu(examples);
-
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, 0, 0);
-
-        setContentView(drawerLayout);
-//        getActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
-
+        setContentView(rootLayout);
         arrangeUi();
 
         settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -625,7 +605,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
 
     public void fillMenu(final Menu menu, boolean isOptionsMenu) {
-        menu.add("Help");
+        Menu helpMenu = menu.addSubMenu("Help");
+        helpMenu.add(MENU_ITEM_ABOUT);
+        helpMenu.add(MENU_ITEM_HELP_OVERVIEW);
+        helpMenu.add(MENU_ITEM_HELP_INDEX);
+        Menu examplesMenu = helpMenu.addSubMenu("Examples");
+        fillExamplesMenu(examplesMenu);
 
         if (displaySize.x <= displaySize.y) {
             Menu displayMenu = menu.addSubMenu(MENU_ITEM_DISPLAY_MENU);
@@ -653,9 +638,9 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (drawerToggle.onOptionsItemSelected(item)) {
+/*        if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
-        }
+        } */
         return onMenuItemClick(item);
     }
 
@@ -734,7 +719,7 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
                 exampleMenu.add(name).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
-                        drawerLayout.closeDrawer(Gravity.LEFT);
+                        //drawerLayout.closeDrawer(Gravity.LEFT);
                         loadExample(name);
                         return true;
                     }
@@ -747,14 +732,22 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        drawerLayout.closeDrawer(Gravity.LEFT);
+        //drawerLayout.closeDrawer(Gravity.LEFT);
+
+        if (item.hasSubMenu()) {
+            return false;
+        }
+
         String title = item.getTitle().toString();
         switch (title) {
-            case "About":
+            case MENU_ITEM_ABOUT:
                 print(Environment.ABOUT_TEXT, EnvironmentListener.Channel.HELP);
                 break;
-            case "Help":
+            case MENU_ITEM_HELP_OVERVIEW:
                 HelpStatement.printHelp(environment, null);
+                break;
+            case MENU_ITEM_HELP_INDEX:
+                HelpStatement.printHelp(environment, "index");
                 break;
             case MENU_ITEM_SUSPEND:
                 environment.suspend();
@@ -795,10 +788,12 @@ s                System.out.println("onEditorAction id: " + actionId + "KeyEvent
             case MENU_ITEM_CLEAR_OUTPUT:
                 chatView.clear();
                 break;
+                /*
+            case MENU_ITEM_HELP:
             case MENU_ITEM_DISPLAY_MENU:
             case MENU_ITEM_CLEAR_MENU:
             case MENU_ITEM_EXAMPLES:
-                break;
+                break; */
             default:
                 processInput(title.toLowerCase());
         }
