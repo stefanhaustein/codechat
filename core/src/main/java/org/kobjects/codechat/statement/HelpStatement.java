@@ -105,7 +105,7 @@ public class HelpStatement extends AbstractStatement {
 
         addHelp("\u00d7", "*","Multiplication Operator", "The multiplication operator ('\u00d7'; alternative spelling: '*',) multiplies the two arguments. Example: `5 \u00d7 4`");
         addHelp("/", "\u22C5","Division Operator", "The division operator ('/'; alternative spelling: '\u22C5') divides the first argument by the second argument. Example: `10/2`");
-        addHelp("%", "Operator '%'", "The percent operator ('%') calculates n percent of the second argument. Example: `50% 10`");
+        addHelp("%", "Operator '%'", "The modulo operator ('%') calculates the remainder of the division of the left operand by the right operant. Example: `55 % 10`");
 
         addHelp("+", "Operator '+'", "The binary plus operator ('+') adds two numbers. Example: `5 + 4`");
         addHelp("-", "Operator '-'", "The binary minus operator subtracts the second argument from the first argument. Example: `4-4-4`. " +

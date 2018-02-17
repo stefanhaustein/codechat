@@ -8,7 +8,7 @@ public class BinaryMathOperator extends AbstractBinaryOperator {
     public BinaryMathOperator(char name, Expression left, Expression right) {
         super(name, left, right);
         if (left.getType() != Type.NUMBER || right.getType() != Type.NUMBER) {
-            throw new IllegalArgumentException("Argumnets of '" + name + "' must be of type Number.");
+            throw new IllegalArgumentException("Arguments of '" + name + "' must be of type Number.");
         }
     }
 
@@ -23,6 +23,7 @@ public class BinaryMathOperator extends AbstractBinaryOperator {
             case '\u00d7': return l * r;
             case '/': return l / r;
             case '^': return Math.pow(l, r);
+            case '%': return l % r;
             case '\u221a': return l == 2 ? Math.sqrt(r) : Math.pow(r, 1/l);
             default:
                 throw new RuntimeException("Impossible");
