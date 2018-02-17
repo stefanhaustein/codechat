@@ -1,27 +1,14 @@
-package org.kobjects.codechat.android;
+package org.kobjects.codechat.android.api.ui;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 
-import android.widget.TextView;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
+import org.kobjects.codechat.android.AndroidEnvironment;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.Title;
-import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 

@@ -1,9 +1,9 @@
-package org.kobjects.codechat.android;
+package org.kobjects.codechat.android.api.ui;
 
 import android.app.Activity;
 import android.view.View;
+import org.kobjects.codechat.android.AndroidEnvironment;
 import org.kobjects.codechat.lang.AbstractInstance;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.MaterialProperty;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.type.InstanceType;
@@ -19,8 +19,8 @@ public abstract class AbstractViewWrapper<T extends View> extends AbstractInstan
     public VisualMaterialProperty<Double> y = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> z = new VisualMaterialProperty<>(0.0);
     public VisualMaterialProperty<Double> opacity = new VisualMaterialProperty<>(1.0);
-    public VisualMaterialProperty<AndroidEnvironment.XAlign> xAlign = new VisualMaterialProperty<>(AndroidEnvironment.XAlign.CENTER);
-    public VisualMaterialProperty<AndroidEnvironment.YAlign> yAlign = new VisualMaterialProperty<>(AndroidEnvironment.YAlign.CENTER);
+    public VisualMaterialProperty<XAlign> xAlign = new VisualMaterialProperty<>(XAlign.CENTER);
+    public VisualMaterialProperty<YAlign> yAlign = new VisualMaterialProperty<>(YAlign.CENTER);
 
     protected AbstractViewWrapper(AndroidEnvironment environment, T view) {
         super(environment);
@@ -94,17 +94,17 @@ public abstract class AbstractViewWrapper<T extends View> extends AbstractInstan
                     "The z position of the object; objects with a higher value will be displayed on top.");
             addProperty(3, "opacity", Type.NUMBER, true,
                     "The z position of the object; objects with a higher value will be displayed on top.");
-            addProperty(4, "xAlign", AndroidEnvironment.XAlign.TYPE, true,
+            addProperty(4, "xAlign", XAlign.TYPE, true,
                     "Determines whether the x property is relative to the left side, " +
                             "center or right side of the screen.");
-            addProperty(5, "yAlign", AndroidEnvironment.YAlign.TYPE, true,
+            addProperty(5, "yAlign", YAlign.TYPE, true,
                     "Determines whether the y property is relative to the top, " +
                             "center or bottom of the screen.");
         }
 
     }
 
-    class VisualMaterialProperty<T> extends MaterialProperty<T> {
+    public class VisualMaterialProperty<T> extends MaterialProperty<T> {
 
         public VisualMaterialProperty(T value) {
             super(value);

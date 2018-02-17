@@ -1,23 +1,19 @@
-package org.kobjects.codechat.android;
+package org.kobjects.codechat.android.api.ui;
 
 import android.view.ViewGroup;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedString;
+import org.kobjects.codechat.android.AndroidEnvironment;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.EditTextLink;
 import org.kobjects.codechat.annotation.LoadExampleLink;
-import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.lang.AbstractInstance;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.LazyProperty;
 import org.kobjects.codechat.lang.MaterialProperty;
-import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.SetType;
 
@@ -68,7 +64,7 @@ public class Screen extends AbstractInstance {
     MaterialProperty<Double> left = new MaterialProperty<>(50.0);
     MaterialProperty<Double> right = new MaterialProperty<>(50.0);
 
-    LazyProperty<Collection> sprites = new LazyProperty<Collection>() {
+    public LazyProperty<Collection> sprites = new LazyProperty<Collection>() {
         @Override
         protected Collection compute() {
             Collection result = environment.createInstance(new SetType(Sprite.TYPE), -1);
@@ -96,14 +92,14 @@ public class Screen extends AbstractInstance {
 
     ViewGroup view;
 
-    protected Screen(AndroidEnvironment environment) {
+    public Screen(AndroidEnvironment environment) {
         super(environment);
         this.environment = environment;
         this.view = environment.rootView;
     }
 
 
-    void clearAll() {
+    public void clearAll() {
         for (InstanceType.PropertyDescriptor propertyDescriptor : getType().properties()) {
             getProperty(propertyDescriptor.index).removeAllListeners();
         }

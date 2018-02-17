@@ -1,15 +1,14 @@
-package org.kobjects.codechat.android;
+package org.kobjects.codechat.android.api.ui;
 
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.ImageView;
 
 import com.vanniktech.emoji.EmojiUtils;
 import com.vanniktech.emoji.emoji.Emoji;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedString;
+import org.kobjects.codechat.android.AndroidEnvironment;
+import org.kobjects.codechat.android.Ticking;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.EnumLiteral;
@@ -20,8 +19,6 @@ import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
-
-import com.vanniktech.emoji.EmojiManager;
 
 
 public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, Runnable {
@@ -64,7 +61,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
                 "The current speed in units per second.");
         TYPE.addProperty(16, "visible", Type.BOOLEAN, false,
                 "True if the sprite is currently within the screen boundaries.");
-        TYPE.addProperty(17, "edgeMode", AndroidEnvironment.EdgeMode.TYPE, true,
+        TYPE.addProperty(17, "edgeMode", EdgeMode.TYPE, true,
                 "Determines behavior when the sprite hits the edge of the screen. Example: `EdgeMode`");
         TYPE.addProperty(18, "grow", Type.NUMBER, true,
                 "The current growth in units per second. Use negative numbers to shrink");
@@ -105,7 +102,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
     public MaterialProperty<Double> dy = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> rotation = new MaterialProperty<>(0.0);
     public MaterialProperty<Boolean> touch = new MaterialProperty<>(false);
-    public MaterialProperty<AndroidEnvironment.EdgeMode> edgeMode = new MaterialProperty<>(AndroidEnvironment.EdgeMode.NONE);
+    public MaterialProperty<EdgeMode> edgeMode = new MaterialProperty<>(EdgeMode.NONE);
     public MaterialProperty<Double> grow = new MaterialProperty<>(0.0);
     public MaterialProperty<Double> fade = new MaterialProperty<>(0.0);
     private int viewIndexCache;

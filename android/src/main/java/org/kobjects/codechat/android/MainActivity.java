@@ -44,8 +44,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import com.vanniktech.emoji.EmojiEditText;
+import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.EmojiTextView;
+import com.vanniktech.emoji.one.EmojiOneProvider;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -157,6 +159,9 @@ public class MainActivity extends AppCompatActivity implements EnvironmentListen
 
     protected void onCreate(Bundle whatever) {
         super.onCreate(whatever);
+
+        EmojiManager.install(new EmojiOneProvider());
+
         pixelPerDp = getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT;
 
         codeDir = getExternalFilesDir("code");

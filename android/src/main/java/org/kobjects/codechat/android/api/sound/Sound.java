@@ -1,4 +1,4 @@
-package org.kobjects.codechat.android.sound;
+package org.kobjects.codechat.android.api.sound;
 
 
 public class Sound {

@@ -1,4 +1,4 @@
-package org.kobjects.codechat.android.gpio;
+package org.kobjects.codechat.android.api.gpio;
 
 import com.google.android.things.pio.PeripheralManagerService;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;

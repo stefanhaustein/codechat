@@ -1,4 +1,4 @@
-package org.kobjects.codechat.android.sound;
+package org.kobjects.codechat.android.api.sound;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;

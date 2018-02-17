@@ -9,45 +9,22 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.util.LinkedHashSet;
-import org.kobjects.codechat.android.gpio.DigitalOutput;
-import org.kobjects.codechat.android.gpio.Gpio;
-import org.kobjects.codechat.android.sound.Sound;
-import org.kobjects.codechat.android.sound.SampleManager;
-import org.kobjects.codechat.lang.EnumLiteral;
+import org.kobjects.codechat.android.api.gpio.DigitalOutput;
+import org.kobjects.codechat.android.api.gpio.Gpio;
+import org.kobjects.codechat.android.api.sound.Sound;
+import org.kobjects.codechat.android.api.sound.SampleManager;
+import org.kobjects.codechat.android.api.ui.EdgeMode;
+import org.kobjects.codechat.android.api.ui.Screen;
+import org.kobjects.codechat.android.api.ui.Sprite;
+import org.kobjects.codechat.android.api.ui.Text;
+import org.kobjects.codechat.android.api.ui.XAlign;
+import org.kobjects.codechat.android.api.ui.YAlign;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.NativeFunction;
-import org.kobjects.codechat.type.EnumType;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {
-
-    enum XAlign implements EnumLiteral {
-        LEFT, CENTER, RIGHT;
-        public static EnumType TYPE = new EnumType("XAlign", LEFT, CENTER, RIGHT);
-        @Override
-        public Type getType() {
-            return TYPE;
-        }
-    };
-
-    enum YAlign implements EnumLiteral {
-        TOP, CENTER, BOTTOM;
-        public static EnumType TYPE = new EnumType("YAlign", TOP, CENTER, BOTTOM);
-        @Override
-        public Type getType() {
-            return TYPE;
-        }
-    };
-
-    enum EdgeMode implements EnumLiteral {
-        NONE, BOUNCE, WRAP;
-        public static EnumType TYPE = new EnumType("EdgeMode", NONE, BOUNCE, WRAP);
-        @Override
-        public Type getType() {
-            return TYPE;
-        }
-    };
 
     private static final String[] SOUND_EXTENSIONS = {".mp3", ".wav"};
     public FrameLayout rootView;
@@ -55,7 +32,7 @@ public class AndroidEnvironment extends Environment implements Runnable {
     public Screen screen;
     public double scale;
     Handler handler = new Handler();
-    final Context context;
+    public final Context context;
 
 
     public AndroidEnvironment(EnvironmentListener environmentListener, FrameLayout rootView, File codeDir) {
@@ -76,8 +53,6 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
         addSystemConstant("screen", screen, null);
         addSystemConstant("sensors", new Sensors(this, rootView.getContext()), null);
-
-
         addSystemConstant("play", new NativeFunction( null, Type.STRING) {
                     @Override
                     protected Object eval(Object[] params) {
