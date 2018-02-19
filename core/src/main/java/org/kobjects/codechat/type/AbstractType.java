@@ -2,8 +2,6 @@ package org.kobjects.codechat.type;
 
 public abstract class AbstractType implements Type {
 
-
-
     @Override
     public boolean equals(Object other) {
         if (other == this) {
@@ -21,4 +19,8 @@ public abstract class AbstractType implements Type {
         return new MetaType(this);
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

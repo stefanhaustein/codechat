@@ -1,21 +1,20 @@
 package org.kobjects.codechat.type;
 
-import java.util.List;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedString;
-import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.AnnotationSpan;
-import org.kobjects.codechat.lang.Documented;
 
-public class SimpleType extends AbstractType implements Documented {
-    private final String name;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
+public class SimpleType extends AbstractType {
     private final Class<?> javaClass;
-    private final String documentation;
+    private final String name;
 
-    SimpleType(String name, Class<?> javaClass, String documentation) {
+    SimpleType(String name, Class<?> javaClass) {
         this.name = name;
         this.javaClass = javaClass;
-        this.documentation = documentation;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -23,13 +22,4 @@ public class SimpleType extends AbstractType implements Documented {
         return javaClass == Object.class || ((other instanceof SimpleType) && ((SimpleType) other).javaClass == javaClass);
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
-    public void printDocumentation(AnnotatedStringBuilder asb) {
-        asb.append(documentation);
-    }
 }

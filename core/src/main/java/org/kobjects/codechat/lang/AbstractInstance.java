@@ -13,8 +13,7 @@ public abstract class AbstractInstance implements Instance {
     }
 
     public String toString() {
-        String name = environment.getConstantName(this);
-        return  name != null ? name : (getType() + "#" + environment.getId(this));
+        return environment.getName(this);
     }
 
     @Override

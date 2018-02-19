@@ -24,19 +24,13 @@ import org.kobjects.codechat.type.Type;
 public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, Runnable {
     public final static InstanceType TYPE = new ViewWrapperType<Sprite>() {
         @Override
-        public Sprite createInstance(Environment environment) {
-            return new Sprite((AndroidEnvironment) environment);
-        }
-
-        @Override
-        public String toString() {
+        public String getName() {
             return "Sprite";
         }
 
         @Override
-        public void printDocumentationBody(AnnotatedStringBuilder asb) {
-            asb.append("A sprite is an emoji displayed on a particular position on the screen. "
-                            + "It is able to move and rotate at a given speed by setting the corresponding properties.");
+        public Sprite createInstance(Environment environment) {
+            return new Sprite((AndroidEnvironment) environment);
         }
     };
     static {

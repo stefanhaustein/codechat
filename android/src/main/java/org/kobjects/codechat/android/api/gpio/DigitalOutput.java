@@ -11,15 +11,12 @@ import org.kobjects.codechat.type.Type;
 public class DigitalOutput extends AbstractInstance {
 
      public static InstanceType<DigitalOutput> TYPE = new InstanceType<DigitalOutput>(false) {
-        @Override
-        public String toString() {
-            return "DigitalOutput";
-        }
-        @Override
-        public void printDocumentationBody(AnnotatedStringBuilder asb) {
-            asb.append("A pin configured for digital output");
-        }
-        @Override
+         @Override
+         public String getName() {
+             return "DigitalOutput";
+         }
+
+         @Override
          public DigitalOutput createInstance(Environment environment) {
             return new DigitalOutput(environment);
         }

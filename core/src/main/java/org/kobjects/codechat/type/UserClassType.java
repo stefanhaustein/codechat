@@ -57,7 +57,6 @@ public class UserClassType extends InstanceType<UserClassInstance> implements In
   }
 
 
-
   @Override
   public void print(AnnotatedStringBuilder asb, Flavor flavor) {
     String name = environment.constants.get(this);
@@ -72,4 +71,8 @@ public class UserClassType extends InstanceType<UserClassInstance> implements In
     asb.append("end\n");
   }
 
+  @Override
+  public String getName() {
+    return environment.getName(this);
+  }
 }

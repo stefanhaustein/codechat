@@ -4,7 +4,6 @@ import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.lang.Collection;
-import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 
 public abstract class CollectionType extends InstanceType<Collection> {
@@ -27,18 +26,13 @@ public abstract class CollectionType extends InstanceType<Collection> {
     }
 
     @Override
-    public String toString() {
-        return name + "[" + elementType + "]";
+    public String getName() {
+        return name + "[" + elementType.getName() + "]";
     }
 
-    @Override
-    public void printDocumentationBody(AnnotatedStringBuilder asb) {
+    public void printDocumentationBody(AnnotatedStringBuilder asb, Environment environment) {
         asb.append("A ").append(name).append(" of ");
-        if (elementType instanceof Documented) {
-            asb.append(elementType.toString(), new DocumentedLink((Documented) elementType));
-        } else {
-            asb.append(elementType.toString());
-        }
+        asb.append(elementType.toString(), new DocumentedLink(elementType));
     }
 
 

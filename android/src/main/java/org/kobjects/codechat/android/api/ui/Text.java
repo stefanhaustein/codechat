@@ -16,19 +16,13 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
 
     public final static InstanceType TYPE = new ViewWrapperType<Text>() {
         @Override
-        public Text createInstance(Environment environment) {
-            return new Text((AndroidEnvironment) environment);
-        }
-
-        @Override
-        public String toString() {
+        public String getName() {
             return "Text";
         }
 
         @Override
-        public void printDocumentationBody(AnnotatedStringBuilder asb) {
-            asb.append("Text\n\n", new Title());
-            asb.append("A text object displayed on the screen.");
+        public Text createInstance(Environment environment) {
+            return new Text((AndroidEnvironment) environment);
         }
     };
 

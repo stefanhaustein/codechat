@@ -15,13 +15,10 @@ public class Gpio extends AbstractInstance {
     private final PeripheralManagerService peripheralManagerService = new PeripheralManagerService();
 
     public static final InstanceType<Gpio> TYPE = new InstanceType<Gpio>(true) {
+
         @Override
-        public String toString() {
+        public String getName() {
             return "Gpio";
-        }
-        @Override
-        public void printDocumentationBody(AnnotatedStringBuilder asb) {
-            asb.append("The pio object contains information about the periperal hardware io pins available.");
         }
     };
 

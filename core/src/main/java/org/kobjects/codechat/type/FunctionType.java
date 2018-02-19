@@ -4,7 +4,6 @@ package org.kobjects.codechat.type;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.InstanceLink;
-import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.UserFunction;
 
@@ -19,7 +18,7 @@ public class FunctionType extends InstanceType<UserFunction> {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         StringBuilder sb = new StringBuilder();
         sb.append("lambda(");
         if (parameterTypes.length > 0) {
@@ -85,12 +84,12 @@ public class FunctionType extends InstanceType<UserFunction> {
             if (parameterNames != null) {
                 asb.append(parameterNames[i]).append(": ");
             }
-            asb.append(parameterTypes[i].toString(), parameterTypes[i] instanceof Documented ? new DocumentedLink((Documented) parameterTypes[i]) : null);
+            asb.append(parameterTypes[i].getName(), new DocumentedLink(parameterTypes[i]));
         }
         asb.append(')');
         if (returnType != null) {
             asb.append(" -> ");
-            asb.append(returnType.toString(), returnType instanceof Documented ? new DocumentedLink((Documented) returnType) : null);
+            asb.append(returnType.getName(), new DocumentedLink(returnType));
         }
     }
 }

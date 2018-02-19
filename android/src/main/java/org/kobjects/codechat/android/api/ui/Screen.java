@@ -21,14 +21,8 @@ public class Screen extends AbstractInstance {
 
     public static final InstanceType<Screen> TYPE = new InstanceType<Screen>(true) {
         @Override
-        public String toString() {
+        public String getName() {
             return "Screen";
-        }
-        @Override
-        public void printDocumentationBody(AnnotatedStringBuilder asb) {
-            asb.append("The screen object contains information about the visible device screen such as the dimensions. The ");
-            asb.append("bounce example", new LoadExampleLink("Bounce"));
-            asb.append(" illustrates using several of the screen properties.");
         }
     };
 

@@ -19,6 +19,8 @@ import org.kobjects.codechat.android.api.ui.Sprite;
 import org.kobjects.codechat.android.api.ui.Text;
 import org.kobjects.codechat.android.api.ui.XAlign;
 import org.kobjects.codechat.android.api.ui.YAlign;
+import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.annotation.LoadExampleLink;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.NativeFunction;
@@ -43,13 +45,18 @@ public class AndroidEnvironment extends Environment implements Runnable {
         handler.postDelayed(this, 100);
         final SampleManager soundManager = new SampleManager(context);
 
-        addType(Screen.TYPE);
-        addType(Sprite.TYPE);
-        addType(Text.TYPE);
-        addType(XAlign.TYPE);
-        addType(YAlign.TYPE);
-        addType(EdgeMode.TYPE);
-        addType(Sensors.TYPE);
+        addSystemConstant("Screen", Screen.TYPE, new AnnotatedStringBuilder()
+                .append("The screen object contains information about the visible device screen such as the dimensions. The ")
+                .append("bounce example", new LoadExampleLink("Bounce"))
+                .append(" illustrates using several of the screen properties.").build());
+        addSystemConstant("Sprite", Sprite.TYPE,
+                "A sprite is an emoji displayed on a particular position on the screen. "
+                + "It is able to move and rotate at a given speed by setting the corresponding properties.");
+        addSystemConstant("Text", Text.TYPE, "A text object displayed on the screen.");
+        addSystemConstant("XAlign", XAlign.TYPE, null);
+        addSystemConstant("YAlign", YAlign.TYPE, null);
+        addSystemConstant("EdgeMode", EdgeMode.TYPE, null);
+        addSystemConstant("Sensors", Sensors.TYPE, null);
 
         addSystemConstant("screen", screen, null);
         addSystemConstant("sensors", new Sensors(this, rootView.getContext()), null);
@@ -64,9 +71,9 @@ public class AndroidEnvironment extends Environment implements Runnable {
 
         boolean androidThings = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_EMBEDDED);
         if (androidThings) {
-            addType(DigitalOutput.TYPE);
-            addType(Gpio.TYPE);
-            addSystemConstant("gpio", new Gpio(this), null);
+            addSystemConstant("DigitalOutput", DigitalOutput.TYPE, "A pin configured for digital output");
+            addSystemConstant("Gpio", Gpio.TYPE, "The gpio object contains information about the periperal hardware io pins available.");
+            addSystemConstant("gpio", new Gpio(this), "The gpio object contains information about the periperal hardware io pins available.");
         }
     }
 

@@ -12,7 +12,7 @@ import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.type.Typed;
 
-public class RootVariable implements HasDependencies, Documented, Printable {
+public class RootVariable implements HasDependencies, Printable {
     private final ParsingEnvironment parsingEnvironment;
     public final String name;
     public Type type;
@@ -20,7 +20,7 @@ public class RootVariable implements HasDependencies, Documented, Printable {
     public boolean constant;
     public boolean builtin;
     public String unparsed;
-    public String documentation;
+    public CharSequence documentation;
     public Exception error;
 
     public RootVariable(ParsingEnvironment environment, String name, Type type, boolean constant) {
@@ -47,7 +47,7 @@ public class RootVariable implements HasDependencies, Documented, Printable {
         }
 
         if (documentation != null) {
-            for (String s: documentation.split("\n")) {
+            for (String s: String.valueOf(documentation).split("\n")) {
                 asb.append("# ").append(s).append('\n');
             }
         }
@@ -98,61 +98,6 @@ public class RootVariable implements HasDependencies, Documented, Printable {
         }
     }
 
-    @Override
-    public void printDocumentation(AnnotatedStringBuilder asb) {
-        // Title
-        if (value instanceof Function) {
-            FunctionType type = (FunctionType) this.type;
-            asb.append(name + (type.parameterTypes.length == 0 ? "()" : "(...)")+ "\n\n", new Title());
-
-            if (type.parameterTypes.length > 0) {
-                asb.append("Parameter types\n");
-                for (Type paramType : type.parameterTypes) {
-                    asb.append(" - ");
-                    asb.append(paramType.toString(), (paramType instanceof Documented) ?
-                        new DocumentedLink((Documented) paramType) :  null);
-                    asb.append("\n");
-                }
-                asb.append("\n");
-            }
-
-            if (type.returnType != null) {
-                asb.append("Return type: ");
-                asb.append(type.returnType.toString(), (type.returnType instanceof Documented) ?
-                   new DocumentedLink((Documented) type.returnType) :  null);
-                asb.append("\n");
-                asb.append("\n");
-            }
-
-            if (documentation != null) {
-
-                asb.append(documentation);
-            }
-            return;
-        }
-
-        if (type instanceof InstanceType && !((InstanceType) type).isInstantiable()) {
-            asb.append(name + "\n\n", new Title());
-            ((InstanceType) type).printDocumentation(asb);
-        } else if (!(type instanceof MetaType)) {
-            asb.append(constant ? "constant ": "variable ");
-            asb.append(name).append(": ");
-            asb.append(type.toString(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
-            if (constant) {
-                asb.append(" = ");
-                Formatting.toLiteral(asb, value);
-            }
-            asb.append("\n");
-        }
-        if (value instanceof Documented) {
-            ((Documented) value).printDocumentation(asb);
-        }
-        if (documentation != null) {
-            asb.append(documentation);
-            asb.append("\n");
-        }
-    }
-
     public void delete() {
         parsingEnvironment.removeVariable(name);
         if (value instanceof Instance) {
@@ -167,10 +112,6 @@ public class RootVariable implements HasDependencies, Documented, Printable {
 
     @Override
     public void print(AnnotatedStringBuilder asb, Flavor flavor) {
-        if (flavor == Flavor.DOCUMENTATION) {
-            printDocumentation(asb);
-        } else {
-            serialize(asb, new SerializationContext(flavor));
-        }
+        serialize(asb, new SerializationContext(flavor));
     }
 }

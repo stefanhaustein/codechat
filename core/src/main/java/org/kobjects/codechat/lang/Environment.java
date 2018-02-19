@@ -51,7 +51,7 @@ public class Environment implements ParsingEnvironment {
     int lastId;
     private TreeMap<Integer,WeakReference<Instance>> everything = new TreeMap<>();
     private WeakHashMap<Instance,Integer> ids = new WeakHashMap<>();
-    public WeakHashMap<Instance,String> constants = new WeakHashMap<>();
+    public WeakHashMap<Object,String> constants = new WeakHashMap<>();
     public TreeMap<String,RootVariable> rootVariables = new TreeMap<>();
     public File codeDir;
     public EnvironmentListener environmentListener;
@@ -62,8 +62,14 @@ public class Environment implements ParsingEnvironment {
         this.environmentListener = environmentListener;
         this.codeDir = codeDir;
 
-        addType(Type.BOOLEAN, Type.NUMBER, Type.STRING);
-        addType(OnInstance.ON_CHANGE_TYPE, OnInstance.ON_INTERVAL_TYPE, OnInstance.ON_TYPE);
+        addSystemConstant("Any", Type.ANY, "Any type.");
+        addSystemConstant("Boolean", Type.BOOLEAN, "Boolean: true or false.");
+        addSystemConstant ("Number", Type.NUMBER,"Number: A 64 bit IEEE floating point number.");
+        addSystemConstant("String", Type.STRING, "String: A string of characters.");
+
+        addSystemConstant("OnChange", OnInstance.ON_CHANGE_TYPE, null);
+        addSystemConstant("OnInterval", OnInstance.ON_INTERVAL_TYPE, null);
+        addSystemConstant("On", OnInstance.ON_TYPE, null);
 
         addBuiltins();
     }
@@ -262,14 +268,16 @@ public class Environment implements ParsingEnvironment {
         environmentListener.print(new AnnotatedString(list, asb.getAnnotationList()), EnvironmentListener.Channel.OUTPUT);
     }
 
+    /*
     public void addType(Type... types) {
         for (Type type : types) {
             addSystemConstant(type.toString(), type, null);
 //            addSystemConstant(type.toString().toLowerCase(), type);
         }
     }
+    */
 
-    public void addSystemConstant(String name, Object value, String documentaion) {
+    public void addSystemConstant(String name, Object value, CharSequence documentaion) {
         RootVariable var = new RootVariable(this, name, typeOf(value), true);
         var.value = value;
         var.builtin = true;
@@ -277,13 +285,26 @@ public class Environment implements ParsingEnvironment {
         if (rootVariables.containsKey(name)) {
             throw new RuntimeException("Already declared: " + name);
         }
-
         rootVariables.put(name, var);
+        constants.put(value, name);
     }
 
     @Override
     public String getConstantName(Instance instance) {
         return constants.get(instance);
+    }
+
+
+    public String getName(Object object) {
+        String name = constants.get(object);
+        if (name != null) {
+            return name;
+        }
+        if (object instanceof Instance) {
+            Instance instance = (Instance) object;
+            return getName(instance.getType()) + "#" +getId(instance);
+        }
+        return "[Can't determine name for " + object + " of java type " + object == null ? "null" : object.getClass().getName() + "]";
     }
 
     public <T extends Instance> T createInstance(InstanceType<T> type, int id) {
@@ -409,20 +430,24 @@ public class Environment implements ParsingEnvironment {
     public void clearAll() {
         environmentListener.clearAll();
         TreeMap<String, RootVariable> systemVariables = new TreeMap<>();
+        WeakHashMap<Object,String> systemConstants = new WeakHashMap<>();
         for (RootVariable var : rootVariables.values()) {
             if (var.builtin) {
                 systemVariables.put(var.name, var);
+                if (var.constant) {
+                    systemConstants.put(var.value, var.name);
+                }
             }
         }
         for (OnInstance onInterval : OnInstance.allOnInterval) {
             onInterval.detach();
         }
         rootVariables = systemVariables;
+        constants = systemConstants;
         synchronized (everything) {
             ids.clear();
             everything.clear();
         }
-        constants.clear();
         autoSave = true;
         lastId = 0;
     }

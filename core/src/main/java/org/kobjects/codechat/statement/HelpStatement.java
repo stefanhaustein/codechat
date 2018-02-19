@@ -14,6 +14,7 @@ import org.kobjects.codechat.annotation.LoadExampleLink;
 import org.kobjects.codechat.annotation.TextLink;
 import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.lang.DependencyCollector;
+import org.kobjects.codechat.lang.Documentation;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.EvaluationContext;
@@ -276,7 +277,7 @@ public class HelpStatement extends AbstractStatement {
             environment.environmentListener.print(helpMap.get(topic), EnvironmentListener.Channel.HELP);
         } else if (environment.rootVariables.containsKey(topic)) {
             environment.environmentListener.print(
-                Formatting.getDocumentation(environment.rootVariables.get(topic)), EnvironmentListener.Channel.HELP);
+                Documentation.getDocumentation(environment, environment.rootVariables.get(topic)), EnvironmentListener.Channel.HELP);
         } else {
             environment.environmentListener.print("No help available for \"" + topic + "\"", EnvironmentListener.Channel.HELP);
         }

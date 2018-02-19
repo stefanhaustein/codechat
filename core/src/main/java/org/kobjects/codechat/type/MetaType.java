@@ -16,7 +16,7 @@ public class MetaType extends AbstractType {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return "metatype[" + type + "]";
     }
 

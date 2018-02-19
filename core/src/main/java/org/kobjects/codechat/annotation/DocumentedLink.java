@@ -1,20 +1,19 @@
 package org.kobjects.codechat.annotation;
 
-import org.kobjects.codechat.lang.Documented;
+import org.kobjects.codechat.lang.Documentation;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
-import org.kobjects.codechat.lang.Formatting;
 
 public class DocumentedLink implements Link {
-    private Documented documented;
+    private Object object;
 
-    public DocumentedLink(Documented documented) {
-        this.documented = documented;
+    public DocumentedLink(Object object) {
+        this.object = object;
     }
 
 
     @Override
     public void execute(Environment environment) {
-        environment.environmentListener.print(Formatting.getDocumentation(documented), EnvironmentListener.Channel.HELP);
+        environment.environmentListener.print(Documentation.getDocumentation(environment, object), EnvironmentListener.Channel.HELP);
     }
 }

@@ -3,21 +3,18 @@ package org.kobjects.codechat.type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Method;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.UserMethod;
 import org.kobjects.codechat.statement.HelpStatement;
 
-public abstract class InstanceType<T extends Instance> extends AbstractType implements Documented {
+public abstract class InstanceType<T extends Instance> extends AbstractType {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
     final ArrayList<Method> methods = new ArrayList<>();
 
@@ -58,19 +55,7 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
         return other instanceof InstanceType && other.toString().equals(toString());
     }
 
-    @Override
-    public final void printDocumentation(AnnotatedStringBuilder asb) {
-        printDocumentationBody(asb);
-        asb.append("\n\nProperties:\n");
-        boolean first = true;
-        for (PropertyDescriptor propertyDescriptor: properties()) {
-            asb.append("\n- ");
-            asb.append(propertyDescriptor.name, new DocumentedLink(propertyDescriptor));
-        }
-    }
 
-    public void printDocumentationBody(AnnotatedStringBuilder asb) {
-    }
 
     public boolean hasProperty(String propertyName) {
         return propertyMap.containsKey(propertyName);
@@ -107,7 +92,7 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
         throw new  IllegalArgumentException("Method '" + name + "' does not exist");
     }
 
-    public class PropertyDescriptor implements Documented, Printable {
+    public class PropertyDescriptor implements Printable {
         public final String name;
         public final Type type;
         public final int index;
@@ -138,15 +123,14 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
             return tuple.getProperty(index).get();
         }
 
-        @Override
-        public void printDocumentation(AnnotatedStringBuilder asb) {
+        public void printDocumentation(AnnotatedStringBuilder asb, Environment environment) {
             String ownerName = singleton ? InstanceType.this.toString().toLowerCase() : InstanceType.this.toString();
 
             asb.append(ownerName + "." + name + "\n\n", new Title());
             asb.append("Owner: ");
             asb.append(ownerName, new DocumentedLink(InstanceType.this));
             asb.append("\nType: ");
-            asb.append(type.toString(), type instanceof Documented ? new DocumentedLink((Documented) type) : null);
+            asb.append(environment.getName(type), new DocumentedLink(type));
             asb.append("\n\n");
             asb.append(documentation);
         }

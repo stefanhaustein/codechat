@@ -1,15 +1,11 @@
 package org.kobjects.codechat.type;
 
-import java.util.List;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.AnnotationSpan;
-import org.kobjects.codechat.lang.Documented;
 import org.kobjects.codechat.lang.EnumLiteral;
 
-public class EnumType extends AbstractType implements Documented {
-    private final String name;
+public class EnumType extends AbstractType {
     private final EnumLiteral[] values;
+    private final String name;
 
     public EnumType(String name, EnumLiteral... values) {
         this.name = name;
@@ -22,7 +18,7 @@ public class EnumType extends AbstractType implements Documented {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return name;
     }
 
@@ -36,13 +32,11 @@ public class EnumType extends AbstractType implements Documented {
                 return literal;
             }
         }
-        throw new RuntimeException("Literal '" + name + "' not found in " + this.name);
+        throw new RuntimeException("Literal '" + name + "' not in {" + this.values+ "}");
     }
 
-    @Override
     public void printDocumentation(AnnotatedStringBuilder asb) {
-        asb.append(name);
-        asb.append(": enumeration type of the values ");
+        asb.append("Enumeration type of the values ");
 
         for (int i = 0; i < values.length; i++) {
             if (i == values.length - 1) {

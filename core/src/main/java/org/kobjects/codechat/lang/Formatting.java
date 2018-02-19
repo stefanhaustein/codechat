@@ -33,12 +33,6 @@ public final class Formatting {
         }
     }
 
-    public static AnnotatedString getDocumentation(Documented documented) {
-        AnnotatedStringBuilder asb = new AnnotatedStringBuilder();
-        documented.printDocumentation(asb);
-        return asb.build();
-    }
-
     public static String quote(String s) {
         StringBuilder sb = new StringBuilder(s.length() + 2);
         sb.append('"');
@@ -73,8 +67,6 @@ public final class Formatting {
         } else if (value instanceof Instance) {
             Instance instance = (Instance) value;
             asb.append(instance.toString(), new InstanceLink(instance));
-        } else if (value instanceof Documented) {
-            asb.append(String.valueOf(value), new DocumentedLink((Documented) value));
         } else {
             asb.append(String.valueOf(value));
         }

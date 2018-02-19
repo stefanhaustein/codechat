@@ -1,6 +1,7 @@
 package org.kobjects.codechat.annotation;
 
 import java.lang.ref.WeakReference;
+import org.kobjects.codechat.lang.Documentation;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
@@ -21,7 +22,7 @@ public class InstanceLink implements Link {
             return "(deleted)";
         }
         if ((instance.getType() instanceof InstanceType) && !((InstanceType) instance.getType()).isInstantiable()) {
-            return Formatting.getDocumentation((InstanceType) instance.getType());
+            return Documentation.getDocumentation(environment, instance.getType());
         }
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
         instance.print(asb, Printable.Flavor.EDIT);
@@ -34,7 +35,7 @@ public class InstanceLink implements Link {
         if (instance == null) {
             environment.environmentListener.print("(deleted)", EnvironmentListener.Channel.OUTPUT);
         } else if ((instance.getType() instanceof InstanceType) && !((InstanceType) instance.getType()).isInstantiable()) {
-            environment.environmentListener.print(Formatting.getDocumentation((InstanceType) instance.getType()), EnvironmentListener.Channel.OUTPUT);
+            environment.environmentListener.print(Documentation.getDocumentation(environment, instance.getType()), EnvironmentListener.Channel.OUTPUT);
         } else {
             environment.environmentListener.print(getText(environment).toString(), EnvironmentListener.Channel.EDIT);
         }

@@ -29,7 +29,7 @@ public class Sensors extends AbstractInstance {
 
     static InstanceType TYPE = new InstanceType(true) {
         @Override
-        public String toString() {
+        public String getName() {
             return "Sensors";
         }
 

@@ -181,9 +181,8 @@ public class OnInstance extends AbstractInstance implements Property.PropertyLis
     }
 
     public static class OnInstanceType extends InstanceType<OnInstance> {
-        private String name;
-
-        public OnInstanceType(String name) {
+        private final String name;
+        OnInstanceType(String name) {
             this.name = name;
         }
 
@@ -198,9 +197,10 @@ public class OnInstance extends AbstractInstance implements Property.PropertyLis
         }
 
         @Override
-        public String toString() {
+        public String getName() {
             return name;
         }
+
 
     }
 }
