@@ -70,6 +70,10 @@ public class Documentation {
             asb.append("\n");
         }
 
+        if (variable.value instanceof HasDocumentationDetail) {
+            ((HasDocumentationDetail) variable.value).printDocumentationDetail(asb);
+        }
+
         if (variable.documentation != null) {
             asb.append(variable.documentation);
             asb.append("\n");

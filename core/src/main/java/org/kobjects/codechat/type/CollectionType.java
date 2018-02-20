@@ -5,8 +5,9 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.HasDocumentationDetail;
 
-public abstract class CollectionType extends InstanceType<Collection> {
+public abstract class CollectionType extends InstanceType<Collection> implements HasDocumentationDetail {
 
     public final Type elementType;
     private final String name;
@@ -30,9 +31,12 @@ public abstract class CollectionType extends InstanceType<Collection> {
         return name + "[" + elementType.getName() + "]";
     }
 
-    public void printDocumentationBody(AnnotatedStringBuilder asb, Environment environment) {
-        asb.append("A ").append(name).append(" of ");
+    @Override
+    public void printDocumentationDetail(AnnotatedStringBuilder asb) {
+        asb.append("Element type: ");
         asb.append(elementType.toString(), new DocumentedLink(elementType));
+        asb.append("\n\n");
+        super.printDocumentationDetail(asb);
     }
 
 

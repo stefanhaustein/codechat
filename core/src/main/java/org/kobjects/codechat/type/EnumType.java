@@ -2,8 +2,9 @@ package org.kobjects.codechat.type;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EnumLiteral;
+import org.kobjects.codechat.lang.HasDocumentationDetail;
 
-public class EnumType extends AbstractType {
+public class EnumType extends AbstractType implements HasDocumentationDetail {
     private final EnumLiteral[] values;
     private final String name;
 
@@ -35,8 +36,9 @@ public class EnumType extends AbstractType {
         throw new RuntimeException("Literal '" + name + "' not in {" + this.values+ "}");
     }
 
-    public void printDocumentation(AnnotatedStringBuilder asb) {
-        asb.append("Enumeration type of the values ");
+    @Override
+    public void printDocumentationDetail(AnnotatedStringBuilder asb) {
+        asb.append("Values: ");
 
         for (int i = 0; i < values.length; i++) {
             if (i == values.length - 1) {

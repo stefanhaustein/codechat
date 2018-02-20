@@ -8,13 +8,14 @@ import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.HasDocumentationDetail;
 import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.lang.Method;
 import org.kobjects.codechat.lang.Printable;
 import org.kobjects.codechat.lang.Property;
 import org.kobjects.codechat.statement.HelpStatement;
 
-public abstract class InstanceType<T extends Instance> extends AbstractType {
+public abstract class InstanceType<T extends Instance> extends AbstractType implements HasDocumentationDetail {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
     final ArrayList<Method> methods = new ArrayList<>();
 
@@ -55,6 +56,16 @@ public abstract class InstanceType<T extends Instance> extends AbstractType {
         return other instanceof InstanceType && other.toString().equals(toString());
     }
 
+    @Override
+    public void printDocumentationDetail(AnnotatedStringBuilder asb) {
+        asb.append("\n\nProperties:\n");
+        boolean first = true;
+        for (PropertyDescriptor propertyDescriptor: properties()) {
+            asb.append("\n- ");
+            asb.append(propertyDescriptor.name, new DocumentedLink(propertyDescriptor));
+        }
+    }
+
 
 
     public boolean hasProperty(String propertyName) {
@@ -92,7 +103,7 @@ public abstract class InstanceType<T extends Instance> extends AbstractType {
         throw new  IllegalArgumentException("Method '" + name + "' does not exist");
     }
 
-    public class PropertyDescriptor implements Printable {
+    public class PropertyDescriptor implements Printable, HasDocumentationDetail {
         public final String name;
         public final Type type;
         public final int index;
@@ -123,14 +134,15 @@ public abstract class InstanceType<T extends Instance> extends AbstractType {
             return tuple.getProperty(index).get();
         }
 
-        public void printDocumentation(AnnotatedStringBuilder asb, Environment environment) {
+        @Override
+        public void printDocumentationDetail(AnnotatedStringBuilder asb) {
             String ownerName = singleton ? InstanceType.this.toString().toLowerCase() : InstanceType.this.toString();
 
             asb.append(ownerName + "." + name + "\n\n", new Title());
             asb.append("Owner: ");
             asb.append(ownerName, new DocumentedLink(InstanceType.this));
             asb.append("\nType: ");
-            asb.append(environment.getName(type), new DocumentedLink(type));
+            asb.append(type.getName(), new DocumentedLink(type));
             asb.append("\n\n");
             asb.append(documentation);
         }
