@@ -1,10 +1,7 @@
 package org.kobjects.codechat.lang;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import org.kobjects.codechat.parser.ParsingEnvironment;
+import org.kobjects.codechat.instance.Instance;
 
 public class DependencyCollector {
 

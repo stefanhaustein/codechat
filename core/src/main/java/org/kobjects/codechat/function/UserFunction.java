@@ -1,8 +1,14 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.function;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.InstanceLink;
-import org.kobjects.codechat.expr.FunctionExpression;
+import org.kobjects.codechat.instance.AbstractInstance;
+import org.kobjects.codechat.lang.Closure;
+import org.kobjects.codechat.lang.DependencyCollector;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.EvaluationContext;
+import org.kobjects.codechat.lang.Printable;
+import org.kobjects.codechat.instance.Property;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.type.FunctionType;
 

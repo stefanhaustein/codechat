@@ -1,7 +1,6 @@
 package org.kobjects.codechat.parser;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -10,7 +9,7 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.LocalVariable;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.codechat.type.UserClassType;
+import org.kobjects.codechat.type.UserClassifier;
 
 public class ParsingContext {
     public enum Mode {
@@ -23,7 +22,7 @@ public class ParsingContext {
     public Map<String, LocalVariable> variables = new TreeMap<>();
     int[] nextIndex;
     public final Mode mode;
-    public final UserClassType classType;
+    public final UserClassifier classType;
 
     /**
      * Set at closure boundaries. Interleaved: original index, local index.
@@ -54,7 +53,7 @@ public class ParsingContext {
         }
     }
 
-    public ParsingContext(ParsingContext parent, UserClassType classType) {
+    public ParsingContext(ParsingContext parent, UserClassifier classType) {
         this.environment = parent.environment;
         this.mode = parent.mode;
         this.parent = parent;

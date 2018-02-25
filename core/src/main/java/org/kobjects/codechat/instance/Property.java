@@ -1,4 +1,4 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.instance;
 
 import java.util.ArrayList;
 import java.util.Collections;

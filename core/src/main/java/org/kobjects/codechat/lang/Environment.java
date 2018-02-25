@@ -18,20 +18,20 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.HelpLink;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.annotation.ExecLink;
-import org.kobjects.codechat.annotation.Link;
 import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.annotation.VariableLink;
+import org.kobjects.codechat.function.NativeFunction;
+import org.kobjects.codechat.function.UserFunction;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.parser.ParsingEnvironment;
-import org.kobjects.codechat.statement.HelpStatement;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.type.Typed;
-import org.kobjects.codechat.type.UserClassType;
+import org.kobjects.codechat.type.UserClassifier;
 
 public class Environment implements ParsingEnvironment {
 
@@ -307,7 +307,7 @@ public class Environment implements ParsingEnvironment {
         return "[Can't determine name for " + object + " of java type " + object == null ? "null" : object.getClass().getName() + "]";
     }
 
-    public <T extends Instance> T createInstance(InstanceType<T> type, int id) {
+    public <T extends Instance> T createInstance(Classifier<T> type, int id) {
         if (id == -1) {
             return type.createInstance(this);
         }
@@ -346,7 +346,7 @@ public class Environment implements ParsingEnvironment {
             for (RootVariable variable : rootVariables.values()) {
                 int desired;
                 if (variable.constant) {
-                    if (variable.value instanceof UserClassType) {
+                    if (variable.value instanceof UserClassifier) {
                         desired = 0;
                     } else if (variable.value instanceof UserFunction) {
                         desired = 3;
@@ -396,7 +396,7 @@ public class Environment implements ParsingEnvironment {
     }
 
 
-    public <T extends Instance> T getOrCreateInstance(InstanceType<T> type, int id) {
+    public <T extends Instance> T getOrCreateInstance(Classifier<T> type, int id) {
         synchronized (everything) {
             WeakReference reference;
             reference = id == -1 ? null : everything.get(id);
@@ -411,7 +411,7 @@ public class Environment implements ParsingEnvironment {
     /**
      * The force parameter is used for functions with ids and and "on..." expressions that are overwritten.
      */
-    public <T extends Instance> T getInstance(InstanceType<T> type, int id) {
+    public <T extends Instance> T getInstance(Classifier<T> type, int id) {
         WeakReference reference;
         synchronized (everything) {
             reference = everything.get(id);
@@ -608,12 +608,12 @@ public class Environment implements ParsingEnvironment {
         }
     }
 
-    public InstanceType resolveInstanceType(String name) {
+    public Classifier resolveInstanceType(String name) {
         Type result = resolveType(name);
-        if (!(result instanceof InstanceType)) {
+        if (!(result instanceof Classifier)) {
             throw new RuntimeException(name + " is not an instance type.");
         }
-        return (InstanceType) result;
+        return (Classifier) result;
     }
 
     @Override

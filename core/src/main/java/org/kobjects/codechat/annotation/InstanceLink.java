@@ -4,10 +4,9 @@ import java.lang.ref.WeakReference;
 import org.kobjects.codechat.lang.Documentation;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
-import org.kobjects.codechat.lang.Formatting;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.codechat.lang.Printable;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 
 public class InstanceLink implements Link {
     public final WeakReference<Instance> instance;
@@ -21,7 +20,7 @@ public class InstanceLink implements Link {
         if (instance == null) {
             return "(deleted)";
         }
-        if ((instance.getType() instanceof InstanceType) && !((InstanceType) instance.getType()).isInstantiable()) {
+        if ((instance.getType() instanceof Classifier) && !((Classifier) instance.getType()).isInstantiable()) {
             return Documentation.getDocumentation(environment, instance.getType());
         }
         AnnotatedStringBuilder asb = new AnnotatedStringBuilder(new StringBuilder(), null);
@@ -34,7 +33,7 @@ public class InstanceLink implements Link {
         Instance instance = this.instance.get();
         if (instance == null) {
             environment.environmentListener.print("(deleted)", EnvironmentListener.Channel.OUTPUT);
-        } else if ((instance.getType() instanceof InstanceType) && !((InstanceType) instance.getType()).isInstantiable()) {
+        } else if ((instance.getType() instanceof Classifier) && !((Classifier) instance.getType()).isInstantiable()) {
             environment.environmentListener.print(Documentation.getDocumentation(environment, instance.getType()), EnvironmentListener.Channel.OUTPUT);
         } else {
             environment.environmentListener.print(getText(environment).toString(), EnvironmentListener.Channel.EDIT);

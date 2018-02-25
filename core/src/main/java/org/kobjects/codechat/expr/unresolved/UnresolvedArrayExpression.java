@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.expr.ArrayIndex;
+import org.kobjects.codechat.expr.ArrayIndexExpr;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.Type;
@@ -33,7 +33,7 @@ public class UnresolvedArrayExpression extends UnresolvedExpression {
         if (resolvedArguments[0].getType() != Type.NUMBER) {
             throw new ExpressionParser.ParsingException(start, end, "List index must be number", null);
         }
-        return new ArrayIndex(base.resolve(parsingContext, null), resolvedArguments[0]);
+        return new ArrayIndexExpr(base.resolve(parsingContext, null), resolvedArguments[0]);
     }
 
     @Override

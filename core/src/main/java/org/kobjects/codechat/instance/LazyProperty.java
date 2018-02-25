@@ -1,6 +1,4 @@
-package org.kobjects.codechat.lang;
-
-import java.util.Objects;
+package org.kobjects.codechat.instance;
 
 public abstract class LazyProperty<T> extends Property<T> {
 

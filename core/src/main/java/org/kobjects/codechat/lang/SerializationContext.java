@@ -2,6 +2,7 @@ package org.kobjects.codechat.lang;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import org.kobjects.codechat.instance.Instance;
 
 
 public class SerializationContext {

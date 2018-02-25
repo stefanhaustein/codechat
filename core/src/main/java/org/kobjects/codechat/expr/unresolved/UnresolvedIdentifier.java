@@ -2,10 +2,10 @@ package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.Literal;
-import org.kobjects.codechat.expr.LocalVariableNode;
-import org.kobjects.codechat.expr.RootVariableNode;
-import org.kobjects.codechat.expr.SelfExpression;
+import org.kobjects.codechat.expr.LiteralExpr;
+import org.kobjects.codechat.expr.LocalVariableExpr;
+import org.kobjects.codechat.expr.RootVariableExpr;
+import org.kobjects.codechat.expr.SelfExpr;
 import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -31,21 +31,21 @@ public class UnresolvedIdentifier extends UnresolvedExpression {
             if (parsingContext.classType == null) {
                 throw new ExpressionParser.ParsingException(start, end, "Undefined class context for self.", null);
             }
-            return new SelfExpression(parsingContext.classType);
+            return new SelfExpr(parsingContext.classType);
         }
 
         LocalVariable variable = parsingContext.resolve(name);
         if (variable != null) {
-            return new LocalVariableNode(variable);
+            return new LocalVariableExpr(variable);
         }
         RootVariable rootVariable = parsingContext.environment.getRootVariable(name);
         if (rootVariable != null) {
-            return new RootVariableNode(rootVariable);
+            return new RootVariableExpr(rootVariable);
         }
         if (expectedType instanceof EnumType) {
             try {
                 EnumLiteral enumLiteral = ((EnumType) expectedType).getValue(name);
-                return new Literal(enumLiteral);
+                return new LiteralExpr(enumLiteral);
             } catch (Exception e) {
 
             }

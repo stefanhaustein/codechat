@@ -4,14 +4,14 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.parser.Parser;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
-public class InstanceReference extends Expression {
+public class InstanceReferenceExpr extends Expression {
     public final int id;
-    public final InstanceType type;
+    public final Classifier type;
 
-    public InstanceReference(InstanceType type, int id) {
+    public InstanceReferenceExpr(Classifier type, int id) {
         this.type = type;
         this.id = id;
     }
@@ -47,7 +47,7 @@ public class InstanceReference extends Expression {
     }
 
     @Override
-    public InstanceReference reconstruct(Expression... children) {
-        return new InstanceReference(type, id);
+    public InstanceReferenceExpr reconstruct(Expression... children) {
+        return new InstanceReferenceExpr(type, id);
     }
 }

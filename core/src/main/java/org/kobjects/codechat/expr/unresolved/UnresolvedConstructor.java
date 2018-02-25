@@ -5,7 +5,7 @@ import org.kobjects.codechat.expr.ConstructorInvocation;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
 public class UnresolvedConstructor extends UnresolvedExpression {
@@ -25,7 +25,7 @@ public class UnresolvedConstructor extends UnresolvedExpression {
     }
 
     public ConstructorInvocation resolve(ParsingContext parsingContext, boolean allowUninitialized) {
-        InstanceType type = parsingContext.environment.resolveInstanceType(typeName);
+        Classifier type = parsingContext.environment.resolveInstanceType(typeName);
         return new ConstructorInvocation(type, id);
     }
 

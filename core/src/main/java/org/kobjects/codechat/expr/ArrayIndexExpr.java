@@ -9,12 +9,12 @@ import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
 
-public class ArrayIndex extends Expression {
+public class ArrayIndexExpr extends Expression {
 
     Expression base;
     Expression index;
 
-    public ArrayIndex(Expression base, Expression index) {
+    public ArrayIndexExpr(Expression base, Expression index) {
         this.base = base;
         this.index = index;
     }
@@ -49,6 +49,6 @@ public class ArrayIndex extends Expression {
 
     @Override
     public Expression reconstruct(Expression... children) {
-        return new ArrayIndex(children[0], children[1]);
+        return new ArrayIndexExpr(children[0], children[1]);
     }
 }

@@ -4,11 +4,11 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.codechat.type.UserClassType;
+import org.kobjects.codechat.type.UserClassifier;
 
-public class SelfExpression extends Expression {
-    private final UserClassType classType;
-    public SelfExpression(UserClassType classType) {
+public class SelfExpr extends Expression {
+    private final UserClassifier classType;
+    public SelfExpr(UserClassifier classType) {
         this.classType = classType;
     }
 
@@ -39,6 +39,6 @@ public class SelfExpression extends Expression {
 
     @Override
     public Expression reconstruct(Expression... children) {
-        return new SelfExpression(classType);
+        return new SelfExpr(classType);
     }
 }

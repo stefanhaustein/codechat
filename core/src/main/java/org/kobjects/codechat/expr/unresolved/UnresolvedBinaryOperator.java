@@ -6,13 +6,9 @@ import org.kobjects.codechat.expr.BinaryLogicalOperator;
 import org.kobjects.codechat.expr.BinaryMathOperator;
 import org.kobjects.codechat.expr.CompoundAssignment;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.Literal;
-import org.kobjects.codechat.expr.PropertyAccess;
 import org.kobjects.codechat.expr.RelationalOperator;
-import org.kobjects.codechat.expr.StringConcatenation;
+import org.kobjects.codechat.expr.StringConcatenationOperator;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.type.EnumType;
-import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -38,7 +34,7 @@ public class UnresolvedBinaryOperator extends UnresolvedExpression {
         Expression right = this.right.resolve(parsingContext, left.getType());
         try {
             if (left.getType() == Type.STRING && "+".equals(name)) {
-                return new StringConcatenation(left, right);
+                return new StringConcatenationOperator(left, right);
             }
 
             if (name.length() != 1) {

@@ -1,6 +1,7 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.instance;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
+import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 

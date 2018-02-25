@@ -2,11 +2,11 @@ package org.kobjects.codechat.android.api.gpio;
 
 import com.google.android.things.pio.PeripheralManagerService;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.lang.AbstractInstance;
+import org.kobjects.codechat.instance.AbstractInstance;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.Type;
 
@@ -14,7 +14,7 @@ public class Gpio extends AbstractInstance {
 
     private final PeripheralManagerService peripheralManagerService = new PeripheralManagerService();
 
-    public static final InstanceType<Gpio> TYPE = new InstanceType<Gpio>(true) {
+    public static final Classifier<Gpio> TYPE = new Classifier<Gpio>(true) {
 
         @Override
         public String getName() {
@@ -42,7 +42,7 @@ public class Gpio extends AbstractInstance {
     }
 
     @Override
-    public InstanceType<?> getType() {
+    public Classifier<?> getType() {
         return TYPE;
     }
 

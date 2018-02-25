@@ -7,10 +7,10 @@ import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.Type;
 
-public class Literal extends Expression {
+public class LiteralExpr extends Expression {
     public final Object value;
 
-    public Literal(Object value) {
+    public LiteralExpr(Object value) {
         this.value = value;
     }
 
@@ -40,7 +40,7 @@ public class Literal extends Expression {
     }
 
     @Override
-    public Literal reconstruct(Expression... children) {
-        return new Literal(value);
+    public LiteralExpr reconstruct(Expression... children) {
+        return new LiteralExpr(value);
     }
 }

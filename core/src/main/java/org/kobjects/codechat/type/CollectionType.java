@@ -1,13 +1,12 @@
 package org.kobjects.codechat.type;
 
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.HasDocumentationDetail;
 
-public abstract class CollectionType extends InstanceType<Collection> implements HasDocumentationDetail {
+public abstract class CollectionType extends Classifier<Collection> implements HasDocumentationDetail {
 
     public final Type elementType;
     private final String name;

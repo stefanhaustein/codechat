@@ -2,15 +2,15 @@ package org.kobjects.codechat.android.api.gpio;
 
 import com.google.android.things.pio.PeripheralManagerService;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.lang.AbstractInstance;
+import org.kobjects.codechat.instance.AbstractInstance;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
 public class DigitalOutput extends AbstractInstance {
 
-     public static InstanceType<DigitalOutput> TYPE = new InstanceType<DigitalOutput>(false) {
+     public static Classifier<DigitalOutput> TYPE = new Classifier<DigitalOutput>(false) {
          @Override
          public String getName() {
              return "DigitalOutput";
@@ -81,7 +81,7 @@ public class DigitalOutput extends AbstractInstance {
     }
 
     @Override
-    public InstanceType<?> getType() {
+    public Classifier<?> getType() {
         return TYPE;
     }
 

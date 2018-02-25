@@ -8,7 +8,7 @@ import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.Statement;
 
-public class OnExpression extends Expression {
+public class OnExpr extends Expression {
 
     public final OnInstance.OnInstanceType type;
     private final int id;
@@ -16,7 +16,7 @@ public class OnExpression extends Expression {
     public final Statement body;
     public final Closure closure;
 
-    public OnExpression(OnInstance.OnInstanceType type, int id, Expression condition, Statement body, Closure closure) {
+    public OnExpr(OnInstance.OnInstanceType type, int id, Expression condition, Statement body, Closure closure) {
         this.type = type;
         this.id = id;
         this.expression = condition;
@@ -73,6 +73,6 @@ public class OnExpression extends Expression {
 
     @Override
     public Expression reconstruct(Expression... children) {
-        return new OnExpression(type, id, children[0], body, closure);
+        return new OnExpr(type, id, children[0], body, closure);
     }
 }

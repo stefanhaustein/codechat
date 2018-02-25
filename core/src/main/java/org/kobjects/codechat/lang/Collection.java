@@ -1,7 +1,9 @@
 package org.kobjects.codechat.lang;
 
 import java.util.Iterator;
-import java.util.List;
+import org.kobjects.codechat.instance.AbstractInstance;
+import org.kobjects.codechat.instance.Instance;
+import org.kobjects.codechat.instance.Property;
 import org.kobjects.codechat.type.CollectionType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.SetType;

@@ -3,18 +3,14 @@ package org.kobjects.codechat.expr;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Printable;
-import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.lang.SerializationContext;
-import org.kobjects.codechat.statement.AbstractStatement;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.codechat.type.UserClassType;
+import org.kobjects.codechat.type.UserClassifier;
 
 public class ClassDeclaration extends Expression {
 
-  private final UserClassType userClassType;
+  private final UserClassifier userClassType;
 
-  public ClassDeclaration(UserClassType userClassType) {
+  public ClassDeclaration(UserClassifier userClassType) {
     this.userClassType = userClassType;
   }
 

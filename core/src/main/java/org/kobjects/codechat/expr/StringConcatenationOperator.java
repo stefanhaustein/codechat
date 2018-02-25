@@ -4,9 +4,9 @@ import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.type.Type;
 
-public class StringConcatenation extends AbstractBinaryOperator {
+public class StringConcatenationOperator extends AbstractBinaryOperator {
 
-    public StringConcatenation(Expression left, Expression right) {
+    public StringConcatenationOperator(Expression left, Expression right) {
         super('+', left, right);
     }
 
@@ -22,7 +22,7 @@ public class StringConcatenation extends AbstractBinaryOperator {
 
     @Override
     public Expression reconstruct(Expression... children) {
-        return new StringConcatenation(children[0], children[1]);
+        return new StringConcatenationOperator(children[0], children[1]);
     }
 
 }

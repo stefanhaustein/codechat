@@ -5,9 +5,9 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.UserFunction;
+import org.kobjects.codechat.function.UserFunction;
 
-public class FunctionType extends InstanceType<UserFunction> {
+public class FunctionType extends Classifier<UserFunction> {
 
     public final Type returnType;
     public final Type[] parameterTypes;

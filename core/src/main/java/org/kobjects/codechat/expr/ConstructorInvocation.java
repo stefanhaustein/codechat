@@ -3,15 +3,15 @@ package org.kobjects.codechat.expr;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.parser.Parser;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
 public class ConstructorInvocation extends Expression {
 
-    InstanceType type;
+    Classifier type;
     int id;
 
-    public ConstructorInvocation(InstanceType type, int id) {
+    public ConstructorInvocation(Classifier type, int id) {
         if (!type.isInstantiable()) {
             throw new RuntimeException("Type '" + type + "' is not instantiable!");
         }

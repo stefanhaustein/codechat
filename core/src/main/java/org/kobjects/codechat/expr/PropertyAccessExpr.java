@@ -2,17 +2,17 @@ package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.codechat.parser.Parser;
-import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
-public class PropertyAccess extends Expression {
+public class PropertyAccessExpr extends Expression {
     Expression base;
-    public InstanceType.PropertyDescriptor property;
+    public Classifier.PropertyDescriptor property;
 
-    public PropertyAccess(Expression left, InstanceType.PropertyDescriptor property) {
+    public PropertyAccessExpr(Expression left, Classifier.PropertyDescriptor property) {
         this.base = left;
         this.property = property;
     }
@@ -76,7 +76,7 @@ public class PropertyAccess extends Expression {
     }
 
     @Override
-    public PropertyAccess reconstruct(Expression... children) {
-        return new PropertyAccess(children[0], property);
+    public PropertyAccessExpr reconstruct(Expression... children) {
+        return new PropertyAccessExpr(children[0], property);
     }
 }

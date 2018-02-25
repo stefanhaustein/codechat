@@ -3,8 +3,9 @@ package org.kobjects.codechat.lang;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.Title;
+import org.kobjects.codechat.function.Function;
 import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
 
@@ -57,7 +58,7 @@ public class Documentation {
                 asb.append("\n");
                 asb.append("\n");
             }
-        } else if (variable.type instanceof InstanceType && !((InstanceType) variable.type).isInstantiable()) {
+        } else if (variable.type instanceof Classifier && !((Classifier) variable.type).isInstantiable()) {
             asb.append(variable.name + "\n\n", new Title());
         } else if (!(variable.type instanceof MetaType)) {
             asb.append(variable.constant ? "constant ": "variable ");
@@ -85,7 +86,7 @@ public class Documentation {
         printDocumentationBody(asb);
         asb.append("\n\nProperties:\n");
         boolean first = true;
-        for (InstanceType.PropertyDescriptor propertyDescriptor: properties()) {
+        for (Classifier.PropertyDescriptor propertyDescriptor: properties()) {
             asb.append("\n- ");
             asb.append(propertyDescriptor.name, new DocumentedLink(propertyDescriptor));
         }

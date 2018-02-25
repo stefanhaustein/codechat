@@ -1,4 +1,4 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.instance;
 
 /**
  * Property backed by a stored value

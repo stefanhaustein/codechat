@@ -1,7 +1,7 @@
 package org.kobjects.codechat.expr;
 
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.codechat.type.Type;
 
 public class RelationalOperator extends AbstractBinaryOperator {

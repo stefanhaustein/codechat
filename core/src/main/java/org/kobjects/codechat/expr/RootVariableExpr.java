@@ -3,15 +3,14 @@ package org.kobjects.codechat.expr;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Instance;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.type.Type;
 
-public class RootVariableNode extends Expression {
+public class RootVariableExpr extends Expression {
     public final RootVariable rootVariable;
 
-    public RootVariableNode(RootVariable rootVariable) {
+    public RootVariableExpr(RootVariable rootVariable) {
         this.rootVariable = rootVariable;
     }
 
@@ -62,7 +61,7 @@ public class RootVariableNode extends Expression {
     }
 
     @Override
-    public RootVariableNode reconstruct(Expression... children) {
-        return new RootVariableNode(rootVariable);
+    public RootVariableExpr reconstruct(Expression... children) {
+        return new RootVariableExpr(rootVariable);
     }
 }

@@ -9,32 +9,32 @@ import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.HasDocumentationDetail;
-import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.Method;
+import org.kobjects.codechat.instance.Instance;
+import org.kobjects.codechat.instance.Method;
 import org.kobjects.codechat.lang.Printable;
-import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.instance.Property;
 import org.kobjects.codechat.statement.HelpStatement;
 
-public abstract class InstanceType<T extends Instance> extends AbstractType implements HasDocumentationDetail {
+public abstract class Classifier<T extends Instance> extends AbstractType implements HasDocumentationDetail {
     private final TreeMap<String, PropertyDescriptor> propertyMap = new TreeMap<>();
     final ArrayList<Method> methods = new ArrayList<>();
 
     private final boolean singleton;
 
-    public InstanceType() {
+    public Classifier() {
         this(false);
     }
 
-    public InstanceType(boolean singleton) {
+    public Classifier(boolean singleton) {
         this.singleton = singleton;
     }
 
-    public InstanceType addProperty(int index, String name, Type type, boolean writable, CharSequence documentation, Expression initializer) {
+    public Classifier addProperty(int index, String name, Type type, boolean writable, CharSequence documentation, Expression initializer) {
         propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, initializer, initializer == null));
         return this;
     }
 
-    public InstanceType addProperty(int index, String name, Type type, boolean writable, CharSequence documentation) {
+    public Classifier addProperty(int index, String name, Type type, boolean writable, CharSequence documentation) {
         propertyMap.put(name, new PropertyDescriptor(name, type, index, writable, documentation, null, false));
         return this;
     }
@@ -53,7 +53,7 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
 
     @Override
     public boolean isAssignableFrom(Type other) {
-        return other instanceof InstanceType && other.toString().equals(toString());
+        return other instanceof Classifier && other.toString().equals(toString());
     }
 
     @Override
@@ -136,11 +136,11 @@ public abstract class InstanceType<T extends Instance> extends AbstractType impl
 
         @Override
         public void printDocumentationDetail(AnnotatedStringBuilder asb) {
-            String ownerName = singleton ? InstanceType.this.toString().toLowerCase() : InstanceType.this.toString();
+            String ownerName = singleton ? Classifier.this.toString().toLowerCase() : Classifier.this.toString();
 
             asb.append(ownerName + "." + name + "\n\n", new Title());
             asb.append("Owner: ");
-            asb.append(ownerName, new DocumentedLink(InstanceType.this));
+            asb.append(ownerName, new DocumentedLink(Classifier.this));
             asb.append("\nType: ");
             asb.append(type.getName(), new DocumentedLink(type));
             asb.append("\n\n");

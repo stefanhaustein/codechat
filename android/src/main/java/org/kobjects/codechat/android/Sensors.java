@@ -10,16 +10,13 @@ import android.os.HandlerThread;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.lang.AbstractInstance;
+import org.kobjects.codechat.instance.AbstractInstance;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.ListType;
-import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 import static android.content.Context.SENSOR_SERVICE;
@@ -27,7 +24,7 @@ import static android.content.Context.SENSOR_SERVICE;
 public class Sensors extends AbstractInstance {
     static final private ListType TYPE_VECTOR = new ListType(Type.NUMBER);
 
-    static InstanceType TYPE = new InstanceType(true) {
+    static Classifier TYPE = new Classifier(true) {
         @Override
         public String getName() {
             return "Sensors";
@@ -97,7 +94,7 @@ public class Sensors extends AbstractInstance {
     }
 
     @Override
-    public InstanceType getType() {
+    public Classifier getType() {
         return TYPE;
     }
 

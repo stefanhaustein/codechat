@@ -18,7 +18,7 @@ dependencies {
 //    compile 'com.vanniktech:emoji-twitter:0.6.0-SNAPSHOT'
  //   compile 'com.android.support:27.0.2'
     compile 'com.android.support:design:27.0.2'
-    compile 'com.vanniktech:emoji-one:0.6.0-SNAPSHOT'
+    compile 'com.vanniktech:emoji-one:0.6-SNAPSHOT'
     provided 'com.google.android.things:androidthings:0.6-devpreview'
     compile project(':core')
 }

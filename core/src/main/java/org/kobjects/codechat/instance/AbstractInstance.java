@@ -1,9 +1,16 @@
-package org.kobjects.codechat.lang;
+package org.kobjects.codechat.instance;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.InstanceLink;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.lang.DependencyCollector;
+import org.kobjects.codechat.lang.Environment;
+import org.kobjects.codechat.lang.Formatting;
+import org.kobjects.codechat.lang.HasDependencies;
+import org.kobjects.codechat.lang.OnInstance;
+import org.kobjects.codechat.lang.Printable;
+import org.kobjects.codechat.lang.RootVariable;
+import org.kobjects.codechat.type.Classifier;
 
 public abstract class AbstractInstance implements Instance {
     protected final Environment environment;
@@ -17,7 +24,7 @@ public abstract class AbstractInstance implements Instance {
     }
 
     @Override
-    public void print(AnnotatedStringBuilder asb, Printable.Flavor flavor) {
+    public void print(AnnotatedStringBuilder asb, Flavor flavor) {
         String constantName = environment.getConstantName(this);
 
         if (flavor == Printable.Flavor.SAVE) {
@@ -43,7 +50,7 @@ public abstract class AbstractInstance implements Instance {
             asb.append("\n");
         } else {
             asb.append(" :: \n");
-            for (InstanceType.PropertyDescriptor propertyDescriptor : getType().properties()) {
+            for (Classifier.PropertyDescriptor propertyDescriptor : getType().properties()) {
                 Property property = getProperty(propertyDescriptor.index);
                 if (property instanceof MaterialProperty) {
                     MaterialProperty materialProperty = (MaterialProperty) property;
@@ -69,7 +76,7 @@ public abstract class AbstractInstance implements Instance {
 
     @Override
     public void getDependencies(DependencyCollector result) {
-        for (InstanceType.PropertyDescriptor propertyDescriptor : getType().properties()) {
+        for (Classifier.PropertyDescriptor propertyDescriptor : getType().properties()) {
             Property property = getProperty(propertyDescriptor.index);
             if (property instanceof MaterialProperty) {
                 Object value = property.get();
@@ -101,7 +108,7 @@ public abstract class AbstractInstance implements Instance {
 
     @Override
     public boolean needsTwoPhaseSerilaization() {
-        for (InstanceType.PropertyDescriptor propertyDescriptor : getType().properties()) {
+        for (Classifier.PropertyDescriptor propertyDescriptor : getType().properties()) {
             Property property = getProperty(propertyDescriptor.index);
             if (property instanceof MaterialProperty) {
                 MaterialProperty materialProperty = (MaterialProperty) property;
@@ -116,7 +123,7 @@ public abstract class AbstractInstance implements Instance {
     }
 
 
-    public abstract InstanceType<?> getType();
+    public abstract Classifier<?> getType();
 
 
     @Override

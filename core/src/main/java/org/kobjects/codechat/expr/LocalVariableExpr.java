@@ -6,10 +6,10 @@ import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.lang.LocalVariable;
 
-public class LocalVariableNode extends Expression {
+public class LocalVariableExpr extends Expression {
     public LocalVariable variable;
 
-    public LocalVariableNode(LocalVariable variable) {
+    public LocalVariableExpr(LocalVariable variable) {
         this.variable = variable;
     }
 
@@ -55,7 +55,7 @@ public class LocalVariableNode extends Expression {
     }
 
     @Override
-    public LocalVariableNode reconstruct(Expression... children) {
-        return new LocalVariableNode(variable);
+    public LocalVariableExpr reconstruct(Expression... children) {
+        return new LocalVariableExpr(variable);
     }
 }

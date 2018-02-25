@@ -23,7 +23,7 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.LoadExampleLink;
 import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
-import org.kobjects.codechat.lang.NativeFunction;
+import org.kobjects.codechat.function.NativeFunction;
 import org.kobjects.codechat.type.Type;
 
 public class AndroidEnvironment extends Environment implements Runnable {

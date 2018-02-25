@@ -3,10 +3,9 @@ package org.kobjects.codechat.parser;
 import java.util.TreeMap;
 
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.parser.ParsingEnvironment;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
 /**
@@ -36,7 +35,7 @@ public class FakeEnvironment implements ParsingEnvironment {
     }
 
     @Override
-    public InstanceType resolveInstanceType(String typeName) {
+    public Classifier resolveInstanceType(String typeName) {
         return environment.resolveInstanceType(typeName);
     }
 

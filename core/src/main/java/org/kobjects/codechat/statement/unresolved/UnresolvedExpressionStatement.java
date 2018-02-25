@@ -2,7 +2,7 @@ package org.kobjects.codechat.statement.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.FunctionInvocation;
+import org.kobjects.codechat.expr.InvocationExpr;
 import org.kobjects.codechat.expr.unresolved.UnresolvedExpression;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.ExpressionStatement;
@@ -33,7 +33,7 @@ public class UnresolvedExpressionStatement extends  UnresolvedStatement {
     public Statement resolve(ParsingContext parsingContext) {
         Expression resolved = expression.resolve(parsingContext, null);
         if (resolved.getType() instanceof FunctionType) {
-           return new ExpressionStatement(new FunctionInvocation(resolved, false));
+           return new ExpressionStatement(new InvocationExpr(resolved, false));
         }
         return new ExpressionStatement(resolved);
     }

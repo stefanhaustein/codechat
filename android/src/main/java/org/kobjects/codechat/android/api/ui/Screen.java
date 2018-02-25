@@ -7,19 +7,18 @@ import java.util.List;
 import org.kobjects.codechat.android.AndroidEnvironment;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.EditTextLink;
-import org.kobjects.codechat.annotation.LoadExampleLink;
-import org.kobjects.codechat.lang.AbstractInstance;
+import org.kobjects.codechat.instance.AbstractInstance;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.DependencyCollector;
-import org.kobjects.codechat.lang.LazyProperty;
-import org.kobjects.codechat.lang.MaterialProperty;
-import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.instance.LazyProperty;
+import org.kobjects.codechat.instance.MaterialProperty;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.SetType;
 
 public class Screen extends AbstractInstance {
 
-    public static final InstanceType<Screen> TYPE = new InstanceType<Screen>(true) {
+    public static final Classifier<Screen> TYPE = new Classifier<Screen>(true) {
         @Override
         public String getName() {
             return "Screen";
@@ -94,7 +93,7 @@ public class Screen extends AbstractInstance {
 
 
     public void clearAll() {
-        for (InstanceType.PropertyDescriptor propertyDescriptor : getType().properties()) {
+        for (Classifier.PropertyDescriptor propertyDescriptor : getType().properties()) {
             getProperty(propertyDescriptor.index).removeAllListeners();
         }
         allSprites.clear();
@@ -102,7 +101,7 @@ public class Screen extends AbstractInstance {
     }
 
     @Override
-    public InstanceType<Screen> getType() {
+    public Classifier<Screen> getType() {
         return TYPE;
     }
 

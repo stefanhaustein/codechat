@@ -5,24 +5,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.vanniktech.emoji.EmojiRange;
 import com.vanniktech.emoji.EmojiUtils;
 import com.vanniktech.emoji.emoji.Emoji;
+import java.util.List;
 import org.kobjects.codechat.android.AndroidEnvironment;
 import org.kobjects.codechat.android.Ticking;
-import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Collection;
 import org.kobjects.codechat.lang.EnumLiteral;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.LazyProperty;
-import org.kobjects.codechat.lang.MaterialProperty;
-import org.kobjects.codechat.lang.Property;
+import org.kobjects.codechat.instance.LazyProperty;
+import org.kobjects.codechat.instance.MaterialProperty;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.SetType;
-import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.Type;
 
 
 public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, Runnable {
-    public final static InstanceType TYPE = new ViewWrapperType<Sprite>() {
+    public final static Classifier TYPE = new ViewWrapperType<Sprite>() {
         @Override
         public String getName() {
             return "Sprite";
@@ -206,9 +207,11 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
             if (face.get() != lastFace) {
                 lastFace = face.get();
 
-                Emoji emoji = EmojiUtils.emojis(lastFace).get(0).emoji;
-
-                view.setImageDrawable(emoji.getDrawable(view.getContext()));
+                List<EmojiRange> emojis = EmojiUtils.emojis(lastFace);
+                if (emojis.size() > 0) {
+                    Emoji emoji = emojis.get(0).emoji;
+                    view.setImageDrawable(emoji.getDrawable(view.getContext()));
+                }
         //        view.setImageDrawable(new EmojiDrawable(lastFace));
             }
 
@@ -366,7 +369,7 @@ public class Sprite extends AbstractViewWrapper<ImageView> implements Ticking, R
 
 
     @Override
-    public InstanceType getType() {
+    public Classifier getType() {
         return TYPE;
     }
 

@@ -2,7 +2,7 @@ package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.Literal;
+import org.kobjects.codechat.expr.LiteralExpr;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
@@ -18,7 +18,7 @@ public class UnresolvedLiteral extends UnresolvedExpression {
 
     @Override
     public Expression resolve(ParsingContext parsingContext, Type expectedType) {
-        return new Literal(value);
+        return new LiteralExpr(value);
     }
 
     @Override

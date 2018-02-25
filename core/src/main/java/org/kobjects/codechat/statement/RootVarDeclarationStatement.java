@@ -3,13 +3,12 @@ package org.kobjects.codechat.statement;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.ClassDeclaration;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.FunctionExpression;
+import org.kobjects.codechat.expr.FunctionDeclaration;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.codechat.lang.RootVariable;
 import org.kobjects.codechat.parser.Parser;
-import org.kobjects.codechat.type.FunctionType;
 
 public class RootVarDeclarationStatement extends AbstractStatement {
     private final RootVariable variable;
@@ -38,8 +37,8 @@ public class RootVarDeclarationStatement extends AbstractStatement {
     @Override
     public void toString(AnnotatedStringBuilder sb, int indent) {
         if (variable.constant && !explicitType) {
-            if (expression instanceof FunctionExpression) {
-                ((FunctionExpression) expression).toString(sb, indent, variable.name);
+            if (expression instanceof FunctionDeclaration) {
+                ((FunctionDeclaration) expression).toString(sb, indent, variable.name);
                 return;
             }
             if (expression instanceof ClassDeclaration) {

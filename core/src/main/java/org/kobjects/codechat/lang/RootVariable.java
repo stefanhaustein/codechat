@@ -1,16 +1,10 @@
 package org.kobjects.codechat.lang;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.DocumentedLink;
-import org.kobjects.codechat.annotation.InstanceLink;
-import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.annotation.VariableLink;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.codechat.parser.ParsingEnvironment;
-import org.kobjects.codechat.type.FunctionType;
-import org.kobjects.codechat.type.InstanceType;
-import org.kobjects.codechat.type.MetaType;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.codechat.type.Typed;
 
 public class RootVariable implements HasDependencies, Printable {
     private final ParsingEnvironment parsingEnvironment;

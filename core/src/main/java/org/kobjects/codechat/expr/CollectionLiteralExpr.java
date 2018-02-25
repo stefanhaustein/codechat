@@ -11,12 +11,12 @@ import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
 
-public class CollectionLiteral extends Expression {
+public class CollectionLiteralExpr extends Expression {
     Expression[] elements;
     CollectionType type;
     Class collectionTypeClass;
 
-    public CollectionLiteral(Class collectionTypeClass, Expression... elements) {
+    public CollectionLiteralExpr(Class collectionTypeClass, Expression... elements) {
         this.collectionTypeClass = collectionTypeClass;
         this.elements = elements;
         Type elementType;
@@ -78,7 +78,7 @@ public class CollectionLiteral extends Expression {
     }
 
     @Override
-    public CollectionLiteral reconstruct(Expression... children) {
-        return new CollectionLiteral(collectionTypeClass, children);
+    public CollectionLiteralExpr reconstruct(Expression... children) {
+        return new CollectionLiteralExpr(collectionTypeClass, children);
     }
 }

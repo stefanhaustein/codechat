@@ -2,10 +2,9 @@ package org.kobjects.codechat.lang;
 
 import java.util.Arrays;
 import org.kobjects.codechat.annotation.AnnotatedCharSequence;
-import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.DocumentedLink;
 import org.kobjects.codechat.annotation.InstanceLink;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.expressionparser.ExpressionParser;
 
 public final class Formatting {

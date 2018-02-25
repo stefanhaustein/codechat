@@ -2,14 +2,12 @@ package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.lang.RootVariable;
-import org.kobjects.codechat.lang.UserMethod;
+import org.kobjects.codechat.instance.UserMethod;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.expr.ClassDeclaration;
-import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
 import org.kobjects.codechat.type.Type;
-import org.kobjects.codechat.type.UserClassType;
+import org.kobjects.codechat.type.UserClassifier;
 
 import java.util.ArrayList;
 import org.kobjects.codechat.type.unresolved.UnresolvedFunctionSignature;
@@ -56,7 +54,7 @@ public class UnresolvedClassDeclaration extends UnresolvedExpression {
 
   @Override
   public Expression resolve(final ParsingContext parsingContext, Type expectedType) {
-    final UserClassType type = new UserClassType(parsingContext.environment.getEnvironment());
+    final UserClassifier type = new UserClassifier(parsingContext.environment.getEnvironment());
 
     parsingContext.enqueue(new Runnable() {
       @Override

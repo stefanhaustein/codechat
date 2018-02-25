@@ -2,15 +2,14 @@ package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.Literal;
+import org.kobjects.codechat.expr.LiteralExpr;
 import org.kobjects.codechat.expr.MethodAccess;
-import org.kobjects.codechat.expr.PropertyAccess;
-import org.kobjects.codechat.lang.Method;
-import org.kobjects.codechat.lang.UserMethod;
+import org.kobjects.codechat.expr.PropertyAccessExpr;
+import org.kobjects.codechat.instance.Method;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.type.EnumType;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -30,13 +29,13 @@ public class UnresolvedPath extends UnresolvedExpression {
         Expression resolved = base.resolve(parsingContext, null);
         Type baseType = resolved.getType();
         if (baseType.getType() instanceof EnumType) {
-            return new Literal(((EnumType) baseType.getType()).getValue(propertyName));
+            return new LiteralExpr(((EnumType) baseType.getType()).getValue(propertyName));
         }
-        if (baseType instanceof InstanceType) {
-            InstanceType instanceType = (InstanceType) baseType;
+        if (baseType instanceof Classifier) {
+            Classifier instanceType = (Classifier) baseType;
             if (instanceType.hasProperty(propertyName)) {
-                InstanceType.PropertyDescriptor property = instanceType.getProperty(propertyName);
-                return new PropertyAccess(resolved, property);
+                Classifier.PropertyDescriptor property = instanceType.getProperty(propertyName);
+                return new PropertyAccessExpr(resolved, property);
             }
             if (instanceType.hasMethod(propertyName)) {
                 Method method = instanceType.getMethod(propertyName);

@@ -3,10 +3,10 @@ package org.kobjects.codechat.android.api.ui;
 import android.app.Activity;
 import android.view.View;
 import org.kobjects.codechat.android.AndroidEnvironment;
-import org.kobjects.codechat.lang.AbstractInstance;
-import org.kobjects.codechat.lang.MaterialProperty;
-import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.instance.AbstractInstance;
+import org.kobjects.codechat.instance.MaterialProperty;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
 public abstract class AbstractViewWrapper<T extends View> extends AbstractInstance implements Runnable {
@@ -81,7 +81,7 @@ public abstract class AbstractViewWrapper<T extends View> extends AbstractInstan
         opacity.set(0.0);
     }
 
-    public static abstract class ViewWrapperType<T extends AbstractViewWrapper> extends InstanceType<T> {
+    public static abstract class ViewWrapperType<T extends AbstractViewWrapper> extends Classifier<T> {
 
         protected ViewWrapperType() {
             addProperty(0, "x", Type.NUMBER, true,

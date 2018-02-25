@@ -3,17 +3,17 @@ package org.kobjects.codechat.expr;
 import java.util.Arrays;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.Function;
+import org.kobjects.codechat.function.Function;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.type.Type;
 
-public class FunctionInvocation extends Expression {
+public class InvocationExpr extends Expression {
 
     Expression base;
     boolean parens;
     Expression[] parameters;
 
-    public FunctionInvocation(Expression base, boolean parens, Expression... parameters) {
+    public InvocationExpr(Expression base, boolean parens, Expression... parameters) {
         this.base = base;
         this.parens = parens;
         this.parameters = parameters;
@@ -66,8 +66,8 @@ public class FunctionInvocation extends Expression {
     }
 
     @Override
-    public FunctionInvocation reconstruct(Expression... children) {
-        return new FunctionInvocation(children[0], parens, Arrays.copyOfRange(children, 1, children.length));
+    public InvocationExpr reconstruct(Expression... children) {
+        return new InvocationExpr(children[0], parens, Arrays.copyOfRange(children, 1, children.length));
     }
 
 }

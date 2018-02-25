@@ -6,12 +6,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.expr.ConstructorInvocation;
 import org.kobjects.codechat.expr.Expression;
 import org.kobjects.codechat.expr.MultiAssignment;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 import org.kobjects.expressionparser.ExpressionParser;
 
@@ -32,22 +31,22 @@ public class UnresolvedMultiAssignment extends UnresolvedExpression {
     @Override
     public MultiAssignment resolve(ParsingContext parsingContext, Type expectedType) {
 
-        Set<InstanceType.PropertyDescriptor> requiredFileds = new HashSet<>();
+        Set<Classifier.PropertyDescriptor> requiredFileds = new HashSet<>();
 
         boolean ctorBase = (base instanceof UnresolvedConstructor);
         Expression resolvedBase = ctorBase
             ? ((UnresolvedConstructor) base).resolve(parsingContext, true)
             : base.resolve(parsingContext, expectedType);
 
-        if (!(resolvedBase.getType() instanceof InstanceType)) {
+        if (!(resolvedBase.getType() instanceof Classifier)) {
             throw new ExpressionParser.ParsingException(base.start, base.end, "Multi-assignment base expression must be of tupe type (is: " + resolvedBase.getType() + ")", null);
         }
-        InstanceType type = (InstanceType) resolvedBase.getType();
+        Classifier type = (Classifier) resolvedBase.getType();
 
 
-        LinkedHashMap<InstanceType.PropertyDescriptor, Expression> resolvedElements = new LinkedHashMap<>();
+        LinkedHashMap<Classifier.PropertyDescriptor, Expression> resolvedElements = new LinkedHashMap<>();
         for (String key: elements.keySet()) {
-            InstanceType.PropertyDescriptor property = type.getProperty(key);
+            Classifier.PropertyDescriptor property = type.getProperty(key);
 
             UnresolvedExpression unresolved = elements.get(key);
             if (!property.writable) {
@@ -61,8 +60,8 @@ public class UnresolvedMultiAssignment extends UnresolvedExpression {
         }
 
         if (ctorBase) {
-            Iterable<InstanceType.PropertyDescriptor> propertyDescriptors = type.properties();
-            for (InstanceType.PropertyDescriptor properyDescriptor : propertyDescriptors) {
+            Iterable<Classifier.PropertyDescriptor> propertyDescriptors = type.properties();
+            for (Classifier.PropertyDescriptor properyDescriptor : propertyDescriptors) {
                 if (properyDescriptor.needsExplicitValue && !resolvedElements.containsKey(properyDescriptor)) {
                     throw new ExpressionParser.ParsingException(start, end, "Property '" + properyDescriptor.name + "' requires a value.", null);
                 }

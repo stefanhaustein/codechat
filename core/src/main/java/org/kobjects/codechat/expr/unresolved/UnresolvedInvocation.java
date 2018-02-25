@@ -1,15 +1,12 @@
 package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.expr.CollectionLiteral;
-import org.kobjects.codechat.expr.ConstructorInvocation;
+import org.kobjects.codechat.expr.CollectionLiteralExpr;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.FunctionInvocation;
-import org.kobjects.codechat.expr.InstanceReference;
+import org.kobjects.codechat.expr.InvocationExpr;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.parser.Parser;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.type.InstanceType;
 import org.kobjects.codechat.type.ListType;
 import org.kobjects.codechat.type.SetType;
 import org.kobjects.codechat.type.Type;
@@ -57,10 +54,10 @@ public class UnresolvedInvocation extends UnresolvedExpression {
             try {
                 String name = ((UnresolvedIdentifier) base).name;
                 if ("Set".equals(name)) {
-                    return new CollectionLiteral(SetType.class, resolved);
+                    return new CollectionLiteralExpr(SetType.class, resolved);
                 }
                 if ("List".equals(name)) {
-                    return new CollectionLiteral(ListType.class, resolved);
+                    return new CollectionLiteralExpr(ListType.class, resolved);
                 }
             } catch (Exception e) {
                 throw new ExpressionParser.ParsingException(start, end, e.getMessage(), e);
@@ -108,7 +105,7 @@ public class UnresolvedInvocation extends UnresolvedExpression {
             }
         }
 
-        return new FunctionInvocation(resolvedBase, parens, resolved);
+        return new InvocationExpr(resolvedBase, parens, resolved);
     }
 
     @Override

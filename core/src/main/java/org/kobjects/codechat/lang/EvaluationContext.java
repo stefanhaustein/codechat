@@ -1,6 +1,8 @@
 package org.kobjects.codechat.lang;
 
 
+import org.kobjects.codechat.instance.Instance;
+
 public class EvaluationContext {
     public final Environment environment;
     public final Object[] variables;

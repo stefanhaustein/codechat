@@ -6,8 +6,8 @@ import java.util.Map;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.EvaluationContext;
 import org.kobjects.codechat.lang.Formatting;
-import org.kobjects.codechat.lang.Instance;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.instance.Instance;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
 import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
@@ -15,9 +15,9 @@ import static org.kobjects.codechat.parser.Parser.PRECEDENCE_PATH;
 public class MultiAssignment extends Expression {
 
     final Expression base;
-    final LinkedHashMap<InstanceType.PropertyDescriptor, Expression> elements;
+    final LinkedHashMap<Classifier.PropertyDescriptor, Expression> elements;
 
-    public MultiAssignment(Expression base, LinkedHashMap<InstanceType.PropertyDescriptor, Expression> elements) {
+    public MultiAssignment(Expression base, LinkedHashMap<Classifier.PropertyDescriptor, Expression> elements) {
         this.base = base;
         this.elements = elements;
     }
@@ -25,8 +25,8 @@ public class MultiAssignment extends Expression {
     @Override
     public Object eval(EvaluationContext context) {
         Instance instance = (Instance) base.eval(context);
-        InstanceType type = (InstanceType) base.getType();
-        for (Map.Entry<InstanceType.PropertyDescriptor,Expression> entry : elements.entrySet()) {
+        Classifier type = (Classifier) base.getType();
+        for (Map.Entry<Classifier.PropertyDescriptor,Expression> entry : elements.entrySet()) {
             entry.getKey().set(instance, entry.getValue().eval(context));
         }
         return instance;
@@ -47,7 +47,7 @@ public class MultiAssignment extends Expression {
         base.toString(sb, indent);
         sb.append(" ::\n");
         String materializedIndent = Formatting.space(indent + 2);
-        for (Map.Entry<InstanceType.PropertyDescriptor,Expression> entry : elements.entrySet()) {
+        for (Map.Entry<Classifier.PropertyDescriptor,Expression> entry : elements.entrySet()) {
             sb.append(materializedIndent);
             sb.append(entry.getKey().name).append(" := ");
             entry.getValue().toString(sb, indent + 2);

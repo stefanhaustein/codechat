@@ -7,15 +7,17 @@ import java.util.TimerTask;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.annotation.InstanceLink;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.Literal;
-import org.kobjects.codechat.expr.OnExpression;
-import org.kobjects.codechat.expr.PropertyAccess;
+import org.kobjects.codechat.expr.LiteralExpr;
+import org.kobjects.codechat.expr.OnExpr;
+import org.kobjects.codechat.expr.PropertyAccessExpr;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.kobjects.codechat.instance.AbstractInstance;
+import org.kobjects.codechat.instance.Property;
 import org.kobjects.codechat.statement.Statement;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
 public class OnInstance extends AbstractInstance implements Property.PropertyListener {
@@ -37,16 +39,16 @@ public class OnInstance extends AbstractInstance implements Property.PropertyLis
     static Set<OnInstance> allOnInterval = new HashSet<OnInstance>();
 
     static Expression resolve(Expression expression, EvaluationContext context) {
-        if (expression instanceof PropertyAccess) {
-            PropertyAccess propertyAccess = (PropertyAccess) expression;
+        if (expression instanceof PropertyAccessExpr) {
+            PropertyAccessExpr propertyAccess = (PropertyAccessExpr) expression;
             Object base = propertyAccess.getChild(0).eval(context);
             Expression baseExpr;
           /*  if (base instanceof Instance) {
                 baseExpr = new InstanceReference(((Instance) base).getType(), ((Instance) base).getId());
             } else { */
-                baseExpr = new Literal(base);
+                baseExpr = new LiteralExpr(base);
             //}
-            return new PropertyAccess(baseExpr, propertyAccess.property);
+            return new PropertyAccessExpr(baseExpr, propertyAccess.property);
         } else {
             Expression[] children = new Expression[expression.getChildCount()];
             for (int i = 0; i < children.length; i++) {
@@ -61,7 +63,7 @@ public class OnInstance extends AbstractInstance implements Property.PropertyLis
         this.type = type;
     }
 
-    public void init(OnExpression onExpression, final EvaluationContext contextTemplate) {
+    public void init(OnExpr onExpression, final EvaluationContext contextTemplate) {
         detach();
         this.closure = onExpression.closure;
         this.contextTemplate = contextTemplate;
@@ -124,8 +126,8 @@ public class OnInstance extends AbstractInstance implements Property.PropertyLis
     }
 
     private void addAll(Expression expr, EvaluationContext context) {
-        if (expr instanceof PropertyAccess) {
-            Property property = ((PropertyAccess) expr).getProperty(context);
+        if (expr instanceof PropertyAccessExpr) {
+            Property property = ((PropertyAccessExpr) expr).getProperty(context);
             property.addListener(this);
             properties.add(property);
         }
@@ -180,7 +182,7 @@ public class OnInstance extends AbstractInstance implements Property.PropertyLis
         }
     }
 
-    public static class OnInstanceType extends InstanceType<OnInstance> {
+    public static class OnInstanceType extends Classifier<OnInstance> {
         private final String name;
         OnInstanceType(String name) {
             this.name = name;

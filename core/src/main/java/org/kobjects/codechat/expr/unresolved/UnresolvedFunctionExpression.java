@@ -2,7 +2,7 @@ package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.FunctionExpression;
+import org.kobjects.codechat.expr.FunctionDeclaration;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.Statement;
 import org.kobjects.codechat.statement.unresolved.UnresolvedStatement;
@@ -24,7 +24,7 @@ public class UnresolvedFunctionExpression extends UnresolvedExpression {
 
     @Override
     public Expression resolve(final ParsingContext parsingContext, Type expectedType) {
-        final FunctionExpression result = new FunctionExpression(id, signature.resolve(parsingContext),
+        final FunctionDeclaration result = new FunctionDeclaration(id, signature.resolve(parsingContext),
                 signature.parameterNames.toArray(new String[signature.parameterNames.size()]));
 
         parsingContext.enqueue(new Runnable() {

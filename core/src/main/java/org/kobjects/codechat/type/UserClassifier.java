@@ -1,21 +1,17 @@
 package org.kobjects.codechat.type;
 
-import java.util.ArrayList;
-import org.kobjects.codechat.annotation.AnnotatedString;
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Instance;
+import org.kobjects.codechat.instance.Instance;
 import org.kobjects.codechat.lang.Printable;
-import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.lang.SerializationContext;
-import org.kobjects.codechat.lang.UserClassInstance;
-import org.kobjects.codechat.lang.UserMethod;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.instance.UserClassInstance;
 
-public class UserClassType extends InstanceType<UserClassInstance> implements Instance, Printable {
+public class UserClassifier extends Classifier<UserClassInstance> implements Instance, Printable {
   private final Environment environment;
 
-  public UserClassType(Environment environment) {
+  public UserClassifier(Environment environment) {
     this.environment = environment;
   }
 

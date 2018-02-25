@@ -5,16 +5,14 @@ import android.util.TypedValue;
 import android.view.View;
 
 import org.kobjects.codechat.android.AndroidEnvironment;
-import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
-import org.kobjects.codechat.annotation.Title;
 import org.kobjects.codechat.lang.Environment;
-import org.kobjects.codechat.lang.Property;
-import org.kobjects.codechat.type.InstanceType;
+import org.kobjects.codechat.instance.Property;
+import org.kobjects.codechat.type.Classifier;
 import org.kobjects.codechat.type.Type;
 
 public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runnable {
 
-    public final static InstanceType TYPE = new ViewWrapperType<Text>() {
+    public final static Classifier TYPE = new ViewWrapperType<Text>() {
         @Override
         public String getName() {
             return "Text";
@@ -92,7 +90,7 @@ public class Text extends AbstractViewWrapper<AppCompatTextView> implements Runn
     }
 
     @Override
-    public InstanceType getType() {
+    public Classifier getType() {
         return TYPE;
     }
 

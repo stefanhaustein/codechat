@@ -2,8 +2,8 @@ package org.kobjects.codechat.expr.unresolved;
 
 import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.expr.Expression;
-import org.kobjects.codechat.expr.OnExpression;
-import org.kobjects.codechat.expr.PropertyAccess;
+import org.kobjects.codechat.expr.OnExpr;
+import org.kobjects.codechat.expr.PropertyAccessExpr;
 import org.kobjects.codechat.lang.OnInstance;
 import org.kobjects.codechat.parser.ParsingContext;
 import org.kobjects.codechat.statement.Statement;
@@ -27,13 +27,13 @@ public class UnresolvedOnExpression extends UnresolvedExpression {
     }
 
     @Override
-    public OnExpression resolve(ParsingContext parsingContext, Type expectedType) {
+    public OnExpr resolve(ParsingContext parsingContext, Type expectedType) {
         ParsingContext closureParsingContext = new ParsingContext(parsingContext, true);
 
         Expression resolved = expression.resolve(closureParsingContext, null);
 
         if (type == OnInstance.ON_CHANGE_TYPE) {
-            if (!(resolved instanceof PropertyAccess)) {
+            if (!(resolved instanceof PropertyAccessExpr)) {
                 throw new ExpressionParser.ParsingException(expression.start, expression.end, "property expected.", null);
             }
         } else if (type == OnInstance.ON_TYPE) {
@@ -50,7 +50,7 @@ public class UnresolvedOnExpression extends UnresolvedExpression {
 
         Statement resolvedBody = body.resolve(closureParsingContext);
 
-        return new OnExpression(type, id, resolved, resolvedBody, closureParsingContext.getClosure());
+        return new OnExpr(type, id, resolved, resolvedBody, closureParsingContext.getClosure());
     }
 
     @Override

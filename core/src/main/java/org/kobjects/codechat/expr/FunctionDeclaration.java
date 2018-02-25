@@ -4,11 +4,11 @@ import org.kobjects.codechat.annotation.AnnotatedStringBuilder;
 import org.kobjects.codechat.lang.Closure;
 import org.kobjects.codechat.lang.DependencyCollector;
 import org.kobjects.codechat.lang.EvaluationContext;
-import org.kobjects.codechat.lang.UserFunction;
+import org.kobjects.codechat.function.UserFunction;
 import org.kobjects.codechat.type.FunctionType;
 import org.kobjects.codechat.statement.Statement;
 
-public class FunctionExpression extends Expression {
+public class FunctionDeclaration extends Expression {
     private final FunctionType functionType;
     private final String[] parameterNames;
     private final int id;
@@ -17,7 +17,7 @@ public class FunctionExpression extends Expression {
     private Statement body;
 
 
-    public FunctionExpression(int id, FunctionType functionType, String[] parameterNames) {
+    public FunctionDeclaration(int id, FunctionType functionType, String[] parameterNames) {
         this.id = id;
         this.functionType = functionType;
         this.parameterNames = parameterNames;
@@ -72,8 +72,8 @@ public class FunctionExpression extends Expression {
     }
 
     @Override
-    public FunctionExpression reconstruct(Expression... children) {
-        FunctionExpression result = new FunctionExpression(id, functionType, parameterNames);
+    public FunctionDeclaration reconstruct(Expression... children) {
+        FunctionDeclaration result = new FunctionDeclaration(id, functionType, parameterNames);
         result.setBody(closure, body);
         return result;
     }
