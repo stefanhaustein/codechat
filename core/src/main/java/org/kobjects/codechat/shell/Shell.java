@@ -9,7 +9,6 @@ import org.kobjects.codechat.lang.Environment;
 import org.kobjects.codechat.lang.EnvironmentListener;
 import org.kobjects.codechat.lang.Formatting;
 import org.kobjects.codechat.parser.ParsingContext;
-import org.kobjects.codechat.type.Type;
 import org.kobjects.codechat.statement.ExpressionStatement;
 import org.kobjects.codechat.statement.Statement;
 

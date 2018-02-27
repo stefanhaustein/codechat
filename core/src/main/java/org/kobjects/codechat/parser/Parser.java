@@ -45,8 +45,8 @@ public class Parser {
 
     // public static final int PRECEDENCE_HASH = 8;
     public static final int PRECEDENCE_PREFIX = 11;
-    public static final int PRECEDENCE_PATH = 10;
-    public static final int PRECEDENCE_APPLY = 9;
+    public static final int PRECEDENCE_PATH = 9;  //
+    public static final int PRECEDENCE_APPLY = 10; //
     public static final int PRECEDENCE_POWER = 8;
     public static final int PRECEDENCE_SIGN = 7;
     public static final int PRECEDENCE_MULTIPLICATIVE = 6;
@@ -501,6 +501,7 @@ public class Parser {
                     name = "/=";
                     break;
                 case ".":
+                case "->":
                     if (!(right instanceof UnresolvedIdentifier)) {
                         throw new ExpressionParser.ParsingException(left.start, right.end, "Identifer expected for dot operator", null);
                     }
@@ -627,7 +628,7 @@ public class Parser {
         parser.addApplyBrackets(PRECEDENCE_APPLY, "(", ",", ")");
         parser.addOperators(ExpressionParser.OperatorType.SUFFIX, PRECEDENCE_APPLY, "{", "::");
 
-        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".");
+        parser.addOperators(ExpressionParser.OperatorType.INFIX, PRECEDENCE_PATH, ".", "->");
 
         parser.addOperators(ExpressionParser.OperatorType.INFIX_RTL, PRECEDENCE_POWER, "^", "\u221a");
         parser.addOperators(ExpressionParser.OperatorType.PREFIX, PRECEDENCE_SIGN, "+", "-", "\u221a", "\u00ac", "not");
