@@ -70,10 +70,10 @@ public class Parser {
     }
 
     private final Environment environment;
-    private final ExpressionParser<UnresolvedExpression, Void> expressionParser = createExpressionParser();
+    private final ExpressionParser<UnresolvedExpression> expressionParser = createExpressionParser();
 
     private UnresolvedExpression parseExpression(ExpressionParser.Tokenizer tokenizer) {
-        return expressionParser.parse(null, tokenizer);
+        return expressionParser.parse(tokenizer);
     }
 
     public Parser(Environment environment) {
@@ -454,7 +454,7 @@ public class Parser {
             if (!tokenizer.tryConsume("=")) {
                 tokenizer.consume(":=");
             }
-            assignments.put(propertyName, expressionParser.parse(null, tokenizer));
+            assignments.put(propertyName, expressionParser.parse(tokenizer));
             while (tokenizer.tryConsume(";")) {
             }
         }
@@ -463,10 +463,10 @@ public class Parser {
 
 
 
-    public class Processor extends ExpressionParser.Processor<UnresolvedExpression, Void> {
+    public class Processor extends ExpressionParser.Processor<UnresolvedExpression> {
 
         @Override
-        public UnresolvedExpression infixOperator(Void context, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression left, UnresolvedExpression right) {
+        public UnresolvedExpression infixOperator(ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression left, UnresolvedExpression right) {
             switch (name) {
                 case "and":
                     name = "\u2227";
@@ -511,7 +511,7 @@ public class Parser {
         }
 
         @Override
-        public UnresolvedExpression prefixOperator(Void context, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
+        public UnresolvedExpression prefixOperator(ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
             int start = argument.start - name.length();
             int end = argument.end;
             if (name.equals("new")) {
@@ -528,24 +528,24 @@ public class Parser {
         }
 
         @Override
-        public UnresolvedExpression suffixOperator(Void context, ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
+        public UnresolvedExpression suffixOperator(ExpressionParser.Tokenizer tokenizer, String name, UnresolvedExpression argument) {
             switch (name) {
                 case "::": return parseMultiAssignment(tokenizer, argument);
                 case "°": return new UnresolvedUnaryOperator(tokenizer.currentPosition - name.length(), tokenizer.currentPosition,'°', argument);
                 default:
-                    return super.suffixOperator(context, tokenizer, name, argument);
+                    return super.suffixOperator(tokenizer, name, argument);
             }
         }
 
         @Override
-        public UnresolvedExpression numberLiteral(Void context, ExpressionParser.Tokenizer tokenizer, String value) {
+        public UnresolvedExpression numberLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
             int end = tokenizer.currentPosition - tokenizer.leadingWhitespace.length();
             int start = tokenizer.currentPosition - value.length();
             return new UnresolvedLiteral(start, end, Double.parseDouble(value));
         }
 
         @Override
-        public UnresolvedExpression identifier(Void context, ExpressionParser.Tokenizer tokenizer, String name) {
+        public UnresolvedExpression identifier(ExpressionParser.Tokenizer tokenizer, String name) {
             int end = tokenizer.currentPosition - tokenizer.leadingWhitespace.length();
             int start = end - name.length();
 
@@ -573,41 +573,41 @@ public class Parser {
         }
 
         @Override
-        public UnresolvedExpression group(Void context, ExpressionParser.Tokenizer tokenizer, String paren, List<UnresolvedExpression> elements) {
+        public UnresolvedExpression group(ExpressionParser.Tokenizer tokenizer, String paren, List<UnresolvedExpression> elements) {
             return elements.get(0);
         }
 
         @Override
-        public UnresolvedExpression stringLiteral(Void context, ExpressionParser.Tokenizer tokenizer, String value) {
+        public UnresolvedExpression stringLiteral(ExpressionParser.Tokenizer tokenizer, String value) {
             int start = tokenizer.currentPosition - tokenizer.leadingWhitespace.length();
             int end = start - value.length();
             return new UnresolvedLiteral(start, end, ExpressionParser.unquote(value));
         }
 
         @Override
-        public UnresolvedExpression apply(Void context, ExpressionParser.Tokenizer tokenizer, UnresolvedExpression to, String bracket, List<UnresolvedExpression> parameterList) {
+        public UnresolvedExpression apply(ExpressionParser.Tokenizer tokenizer, UnresolvedExpression to, String bracket, List<UnresolvedExpression> parameterList) {
             if (bracket.equals("(")) {
                 return new UnresolvedInvocation(tokenizer.currentPosition, to, true, parameterList.toArray(new UnresolvedExpression[parameterList.size()]));
             }
             if (bracket.equals("[")) {
                 return new UnresolvedArrayExpression(tokenizer.currentPosition, to, parameterList.toArray(new UnresolvedExpression[parameterList.size()]));
             }
-            return super.apply(context, tokenizer, to, bracket, parameterList);
+            return super.apply(tokenizer, to, bracket, parameterList);
         }
 
         @Override
-        public UnresolvedExpression primary(Void context, ExpressionParser.Tokenizer tokenizer, String name) {
+        public UnresolvedExpression primary(ExpressionParser.Tokenizer tokenizer, String name) {
             switch (name) {
 
                 case "new": {
-                    UnresolvedExpression expr = expressionParser.parse(context, tokenizer);
+                    UnresolvedExpression expr = expressionParser.parse(tokenizer);
                     return new UnresolvedInvocation(tokenizer.currentPosition,
                             new UnresolvedIdentifier(tokenizer.currentPosition - name.length(), tokenizer.currentPosition,
                                 "new"), false, expr);
                 }
 
                 default:
-                    return super.primary(context, tokenizer, name);
+                    return super.primary(tokenizer, name);
             }
         }
     }
@@ -615,8 +615,8 @@ public class Parser {
     /**
      * Creates a parser for this processor with matching operations and precedences set up.
      */
-    ExpressionParser<UnresolvedExpression, Void> createExpressionParser() {
-        ExpressionParser<UnresolvedExpression, Void> parser = new ExpressionParser<>(new Processor());
+    ExpressionParser<UnresolvedExpression> createExpressionParser() {
+        ExpressionParser<UnresolvedExpression> parser = new ExpressionParser<>(new Processor());
 
         parser.addGroupBrackets("(", null, ")");
         // parser.addGroupBrackets("[", ",", "]");
